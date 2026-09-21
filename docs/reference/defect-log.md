@@ -7,6 +7,7 @@ read_when:
   - 메뉴바·플로팅 펫 등 상시 표시 애니메이션의 성능을 손볼 때
   - 스프라이트·이미지를 고정 크기 프레임에 그릴 때(비율 왜곡 부류)
   - 세이브 이전/병합·외부 파일 입력 경로를 만들 때
+  - 뷰가 네트워크 연결·타이머·세션 같은 외부 자원을 @State 로 쥘 때
 ---
 
 # 결함 대응 축적 규칙
@@ -823,3 +824,28 @@ read_when:
   자동 업데이트 시 앱 종료를 기다릴 때 `pgrep -x PokeTokenBar`를 쓰면, 중복 인스턴스가 살아있는 동안 루프를
   결코 빠져나오지 못하고 20초 타임아웃을 온전히 소모한다(#175). `ProcessInfo.processInfo.processIdentifier`로
   종료 대상 프로세스 PID를 전달하고 `kill -0 "$3"`로 특정 프로세스의 종료를 대기한다.
+
+## 뷰 수명과 외부 자원
+
+- **탭 전환은 뷰를 파괴하지만, 뷰가 심은 클로저는 그 뷰의 `@State` 상자를 계속 붙잡는다.** SwiftUI
+  뷰는 값 타입이라 "뷰가 사라지면 그 안의 것도 사라진다" 는 직관이 통하지 않는다 — 콜백이 뷰 구조체
+  복사본을 캡처하면 그 복사본이 `@State` 상자를 붙잡고, 상자가 세션과 트랜스포트를 붙잡아 화면 없이
+  살아남는다. `PopoverView` 의 `else if nav.tab == .trade { TradeView(store:) }` 는 탭을 옮기는 순간
+  `TradeView` 를 트리에서 걷어내는데, `TradeView` 에 `.onDisappear` 가 없어 고아가 된 `TradeSession` 이
+  상대의 `.accept` 를 계속 받아 `onReadyToCommit` → `CompanionStore.applyTradeCommit` 까지 실행했다.
+  **누수가 아니라 세이브 변경이 문제다** — 사용자가 다른 탭을 보는 사이 되돌릴 수 없는 변경이 일어나고,
+  그 백업 경로는 버려진 상자에 적혀 영영 화면에 안 뜬다. 게다가 탭으로 돌아오면 새 상자가 `.idle` 로
+  시작해, 아직 연결·광고 중인 고아 위에 두 번째 세션이 겹친다.
+  규율: **뷰가 네트워크 연결·타이머·`Task`·세션을 `@State` 로 쥐면 `.onDisappear` 에서 반드시 놓는다.**
+  해제는 참조를 버리기 전에 **콜백부터 nil 로** 끊어야 한다(`TradeView.releaseSession`) — 끊는 순서가
+  반대면 해제 도중 도착한 마지막 메시지가 여전히 커밋 경로를 탄다.
+  부류 스윕(2026-09-21): `Sources/PokeTokenBar/UI` 전수 — 외부 자원을 `@State` 로 쥔 뷰는
+  `SettingsView`(`customScanMatchTask`, `.onDisappear` 로 cancel 함)와 `TradeView` 둘뿐이었고,
+  `UI/` 밖에는 SwiftUI 뷰가 없다. `TradeView` 만 결함이었다.
+  **테스트가 못 걸렀던 이유**: 이 저장소는 SwiftUI 뷰를 단위 테스트하지 않는다(명세의 테스트 전략도
+  "UI 는 수동 확인" 으로 둔다). 그래서 `TradeSession` 커버리지가 아무리 높아도 **누가 세션을 놓는가**
+  라는 소유권 질문은 어느 테스트도 묻지 않는다. Core 계층에 남길 수 있는 가드는
+  `TradeSessionTests.testWeaklySelfCapturingCallbackDoesNotRetainTheSession` 처럼 "콜백이 세션을 붙잡지
+  않는가" 까지이고, "뷰가 사라질 때 놓는가" 는 수동 QA 항목으로만 남는다 — 그러니 이 부류는 테스트가
+  아니라 **코드 리뷰 체크 항목**으로 막는다: 새 뷰가 위 네 부류 중 하나를 `@State` 로 선언하면
+  `.onDisappear` 를 같은 diff 에서 확인한다.
