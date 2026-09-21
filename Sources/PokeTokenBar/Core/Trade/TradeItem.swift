@@ -45,4 +45,36 @@ enum TradeItem: Codable, Sendable {
         if case .activeMon = self { return true }
         return false
     }
+
+    /// 승인 화면·오퍼 피커가 그릴 스프라이트의 종 — 도감 항목은 도감이 보여주는 `finalID`, 육성 중
+    /// 개체는 지금 단계의 `currentID`. 화면은 이름과 함께 이 값을 `SpriteView` 에 그대로 넘긴다.
+    var displaySpeciesID: Int {
+        switch self {
+        case .dexEntry(let entry): return entry.finalID
+        case .activeMon(let mon): return mon.currentID
+        }
+    }
+
+    var displayIsShiny: Bool {
+        switch self {
+        case .dexEntry(let entry): return entry.isShiny
+        case .activeMon(let mon): return mon.isShiny
+        }
+    }
+
+    var displayUnownForm: UnownForm? {
+        switch self {
+        case .dexEntry(let entry): return entry.unownForm
+        case .activeMon(let mon): return mon.unownForm
+        }
+    }
+
+    /// 이름 조회의 기준 라인 — `PokeProviding.line(baseSpeciesID:)` 는 진화 전 단계를 기준으로 전체
+    /// 체인 이름을 돌려준다.
+    var displayBaseID: Int {
+        switch self {
+        case .dexEntry(let entry): return entry.baseID
+        case .activeMon(let mon): return mon.baseID
+        }
+    }
 }

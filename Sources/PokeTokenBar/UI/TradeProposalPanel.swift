@@ -9,6 +9,7 @@ struct TradeProposalPanel: View {
     let myOffer: TradeItem
     let theirOffer: TradeItem
     let overwriteWarning: String?
+    let store: CompanionStore
     let l: L
     let onAccept: () -> Void
     let onReject: () -> Void
@@ -38,7 +39,7 @@ struct TradeProposalPanel: View {
         HStack {
             Text(label).font(.caption).foregroundStyle(.secondary)
             Spacer()
-            Text(item.displayName(language: l.lang))
+            TradeItemRow(item: item, store: store)
             Text(item.rarity.rawValue.capitalized).font(.caption).foregroundStyle(.secondary)
         }
     }

@@ -105,6 +105,7 @@ struct TradeView: View {
                 myOffer: mine,
                 theirOffer: theirs,
                 overwriteWarning: store.tradeOverwriteWarning(forReceiving: theirs),
+                store: store,
                 l: l,
                 onAccept: { acceptProposal() },
                 onReject: { rejectProposal() })
@@ -208,7 +209,7 @@ struct TradeView: View {
             propose(item)
         } label: {
             HStack(spacing: 6) {
-                Text(offerLabel(for: item))
+                TradeItemRow(item: item, store: store, spriteSize: 24)
                 if let badge {
                     Text(badge).font(.caption2).foregroundStyle(.secondary)
                 }
@@ -260,16 +261,6 @@ struct TradeView: View {
                 }
             }
         }
-    }
-
-    /// 내 육성 중 개체는 로드된 진화 라인에 이름이 있으면 그걸 쓴다 — `TradeItem.displayName` 은 교환
-    /// 페이로드만 보므로 육성 중 개체에 대해서는 `#id` 로 떨어진다.
-    private func offerLabel(for item: TradeItem) -> String {
-        if case .activeMon(let mon) = item,
-           let name = store.currentLine?.localizedName(mon.currentID, store.language) {
-            return name
-        }
-        return item.displayName(language: store.language)
     }
 
     // MARK: 연결

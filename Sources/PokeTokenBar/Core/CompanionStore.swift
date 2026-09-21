@@ -1576,6 +1576,31 @@ final class CompanionStore {
     /// `applyTradeCommit` 이 돌려주는 백업 파일 경로(`lastBackupURL`)로 그 파일을 직접 선택해 연다.
     private var stateDirectory: URL { fileURL.deletingLastPathComponent() }
 
+    /// 교환 화면 첫 페인트용 — 네트워크 없이 지금 알 수 있는 최선의 이름. 내 육성 중 개체는 이미
+    /// 로드된 `currentLine` 이 같은 라인이면 즉시 정확한 이름이 나온다. 나머지 경우(상대 항목, 라인이
+    /// 아직 없는 내 개체)는 `TradeItem.displayName` 의 `#id` 로 시작하고 `resolveTradeItemName` 이 채운다.
+    func cachedTradeItemName(for item: TradeItem) -> String {
+        if case .activeMon(let mon) = item, let line = currentLine, line.baseID == mon.baseID {
+            return line.localizedName(mon.currentID, state.language)
+        }
+        return item.displayName(language: state.language)
+    }
+
+    /// 교환 항목의 정확한 이름 — 내 항목·상대 항목 모두 대상이다. 상대의 도감 항목은 페이로드에 실린
+    /// `names` 로 네트워크 없이 풀리고, 그 외(육성 중 개체 전부, 이름이 비어 있는 도감 항목)는
+    /// `dexNameLine` 으로 종 라인을 조회한다 — 상대 종이라도 PokeAPI 조회 자체는 우리 쪽에서 할 수
+    /// 있다. 오프라인이거나 조회가 실패하면 `TradeItem.displayName` 의 `#id` 로 물러난다.
+    func resolveTradeItemName(for item: TradeItem) async -> String {
+        if case .dexEntry(let entry) = item, let names = entry.names,
+           let resolved = state.language.resolveName(names[entry.finalID] ?? [:]) {
+            return resolved
+        }
+        guard let line = try? await dexNameLine(baseID: item.displayBaseID) else {
+            return item.displayName(language: state.language)
+        }
+        return line.localizedName(item.displaySpeciesID, state.language)
+    }
+
     /// 상대의 육성 중 개체를 받을 때 지금 가진 무언가가 사라진다는 경고 — 없으면 경고 불필요
     /// (받는 게 도감 항목이라 아무것도 안 사라짐). 지금 키우는 개체가 있으면 그 개체가, 없어도
     /// 유료 알 보증(eggTier)이나 부화 진행(eggUsage)이 있으면 그게 대신 사라진다 — 보증은 최대
