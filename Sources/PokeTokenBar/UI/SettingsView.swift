@@ -23,6 +23,7 @@ struct SettingsView: View {
     @State private var sessionKeyInput = ""
     @State private var isCheckingUpdate = false
     @State private var didCheckUpdate = false
+    @State private var tradeNicknameDraft = TradeIdentity.nickname()
     @State private var selectedScanProviderID = "claude_code"
     /// Provider the draft currently describes. Picker change updates `selectedScanProviderID`
     /// before the TextField blurs; committing against the selection would write Claude paths
@@ -67,6 +68,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 18) {
                         generalGroup(store)
                         difficultyGroup
+                        tradeIdentityGroup
                         menuBarGroup(store)
                         floatingPetGroup(store)
                         notificationsGroup(store)
@@ -243,6 +245,31 @@ struct SettingsView: View {
 
     private var difficultyGroup: some View {
         DifficultySettingsSection(companion: companion)
+    }
+
+    /// 교환 신원 — 세이브 이전의 기기 표기(`deviceName`)와는 별개 개념이라 자체 섹션으로 둔다.
+    /// 코드는 기기마다 한 번 생성돼 바뀌지 않으므로 표시만 한다.
+    private var tradeIdentityGroup: some View {
+        settingsSection(l.trade) {
+            groupRow {
+                Text(l.tradeNickname).font(.callout)
+                Spacer()
+                TextField(l.tradeNickname, text: $tradeNicknameDraft)
+                    .textFieldStyle(.roundedBorder)
+                    .labelsHidden()
+                    .frame(width: 160)
+                    // 입력마다 반영 — Enter 없이 설정을 닫는 사용자가 변경을 잃지 않게 한다.
+                    .onChange(of: tradeNicknameDraft) { _, draft in TradeIdentity.setNickname(draft) }
+            }
+            Divider()
+            groupRow {
+                Text(l.tradeMyCode).font(.callout)
+                Spacer()
+                Text(TradeIdentity.code())
+                    .font(.system(.callout, design: .monospaced))
+                    .textSelection(.enabled)
+            }
+        }
     }
 
     @ViewBuilder

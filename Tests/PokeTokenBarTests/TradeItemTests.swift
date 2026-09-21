@@ -106,4 +106,38 @@ final class TradeItemTests: XCTestCase {
         XCTAssertEqual(TradeItem.dexEntry(sampleEntry()).rarity, .common)
         XCTAssertEqual(TradeItem.activeMon(sampleMon()).rarity, .common)
     }
+
+    /// The proposal sheet identifies *which* Pokémon is leaving, and the peer's payload is all it
+    /// has — `DexEntry.names` travels with the entry, so the species name resolves without network.
+    func testDisplayNameResolvesDexEntryNameInSelectedLanguage() {
+        let entry = DexEntry(baseID: 1, finalID: 3, chainOrder: [1, 3], rarity: .common,
+                             caughtAt: Date(), names: [3: ["ko": "이상해꽃", "en": "Venusaur"]])
+        XCTAssertEqual(TradeItem.dexEntry(entry).displayName(language: .ko), "이상해꽃")
+        XCTAssertEqual(TradeItem.dexEntry(entry).displayName(language: .en), "Venusaur")
+    }
+
+    /// Older saves (and any entry whose names never loaded) must still name something the user can
+    /// look up, rather than rendering an empty row next to an irreversible Accept button.
+    func testDisplayNameFallsBackToSpeciesIDWhenNamesAreMissing() {
+        var entry = sampleEntry()
+        entry.finalID = 25
+        entry.names = nil
+        XCTAssertEqual(TradeItem.dexEntry(entry).displayName(language: .ko), "#25")
+        XCTAssertEqual(TradeItem.dexEntry(entry).displayName(language: .ja), "#25")
+    }
+
+    /// An entry that carries names for other chain members but not the final species must not fall
+    /// through to a neighbour's name — the row would then claim the wrong Pokémon.
+    func testDisplayNameFallsBackWhenFinalSpeciesHasNoNames() {
+        let entry = DexEntry(baseID: 1, finalID: 3, chainOrder: [1, 3], rarity: .common,
+                             caughtAt: Date(), names: [1: ["ko": "이상해씨", "en": "Bulbasaur"]])
+        XCTAssertEqual(TradeItem.dexEntry(entry).displayName(language: .ko), "#3")
+    }
+
+    /// `MonState` carries no name map, so the current species id is the honest answer.
+    func testDisplayNameUsesCurrentSpeciesIDForActiveMon() {
+        var mon = sampleMon()
+        mon.stageIndex = 1
+        XCTAssertEqual(TradeItem.activeMon(mon).displayName(language: .en), "#2")
+    }
 }

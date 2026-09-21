@@ -28,6 +28,18 @@ enum TradeItem: Codable, Sendable {
         }
     }
 
+    /// 승인 화면이 "무엇을" 주고받는지 밝히기 위한 표시 이름 — 희귀도만으론 되돌릴 수 없는 교환에서
+    /// 무엇이 나가는지 알 수 없다. `DexEntry.names` 가 페이로드에 함께 실려오므로 상대 항목의 종 이름도
+    /// 네트워크 없이 해석된다. 육성 중 개체는 이름 맵을 싣지 않아 `#id` 로 떨어진다.
+    func displayName(language: AppLanguage) -> String {
+        switch self {
+        case .dexEntry(let entry):
+            return entry.names?[entry.finalID].flatMap { language.resolveName($0) } ?? "#\(entry.finalID)"
+        case .activeMon(let mon):
+            return "#\(mon.currentID)"
+        }
+    }
+
     /// 육성 중 개체를 받을 때만 승인 전 경고문구가 필요하다.
     var isActiveMon: Bool {
         if case .activeMon = self { return true }
