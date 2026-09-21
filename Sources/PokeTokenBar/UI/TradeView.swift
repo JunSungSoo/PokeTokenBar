@@ -93,7 +93,7 @@ struct TradeView: View {
         case .waitingForPeerOffer:
             waitingWithRepick(l.tradeWaitingForPeerOffer)
         case .reviewingProposal(let mine, let theirs):
-            TradeProposalSheet(
+            TradeProposalPanel(
                 myOffer: mine,
                 theirOffer: theirs,
                 overwriteWarning: store.tradeOverwriteWarning(forReceiving: theirs),
@@ -287,9 +287,7 @@ struct TradeView: View {
     /// 그 외 경로는 Network 콜백 큐에서 비동기로 정확히 한 번 온다 — 어느 타이밍이든 도착한 결과로
     /// 단계를 갱신할 수 있게, 단계를 먼저 `.preparing` 으로 세운 뒤 듣기를 시작한다.
     private func fallBackToManual() {
-        // 자동 탐색은 여기서 끝난다 — 광고/탐색을 켠 채로 두면 상대는 이미 지나간 후보 목록에 계속 잡힌다.
-        multipeerTransport?.disconnect()
-        multipeerTransport = nil
+        releaseMultipeerTransport()
         discoveredPeers = []
         let transport = ManualTradeTransport()
         manualTransport = transport
@@ -334,6 +332,7 @@ struct TradeView: View {
     // MARK: 세션
 
     private func startSession(with transport: any TradeTransport) {
+        releaseSession()   // 폴백 경로는 세션을 갈아끼운다 — 옛 세션이 계속 이 화면에 콜백을 쏘면 안 된다.
         let newSession = TradeSession(transport: transport)
         newSession.onPeerIdentified = { identity in
             connectedPeer = TradePeer(id: identity.code, nickname: identity.nickname, code: identity.code)
@@ -356,10 +355,12 @@ struct TradeView: View {
                 phase = .reviewingProposal(mine: mine, theirs: theirs)
             }
         }
-        newSession.onReadyToCommit = { received in
+        newSession.onReadyToCommit = { [weak newSession] received in
             // `sending:` 은 반드시 로컬 제안이어야 한다 — 상대가 echo 한 값을 넣으면 정규화 없이 임의
             // 도감 항목을 지우는 통로가 된다(CompanionStore.applyTradeCommit 계약).
-            guard let myOffer = newSession.myOffer else { return }
+            // 세션이 사라졌으면 적용을 **시작하지도** 않는다 — 적용해 놓고 ack 를 못 보내는 것보다
+            // 아무것도 안 바꾼 채 멈추는 쪽이 안전하다(백업 실패 경로와 같은 방향).
+            guard let newSession, let myOffer = newSession.myOffer else { return }
             do {
                 lastBackupURL = try store.applyTradeCommit(sending: myOffer, receiving: received)
             } catch {
@@ -414,13 +415,35 @@ struct TradeView: View {
         resetToIdle()
     }
 
+    /// 세션 해제 — 참조를 버리기 전에 콜백부터 끊는다. 폴백으로 세션을 갈아끼우는 경로에서 옛 세션이
+    /// 아직 살아있는 동안(전송 계층이 마지막 콜백을 흘려보내는 동안) 이 화면의 단계를 덮어쓰면,
+    /// 사용자는 이미 버린 연결의 상대 이름을 단 채 엉뚱한 단계로 끌려간다.
+    private func releaseSession() {
+        guard let session else { return }
+        session.onPeerIdentified = nil
+        session.onOffersReady = nil
+        session.onReadyToCommit = nil
+        session.onCompleted = nil
+        session.onRejected = nil
+        session.onDisconnected = nil
+        session.disconnect()
+        self.session = nil
+    }
+
+    /// `disconnect()` 는 MCSession 만 끊는다 — 광고자/탐색자는 `stopDiscovery()` 로만 내려간다.
+    /// 둘 중 하나라도 빠뜨리면 앱이 계속 교환 서비스를 광고하고, 자동 수락된 초대가 이미 버린 세션을 깨운다.
+    private func releaseMultipeerTransport() {
+        multipeerTransport?.stopDiscovery()
+        multipeerTransport?.disconnect()
+        multipeerTransport = nil
+    }
+
     private func teardownConnection() {
         discoveryTimeout?.cancel()
         discoveryTimeout = nil
-        session?.disconnect()
-        multipeerTransport?.stopDiscovery()
-        session = nil
-        multipeerTransport = nil
+        releaseSession()
+        releaseMultipeerTransport()
+        manualTransport?.disconnect()
         manualTransport = nil
     }
 

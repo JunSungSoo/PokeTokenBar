@@ -203,4 +203,33 @@ final class TradeSessionTests: XCTestCase {
         XCTAssertTrue(identified)
         _ = sessionB
     }
+
+    /// The shape `TradeView.onReadyToCommit` originally had: a callback the session stores, capturing
+    /// the session strongly. That is a self-retain cycle, so dropping every outside reference leaks
+    /// the session *and* the transport it owns — and the leaked callbacks keep firing into the view
+    /// that let it go. Documented here because the leak is invisible at the call site.
+    func testStronglySelfCapturingCallbackLeaksTheSession() {
+        weak var leaked: TradeSession?
+        do {
+            let session = TradeSession(transport: InMemoryTradeTransport())
+            leaked = session
+            session.onCompleted = { _ = session.myOffer }
+        }
+        XCTAssertNotNil(leaked, "a strongly self-capturing callback keeps the session alive forever")
+
+        leaked?.onCompleted = nil
+        XCTAssertNil(leaked, "clearing the callback breaks the cycle")
+    }
+
+    /// Regression guard for the fix: capturing the session weakly lets it deallocate as soon as its
+    /// owner drops it, which also releases the transport underneath.
+    func testWeaklySelfCapturingCallbackDoesNotRetainTheSession() {
+        weak var observed: TradeSession?
+        do {
+            let session = TradeSession(transport: InMemoryTradeTransport())
+            observed = session
+            session.onCompleted = { [weak session] in _ = session?.myOffer }
+        }
+        XCTAssertNil(observed, "weak capture must let the session deallocate once its owner drops it")
+    }
 }

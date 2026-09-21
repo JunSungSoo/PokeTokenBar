@@ -5,7 +5,7 @@ import SwiftUI
 /// 팝오버 안에서는 `.sheet` 대신 교환 탭 본문으로 인라인 표시된다 — transient 팝오버가 닫힐 때 남는
 /// 고아 시트가 이후 모든 클릭을 먹는 기존 결함(`PopoverView` 상단 NOTE, `BagView`의 같은 회피) 때문이다.
 @MainActor
-struct TradeProposalSheet: View {
+struct TradeProposalPanel: View {
     let myOffer: TradeItem
     let theirOffer: TradeItem
     let overwriteWarning: String?
