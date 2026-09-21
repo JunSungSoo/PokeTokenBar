@@ -36,13 +36,20 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
     private var listener: NWListener?
     private var connection: NWConnection?
     private var frameBuffer = TCPFrameBuffer()
+    /// 현재 연결에 대해 onDisconnected 를 이미 알렸는지 — 종료는 stateUpdateHandler(.failed/.cancelled)
+    /// 와 receiveLoop 의 EOF 판정 양쪽에서 감지될 수 있어, 콜백은 그중 먼저 도착한 하나에만 반응해야 한다.
+    /// wire(_:) 가 새 연결을 걸 때마다 false 로 리셋된다.
+    private var disconnectNotified = false
     private let queue = DispatchQueue(label: "com.poketokenbar.trade-manual")
 
     /// 상대에게 보여줄 내 연결 코드("ip:port")를 completion 으로 전달한다. 포트는 시스템이 배정하는 임시
     /// 포트(NWEndpoint.Port.any) — 하드코딩된 포트는 같은 Mac 에서 두 인스턴스를 동시에 띄우는 테스트/QA
     /// 시나리오에서 두 번째 바인드가 실패한다. NWListener 는 포트 충돌 등 실패를 생성자가 아니라
     /// stateUpdateHandler(.failed) 로 비동기 보고하므로, completion 은 동기 반환값이 아니라 콜백이어야 한다.
-    /// 실패/성공 어느 경로든 completion 은 정확히 한 번만 호출된다.
+    /// 실패/성공 어느 경로든 completion 은 정확히 한 번만 호출되지만, 호출 시점은 경로마다 다르다 —
+    /// 로컬 IPv4 를 못 찾거나 리스너 생성 자체가 실패하면 이 함수가 반환하기 전에(호출자 스레드에서)
+    /// 동기 호출되고, 그 외의 성공/실패는 Network 프레임워크 콜백 큐에서 비동기 호출된다. 호출측은
+    /// 두 타이밍 모두를 처리해야 한다.
     func startListening(completion: @escaping @Sendable (String?) -> Void) {
         guard let address = Self.currentIPv4Address(),
               let newListener = try? NWListener(using: .tcp, on: .any) else {
@@ -98,10 +105,16 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
         connection.start(queue: queue)
     }
 
+    /// 이전 연결이 남아있으면 취소하고(옛 stateUpdateHandler 가 계속 콜백을 쏘는 것을 막는다), 새 연결을 건다.
+    /// connectManually 를 연달아 두 번 호출하는 경로(사용자가 코드를 잘못 입력해 다시 시도하는 등)에서 필요하다.
     private func wire(_ connection: NWConnection) {
         lock.lock()
+        let previousConnection = self.connection
         self.connection = connection
+        frameBuffer = TCPFrameBuffer()
+        disconnectNotified = false
         lock.unlock()
+        previousConnection?.cancel()
 
         connection.stateUpdateHandler = { [weak self] state in
             switch state {
@@ -109,20 +122,45 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
                 self?.onConnected?()
                 self?.receiveLoop(on: connection)
             case .failed, .cancelled:
-                self?.onDisconnected?()
+                self?.handleConnectionTerminated(connection)
             default:
                 break
             }
         }
     }
 
+    /// 연결 종료를 딱 한 번만 알린다 — stateUpdateHandler(.failed/.cancelled)와 receiveLoop 의 EOF 판정이
+    /// 동시에 도착할 수 있어, 나중에 도착한 신호는 무시한다(R20/R21 계열 — 죽은 연결에 send 가 성공한
+    /// 것처럼 보이는 것을 막는다). 이 connection 이 이미 다른 연결로 교체됐다면(wire 가 다시 불렸다면)
+    /// 아무 것도 하지 않는다 — 새 연결의 상태를 옛 연결의 종료로 덮어쓰면 안 된다.
+    private func handleConnectionTerminated(_ terminatedConnection: NWConnection) {
+        lock.lock()
+        guard connection === terminatedConnection else {
+            lock.unlock()
+            return
+        }
+        connection = nil
+        let alreadyNotified = disconnectNotified
+        disconnectNotified = true
+        lock.unlock()
+        guard !alreadyNotified else { return }
+        onDisconnected?()
+    }
+
     private func receiveLoop(on connection: NWConnection) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, isComplete, error in
             guard let self else { return }
             var decodedMessages: [TradeMessage] = []
+            var frameTooLarge = false
             if let data, !data.isEmpty {
                 self.lock.lock()
-                let frames = self.frameBuffer.append(data)
+                let frames: [Data]
+                do {
+                    frames = try self.frameBuffer.append(data)
+                } catch {
+                    frames = []
+                    frameTooLarge = true
+                }
                 self.lock.unlock()
                 for frame in frames {
                     if let message = try? JSONDecoder().decode(TradeMessage.self, from: frame) {
@@ -133,8 +171,11 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
             for message in decodedMessages {
                 self.onMessageReceived?(message)
             }
-            if isComplete || error != nil {
-                self.onDisconnected?()
+            if frameTooLarge {
+                connection.cancel()   // 조작된 길이 프리픽스 — 조용히 멈추는 대신 연결을 끊는다(R23).
+                self.handleConnectionTerminated(connection)
+            } else if isComplete || error != nil {
+                self.handleConnectionTerminated(connection)
             } else {
                 self.receiveLoop(on: connection)
             }
@@ -161,9 +202,18 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
         let currentListener = listener
         connection = nil
         listener = nil
+        frameBuffer = TCPFrameBuffer()   // 다음 연결의 프레이밍을 이전 연결의 잔여 바이트로 오염시키지 않는다.
+        let alreadyNotified = disconnectNotified
+        disconnectNotified = true
         lock.unlock()
         currentConnection?.cancel()
         currentListener?.cancel()
+        // connection 이 있었을 때만 알린다 — 연결 전(리스너만 취소하는 경우)엔 아무 것도 끊어진 게 없다.
+        // NWConnection.cancel() 의 나중 stateUpdateHandler(.cancelled) 콜백은 connection 이 이미 nil 이라
+        // handleConnectionTerminated 에서 조용히 무시된다(중복 통지 방지).
+        if currentConnection != nil, !alreadyNotified {
+            onDisconnected?()
+        }
     }
 
     /// en0/en1 IPv4 — Mac 의 일반적인 Wi-Fi/이더넷 인터페이스만 본다(가상/루프백 인터페이스 제외).
