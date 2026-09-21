@@ -355,6 +355,11 @@ struct TradeView: View {
                 phase = .reviewingProposal(mine: mine, theirs: theirs)
             }
         }
+        newSession.onOfferWithdrawn = {
+            // 심사 화면은 제안이 도착한 순간의 스냅샷이라, 상대가 거둬도 없는 물건을 계속 약속한다 —
+            // 되돌릴 수 없는 승인 버튼 옆에 둘 수 없으므로 대기 단계로 물린다. 내 제안은 그대로 둔다.
+            if case .reviewingProposal = phase { phase = .waitingForPeerOffer }
+        }
         newSession.onReadyToCommit = { [weak newSession] received in
             // `sending:` 은 반드시 로컬 제안이어야 한다 — 상대가 echo 한 값을 넣으면 정규화 없이 임의
             // 도감 항목을 지우는 통로가 된다(CompanionStore.applyTradeCommit 계약).
@@ -422,6 +427,7 @@ struct TradeView: View {
         guard let session else { return }
         session.onPeerIdentified = nil
         session.onOffersReady = nil
+        session.onOfferWithdrawn = nil
         session.onReadyToCommit = nil
         session.onCompleted = nil
         session.onRejected = nil

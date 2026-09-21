@@ -20,6 +20,8 @@ final class TradeSession {
 
     var onPeerIdentified: (((nickname: String, code: String)) -> Void)?
     var onOffersReady: ((_ mine: TradeItem, _ theirs: TradeItem) -> Void)?
+    /// 상대가 제안을 거뒀다 — 심사 화면이 이미 없는 물건을 계속 보여주지 않게 알린다.
+    var onOfferWithdrawn: (() -> Void)?
     var onReadyToCommit: ((_ received: TradeItem) -> Void)?
     var onRejected: ((String) -> Void)?
     var onDisconnected: (() -> Void)?
@@ -100,6 +102,7 @@ final class TradeSession {
         case .offerWithdrawn:
             theirOffer = nil
             invalidateAcceptsBeforeCommit()
+            onOfferWithdrawn?()
         case .accept:
             theirAcceptReceived = true
             commitIfBothAccepted()

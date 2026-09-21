@@ -21,10 +21,14 @@ private final class InMemoryTradeTransport: TradeTransport, @unchecked Sendable 
         peer.onMessageReceived?(message)
     }
 
+    /// 실제 트랜스포트 두 구현체 모두 끊는 쪽에도 onDisconnected 를 준다(MCSession 의 .notConnected,
+    /// ManualTradeTransport.disconnect) — 상대에게만 알리던 이 스텁은 그만큼 현실과 달랐다.
     func disconnect() {
-        let disconnectedPeer = peer
+        guard let disconnectedPeer = peer else { return }
         peer = nil
-        disconnectedPeer?.onDisconnected?()
+        disconnectedPeer.peer = nil
+        disconnectedPeer.onDisconnected?()
+        onDisconnected?()
     }
 }
 
@@ -174,14 +178,22 @@ final class TradeSessionTests: XCTestCase {
     func testDuplicateCommitAckDoesNotRefireCompletion() async {
         let (sessionA, sessionB) = makeConnectedSessions()
         var completedCountA = 0
+        var commitFiredA = false
+        var commitFiredB = false
         sessionA.onCompleted = { completedCountA += 1 }
+        sessionA.onReadyToCommit = { _ in commitFiredA = true }
+        sessionB.onReadyToCommit = { _ in commitFiredB = true }
 
         sessionA.proposeOffer(.dexEntry(sampleEntry(baseID: 1)))
         sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 2)))
-        sessionA.accept()
-        sessionB.accept()
+        // 오퍼가 도착하기 전에 accept() 하면 늦게 온 .offer 가 그 accept 를 무효화해 커밋에 이르지 못한다 —
+        // 그러면 이 테스트는 이름과 달리 "중복 ack" 경로를 밟지 않는다.
         let bothReady = await waitUntil { sessionA.theirOffer != nil && sessionB.theirOffer != nil }
         XCTAssertTrue(bothReady)
+        sessionA.accept()
+        sessionB.accept()
+        let bothCommitted = await waitUntil { commitFiredA && commitFiredB }
+        XCTAssertTrue(bothCommitted, "the duplicate-ack path is only reachable after a real commit")
 
         sessionA.confirmLocalCommit()
         sessionB.confirmLocalCommit()
@@ -231,5 +243,91 @@ final class TradeSessionTests: XCTestCase {
             session.onCompleted = { [weak session] in _ = session?.myOffer }
         }
         XCTAssertNil(observed, "weak capture must let the session deallocate once its owner drops it")
+    }
+
+    func testWithdrawnOfferNotifiesTheReviewingSide() async {
+        // 상대가 제안을 거두면 심사 화면에 남은 스냅샷은 이미 없는 물건을 약속한다 — 그 화면의
+        // 승인 버튼은 commitIfBothAccepted 의 theirOffer 가드에 걸려 아무 일도 하지 않는다.
+        let (sessionA, sessionB) = makeConnectedSessions()
+        var withdrawnSeenByB = false
+        var commitFiredB = false
+        sessionB.onOfferWithdrawn = { withdrawnSeenByB = true }
+        sessionB.onReadyToCommit = { _ in commitFiredB = true }
+
+        sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 9)))
+        sessionA.proposeOffer(.dexEntry(sampleEntry(baseID: 1)))
+        let offerSeen = await waitUntil { sessionB.theirOffer != nil }
+        XCTAssertTrue(offerSeen)
+
+        sessionA.withdrawOffer()
+        let withdrawn = await waitUntil { withdrawnSeenByB }
+        XCTAssertTrue(withdrawn, "the reviewing side must be told the offer is gone")
+        XCTAssertNil(sessionB.theirOffer)
+
+        sessionB.accept()
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertFalse(commitFiredB, "accepting a withdrawn offer must not commit")
+    }
+
+    func testWithdrawnOfferKeepsTheLocalOffer() async {
+        // 상대가 거둬도 내가 낸 것은 그대로다 — 다시 고르게 만들면 승인 직전에 화면이 뒤로 밀린다.
+        let (sessionA, sessionB) = makeConnectedSessions()
+        sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 9)))
+        sessionA.proposeOffer(.dexEntry(sampleEntry(baseID: 1)))
+        let offerSeen = await waitUntil { sessionB.theirOffer != nil }
+        XCTAssertTrue(offerSeen)
+
+        sessionA.withdrawOffer()
+        let withdrawn = await waitUntil { sessionB.theirOffer == nil }
+        XCTAssertTrue(withdrawn)
+        XCTAssertNotNil(sessionB.myOffer)
+    }
+
+    func testDisconnectBeforeCommitNotifiesBothSidesAndCommitsNothing() async {
+        // 명세의 테스트 전략이 요구하는 "중도 연결 끊김" 케이스 — 제안까지 오간 뒤 끊기면 어느 쪽도
+        // 커밋에 이르지 않고, 양쪽이 끊김을 통보받아야 화면이 매달리지 않는다.
+        let (sessionA, sessionB) = makeConnectedSessions()
+        var disconnectedA = false
+        var disconnectedB = false
+        var commitFiredA = false
+        var commitFiredB = false
+        sessionA.onDisconnected = { disconnectedA = true }
+        sessionB.onDisconnected = { disconnectedB = true }
+        sessionA.onReadyToCommit = { _ in commitFiredA = true }
+        sessionB.onReadyToCommit = { _ in commitFiredB = true }
+
+        sessionA.proposeOffer(.dexEntry(sampleEntry(baseID: 1)))
+        sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 2)))
+        let bothOffered = await waitUntil { sessionA.theirOffer != nil && sessionB.theirOffer != nil }
+        XCTAssertTrue(bothOffered)
+
+        sessionA.accept()   // A 는 승인까지 했지만 B 의 승인 전에 끊긴다
+        sessionB.disconnect()
+
+        let bothNotified = await waitUntil { disconnectedA && disconnectedB }
+        XCTAssertTrue(bothNotified, "both sides must learn the connection is gone")
+        XCTAssertFalse(commitFiredA)
+        XCTAssertFalse(commitFiredB)
+    }
+
+    func testAcceptAfterDisconnectDoesNotCommit() async {
+        // 끊긴 뒤 승인 버튼이 아직 화면에 남아 눌리는 경로 — send 가 실패해 myAcceptSent 가 서지 않으므로
+        // 커밋에 이르면 안 된다(상대는 아무 것도 못 받았는데 내 세이브만 바뀌는 상황).
+        let (sessionA, sessionB) = makeConnectedSessions()
+        var commitFiredA = false
+        sessionA.onReadyToCommit = { _ in commitFiredA = true }
+
+        sessionA.proposeOffer(.dexEntry(sampleEntry(baseID: 1)))
+        sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 2)))
+        let bothOffered = await waitUntil { sessionA.theirOffer != nil && sessionB.theirOffer != nil }
+        XCTAssertTrue(bothOffered)
+        sessionB.accept()
+        let theirAcceptArrived = await waitUntil { sessionA.theirOffer != nil }
+        XCTAssertTrue(theirAcceptArrived)
+
+        sessionA.disconnect()
+        sessionA.accept()
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertFalse(commitFiredA, "a failed accept send must not reach commit")
     }
 }
