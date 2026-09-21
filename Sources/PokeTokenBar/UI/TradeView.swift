@@ -48,6 +48,7 @@ struct TradeView: View {
     @State private var manualCodeInvalid = false
     @State private var discoveryTimeout: Task<Void, Never>?
     @State private var lastBackupURL: URL?
+    @State private var connectFailed = false
 
     private var l: L { store.l }
 
@@ -58,6 +59,10 @@ struct TradeView: View {
             phaseContent
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // 탭 전환·팝오버 닫힘은 이 뷰를 파괴하지만, startSession 이 심은 클로저들이 뷰 구조체 복사본을
+        // 통해 @State 상자를 붙잡아 세션과 트랜스포트는 살아남는다 — 화면 없이 상대의 accept 를 받아
+        // applyTradeCommit 까지 실행하고(세이브가 조용히 바뀐다) 백업 위치는 버려진 상자에 적힌다.
+        .onDisappear { teardownConnection() }
     }
 
     // MARK: 신원 헤더
@@ -106,7 +111,7 @@ struct TradeView: View {
             VStack(alignment: .leading, spacing: 8) {
                 waitingRow(l.tradeWaitingForPeerConfirm)
                 backupHint
-                Button(l.close) { resetToIdle() }
+                Button(l.close) { closeFromCommitting() }
             }
         case .completed:
             outcomeContent(title: l.tradeCompleted, showsBackupHint: true)
@@ -125,6 +130,14 @@ struct TradeView: View {
             ForEach(discoveredPeers) { peer in
                 Button("\(peer.nickname) (\(peer.code))") { connect(to: peer) }
             }
+            if connectFailed {
+                Text(l.tradeConnectFailed)
+                    .font(.caption).foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            // 초대가 응답 없이 만료되는 경우엔 트랜스포트가 아무 신호도 주지 않고, 자동 폴백 타이머는
+            // 피어를 하나라도 찾았으면 물러난다 — 그래서 수동 연결로 가는 길을 사람이 직접 낼 수 있어야 한다.
+            Button(l.tradeSwitchToManual) { fallBackToManual() }
             Button(l.cancel) { resetToIdle() }
         }
     }
@@ -287,8 +300,11 @@ struct TradeView: View {
     /// 그 외 경로는 Network 콜백 큐에서 비동기로 정확히 한 번 온다 — 어느 타이밍이든 도착한 결과로
     /// 단계를 갱신할 수 있게, 단계를 먼저 `.preparing` 으로 세운 뒤 듣기를 시작한다.
     private func fallBackToManual() {
+        discoveryTimeout?.cancel()
+        discoveryTimeout = nil
         releaseMultipeerTransport()
         discoveredPeers = []
+        connectFailed = false
         let transport = ManualTradeTransport()
         manualTransport = transport
         startSession(with: transport)
@@ -303,10 +319,18 @@ struct TradeView: View {
         phase = .manualFallback(listener: code.map { .ready(code: $0) } ?? .unavailable, connecting: connecting)
     }
 
+    /// 탐색 타임아웃은 여기서 끄지 않는다 — 연결이 확정되는 `onPeerIdentified` 에서만 끈다.
+    /// 초대를 보낸 것만으로 폴백 경로를 지우면, 초대가 끝내 성사되지 않을 때 `.searching` 에 갇힌다.
     private func connect(to peer: TradePeer) {
         guard let multipeerTransport else { return }
-        discoveryTimeout?.cancel()
-        try? multipeerTransport.connect(to: peer)
+        do {
+            try multipeerTransport.connect(to: peer)
+            connectFailed = false
+        } catch {
+            // 목록이 오래돼 사라진 상대이거나 이미 다른 상대와 교환 중이다 — 행을 지우고 사람에게 알린다.
+            discoveredPeers.removeAll { $0.id == peer.id }
+            connectFailed = true
+        }
     }
 
     private func connectManually() {
@@ -453,6 +477,14 @@ struct TradeView: View {
         manualTransport = nil
     }
 
+    /// `.committing` 은 이미 로컬 커밋이 끝난 뒤라 `resetToIdle` 로 보내면 명세가 요구하는 백업 위치·복구
+    /// 안내와 "상대 적용 여부 불확실" 표시가 한 번의 클릭으로 사라진다 — 파일은 남아도 이름을 잃는다.
+    /// 연결만 끊고, 연결 끊김 경로와 같은 `.uncertain` 으로 보낸다(의미상 실제로 불확실한 상태다).
+    private func closeFromCommitting() {
+        teardownConnection()
+        phase = .uncertain
+    }
+
     private func resetToIdle() {
         teardownConnection()
         discoveredPeers = []
@@ -460,6 +492,7 @@ struct TradeView: View {
         manualCodeInput = ""
         manualCodeInvalid = false
         lastBackupURL = nil
+        connectFailed = false
         phase = .idle
     }
 }

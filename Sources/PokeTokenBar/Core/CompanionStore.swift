@@ -1610,7 +1610,8 @@ final class CompanionStore {
         }
         save()
         if state.active != nil { Task { await loadCurrentLine() } }
-        AppLog.write("trade committed — sent=\(sentItem.rarity.rawValue) received=\(sanitizedReceived.rarity.rawValue)")
+        // 백업 파일명까지 남긴다 — 커밋 직후 교환 탭을 떠나면 화면의 백업 안내는 사라지고 로그만 남는다.
+        AppLog.write("trade committed — sent=\(sentItem.rarity.rawValue) received=\(sanitizedReceived.rarity.rawValue) backup=\(backupURL.lastPathComponent)")
         return backupURL
     }
 
