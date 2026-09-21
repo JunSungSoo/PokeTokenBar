@@ -5,9 +5,14 @@ import MultipeerConnectivity
 /// Wi-Fi/블루투스 중 무엇을 쓸지는 프레임워크가 알아서 고른다 — 두 계층을 따로 구현하지 않는다.
 /// MCSession 델리게이트는 프레임워크 자체 큐에서 호출되므로 이 클래스는 @MainActor 가 아니다 —
 /// 소비자(TradeSession)가 Task { @MainActor in … } 로 직접 hop 한다(NetworkReachabilityMonitor 와 동일 관례).
+/// `discoveredPeers`/`advertiser`/`browser` 는 델리게이트 큐(쓰기)와 호출자 스레드(읽기)에서 동시에
+/// 접근되므로 NSLock 으로 보호한다(Ruling R19) — NetworkReachabilityMonitor 의 lock 관례와 동일하게,
+/// 락은 항상 값을 복사/교체하는 짧은 구간만 잡고 onPeerFound/onPeerLost 등 콜백은 락을 놓은 뒤 호출한다.
 final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendable {
     /// Bonjour 서비스 타입 — 1~15자, 소문자/숫자/하이픈만(애플 규격).
     static let serviceType = "ptb-trade"
+    /// discoveryInfo 딕셔너리의 코드 키 — startDiscovery 와 makeTradePeer 양쪽에서 공유해 값이 드리프트할 여지를 없앤다.
+    static let discoveryInfoCodeKey = "code"
 
     var onPeerFound: (@Sendable (TradePeer) -> Void)?
     var onPeerLost: (@Sendable (String) -> Void)?
@@ -22,6 +27,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         session.delegate = self
         return session
     }()
+    private let lock = NSLock()
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
     private var discoveredPeers: [String: MCPeerID] = [:]
@@ -36,7 +42,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
 
     /// discoveryInfo 파싱을 순수 함수로 분리 — 네트워크 스택 없이 단위 테스트 가능하게 한다.
     static func makeTradePeer(displayName: String, discoveryInfo: [String: String]?) -> TradePeer {
-        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?["code"] ?? "????")
+        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?[discoveryInfoCodeKey] ?? "????")
     }
 
     /// MCPeerID(displayName:) 는 비어있지 않고 UTF-8 로 63바이트 이하인 이름을 요구하며 위반 시 트랩한다.
@@ -54,26 +60,43 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     }
 
     func startDiscovery() {
-        let advertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: ["code": code],
-                                                    serviceType: Self.serviceType)
-        advertiser.delegate = self
-        advertiser.startAdvertisingPeer()
-        self.advertiser = advertiser
+        let newAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: [Self.discoveryInfoCodeKey: code],
+                                                       serviceType: Self.serviceType)
+        newAdvertiser.delegate = self
 
-        let browser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: Self.serviceType)
-        browser.delegate = self
-        browser.startBrowsingForPeers()
-        self.browser = browser
+        let newBrowser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: Self.serviceType)
+        newBrowser.delegate = self
+
+        lock.lock()
+        advertiser = newAdvertiser
+        browser = newBrowser
+        lock.unlock()
+
+        newAdvertiser.startAdvertisingPeer()
+        newBrowser.startBrowsingForPeers()
     }
 
     func stopDiscovery() {
-        advertiser?.stopAdvertisingPeer(); advertiser = nil
-        browser?.stopBrowsingForPeers(); browser = nil
+        lock.lock()
+        let currentAdvertiser = advertiser
+        let currentBrowser = browser
+        advertiser = nil
+        browser = nil
+        lock.unlock()
+
+        currentAdvertiser?.stopAdvertisingPeer()
+        currentBrowser?.stopBrowsingForPeers()
     }
 
     func connect(to peer: TradePeer) throws {
-        guard let mcPeer = discoveredPeers[peer.id], let browser else { throw TradeTransportError.notConnected }
-        browser.invitePeer(mcPeer, to: session, withContext: nil, timeout: 15)
+        lock.lock()
+        let mcPeer = discoveredPeers[peer.id]
+        let currentBrowser = browser
+        lock.unlock()
+
+        // 상대가 더 이상 discoveredPeers 에 없는 경우를 나타내는 전용 케이스가 없어 notConnected 를 재사용한다.
+        guard let mcPeer, let currentBrowser else { throw TradeTransportError.notConnected }
+        currentBrowser.invitePeer(mcPeer, to: session, withContext: nil, timeout: 15)
     }
 
     func send(_ message: TradeMessage) throws {
@@ -113,12 +136,16 @@ extension MultipeerTradeTransport: MCSessionDelegate {
 
 extension MultipeerTradeTransport: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+        lock.lock()
         discoveredPeers[peerID.displayName] = peerID
+        lock.unlock()
         onPeerFound?(Self.makeTradePeer(displayName: peerID.displayName, discoveryInfo: info))
     }
 
     func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        lock.lock()
         discoveredPeers.removeValue(forKey: peerID.displayName)
+        lock.unlock()
         onPeerLost?(peerID.displayName)
     }
 }
