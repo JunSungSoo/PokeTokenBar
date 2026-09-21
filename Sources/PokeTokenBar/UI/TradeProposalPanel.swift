@@ -40,7 +40,7 @@ struct TradeProposalPanel: View {
             Text(label).font(.caption).foregroundStyle(.secondary)
             Spacer()
             TradeItemRow(item: item, store: store)
-            Text(item.rarity.rawValue.capitalized).font(.caption).foregroundStyle(.secondary)
+            Text(l.rarityLabel(item.rarity)).font(.caption).foregroundStyle(.secondary)
         }
     }
 }
