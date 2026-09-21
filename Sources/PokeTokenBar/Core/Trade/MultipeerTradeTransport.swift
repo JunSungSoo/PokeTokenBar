@@ -1,8 +1,11 @@
 import Foundation
 import MultipeerConnectivity
 
-/// 같은 Wi-Fi/LAN 또는 블루투스 범위의 상대를 자동으로 찾아 연결하는 기본 트랜스포트.
-/// Wi-Fi/블루투스 중 무엇을 쓸지는 프레임워크가 알아서 고른다 — 두 계층을 따로 구현하지 않는다.
+/// 같은 Wi-Fi/LAN 의 상대를 자동으로 찾아 연결하는 기본 트랜스포트.
+/// **지원 범위는 Wi-Fi/LAN 까지다 — 블루투스는 보류(미지원·미검증)다.** MultipeerConnectivity 는
+/// 전송 수단을 프레임워크가 고르고 그것을 끄는 공개 API 가 없어, 블루투스 PAN 이 기회적으로 쓰일 수는
+/// 있다. 다만 그 경로는 검증하지 않으며 동작을 보장하지 않는다 — 블루투스 전용 환경의 결함은
+/// 지원 대상이 아니고, UI 문구도 블루투스를 약속하지 않는다.
 /// MCSession 델리게이트는 프레임워크 자체 큐에서 호출되므로 이 클래스는 @MainActor 가 아니다 —
 /// 소비자(TradeSession)가 Task { @MainActor in … } 로 직접 hop 한다(NetworkReachabilityMonitor 와 동일 관례).
 /// `discoveredPeers`/`advertiser`/`browser` 는 델리게이트 큐(쓰기)와 호출자 스레드(읽기)에서 동시에

@@ -18,7 +18,7 @@ private final class OneShotGate: @unchecked Sendable {
     }
 }
 
-/// 자동 탐색(MultipeerTradeTransport)이 상대를 못 찾을 때의 폴백 — Bonjour/블루투스 탐색 없이
+/// 자동 탐색(MultipeerTradeTransport)이 상대를 못 찾을 때의 폴백 — Bonjour 탐색 없이
 /// 사람이 IP:포트 코드를 직접 교환해 TCP로 연결한다. 탐색 자체는 하지 않는다(startDiscovery/stopDiscovery 는
 /// 의도된 no-op, connect(to:) 는 throw).
 /// `listener`/`connection`/`frameBuffer` 는 Network 프레임워크 콜백 큐(쓰기)와 호출자 스레드(읽기,
