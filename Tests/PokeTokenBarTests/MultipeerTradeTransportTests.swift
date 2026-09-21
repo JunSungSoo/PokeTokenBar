@@ -112,4 +112,35 @@ final class MultipeerTradeTransportTests: XCTestCase {
         XCTAssertNotEqual(MultipeerTradeTransport.tiebreakKey(displayName: "ab", code: "c"),
                           MultipeerTradeTransport.tiebreakKey(displayName: "a", code: "bc"))
     }
+
+    // MARK: NB2 — 응답 없이 만료된 초대가 남아 그 상대의 이후 초대를 계속 거절하면 안 된다.
+
+    func testExpiredInvitationIsClearedWhenNoNewerInvitationWentOut() {
+        XCTAssertTrue(MultipeerTradeTransport.shouldClearExpiredInvitation(
+            currentGeneration: 1, expiringGeneration: 1, hasPartner: false))
+    }
+
+    func testExpiryOfAnOlderInvitationLeavesTheNewerOneAlone() {
+        // 먼저 건 타이머가 뒤늦게 깨어나 방금 나간 초대를 지우면, 그 초대가 교차했을 때 양쪽이 수락해
+        // 연결이 둘 생긴다 — 정확히 C2 가 막으려던 상태로 돌아간다.
+        XCTAssertFalse(MultipeerTradeTransport.shouldClearExpiredInvitation(
+            currentGeneration: 2, expiringGeneration: 1, hasPartner: false))
+    }
+
+    func testExpiryDoesNothingOnceAPartnerIsFixed() {
+        XCTAssertFalse(MultipeerTradeTransport.shouldClearExpiredInvitation(
+            currentGeneration: 1, expiringGeneration: 1, hasPartner: true))
+    }
+
+    func testClearedInvitationLetsThatPeerBeAcceptedAgain() {
+        // 만료 정리의 목적 — 지운 뒤에는 그 상대의 초대가 tiebreak 에 걸리지 않고 통과해야 한다.
+        let myKey = MultipeerTradeTransport.tiebreakKey(displayName: "Alice", code: "AAAA")
+        let theirKey = MultipeerTradeTransport.tiebreakKey(displayName: "Bob", code: "BBBB")
+        XCTAssertFalse(MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Bob", partner: nil, invited: "Bob", myKey: myKey, theirKey: theirKey),
+            "while our invitation is live the lower-keyed side must refuse")
+        XCTAssertTrue(MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Bob", partner: nil, invited: nil, myKey: myKey, theirKey: theirKey),
+            "once the expired invitation is cleared their invitation must be accepted")
+    }
 }

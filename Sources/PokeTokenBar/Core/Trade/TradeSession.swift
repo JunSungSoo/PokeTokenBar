@@ -12,7 +12,9 @@ final class TradeSession {
     private(set) var myOffer: TradeItem?
     private(set) var theirOffer: TradeItem?
     private var myAcceptSent = false
-    private var theirAcceptReceived = false
+    /// `theirOffer` 와 같은 등급의 관측 가능한 세션 상태 — "상대 승인이 도착했는가" 는 커밋 가능 여부를
+    /// 가르는 조건이라 밖에서 읽을 수 있어야 한다.
+    private(set) var theirAcceptReceived = false
     private var committed = false
     private var localCommitAckSent = false
     private var remoteCommitAckReceived = false

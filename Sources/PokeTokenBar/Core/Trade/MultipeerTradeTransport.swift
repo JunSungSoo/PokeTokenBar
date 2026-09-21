@@ -33,6 +33,12 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     private var partnerPeerID: MCPeerID?
     /// 내가 방금 초대한 상대 — 초대가 교차했는지 판정하는 데만 쓴다.
     private var invitedPeerID: MCPeerID?
+    /// 초대마다 증가 — 만료 정리 타이머가 자기가 건 초대만 지우게 한다.
+    private var inviteGeneration = 0
+    /// `invitePeer(timeout:)` 과 만료 정리에 같은 시한을 쓴다 — 둘이 어긋나면 초대가 끝난 뒤에도
+    /// `invitedPeerID` 가 남거나 아직 살아있는 초대가 먼저 지워진다.
+    private static let invitationTimeoutSeconds: TimeInterval = 15
+    private let invitationQueue = DispatchQueue(label: "com.poketokenbar.trade-multipeer")
 
     /// nickname 은 Settings 에서 자유롭게 입력한 텍스트라 비어있거나 63바이트를 넘을 수 있다 —
     /// MCPeerID(displayName:) 는 그런 값에 트랩하므로 생성 전에 반드시 클램프한다(Ruling R5).
@@ -60,6 +66,16 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         if let partner { return partner == peer }
         guard invited == peer else { return true }
         return myKey >= theirKey
+    }
+
+    /// 만료된 초대를 지워도 되는가. 응답 없이 끝난 초대가 `invitedPeerID` 에 남으면 그 상대의 이후
+    /// 정당한 초대를 tiebreak 가 계속 거절하고, 상대 쪽엔 아무 신호도 가지 않는다(오늘은 취소 후
+    /// 트랜스포트를 새로 만드는 것 말고 회복 수단이 없다).
+    /// 그 사이 더 새 초대가 나갔으면 세대가 어긋나므로 그 초대의 타이머에 맡기고 건드리지 않는다.
+    /// 상대가 이미 정해졌다면 `invitedPeerID` 는 `.connected` 에서 이미 비워졌다.
+    static func shouldClearExpiredInvitation(currentGeneration: Int, expiringGeneration: Int,
+                                             hasPartner: Bool) -> Bool {
+        currentGeneration == expiringGeneration && !hasPartner
     }
 
     /// discoveryInfo 파싱을 순수 함수로 분리 — 네트워크 스택 없이 단위 테스트 가능하게 한다.
@@ -115,13 +131,34 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         let mcPeer = discoveredPeers[peer.id]
         let currentBrowser = browser
         let alreadyPaired = partnerPeerID != nil
-        if let mcPeer, currentBrowser != nil, !alreadyPaired { invitedPeerID = mcPeer }
+        // 초대를 실제로 보내는 조건과 `invitedPeerID` 를 세우는 조건이 같아야 한다 — throw 하는 경로에서
+        // 세우면 보내지도 않은 초대가 tiebreak 를 막는다.
+        var pendingGeneration: Int?
+        if let mcPeer, currentBrowser != nil, !alreadyPaired {
+            invitedPeerID = mcPeer
+            inviteGeneration += 1
+            pendingGeneration = inviteGeneration
+        }
         lock.unlock()
 
         // 상대가 더 이상 discoveredPeers 에 없는 경우를 나타내는 전용 케이스가 없어 notConnected 를 재사용한다.
-        guard let mcPeer, let currentBrowser, !alreadyPaired else { throw TradeTransportError.notConnected }
+        guard let mcPeer, let currentBrowser, let pendingGeneration else { throw TradeTransportError.notConnected }
+        // 초대가 아무 신호 없이 만료될 수 있어(상대가 응답하지 않는 경우) 같은 시한으로 직접 정리한다.
+        invitationQueue.asyncAfter(deadline: .now() + Self.invitationTimeoutSeconds) { [weak self] in
+            self?.clearInvitationIfExpired(generation: pendingGeneration)
+        }
         // 교차 초대 판정에 쓸 내 코드를 실어 보낸다 — 받는 쪽은 discoveryInfo 없이 이 값만으로 순서를 정한다.
-        currentBrowser.invitePeer(mcPeer, to: session, withContext: Data(code.utf8), timeout: 15)
+        currentBrowser.invitePeer(mcPeer, to: session, withContext: Data(code.utf8),
+                                  timeout: Self.invitationTimeoutSeconds)
+    }
+
+    private func clearInvitationIfExpired(generation: Int) {
+        lock.lock()
+        let expired = Self.shouldClearExpiredInvitation(currentGeneration: inviteGeneration,
+                                                        expiringGeneration: generation,
+                                                        hasPartner: partnerPeerID != nil)
+        if expired { invitedPeerID = nil }
+        lock.unlock()
     }
 
     func send(_ message: TradeMessage) throws {
@@ -162,12 +199,15 @@ extension MultipeerTradeTransport: MCSessionDelegate {
             guard isPartner else { return }
             onConnected?()
         case .notConnected:
+            // 교차 초대에서 거절된 쪽 초대가 **이미 연결된 같은 peerID** 로 .notConnected 를 몰고 올 수 있다 —
+            // 프레임워크가 실제로 그 상대를 끊었을 때만 끊김으로 취급한다(아니면 살아있는 교환이 리셋된다).
+            let stillConnected = session.connectedPeers.contains(peerID)
             lock.lock()
             let isPartner = partnerPeerID == peerID
-            if isPartner { partnerPeerID = nil }
-            if invitedPeerID == peerID { invitedPeerID = nil }
+            if isPartner, !stillConnected { partnerPeerID = nil }
+            if invitedPeerID == peerID, !stillConnected { invitedPeerID = nil }
             lock.unlock()
-            guard isPartner else { return }
+            guard isPartner, !stillConnected else { return }
             onDisconnected?()
         case .connecting: break
         @unknown default: break

@@ -321,10 +321,15 @@ final class TradeSessionTests: XCTestCase {
         sessionB.proposeOffer(.dexEntry(sampleEntry(baseID: 2)))
         let bothOffered = await waitUntil { sessionA.theirOffer != nil && sessionB.theirOffer != nil }
         XCTAssertTrue(bothOffered)
+        // 상대 승인이 **실제로 도착한 뒤에** 끊어야 이 테스트가 이름이 말하는 경로를 밟는다 —
+        // 이미 참인 조건(theirOffer != nil)을 기다리면 승인이 안 왔어도 통과해, 커밋이 애초에 불가능해서
+        // 통과한 것과 끊김 때문에 막힌 것을 구별하지 못한다.
         sessionB.accept()
-        let theirAcceptArrived = await waitUntil { sessionA.theirOffer != nil }
-        XCTAssertTrue(theirAcceptArrived)
+        let theirAcceptArrived = await waitUntil { sessionA.theirAcceptReceived }
+        XCTAssertTrue(theirAcceptArrived, "B's accept must reach A before the disconnect")
 
+        // 이 시점 A 는 myOffer·theirOffer·theirAcceptReceived 를 모두 갖췄고 아직 커밋 전이다 —
+        // 커밋을 막는 것은 오직 accept 전송 실패뿐이다.
         sessionA.disconnect()
         sessionA.accept()
         try? await Task.sleep(nanoseconds: 50_000_000)
