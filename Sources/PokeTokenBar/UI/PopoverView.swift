@@ -27,6 +27,19 @@ final class PopoverNavigation {
     /// 설정을 열 때 고급 섹션을 펼친 채로 시작할지. 세션 키 행이 접힌 disclosure 안에 살아서,
     /// 그냥 설정만 열면 "만료됐다"를 보고 들어온 사용자가 고칠 입력란을 못 찾는다.
     var expandAdvancedOnOpen = false
+    /// 교환이 연결을 쥐고 있는 동안 참. 팝오버는 `.transient` 라 바깥을 한 번만 클릭해도 닫히고,
+    /// 닫힘은 `TradeView.onDisappear` 의 세션 정리로 이어져 진행 중이던 교환이 통째로 사라진다
+    /// (실측: 상대를 탐색하던 중 다른 창을 누르면 다시 열었을 때 홈·초기 상태). 그 정리 자체는
+    /// 화면 없는 커밋을 막는 장치라 없앨 수 없으므로, **교환 중에만** 팝오버가 바깥 클릭에 닫히지
+    /// 않게 `AppDelegate` 가 이 값을 보고 동작을 바꾼다.
+    var tradeSessionActive = false {
+        didSet {
+            guard oldValue != tradeSessionActive else { return }
+            onTradeSessionActiveChanged?(tradeSessionActive)
+        }
+    }
+    /// `AppDelegate` 가 팝오버 동작을 바꾸도록 연결한다. 뷰가 AppKit 을 직접 알지 않게 하는 통로다.
+    var onTradeSessionActiveChanged: ((Bool) -> Void)?
 
     func reset() {
         showSettings = false

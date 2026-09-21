@@ -6,6 +6,9 @@ import SwiftUI
 @MainActor
 struct TradeView: View {
     let store: CompanionStore
+    /// 교환이 진행되는 동안 팝오버가 바깥 클릭에 닫히지 않게 알린다 — 닫히면 `onDisappear` 가
+    /// 세션을 정리해 교환이 사라진다(`PopoverNavigation.tradeSessionActive` 주석 참고).
+    @Environment(PopoverNavigation.self) private var navigation
 
     /// 수동 폴백의 리스너 상태. "아직 준비 중"과 "만들지 못함"을 `String?` 하나로 합치면 준비 중인
     /// 몇 밀리초 동안 실패 안내가 뜬다.
@@ -272,6 +275,7 @@ struct TradeView: View {
     // MARK: 연결
 
     private func startAutomaticDiscovery() {
+        navigation.tradeSessionActive = true
         let transport = MultipeerTradeTransport(nickname: TradeIdentity.nickname(), code: TradeIdentity.code())
         transport.onPeerFound = { peer in Task { @MainActor in addDiscoveredPeer(peer) } }
         transport.onPeerLost = { peerID in
@@ -469,6 +473,7 @@ struct TradeView: View {
     }
 
     private func teardownConnection() {
+        navigation.tradeSessionActive = false
         discoveryTimeout?.cancel()
         discoveryTimeout = nil
         releaseSession()

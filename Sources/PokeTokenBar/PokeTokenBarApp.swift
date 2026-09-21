@@ -105,6 +105,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
         popover.behavior = .transient
         popover.delegate = self   // didShow: outside-click monitor; didClose: 호스팅 해제 + 모니터 제거
+        // 교환이 연결을 쥐고 있는 동안만 바깥 클릭으로 닫히지 않게 한다 — 닫히면 세션이 정리돼
+        // 진행 중이던 교환이 사라지기 때문이다(PopoverNavigation.tradeSessionActive 주석 참고).
+        navigation.onTradeSessionActiveChanged = { [weak self] active in
+            self?.popover.behavior = active ? .applicationDefined : .transient
+        }
 
         observeStore()
         observeCompanionSprite()
@@ -572,6 +577,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
                 Task { @MainActor in
                     guard let self, self.popover.isShown else { return }
+                    // 이 모니터는 .transient 가 못 잡는 바깥 클릭을 대신 닫아주는 장치라,
+                    // 교환 중 팝오버를 붙잡아 두는 .applicationDefined 를 그대로 무력화한다.
+                    guard !self.navigation.tradeSessionActive else { return }
                     self.popover.performClose(nil)
                 }
             }
