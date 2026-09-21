@@ -694,6 +694,17 @@ struct L {
     var dexEmptyTitle: String { t("아직 잡은 포켓몬이 없어요!", "No Pokémon caught yet!", "まだ捕まえたポケモンがいません！", "¡Todavía no has capturado ningún Pokémon!", "Aucun Pokémon capturé pour l'instant !", "Você ainda não capturou nenhum Pokémon!", "Du hast noch kein Pokémon gefangen!") }
     var dexEmptyHint: String { t("토큰을 써서 첫 포켓몬을 부화시켜 보세요.", "Spend tokens to hatch your first Pokémon.", "トークンを使って最初のポケモンを孵化させましょう。", "Usa tokens para eclosionar tu primer Pokémon.", "Dépense des tokens pour faire éclore ton premier Pokémon.", "Use tokens para chocar seu primeiro Pokémon.", "Verwende Tokens, damit dein erstes Pokémon schlüpft.") }
 
+    // MARK: 교환 (P2P Trade)
+    func tradeOverwriteWarning(name: String, percent: Int) -> String {
+        t("상대방이 육성중인 개체를 받으면 지금 키우는 \(name)(진행도 \(percent)%)가 사라집니다.",
+          "Receiving the other trainer's Pokémon in training will delete your current \(name) (progress \(percent)%).",
+          "相手が育成中のポケモンを受け取ると、今育てている\(name)（進捗\(percent)%）が消えます。",
+          "Si recibes el Pokémon en crianza del otro entrenador, se eliminará tu \(name) actual (progreso \(percent)%).",
+          "Si tu reçois le Pokémon en cours d'élevage de l'autre dresseur, ton \(name) actuel (progression \(percent)%) sera supprimé.",
+          "Se você receber o Pokémon em treinamento do outro treinador, seu \(name) atual (progresso \(percent)%) será apagado.",
+          "Wenn du das im Training befindliche Pokémon des anderen Trainers erhältst, wird dein aktuelles \(name) (Fortschritt \(percent)%) gelöscht.")
+    }
+
     // MARK: 도감 요약 헤더
     var dexTitle: String { t("도감", "Pokédex", "図鑑", "Pokédex", "Pokédex", "Pokédex", "Pokédex") }
     func dexTotal(_ n: Int) -> String { t("총 \(n)마리", "\(n) total", "全\(n)匹", "\(n) en total", "\(n) au total", "\(n) no total", "\(n) insgesamt") }

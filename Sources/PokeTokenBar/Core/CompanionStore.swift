@@ -1562,6 +1562,95 @@ final class CompanionStore {
         }
     }
 
+    // MARK: 교환 (P2P Trade)
+
+    /// 백업 파일이 있는 디렉터리 — UI 의 "Finder 에서 열기"/복구 안내에 쓰인다.
+    var stateDirectory: URL { fileURL.deletingLastPathComponent() }
+
+    /// 상대의 육성 중 개체를 받을 때, 지금 키우는 개체가 사라진다는 경고 — 없으면 경고 불필요
+    /// (내가 알 상태이거나 받는 게 도감 항목이라 아무것도 안 사라짐).
+    func tradeOverwriteWarning(forReceiving item: TradeItem) -> String? {
+        guard item.isActiveMon, let active = state.active else { return nil }
+        let percent = Int((Double(active.usedAtStage) / Double(max(1, stageThreshold(for: active)))) * 100)
+        let name = currentLine?.localizedName(active.currentID, state.language) ?? "#\(active.currentID)"
+        return l.tradeOverwriteWarning(name: name, percent: percent)
+    }
+
+    /// 교환 커밋 적용 — 백업 → 낸 항목 제거 → 받은 항목 추가. 백업을 못 남기면 **적용하지 않고**
+    /// throw 한다(SaveTransfer.applySave 와 동일 원칙 — 확인창이 되돌릴 수단을 약속했으니 그 약속을
+    /// 못 지키는 채로 진행하면 사용자는 되돌릴 수단 없이 진행을 잃는다).
+    /// 반환값은 실제로 쓰인 백업 파일 경로 — 호출부(UI)가 파일명을 추측하지 않고 정확히 안내하게 한다.
+    @discardableResult
+    func applyTradeCommit(sending sentItem: TradeItem, receiving receivedItem: TradeItem) throws -> URL {
+        let backupURL = try backupStateBeforeTrade()
+        let sanitizedReceived = receivedItem.sanitized()
+        removeTradedItem(sentItem)
+        addTradedItem(sanitizedReceived)
+        state.reconcileRepresentativeSelection()
+        save()
+        if state.active != nil { Task { await loadCurrentLine() } }
+        AppLog.write("trade committed — sent=\(sentItem.rarity.rawValue) received=\(sanitizedReceived.rarity.rawValue)")
+        return backupURL
+    }
+
+    private func removeTradedItem(_ item: TradeItem) {
+        switch item {
+        case .dexEntry(let entry):
+            state.dex.removeAll { $0.id == entry.id }
+        case .activeMon:
+            // 내 개체를 내줬으니 새 알이 필요하다 — 보증(eggTier)을 남기면 다음 무료 알이 그 보증을
+            // 물려받는다(SaveTransfer.sanitized 의 같은 우려와 동일).
+            state.active = nil
+            state.eggTier = nil
+            state.pendingHatchID = nil
+            state.pendingUnownForm = nil
+            state.eggUsage = 0
+        }
+    }
+
+    private func addTradedItem(_ item: TradeItem) {
+        switch item {
+        case .dexEntry(let entry):
+            state.dex.append(entry)
+        case .activeMon(let mon):
+            state.active = mon
+            state.eggTier = nil
+            state.pendingHatchID = nil
+            state.pendingUnownForm = nil
+            state.eggUsage = 0
+        }
+    }
+
+    @discardableResult
+    private func backupStateBeforeTrade() throws -> URL {
+        guard let data = try? JSONEncoder().encode(state) else { throw SaveTransferError.backupFailed }
+        let dir = stateDirectory
+        let backup = dir.appendingPathComponent(SaveTransfer.tradeBackupFileName(date: clock()))
+        do {
+            try data.write(to: backup, options: .atomic)
+        } catch {
+            AppLog.write("trade commit aborted — backup write failed: \(error)")
+            throw SaveTransferError.backupFailed
+        }
+        pruneTradeBackups(in: dir)
+        return backup
+    }
+
+    private func pruneTradeBackups(in dir: URL) {
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return }
+        let backups = names.filter { $0.hasPrefix(SaveTransfer.tradeBackupFilePrefix) }.sorted()
+        guard backups.count > SaveTransfer.backupsToKeep else { return }
+        for stale in backups.dropLast(SaveTransfer.backupsToKeep) {
+            try? FileManager.default.removeItem(at: dir.appendingPathComponent(stale))
+        }
+    }
+
+    // MARK: 테스트 전용 상태 주입 — `state` 가 private(set) 이라 테스트가 직접 대입할 수 없다.
+    // 프로덕션 코드에서는 호출하지 않는다(전부 위 applyTradeCommit 경로를 거친다).
+    func debugSetDex(_ dex: [DexEntry]) { state.dex = dex }
+    func debugSetActive(_ mon: MonState?) { state.active = mon }
+    func debugSetEggTier(_ tier: Rarity?) { state.eggTier = tier }
+
     // MARK: Pokémon combat profiles / details
 
     /// Exact current/final individuals for a Pokédex species. Earlier evolution stages remain

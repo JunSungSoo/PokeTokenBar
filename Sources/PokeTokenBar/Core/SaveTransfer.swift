@@ -87,6 +87,13 @@ enum SaveTransfer {
     /// 유지할 백업 개수 — 오래된 것부터 지운다.
     static let backupsToKeep = 5
 
+    /// 교환 커밋 직전 백업 파일명 — 세이브 불러오기 백업과 다른 접두사를 써서, 사용자에게 "왜 이
+    /// 파일이 있는지" 안내할 때 두 기능이 헷갈리지 않게 한다.
+    static func tradeBackupFileName(date: Date) -> String {
+        "companion-state.pre-trade-\(secondStamp(date)).json"
+    }
+    static let tradeBackupFilePrefix = "companion-state.pre-trade-"
+
     private static func stamp(_ date: Date, _ format: String) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
