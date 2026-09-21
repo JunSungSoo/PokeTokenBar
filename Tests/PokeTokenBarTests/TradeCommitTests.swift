@@ -183,4 +183,42 @@ final class TradeCommitTests: XCTestCase {
         XCTAssertTrue(store.state.dex.contains { $0.id == sent.id })
         XCTAssertFalse(store.state.dex.contains { $0.id == received.id })
     }
+
+    // MARK: I5 — 같은 DexEntry.id 가 도감에 둘 들어오면 한 번의 교환이 두 마리를 지운다.
+
+    /// 명세가 허용한 일방 커밋(백업으로 커버) 때문에 같은 id 가 두 기기에 정당하게 존재할 수 있고,
+    /// 그걸 되돌려 받으면 내 도감에 중복 id 가 생긴다 — 이후 removeAll { $0.id == } 가 둘을 지운다.
+    func testReceivingAnEntryWhoseIdIsAlreadyInTheDexReissuesTheId() throws {
+        var seed = CompanionState()
+        let mine = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
+        let sent = DexEntry(baseID: 7, finalID: 7, chainOrder: [7], rarity: .common, caughtAt: Date())
+        seed.dex = [mine, sent]
+        let (store, _) = try fixture(state: seed)
+
+        var returning = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
+        returning.id = mine.id   // 상대 기기에 남아 있던 같은 항목이 되돌아온 모습
+        try store.applyTradeCommit(sending: .dexEntry(sent), receiving: .dexEntry(returning))
+
+        XCTAssertEqual(store.state.dex.count, 2)
+        XCTAssertEqual(Set(store.state.dex.map(\.id)).count, 2, "a received entry must not share an id with an owned one")
+    }
+
+    func testALaterTradeRemovesOnlyTheEntryItSent() throws {
+        var seed = CompanionState()
+        let mine = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
+        let sent = DexEntry(baseID: 7, finalID: 7, chainOrder: [7], rarity: .common, caughtAt: Date())
+        seed.dex = [mine, sent]
+        let (store, _) = try fixture(state: seed)
+
+        var returning = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
+        returning.id = mine.id
+        try store.applyTradeCommit(sending: .dexEntry(sent), receiving: .dexEntry(returning))
+
+        let laterOffer = try XCTUnwrap(store.state.dex.first { $0.id == mine.id })
+        let other = DexEntry(baseID: 10, finalID: 10, chainOrder: [10], rarity: .common, caughtAt: Date())
+        try store.applyTradeCommit(sending: .dexEntry(laterOffer), receiving: .dexEntry(other))
+
+        XCTAssertEqual(store.state.dex.count, 2, "one trade must not erase two owned Pokémon")
+        XCTAssertEqual(store.state.dex.filter { $0.baseID == 4 }.count, 1, "the earlier received entry must survive")
+    }
 }

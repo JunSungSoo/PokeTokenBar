@@ -1572,8 +1572,9 @@ final class CompanionStore {
 
     // MARK: 교환 (P2P Trade)
 
-    /// 백업 파일이 있는 디렉터리 — UI 의 "Finder 에서 열기"/복구 안내에 쓰인다.
-    var stateDirectory: URL { fileURL.deletingLastPathComponent() }
+    /// 백업 파일이 놓이는 디렉터리 — `backupState` 만 쓴다. UI 의 "Finder 에서 열기" 는 이 값이 아니라
+    /// `applyTradeCommit` 이 돌려주는 백업 파일 경로(`lastBackupURL`)로 그 파일을 직접 선택해 연다.
+    private var stateDirectory: URL { fileURL.deletingLastPathComponent() }
 
     /// 상대의 육성 중 개체를 받을 때 지금 가진 무언가가 사라진다는 경고 — 없으면 경고 불필요
     /// (받는 게 도감 항목이라 아무것도 안 사라짐). 지금 키우는 개체가 있으면 그 개체가, 없어도
@@ -1640,7 +1641,12 @@ final class CompanionStore {
 
     private func addTradedItem(_ item: TradeItem) {
         switch item {
-        case .dexEntry(let entry):
+        case .dexEntry(var entry):
+            // 명세가 일방 커밋(백업으로 커버)을 허용하므로 같은 id 가 두 기기에 정당하게 존재할 수 있고,
+            // 그 항목을 되돌려 받으면 내 도감에 중복 id 가 생긴다 — 이후 `removeTradedItem` 의
+            // `removeAll { $0.id == }` 가 한 번의 교환으로 두 마리를 지운다. id 는 표시 의미가 없는
+            // 로컬 식별자라 새로 발급해도 잃는 게 없다.
+            if state.dex.contains(where: { $0.id == entry.id }) { entry.id = UUID().uuidString }
             state.dex.append(entry)
         case .activeMon(let mon):
             state.active = mon
