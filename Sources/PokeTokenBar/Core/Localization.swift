@@ -723,6 +723,11 @@ struct L {
                  "Se você receber o Pokémon em treinamento do outro treinador, seu progresso atual de incubação será apagado.",
                  "Wenn du das im Training befindliche Pokémon des anderen Trainers erhältst, wird dein aktueller Ausbrütfortschritt gelöscht.")
     }
+    var tradeProposalTitle: String { t("교환 제안", "Trade proposal", "交換の提案", "Propuesta de intercambio", "Proposition d'échange", "Proposta de troca", "Tauschvorschlag") }
+    var tradeGiving: String { t("내가 줄 것", "You're giving", "渡すもの", "Tú das", "Tu donnes", "Você dá", "Du gibst") }
+    var tradeReceiving: String { t("내가 받을 것", "You're receiving", "受け取るもの", "Tú recibes", "Tu reçois", "Você recebe", "Du bekommst") }
+    var tradeAccept: String { t("승인", "Accept", "承認", "Aceptar", "Accepter", "Aceitar", "Annehmen") }
+    var tradeReject: String { t("거절", "Reject", "拒否", "Rechazar", "Refuser", "Recusar", "Ablehnen") }
 
     // MARK: 도감 요약 헤더
     var dexTitle: String { t("도감", "Pokédex", "図鑑", "Pokédex", "Pokédex", "Pokédex", "Pokédex") }
