@@ -16,6 +16,7 @@ final class TradeSession {
     private var committed = false
     private var localCommitAckSent = false
     private var remoteCommitAckReceived = false
+    private var completed = false
 
     var onPeerIdentified: (((nickname: String, code: String)) -> Void)?
     var onOffersReady: ((_ mine: TradeItem, _ theirs: TradeItem) -> Void)?
@@ -43,20 +44,28 @@ final class TradeSession {
 
     func proposeOffer(_ item: TradeItem) {
         myOffer = item
+        // 오퍼가 바뀌면 이전 심사 대상에 대한 Accept 는 양쪽 다 무효 — 내가 보낸 Accept 도, 상대가
+        // 보낸 Accept 도 지금 이 새 쌍에 대한 동의가 아니었으므로 둘 다 지운다.
+        invalidateAcceptsBeforeCommit()
         try? transport.send(.offer(item))
         notifyIfBothOffersReady()
     }
 
     func withdrawOffer() {
         myOffer = nil
+        invalidateAcceptsBeforeCommit()
         try? transport.send(.offerWithdrawn)
     }
 
     func accept() {
         guard !myAcceptSent else { return }
-        myAcceptSent = true
-        try? transport.send(.accept)
-        commitIfBothAccepted()
+        do {
+            try transport.send(.accept)
+            myAcceptSent = true
+            commitIfBothAccepted()
+        } catch {
+            // 전송 실패 시 플래그를 세우지 않는다 — accept() 재시도가 가능한 상태로 남는다.
+        }
     }
 
     func reject(reason: String) {
@@ -66,9 +75,13 @@ final class TradeSession {
 
     /// `onReadyToCommit` 에서 실제 상태 반영(CompanionStore.applyTradeCommit)까지 마친 뒤 호출한다.
     func confirmLocalCommit() {
-        localCommitAckSent = true
-        try? transport.send(.commitAck(nonce: sessionID))
-        checkCompleted()
+        do {
+            try transport.send(.commitAck(nonce: sessionID))
+            localCommitAckSent = true
+            checkCompleted()
+        } catch {
+            // 전송 실패 시 completed 로 진행하지 않는다 — UI 는 커밋 중 상태로 남아 재연결/재시도 여지를 준다.
+        }
     }
 
     func disconnect() {
@@ -82,9 +95,11 @@ final class TradeSession {
             onPeerIdentified?((nickname, code))
         case .offer(let item):
             theirOffer = item.sanitized()
+            invalidateAcceptsBeforeCommit()
             notifyIfBothOffersReady()
         case .offerWithdrawn:
             theirOffer = nil
+            invalidateAcceptsBeforeCommit()
         case .accept:
             theirAcceptReceived = true
             commitIfBothAccepted()
@@ -98,20 +113,29 @@ final class TradeSession {
         }
     }
 
+    /// Accept 는 "지금 이 오퍼 쌍"에 대한 동의다 — 커밋 전이라면 어느 쪽 오퍼가 바뀌어도 두 Accept
+    /// 플래그(내가 보낸 것, 상대에게서 받은 것) 모두 그 동의의 근거를 잃으므로 함께 지운다.
+    private func invalidateAcceptsBeforeCommit() {
+        guard !committed else { return }
+        myAcceptSent = false
+        theirAcceptReceived = false
+    }
+
     private func notifyIfBothOffersReady() {
         guard let myOffer, let theirOffer else { return }
         onOffersReady?(myOffer, theirOffer)
     }
 
     private func commitIfBothAccepted() {
-        guard myAcceptSent, theirAcceptReceived, !committed, let theirOffer else { return }
+        guard myOffer != nil, myAcceptSent, theirAcceptReceived, !committed, let theirOffer else { return }
         committed = true
         try? transport.send(.commit(nonce: sessionID))
         onReadyToCommit?(theirOffer)
     }
 
     private func checkCompleted() {
-        guard localCommitAckSent, remoteCommitAckReceived else { return }
+        guard localCommitAckSent, remoteCommitAckReceived, !completed else { return }
+        completed = true
         onCompleted?()
     }
 }
