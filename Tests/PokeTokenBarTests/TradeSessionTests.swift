@@ -43,14 +43,22 @@ private func waitUntil(timeout: TimeInterval = 1, _ condition: @escaping () -> B
     return condition()
 }
 
+/// A throwaway defaults suite per session. Connecting sends a hello, and building that hello
+/// generates and stores a trade code — on `.standard` that write would land in the real user
+/// domain and survive the test run.
+private func isolatedDefaults() -> UserDefaults {
+    UserDefaults(suiteName: "TradeSessionTests-\(UUID().uuidString)")!
+}
+
 @MainActor
 private func makeConnectedSessions() -> (TradeSession, TradeSession) {
     let transportA = InMemoryTradeTransport()
     let transportB = InMemoryTradeTransport()
     transportA.peer = transportB
     transportB.peer = transportA
-    let sessionA = TradeSession(transport: transportA)
-    let sessionB = TradeSession(transport: transportB)
+    // Separate suites: two devices never share an identity, so their codes must differ.
+    let sessionA = TradeSession(transport: transportA, defaults: isolatedDefaults())
+    let sessionB = TradeSession(transport: transportB, defaults: isolatedDefaults())
     transportA.onConnected?()
     transportB.onConnected?()
     return (sessionA, sessionB)
@@ -206,6 +214,30 @@ final class TradeSessionTests: XCTestCase {
         XCTAssertEqual(completedCountA, 1, "duplicate commitAck must not refire onCompleted")
     }
 
+    /// Regression guard: the hello a session sends must come from the defaults it was handed.
+    /// Before injection, `sendHello` read `TradeIdentity` with its `.standard` default, so merely
+    /// connecting two stub transports in a test generated and persisted a `tradeCode` in the real
+    /// user domain. Asserting the peer's code equals the injected suite's code is what fails there —
+    /// `.standard` would hand over a different (or pre-existing) code.
+    func testHelloUsesTheInjectedDefaultsAndLeavesStandardUntouched() async {
+        let standardCodeBefore = UserDefaults.standard.string(forKey: "tradeCode")
+        let defaultsB = isolatedDefaults()
+        let transportA = InMemoryTradeTransport()
+        let transportB = InMemoryTradeTransport()
+        transportA.peer = transportB
+        transportB.peer = transportA
+        let sessionA = TradeSession(transport: transportA, defaults: isolatedDefaults())
+        let sessionB = TradeSession(transport: transportB, defaults: defaultsB)
+        transportB.onConnected?()
+
+        let identified = await waitUntil { sessionA.peerIdentity != nil }
+        XCTAssertTrue(identified)
+        XCTAssertEqual(sessionA.peerIdentity?.code, TradeIdentity.code(defaults: defaultsB))
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "tradeCode"), standardCodeBefore,
+                       "a trade session must not write an identity into the real user domain")
+        _ = sessionB
+    }
+
     func testPeerIdentifiedFiresFromHelloExchangedOnConnect() async {
         // sessionB must stay alive until its deferred onConnected Task runs and sends
         // its hello — discarding it into `_` would let ARC free it (and its transport)
@@ -223,7 +255,7 @@ final class TradeSessionTests: XCTestCase {
     func testStronglySelfCapturingCallbackLeaksTheSession() {
         weak var leaked: TradeSession?
         do {
-            let session = TradeSession(transport: InMemoryTradeTransport())
+            let session = TradeSession(transport: InMemoryTradeTransport(), defaults: isolatedDefaults())
             leaked = session
             session.onCompleted = { _ = session.myOffer }
         }
@@ -238,7 +270,7 @@ final class TradeSessionTests: XCTestCase {
     func testWeaklySelfCapturingCallbackDoesNotRetainTheSession() {
         weak var observed: TradeSession?
         do {
-            let session = TradeSession(transport: InMemoryTradeTransport())
+            let session = TradeSession(transport: InMemoryTradeTransport(), defaults: isolatedDefaults())
             observed = session
             session.onCompleted = { [weak session] in _ = session?.myOffer }
         }

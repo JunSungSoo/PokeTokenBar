@@ -6,6 +6,9 @@ import Foundation
 @MainActor
 final class TradeSession {
     private let transport: any TradeTransport
+    /// 교환 신원(닉네임·코드)을 읽는 저장소 — UsageStore/CompanionStore 와 같은 주입 규약. 테스트가
+    /// 격리 suite 를 넘기지 않으면 hello 전송만으로 실제 사용자 도메인에 tradeCode 가 생성된다.
+    private let defaults: UserDefaults
     private let sessionID = UUID().uuidString
 
     private(set) var peerIdentity: (nickname: String, code: String)?
@@ -29,8 +32,9 @@ final class TradeSession {
     var onDisconnected: (() -> Void)?
     var onCompleted: (() -> Void)?
 
-    init(transport: any TradeTransport) {
+    init(transport: any TradeTransport, defaults: UserDefaults = .standard) {
         self.transport = transport
+        self.defaults = defaults
         transport.onConnected = { [weak self] in
             Task { @MainActor [weak self] in self?.sendHello() }
         }
@@ -43,7 +47,8 @@ final class TradeSession {
     }
 
     private func sendHello() {
-        try? transport.send(.hello(nickname: TradeIdentity.nickname(), code: TradeIdentity.code()))
+        try? transport.send(.hello(nickname: TradeIdentity.nickname(defaults: defaults),
+                                   code: TradeIdentity.code(defaults: defaults)))
     }
 
     func proposeOffer(_ item: TradeItem) {

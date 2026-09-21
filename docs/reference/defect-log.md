@@ -877,3 +877,27 @@ read_when:
   넘기기 전에 반드시 (1) 브랜치가 갈라진 지점에서 같은 테스트를 3회 이상 돌려 통과를 확인하고 (2) 그
   결과(커밋 SHA·통과 횟수)를 핸드오프 메모에 남긴다. "이전에도 실패했다"는 기억이나 인상은 검증이
   아니다 — 검증 없이 내려진 flaky 판정은 그 뒤로 이어지는 모든 세션에서 실제 회귀를 숨긴다.
+
+## 테스트 격리 (영구 저장소)
+
+- **주입 파라미터를 만들어 두는 것만으로는 격리되지 않는다 — 프로덕션 호출부가 기본 인자를 쓰면
+  테스트가 실제 사용자 도메인에 쓴다.** `TradeIdentity` 는 처음부터 `defaults: UserDefaults = .standard`
+  를 받았고 `TradeIdentityTests` 도 `UserDefaults(suiteName:)` 로 격리했다. 그런데 `TradeSession.sendHello()`
+  가 인자 없이 `TradeIdentity.code()` 를 불렀고, `TradeIdentity.code()` 는 **읽기가 아니라 쓰기다**
+  (없으면 8자리 코드를 생성해 저장한다). `TradeSessionTests` 는 `transportA.onConnected?()` 를 직접
+  호출해 hello 교환을 검증하므로, 테스트를 한 번 돌릴 때마다 실제 `.standard` 도메인에 `tradeCode` 가
+  생겨 디스크에 영구히 남았다. 규율: **기본 인자로 `.standard` 를 두는 API 라도, 테스트가 도달하는
+  프로덕션 경로에서는 저장소를 명시적으로 넘긴다.** `TradeSession.init(transport:defaults:)` 로 세션이
+  신원 저장소를 들고 있게 하고, 뷰(`TradeView`/`SettingsView`)는 앱 런타임 전용이라 `.standard` 기본값을
+  그대로 둔다 — 이 저장소는 SwiftUI 뷰를 단위 테스트하지 않으므로 뷰 호출부는 오염원이 아니다.
+  **테스트가 못 걸렀던 이유**: 격리 테스트가 `TradeIdentity` 자신에게만 있었다. 격리는 API 의 성질이
+  아니라 *호출부*의 성질인데, 단위 테스트는 자기가 넘긴 suite 만 보므로 "다른 테스트가 기본 인자로
+  부르고 있는가" 를 절대 묻지 못한다 — 통과가 곧 false confidence 였다.
+  부류 스윕(2026-09-21): `Sources` 전수에서 `UserDefaults.standard` 를 직접 쓰는 곳은
+  `KeychainAccess`(`disableKeychainAccess` 읽기), `BinaryLocator`(`<binary>Path` 읽기),
+  `CompanionStore.swift:1114`(`companionNotifications` 읽기) 뿐이고 **모두 읽기**라 오염이 없다.
+  주입 기본 인자를 생략해 부르는 프로덕션 호출부 중 *쓰기* 에 닿는 것은 `TradeSession` 하나였다.
+  회귀 가드: `TradeSessionTests.testHelloUsesTheInjectedDefaultsAndLeavesStandardUntouched` —
+  상대가 받은 코드가 **주입한 suite 의 코드와 같은지**를 본다(`.standard` 로 되돌리면 다른 코드가 와서
+  실패한다. 결함 주입으로 확인함). `.standard` 의 `tradeCode` 가 전후로 안 변하는지도 함께 본다 —
+  다만 이미 값이 있으면 이 단정만으로는 못 잡으므로, 실패를 책임지는 쪽은 앞의 등가 단정이다.
