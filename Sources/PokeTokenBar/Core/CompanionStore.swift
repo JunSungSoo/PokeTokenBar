@@ -1539,23 +1539,31 @@ final class CompanionStore {
     /// 상황에서 되돌릴 대상이 사라진다. 불러올 때마다 새 슬롯을 쓰고 오래된 것부터 정리한다.
     @discardableResult
     private func backupStateBeforeImport() throws -> URL {
+        try backupState(prefix: SaveTransfer.backupFilePrefix, fileName: SaveTransfer.backupFileName,
+                        failureLogReason: "save import aborted")
+    }
+
+    /// 덮어쓰기/교환 커밋 직전 상태를 옆에 남기는 공통 절차 — 접두사·파일명 규칙만 호출부가 정한다.
+    /// 슬롯을 하나만 쓰면 두 번째 백업이 **원본**을 덮어써, "잘못됐으니 되돌린다"는 바로 그 상황에서
+    /// 되돌릴 대상이 사라진다. 매번 새 슬롯을 쓰고 오래된 것부터 정리한다.
+    private func backupState(prefix: String, fileName: (Date) -> String, failureLogReason: String) throws -> URL {
         guard let data = try? JSONEncoder().encode(state) else { throw SaveTransferError.backupFailed }
-        let dir = fileURL.deletingLastPathComponent()
-        let backup = dir.appendingPathComponent(SaveTransfer.backupFileName(date: clock()))
+        let dir = stateDirectory
+        let backup = dir.appendingPathComponent(fileName(clock()))
         do {
             try data.write(to: backup, options: .atomic)
         } catch {
-            AppLog.write("save import aborted — backup write failed: \(error)")
+            AppLog.write("\(failureLogReason) — backup write failed: \(error)")
             throw SaveTransferError.backupFailed
         }
-        pruneImportBackups(in: dir)
+        pruneBackups(prefix: prefix, in: dir)
         return backup
     }
 
     /// 최근 N 개만 남기고 오래된 백업을 지운다. 파일명이 `yyyy-MM-dd-HHmmss` 라 사전순 = 시간순이다.
-    private func pruneImportBackups(in dir: URL) {
+    private func pruneBackups(prefix: String, in dir: URL) {
         guard let names = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return }
-        let backups = names.filter { $0.hasPrefix(SaveTransfer.backupFilePrefix) }.sorted()
+        let backups = names.filter { $0.hasPrefix(prefix) }.sorted()
         guard backups.count > SaveTransfer.backupsToKeep else { return }
         for stale in backups.dropLast(SaveTransfer.backupsToKeep) {
             try? FileManager.default.removeItem(at: dir.appendingPathComponent(stale))
@@ -1567,19 +1575,28 @@ final class CompanionStore {
     /// 백업 파일이 있는 디렉터리 — UI 의 "Finder 에서 열기"/복구 안내에 쓰인다.
     var stateDirectory: URL { fileURL.deletingLastPathComponent() }
 
-    /// 상대의 육성 중 개체를 받을 때, 지금 키우는 개체가 사라진다는 경고 — 없으면 경고 불필요
-    /// (내가 알 상태이거나 받는 게 도감 항목이라 아무것도 안 사라짐).
+    /// 상대의 육성 중 개체를 받을 때 지금 가진 무언가가 사라진다는 경고 — 없으면 경고 불필요
+    /// (받는 게 도감 항목이라 아무것도 안 사라짐). 지금 키우는 개체가 있으면 그 개체가, 없어도
+    /// 유료 알 보증(eggTier)이나 부화 진행(eggUsage)이 있으면 그게 대신 사라진다 — 보증은 최대
+    /// 수십억 토큰짜리 구매라 조용히 지워지면 안 된다.
     func tradeOverwriteWarning(forReceiving item: TradeItem) -> String? {
-        guard item.isActiveMon, let active = state.active else { return nil }
-        let percent = Int((Double(active.usedAtStage) / Double(max(1, stageThreshold(for: active)))) * 100)
-        let name = currentLine?.localizedName(active.currentID, state.language) ?? "#\(active.currentID)"
-        return l.tradeOverwriteWarning(name: name, percent: percent)
+        guard item.isActiveMon else { return nil }
+        if let active = state.active {
+            let percent = Int((Double(active.usedAtStage) / Double(max(1, stageThreshold(for: active)))) * 100)
+            let name = currentLine?.localizedName(active.currentID, state.language) ?? "#\(active.currentID)"
+            return l.tradeOverwriteWarning(name: name, percent: percent)
+        }
+        guard state.eggTier != nil || state.eggUsage > 0 else { return nil }
+        return l.tradeOverwriteEggProgressWarning(guaranteeTierLabel: state.eggTier.map { l.rarityLabel($0) })
     }
 
     /// 교환 커밋 적용 — 백업 → 낸 항목 제거 → 받은 항목 추가. 백업을 못 남기면 **적용하지 않고**
     /// throw 한다(SaveTransfer.applySave 와 동일 원칙 — 확인창이 되돌릴 수단을 약속했으니 그 약속을
     /// 못 지키는 채로 진행하면 사용자는 되돌릴 수단 없이 진행을 잃는다).
     /// 반환값은 실제로 쓰인 백업 파일 경로 — 호출부(UI)가 파일명을 추측하지 않고 정확히 안내하게 한다.
+    /// `sending:` 은 반드시 이 기기의 로컬 제안이어야 한다 — 상대가 보낸 값이 아니다. `removeTradedItem`
+    /// 이 이 값을 그대로 `dex.removeAll`/`active = nil` 근거로 쓰므로, 상대 echo 를 넣으면 정규화 없이
+    /// 임의 항목을 지우는 통로가 된다. `receiving:` 만 신뢰경계 데이터이며 `sanitized()` 를 거친다.
     @discardableResult
     func applyTradeCommit(sending sentItem: TradeItem, receiving receivedItem: TradeItem) throws -> URL {
         let backupURL = try backupStateBeforeTrade()
@@ -1587,10 +1604,23 @@ final class CompanionStore {
         removeTradedItem(sentItem)
         addTradedItem(sanitizedReceived)
         state.reconcileRepresentativeSelection()
+        if sentItem.isActiveMon || sanitizedReceived.isActiveMon {
+            invalidateActiveMonPresentation()
+        }
         save()
         if state.active != nil { Task { await loadCurrentLine() } }
         AppLog.write("trade committed — sent=\(sentItem.rarity.rawValue) received=\(sanitizedReceived.rarity.rawValue)")
         return backupURL
+    }
+
+    /// `applySave` 상단의 무효화 블록과 같은 이유로 필요하다 — 교환으로 active 가 바뀌면 이전 개체
+    /// 기준으로 뜬 라인 로드·연출이 무효화되지 않으면, 먼저 떠 있던 로드가 새 개체를 덮어쓰거나
+    /// (받는 방향) 이미 사라진 개체를 화면이 계속 보여준다(주는 방향).
+    private func invalidateActiveMonPresentation() {
+        activeGeneration += 1
+        currentLine = nil
+        prefetchedLineID = nil
+        displayState = state.active != nil ? .idle : .egg
     }
 
     private func removeTradedItem(_ item: TradeItem) {
@@ -1621,35 +1651,10 @@ final class CompanionStore {
         }
     }
 
-    @discardableResult
     private func backupStateBeforeTrade() throws -> URL {
-        guard let data = try? JSONEncoder().encode(state) else { throw SaveTransferError.backupFailed }
-        let dir = stateDirectory
-        let backup = dir.appendingPathComponent(SaveTransfer.tradeBackupFileName(date: clock()))
-        do {
-            try data.write(to: backup, options: .atomic)
-        } catch {
-            AppLog.write("trade commit aborted — backup write failed: \(error)")
-            throw SaveTransferError.backupFailed
-        }
-        pruneTradeBackups(in: dir)
-        return backup
+        try backupState(prefix: SaveTransfer.tradeBackupFilePrefix, fileName: SaveTransfer.tradeBackupFileName,
+                        failureLogReason: "trade commit aborted")
     }
-
-    private func pruneTradeBackups(in dir: URL) {
-        guard let names = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return }
-        let backups = names.filter { $0.hasPrefix(SaveTransfer.tradeBackupFilePrefix) }.sorted()
-        guard backups.count > SaveTransfer.backupsToKeep else { return }
-        for stale in backups.dropLast(SaveTransfer.backupsToKeep) {
-            try? FileManager.default.removeItem(at: dir.appendingPathComponent(stale))
-        }
-    }
-
-    // MARK: 테스트 전용 상태 주입 — `state` 가 private(set) 이라 테스트가 직접 대입할 수 없다.
-    // 프로덕션 코드에서는 호출하지 않는다(전부 위 applyTradeCommit 경로를 거친다).
-    func debugSetDex(_ dex: [DexEntry]) { state.dex = dex }
-    func debugSetActive(_ mon: MonState?) { state.active = mon }
-    func debugSetEggTier(_ tier: Rarity?) { state.eggTier = tier }
 
     // MARK: Pokémon combat profiles / details
 

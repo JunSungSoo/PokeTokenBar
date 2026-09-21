@@ -704,6 +704,25 @@ struct L {
           "Se você receber o Pokémon em treinamento do outro treinador, seu \(name) atual (progresso \(percent)%) será apagado.",
           "Wenn du das im Training befindliche Pokémon des anderen Trainers erhältst, wird dein aktuelles \(name) (Fortschritt \(percent)%) gelöscht.")
     }
+    /// 지금 키우는 개체는 없지만 유료 알 보증/부화 진행이 있는 상태에서 육성 중 개체를 받을 때의 경고.
+    func tradeOverwriteEggProgressWarning(guaranteeTierLabel: String?) -> String {
+        if let guaranteeTierLabel {
+            return t("상대방이 육성중인 개체를 받으면 지금 가진 \(guaranteeTierLabel) 알 보증과 부화 진행이 사라집니다.",
+                     "Receiving the other trainer's Pokémon in training will delete your current \(guaranteeTierLabel) egg guarantee and hatching progress.",
+                     "相手が育成中のポケモンを受け取ると、今持っている\(guaranteeTierLabel)タマゴの保証と孵化の進捗が消えます。",
+                     "Si recibes el Pokémon en crianza del otro entrenador, se eliminará tu garantía de huevo \(guaranteeTierLabel) y el progreso de incubación.",
+                     "Si tu reçois le Pokémon en cours d'élevage de l'autre dresseur, ta garantie d'œuf \(guaranteeTierLabel) et ta progression d'incubation seront supprimées.",
+                     "Se você receber o Pokémon em treinamento do outro treinador, sua garantia de ovo \(guaranteeTierLabel) e o progresso de incubação serão apagados.",
+                     "Wenn du das im Training befindliche Pokémon des anderen Trainers erhältst, werden deine \(guaranteeTierLabel)-Ei-Garantie und dein Ausbrütfortschritt gelöscht.")
+        }
+        return t("상대방이 육성중인 개체를 받으면 지금까지 쌓은 알 부화 진행이 사라집니다.",
+                 "Receiving the other trainer's Pokémon in training will delete your current egg-hatching progress.",
+                 "相手が育成中のポケモンを受け取ると、今までのタマゴの孵化の進捗が消えます。",
+                 "Si recibes el Pokémon en crianza del otro entrenador, se eliminará tu progreso actual de incubación del huevo.",
+                 "Si tu reçois le Pokémon en cours d'élevage de l'autre dresseur, ta progression d'incubation actuelle sera supprimée.",
+                 "Se você receber o Pokémon em treinamento do outro treinador, seu progresso atual de incubação será apagado.",
+                 "Wenn du das im Training befindliche Pokémon des anderen Trainers erhältst, wird dein aktueller Ausbrütfortschritt gelöscht.")
+    }
 
     // MARK: 도감 요약 헤더
     var dexTitle: String { t("도감", "Pokédex", "図鑑", "Pokédex", "Pokédex", "Pokédex", "Pokédex") }

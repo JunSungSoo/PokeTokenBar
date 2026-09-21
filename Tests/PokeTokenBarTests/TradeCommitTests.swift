@@ -11,12 +11,16 @@ private struct TradeCommitOfflineProvider: PokeProviding {
 
 @MainActor
 final class TradeCommitTests: XCTestCase {
-    private func fixture() throws -> (CompanionStore, URL) {
+    /// Seeds the store's persisted state the same way `DifficultySaveTests` does — encode a
+    /// `CompanionState` to the fixture file before construction — instead of a production-visible
+    /// setter that would let any app-target code bypass the backup guarantee this task establishes.
+    private func fixture(state: CompanionState = CompanionState()) throws -> (CompanionStore, URL) {
         // Own subdirectory per test so a test that removes the state directory
         // (to simulate a backup write failure) never touches the shared temp root.
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("trade-commit-\(UUID())")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let url = dir.appendingPathComponent("companion-state.json")
+        try JSONEncoder().encode(state).write(to: url)
         let defaults = try XCTUnwrap(UserDefaults(suiteName: "trade-commit-\(UUID())"))
         let store = CompanionStore(provider: TradeCommitOfflineProvider(), fileURL: url,
                                    dittoDisguiseRollingEnabled: false, defaults: defaults)
@@ -29,24 +33,44 @@ final class TradeCommitTests: XCTestCase {
         XCTAssertNil(store.tradeOverwriteWarning(forReceiving: .dexEntry(entry)))
     }
 
-    func testOverwriteWarningIsNilWhenIHaveNoActiveMon() throws {
+    func testOverwriteWarningIsNilWhenIHaveNoActiveMonAndNoEggProgress() throws {
         let (store, _) = try fixture()
         let mon = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0, rarity: .common, totalForms: 1)
         XCTAssertNil(store.tradeOverwriteWarning(forReceiving: .activeMon(mon)))
     }
 
     func testOverwriteWarningPresentWhenReceivingActiveMonWhileGrowingOne() throws {
-        let (store, _) = try fixture()
-        store.debugSetActive(MonState(baseID: 1, pathIDs: [1, 2], stageIndex: 0, usedAtStage: 100,
-                                      rarity: .common, totalForms: 2))
+        var seed = CompanionState()
+        seed.active = MonState(baseID: 1, pathIDs: [1, 2], stageIndex: 0, usedAtStage: 100,
+                               rarity: .common, totalForms: 2)
+        let (store, _) = try fixture(state: seed)
+        let mon = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0, rarity: .common, totalForms: 1)
+        XCTAssertNotNil(store.tradeOverwriteWarning(forReceiving: .activeMon(mon)))
+    }
+
+    /// R17 — no active mon growing, but a paid egg guarantee (or hatch progress) would be lost.
+    func testOverwriteWarningPresentWhenReceivingActiveMonWouldLoseEggGuarantee() throws {
+        var seed = CompanionState()
+        seed.eggTier = .rare
+        let (store, _) = try fixture(state: seed)
+        let mon = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0, rarity: .common, totalForms: 1)
+        XCTAssertNotNil(store.tradeOverwriteWarning(forReceiving: .activeMon(mon)))
+    }
+
+    /// R17 — same, but via egg-hatching progress rather than a purchased guarantee.
+    func testOverwriteWarningPresentWhenReceivingActiveMonWouldLoseEggProgress() throws {
+        var seed = CompanionState()
+        seed.eggUsage = 500
+        let (store, _) = try fixture(state: seed)
         let mon = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0, rarity: .common, totalForms: 1)
         XCTAssertNotNil(store.tradeOverwriteWarning(forReceiving: .activeMon(mon)))
     }
 
     func testApplyTradeCommitCreatesBackupBeforeMutatingState() throws {
-        let (store, url) = try fixture()
         let sent = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
-        store.debugSetDex([sent])
+        var seed = CompanionState()
+        seed.dex = [sent]
+        let (store, url) = try fixture(state: seed)
         let received = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
 
         let backupURL = try store.applyTradeCommit(sending: .dexEntry(sent), receiving: .dexEntry(received))
@@ -56,15 +80,24 @@ final class TradeCommitTests: XCTestCase {
             .filter { $0.hasPrefix(SaveTransfer.tradeBackupFilePrefix) }
         XCTAssertEqual(backups.count, 1)
         XCTAssertEqual(backupURL.deletingLastPathComponent(), dir)
+
+        // R15 — the backup must be the PRE-trade snapshot, not merely "a backup exists". Decoding it
+        // and checking for the sent/received items proves ordering; a post-trade backup would pass
+        // the file-exists checks above just as well but recover nothing.
+        let backedUpState = try JSONDecoder().decode(CompanionState.self, from: Data(contentsOf: backupURL))
+        XCTAssertTrue(backedUpState.dex.contains { $0.id == sent.id })
+        XCTAssertFalse(backedUpState.dex.contains { $0.id == received.id })
+
         XCTAssertFalse(store.state.dex.contains { $0.id == sent.id })
         XCTAssertTrue(store.state.dex.contains { $0.id == received.id })
     }
 
     func testApplyTradeCommitReplacingActiveMonClearsEggGuarantee() throws {
-        let (store, _) = try fixture()
-        store.debugSetActive(MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
-                                      rarity: .common, totalForms: 1))
-        store.debugSetEggTier(.rare)
+        var seed = CompanionState()
+        seed.active = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
+                               rarity: .common, totalForms: 1)
+        seed.eggTier = .rare
+        let (store, _) = try fixture(state: seed)
         let received = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0,
                                 rarity: .common, totalForms: 1)
         let sent = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
@@ -75,11 +108,68 @@ final class TradeCommitTests: XCTestCase {
         XCTAssertNil(store.state.eggTier)
     }
 
-    func testApplyTradeCommitAbortsWhenBackupCannotBeWritten() throws {
-        let (store, url) = try fixture()
-        let dir = url.deletingLastPathComponent()
+    /// The give-away direction had no coverage at all — every other test sends a dex entry.
+    /// Giving away the active mon must clear it and leave the egg-guarantee fields consistent
+    /// (no guarantee/progress left dangling for the next free egg to inherit).
+    func testApplyTradeCommitGivingAwayActiveMonClearsActiveAndEggGuarantee() throws {
+        var seed = CompanionState()
+        seed.active = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
+                               rarity: .common, totalForms: 1)
+        seed.eggTier = .rare
+        seed.pendingHatchID = 7
+        seed.eggUsage = 250
+        let (store, _) = try fixture(state: seed)
+        let sent = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
+                            rarity: .common, totalForms: 1)
+        let received = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
+
+        try store.applyTradeCommit(sending: .activeMon(sent), receiving: .dexEntry(received))
+
+        XCTAssertNil(store.state.active)
+        XCTAssertNil(store.state.eggTier)
+        XCTAssertNil(store.state.pendingHatchID)
+        XCTAssertNil(store.state.pendingUnownForm)
+        XCTAssertEqual(store.state.eggUsage, 0)
+    }
+
+    /// R14 — receiving an active mon while none is currently growing must flip the presentation
+    /// state to `.idle`; leaving it at `.egg` (its pre-trade value) would show an empty egg slot
+    /// even though `state.active` now holds a Pokémon.
+    func testApplyTradeCommitReceivingActiveMonUpdatesDisplayStateToIdle() throws {
+        let (store, _) = try fixture()
+        XCTAssertEqual(store.displayState, .egg)
+        let received = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0,
+                                rarity: .common, totalForms: 1)
         let sent = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
-        store.debugSetDex([sent])
+
+        try store.applyTradeCommit(sending: .dexEntry(sent), receiving: .activeMon(received))
+
+        XCTAssertEqual(store.displayState, .idle)
+    }
+
+    /// R14 — the mirror direction: giving away the active mon must flip presentation back to
+    /// `.egg`; leaving it at `.idle` would keep showing a Pokémon that no longer exists.
+    func testApplyTradeCommitGivingAwayActiveMonUpdatesDisplayStateToEgg() throws {
+        var seed = CompanionState()
+        seed.active = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
+                               rarity: .common, totalForms: 1)
+        let (store, _) = try fixture(state: seed)
+        XCTAssertEqual(store.displayState, .idle)
+        let sent = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
+                            rarity: .common, totalForms: 1)
+        let received = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
+
+        try store.applyTradeCommit(sending: .activeMon(sent), receiving: .dexEntry(received))
+
+        XCTAssertEqual(store.displayState, .egg)
+    }
+
+    func testApplyTradeCommitAbortsWhenBackupCannotBeWritten() throws {
+        let sent = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
+        var seed = CompanionState()
+        seed.dex = [sent]
+        let (store, url) = try fixture(state: seed)
+        let dir = url.deletingLastPathComponent()
         let received = DexEntry(baseID: 4, finalID: 4, chainOrder: [4], rarity: .common, caughtAt: Date())
 
         // Replace the state directory with a file so any backup write into it fails.
