@@ -22,22 +22,44 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
 
     private let myPeerID: MCPeerID
     private let code: String
-    private lazy var session: MCSession = {
-        let session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
-        session.delegate = self
-        return session
-    }()
+    /// `lazy` 였을 때 첫 접근이 호출자 스레드(connect/send/disconnect)와 프레임워크 큐(광고자 델리게이트)
+    /// 사이에서 경쟁했다 — 이 클래스의 다른 공유 필드와 달리 락 밖이었다. init 에서 만들어 경쟁 자체를 없앤다.
+    private let session: MCSession
     private let lock = NSLock()
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
     private var discoveredPeers: [String: MCPeerID] = [:]
+    /// 지금 교환 중인 단 한 명 — MCSession 은 다자 연결이 가능하므로 1:1 제약은 이 계층이 강제한다.
+    private var partnerPeerID: MCPeerID?
+    /// 내가 방금 초대한 상대 — 초대가 교차했는지 판정하는 데만 쓴다.
+    private var invitedPeerID: MCPeerID?
 
     /// nickname 은 Settings 에서 자유롭게 입력한 텍스트라 비어있거나 63바이트를 넘을 수 있다 —
     /// MCPeerID(displayName:) 는 그런 값에 트랩하므로 생성 전에 반드시 클램프한다(Ruling R5).
     init(nickname: String, code: String) {
-        myPeerID = MCPeerID(displayName: Self.clampNickname(nickname, fallback: Host.current().localizedName ?? "PokeTokenBar"))
+        let peerID = MCPeerID(displayName: Self.clampNickname(nickname, fallback: Host.current().localizedName ?? "PokeTokenBar"))
+        myPeerID = peerID
         self.code = code
+        session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
         super.init()
+        session.delegate = self
+    }
+
+    /// 초대가 교차했을 때 누가 수락할지 정하는 전역 순서. 닉네임 기본값이 컴퓨터 이름이라 두 기기가
+    /// 같은 이름을 쓸 수 있어 닉네임만으론 순서가 없다 — 기기마다 고유한 교환 코드를 함께 넣는다.
+    static func tiebreakKey(displayName: String, code: String?) -> String {
+        "\(displayName)\u{0}\(code ?? "")"
+    }
+
+    /// 초대 수락 여부 — 프레임워크 콜백 없이 검증할 수 있게 순수 판정으로 분리한다.
+    /// 상대가 이미 정해졌으면 그 상대만 받는다(제3자가 끼면 send 가 두 명에게 브로드캐스트된다).
+    /// 내가 먼저 초대한 상대에게서 초대가 되돌아오면 교차다 — 키가 큰 쪽만 수락해 연결을 하나로 만든다.
+    /// 코드가 기기마다 달라 키가 같을 수는 없고, 그래도 같다면 `>=` 가 교착 대신 현행 동작으로 떨어진다.
+    static func shouldAccept(invitationFrom peer: String, partner: String?, invited: String?,
+                             myKey: String, theirKey: String) -> Bool {
+        if let partner { return partner == peer }
+        guard invited == peer else { return true }
+        return myKey >= theirKey
     }
 
     /// discoveryInfo 파싱을 순수 함수로 분리 — 네트워크 스택 없이 단위 테스트 가능하게 한다.
@@ -92,40 +114,76 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         lock.lock()
         let mcPeer = discoveredPeers[peer.id]
         let currentBrowser = browser
+        let alreadyPaired = partnerPeerID != nil
+        if let mcPeer, currentBrowser != nil, !alreadyPaired { invitedPeerID = mcPeer }
         lock.unlock()
 
         // 상대가 더 이상 discoveredPeers 에 없는 경우를 나타내는 전용 케이스가 없어 notConnected 를 재사용한다.
-        guard let mcPeer, let currentBrowser else { throw TradeTransportError.notConnected }
-        currentBrowser.invitePeer(mcPeer, to: session, withContext: nil, timeout: 15)
+        guard let mcPeer, let currentBrowser, !alreadyPaired else { throw TradeTransportError.notConnected }
+        // 교차 초대 판정에 쓸 내 코드를 실어 보낸다 — 받는 쪽은 discoveryInfo 없이 이 값만으로 순서를 정한다.
+        currentBrowser.invitePeer(mcPeer, to: session, withContext: Data(code.utf8), timeout: 15)
     }
 
     func send(_ message: TradeMessage) throws {
-        guard !session.connectedPeers.isEmpty else { throw TradeTransportError.sendFailed }
+        lock.lock()
+        let partner = partnerPeerID
+        lock.unlock()
+        // 목적지를 connectedPeers 가 아니라 확정된 상대 한 명으로 한정한다 — 제3자가 세션에 남아 있어도
+        // 내 오퍼/승인이 그쪽으로 함께 나가지 않는다.
+        guard let partner, session.connectedPeers.contains(partner) else { throw TradeTransportError.sendFailed }
         guard let data = try? JSONEncoder().encode(message) else { throw TradeTransportError.sendFailed }
         do {
-            try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+            try session.send(data, toPeers: [partner], with: .reliable)
         } catch {
             throw TradeTransportError.sendFailed
         }
     }
 
     func disconnect() {
+        lock.lock()
+        partnerPeerID = nil
+        invitedPeerID = nil
+        lock.unlock()
         session.disconnect()
     }
 }
 
 extension MultipeerTradeTransport: MCSessionDelegate {
+    /// 교환 상대가 아닌 피어의 상태 변화는 흘려보낸다 — 제3자가 떠나는 것이 진행 중인 교환을 끊거나
+    /// 화면을 처음으로 되돌리면 안 된다.
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
-        case .connected: onConnected?()
-        case .notConnected: onDisconnected?()
+        case .connected:
+            lock.lock()
+            if partnerPeerID == nil { partnerPeerID = peerID }
+            if invitedPeerID == peerID { invitedPeerID = nil }
+            let isPartner = partnerPeerID == peerID
+            lock.unlock()
+            guard isPartner else { return }
+            onConnected?()
+        case .notConnected:
+            lock.lock()
+            let isPartner = partnerPeerID == peerID
+            if isPartner { partnerPeerID = nil }
+            if invitedPeerID == peerID { invitedPeerID = nil }
+            lock.unlock()
+            guard isPartner else { return }
+            onDisconnected?()
         case .connecting: break
         @unknown default: break
         }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        guard let message = try? JSONDecoder().decode(TradeMessage.self, from: data) else { return }
+        lock.lock()
+        let isPartner = partnerPeerID == peerID
+        lock.unlock()
+        guard isPartner else { return }
+        guard let message = try? JSONDecoder().decode(TradeMessage.self, from: data) else {
+            // 버전이 달라 해석 못 한 메시지와 "상대가 아예 제안을 안 했다" 를 로그에서 구분하기 위한 한 줄.
+            AppLog.write("trade: undecodable multipeer message (\(data.count) bytes) from \(peerID.displayName)")
+            return
+        }
         onMessageReceived?(message)
     }
 
@@ -151,9 +209,19 @@ extension MultipeerTradeTransport: MCNearbyServiceBrowserDelegate {
 }
 
 extension MultipeerTradeTransport: MCNearbyServiceAdvertiserDelegate {
-    /// 내부용 기능이라 초대는 항상 자동 수락 — 신원 확인은 이후 Hello 메시지의 닉네임/코드 표시로 사람이 한다.
+    /// 초대는 1:1 이 지켜지는 범위에서만 수락한다(`shouldAccept` 참조) — 신원 확인은 이후 Hello 메시지의
+    /// 닉네임/코드 표시로 사람이 한다.
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        invitationHandler(true, session)
+        lock.lock()
+        let partner = partnerPeerID?.displayName
+        let invited = invitedPeerID?.displayName
+        lock.unlock()
+
+        let theirCode = context.flatMap { String(data: $0, encoding: .utf8) }
+        let accepted = Self.shouldAccept(invitationFrom: peerID.displayName, partner: partner, invited: invited,
+                                         myKey: Self.tiebreakKey(displayName: myPeerID.displayName, code: code),
+                                         theirKey: Self.tiebreakKey(displayName: peerID.displayName, code: theirCode))
+        invitationHandler(accepted, accepted ? session : nil)
     }
 }

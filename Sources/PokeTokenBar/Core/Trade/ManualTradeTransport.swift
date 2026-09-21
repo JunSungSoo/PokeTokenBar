@@ -65,7 +65,9 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
         newListener.newConnectionHandler = { [weak self] connection in
             guard let self else { return }
             self.lock.lock()
-            self.listener?.cancel()   // 1:1 교환이라 첫 연결만 받는다
+            // 1:1 교환이라 첫 연결만 받는다. 락을 쥔 채 cancel 하는 것은 이 파일의 "콜백은 락 밖에서" 규율의
+            // 의도된 예외 — NWListener.cancel() 은 콜백을 재진입 호출하지 않고 큐로 디스패치한다.
+            self.listener?.cancel()
             self.listener = nil
             self.lock.unlock()
             self.wire(connection)
@@ -165,6 +167,9 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
                 for frame in frames {
                     if let message = try? JSONDecoder().decode(TradeMessage.self, from: frame) {
                         decodedMessages.append(message)
+                    } else {
+                        // 버전이 달라 해석 못 한 프레임과 "상대가 아예 제안을 안 했다" 를 로그에서 구분한다.
+                        AppLog.write("trade: undecodable manual frame (\(frame.count) bytes)")
                     }
                 }
             }

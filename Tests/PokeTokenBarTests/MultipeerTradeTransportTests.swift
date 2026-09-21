@@ -56,4 +56,60 @@ final class MultipeerTradeTransportTests: XCTestCase {
         let peerID = MCPeerID(displayName: clamped)
         XCTAssertFalse(peerID.displayName.isEmpty)
     }
+
+    // MARK: C2 — 1:1 보장. MCSession 은 다자 연결이 가능해 초대를 무조건 수락하면 send 가 브로드캐스트된다.
+
+    func testInvitationFromAThirdPartyIsRefusedWhileTradingWithSomeone() {
+        let accepted = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Carol", partner: "Bob", invited: nil,
+            myKey: "Alice\u{0}AAAA", theirKey: "Carol\u{0}CCCC")
+        XCTAssertFalse(accepted, "a third party must not join an established 1:1 trade")
+    }
+
+    func testInvitationFromTheCurrentPartnerIsAcceptedAgain() {
+        // 같은 상대가 재연결을 시도하는 경우 — 파트너 고정 때문에 막히면 안 된다.
+        let accepted = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Bob", partner: "Bob", invited: nil,
+            myKey: "Alice\u{0}AAAA", theirKey: "Bob\u{0}BBBB")
+        XCTAssertTrue(accepted)
+    }
+
+    func testInvitationFromAnUninvitedPeerIsAcceptedWhenFree() {
+        let accepted = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Bob", partner: nil, invited: nil,
+            myKey: "Alice\u{0}AAAA", theirKey: "Bob\u{0}BBBB")
+        XCTAssertTrue(accepted, "the side that did not click must still be reachable")
+    }
+
+    func testCrossedInvitationsAreResolvedSoExactlyOneSideAccepts() {
+        // 둘 다 상대 행을 눌러 초대가 교차한 상황 — 양쪽 다 수락하면 같은 쌍에 연결이 두 개 생기고
+        // 하나가 곧 끊겨 교환이 조용히 처음으로 되돌아간다.
+        let aliceKey = "Alice\u{0}AAAA"
+        let bobKey = "Bob\u{0}BBBB"
+        let aliceAccepts = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Bob", partner: nil, invited: "Bob", myKey: aliceKey, theirKey: bobKey)
+        let bobAccepts = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "Alice", partner: nil, invited: "Alice", myKey: bobKey, theirKey: aliceKey)
+        XCTAssertNotEqual(aliceAccepts, bobAccepts, "exactly one side of a crossed invitation may accept")
+    }
+
+    func testCrossedInvitationTieBreakUsesTheCodeWhenNicknamesMatch() {
+        // 닉네임 기본값이 컴퓨터 이름이라 두 기기가 같은 이름을 쓸 수 있다 — 닉네임만으론 순서가 없다.
+        let firstKey = MultipeerTradeTransport.tiebreakKey(displayName: "MacBook Pro", code: "AAAA1111")
+        let secondKey = MultipeerTradeTransport.tiebreakKey(displayName: "MacBook Pro", code: "BBBB2222")
+        XCTAssertNotEqual(firstKey, secondKey)
+        let firstAccepts = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "MacBook Pro", partner: nil, invited: "MacBook Pro",
+            myKey: firstKey, theirKey: secondKey)
+        let secondAccepts = MultipeerTradeTransport.shouldAccept(
+            invitationFrom: "MacBook Pro", partner: nil, invited: "MacBook Pro",
+            myKey: secondKey, theirKey: firstKey)
+        XCTAssertNotEqual(firstAccepts, secondAccepts)
+    }
+
+    func testTiebreakKeySeparatesNameFromCode() {
+        // 구분자 없이 이어 붙이면 ("ab","c") 와 ("a","bc") 가 같은 키가 된다.
+        XCTAssertNotEqual(MultipeerTradeTransport.tiebreakKey(displayName: "ab", code: "c"),
+                          MultipeerTradeTransport.tiebreakKey(displayName: "a", code: "bc"))
+    }
 }
