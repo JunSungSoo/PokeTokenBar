@@ -1608,6 +1608,13 @@ final class CompanionStore {
         return line.localizedName(item.displaySpeciesID, state.language)
     }
 
+    /// Dex entries that may be offered in a trade. Released entries stay in `state.dex` so the
+    /// species keeps its Pokédex page, but they record a mon we let go rather than one we hold —
+    /// there is nothing there to hand over.
+    var tradeOfferableDexEntries: [DexEntry] {
+        state.dex.filter { !$0.isReleased }
+    }
+
     /// Warning that something we currently hold is about to be destroyed by receiving the
     /// partner's in-progress mon — nil when no warning is needed (receiving a dex entry destroys
     /// nothing). If a mon is being raised, that mon is what goes; if not, a paid egg guarantee
@@ -1687,7 +1694,20 @@ final class CompanionStore {
             // in our dex, and `removeTradedItem`'s `removeAll { $0.id == }` would then delete two
             // mons in a single trade. The id is a local identifier with no display meaning, so
             // reissuing it costs nothing.
-            if state.dex.contains(where: { $0.id == entry.id }) { entry.id = UUID().uuidString }
+            // `profile.instanceID` is where a graduated entry's id comes from, so the two must stay
+            // equal — and two individuals must never share an instanceID. Reissuing only `id` would
+            // leave both invariants broken on the traded copy.
+            // The instanceID is checked too: a graduated entry's id comes from it, so a twin cloned
+            // from one of ours collides on both. Checking only the id leaves two individuals sharing
+            // an instanceID when the ids happen to differ.
+            let incomingInstanceID = entry.profile?.instanceID
+            let collides = state.dex.contains {
+                $0.id == entry.id || ($0.profile?.instanceID != nil && $0.profile?.instanceID == incomingInstanceID)
+            }
+            if collides {
+                entry.id = UUID().uuidString
+                entry.profile?.instanceID = entry.id
+            }
             state.dex.append(entry)
         case .activeMon(let mon):
             state.active = mon

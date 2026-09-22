@@ -201,7 +201,7 @@ struct TradeView: View {
                     if let active = store.state.active {
                         offerRow(item: .activeMon(active), badge: l.dexRaising)
                     }
-                    ForEach(store.state.dex) { entry in
+                    ForEach(store.tradeOfferableDexEntries) { entry in
                         offerRow(item: .dexEntry(entry), badge: nil)
                     }
                 }
