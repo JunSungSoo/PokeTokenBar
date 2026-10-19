@@ -25,7 +25,7 @@ struct TradeItemRow: View {
     var body: some View {
         HStack(spacing: 6) {
             SpriteView(speciesID: item.displaySpeciesID, size: spriteSize,
-                       shiny: item.displayIsShiny, unownForm: item.displayUnownForm)
+                       shiny: item.displayIsShiny, form: item.displayForm)
             Text(name)
         }
         .task {

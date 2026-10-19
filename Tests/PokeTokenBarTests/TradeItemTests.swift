@@ -2,6 +2,20 @@ import XCTest
 @testable import PokeTokenBar
 
 final class TradeItemTests: XCTestCase {
+    func testNonUnownFormsSurviveTradePayloadRoundTripAndDisplay() throws {
+        let entry = DexEntry(baseID: 492, finalID: 492, chainOrder: [492], rarity: .common,
+                             caughtAt: Date(), form: PokemonForm("sky"))
+        let mon = MonState(baseID: 422, pathIDs: [422], stageIndex: 0, usedAtStage: 0,
+                           rarity: .common, totalForms: 2, form: PokemonForm("east"))
+        for (item, expectedForm) in [(TradeItem.dexEntry(entry), PokemonForm("sky")),
+                                     (TradeItem.activeMon(mon), PokemonForm("east"))] {
+            let data = try JSONEncoder().encode(item)
+            let decoded = try JSONDecoder().decode(TradeItem.self, from: data).sanitized()
+            XCTAssertEqual(decoded.displayForm, expectedForm)
+            XCTAssertEqual(decoded.displaySpeciesID, item.displaySpeciesID)
+        }
+    }
+
     private func sampleMon(usedAtStage: Int = 0, totalForms: Int = 2) -> MonState {
         MonState(baseID: 1, pathIDs: [1, 2], stageIndex: 0, usedAtStage: usedAtStage,
                   rarity: .common, totalForms: totalForms)

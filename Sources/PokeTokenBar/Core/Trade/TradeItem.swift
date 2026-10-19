@@ -65,10 +65,10 @@ enum TradeItem: Codable, Sendable {
         }
     }
 
-    var displayUnownForm: UnownForm? {
+    var displayForm: PokemonForm? {
         switch self {
-        case .dexEntry(let entry): return entry.unownForm
-        case .activeMon(let mon): return mon.unownForm
+        case .dexEntry(let entry): return entry.form
+        case .activeMon(let mon): return mon.form
         }
     }
 

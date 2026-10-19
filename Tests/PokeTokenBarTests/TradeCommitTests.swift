@@ -116,7 +116,8 @@ final class TradeCommitTests: XCTestCase {
         seed.active = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
                                rarity: .common, totalForms: 1)
         seed.eggTier = .rare
-        seed.pendingHatchID = 7
+        seed.pendingHatchID = 492
+        seed.pendingForm = PokemonForm("sky")
         seed.eggUsage = 250
         let (store, _) = try fixture(state: seed)
         let sent = MonState(baseID: 1, pathIDs: [1], stageIndex: 0, usedAtStage: 0,
@@ -128,7 +129,7 @@ final class TradeCommitTests: XCTestCase {
         XCTAssertNil(store.state.active)
         XCTAssertNil(store.state.eggTier)
         XCTAssertNil(store.state.pendingHatchID)
-        XCTAssertNil(store.state.pendingUnownForm)
+        XCTAssertNil(store.state.pendingForm)
         XCTAssertEqual(store.state.eggUsage, 0)
     }
 
@@ -136,15 +137,21 @@ final class TradeCommitTests: XCTestCase {
     /// state to `.idle`; leaving it at `.egg` (its pre-trade value) would show an empty egg slot
     /// even though `state.active` now holds a Pokémon.
     func testApplyTradeCommitReceivingActiveMonUpdatesDisplayStateToIdle() throws {
-        let (store, _) = try fixture()
+        var seed = CompanionState()
+        seed.pendingHatchID = 492
+        seed.pendingForm = PokemonForm("sky")
+        let (store, _) = try fixture(state: seed)
         XCTAssertEqual(store.displayState, .egg)
-        let received = MonState(baseID: 4, pathIDs: [4], stageIndex: 0, usedAtStage: 0,
-                                rarity: .common, totalForms: 1)
+        let received = MonState(baseID: 422, pathIDs: [422], stageIndex: 0, usedAtStage: 0,
+                                rarity: .common, totalForms: 2, form: PokemonForm("east"))
         let sent = DexEntry(baseID: 1, finalID: 1, chainOrder: [1], rarity: .common, caughtAt: Date())
 
         try store.applyTradeCommit(sending: .dexEntry(sent), receiving: .activeMon(received))
 
         XCTAssertEqual(store.displayState, .idle)
+        XCTAssertEqual(store.state.active?.form, PokemonForm("east"))
+        XCTAssertNil(store.state.pendingHatchID)
+        XCTAssertNil(store.state.pendingForm)
     }
 
     /// R14 — the mirror direction: giving away the active mon must flip presentation back to
