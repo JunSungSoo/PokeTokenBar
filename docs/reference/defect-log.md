@@ -15,6 +15,37 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Transient battle notices must include status outcomes and remain bounded
+
+- The engine already captured public cant/status/damage scenes, but presentation only announced
+  moves, switches and abilities. Cant had no localized description, so even its existing
+  transition produced no visible text. A single optional announcement was also overwritten
+  by each subsequent scene. Earlier tests exercised move/ability notices, not flinch or
+  non-ability residual HP changes. Sweep the captured protocol kinds and retain sequential
+  scene application while announcing cant, damage/healing, status/cures and activations.
+- Translate inability reasons and residual causes using the configured language. Confusion
+  as a condition must read as the status rather than the identically named attacking move.
+  Keep a bounded chronological notice queue, pin the active event until it finishes, then
+  independently expire it after a brief readable interval. Append new notices beneath older
+  ones. A height-fitting stack drops the oldest visible rows on smaller fields, truncates
+  long copy, and clips to the existing battlefield without affecting command layout.
+- Real-engine public frames cover flinch, sleep, poison, burn and sandstorm on both sides in
+  every language. Queue tests cover overlap, expiry, long animations and burst eviction;
+  image tests cover long translated copy inside small/normal bounds. Removing damage from
+  the presentation visibility list fails the real-engine regression (mutation restored).
+  Mounted ability and scene playback regressions retain automatic dismissal and
+  effect-before-HP sequencing.
+
+## Move selection menus must expose types without hovering
+
+- Move type metadata existed in the localized tooltip but the open loadout menu only
+  displayed names. Prior menu tests checked tooltip contents and selection state, so they
+  missed the visible-label gap. Format candidate labels as localized move name plus localized
+  type from the shared catalog; keep the choice ID and stored moves unchanged.
+- Sweep the production move-choice construction sites and verify every catalog move in every
+  supported language, plus the native NSMenu item titles and existing individual-selector
+  rendering. Removing the type suffix must fail the existing menu regression.
+
 ## Battle UI must pass shared UI integration guards
 
 - Feature-specific battle tests passed while the full source guards still found six View

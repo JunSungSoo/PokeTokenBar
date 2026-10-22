@@ -1834,7 +1834,7 @@ struct PokemonDetailView: View {
                             ? BattleTextCatalog.shared.moveTooltip(profile.moves[slot].name, language: store.language) : "",
                         choices: options.map { option in
                             PokemonLoadoutChoice(id: option.name,
-                                title: BattleTextCatalog.shared.moveName(option.name, language: store.language),
+                                title: BattleTextCatalog.shared.moveMenuTitle(option.name, language: store.language),
                                 tooltip: BattleTextCatalog.shared.moveTooltip(option.name, language: store.language),
                                 selected: profile.moves.indices.contains(slot) && profile.moves[slot].name == option.name,
                                 enabled: !profile.moves.enumerated().contains { $0.offset != slot && $0.element.name == option.name })

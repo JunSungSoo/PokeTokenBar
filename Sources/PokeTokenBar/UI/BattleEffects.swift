@@ -30,7 +30,7 @@ struct BattleEffectsLayer: View {
     var scenes: [Int: BattleScene] = [:]
     var onScene: (BattleScene) -> Void = { _ in }
     var onFinished: () -> Void = {}
-    @State private var announcement: String?
+    @State private var notices = BattleNoticeQueue()
     @Binding var busy: Bool
     @Binding var playback: BattleEffectPlayback?
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
@@ -78,7 +78,7 @@ struct BattleEffectsLayer: View {
                     }
                 }
             }
-            if let announcement { BattleEventNotice(text: announcement).offset(y: 5) }
+            if !notices.entries.isEmpty { BattleNoticeStack(notices: notices.entries) }
         }.onChange(of:events,initial:true) { _, current in
             let incoming=cursor.takeNew(current)
             guard !incoming.isEmpty else { return }
@@ -86,18 +86,18 @@ struct BattleEffectsLayer: View {
             if !draining { draining=true;busy=true;runID += 1 }
         }.task(id:runID) { [runID] in
             guard runID > 0, draining else { return }
-            defer { active=nil;busy=false;draining=false;originalRequested=false;playback=nil;announcement=nil }
+            defer { active=nil;busy=false;draining=false;originalRequested=false;playback=nil }
             while !pending.isEmpty {
                 guard !Task.isCancelled else { return }
                 let item=pending.removeFirst(),event=item.event
-                announcement=item.message
+                if let message = item.message { notices.append(id: event.id, text: message) }
                 if event.phase == "state" || event.phase == "transition" {
                     active=nil;playback=nil
                     do {
                         if event.phase == "transition" { try await Task.sleep(for: .seconds(0.45)) }
                         if let scene=item.scene { onScene(scene) }
                         try await Task.sleep(for: .seconds(event.phase == "transition" ? 0.75 : 0.25))
-                        announcement=nil
+                        notices.finish(id: event.id)
                     } catch { return }
                     continue
                 }
@@ -106,7 +106,7 @@ struct BattleEffectsLayer: View {
                     active=nil;playback=nil
                     do {
                         try await Task.sleep(for: .seconds(1.8))
-                        announcement=nil
+                        notices.finish(id: event.id)
                         try await Task.sleep(for: .seconds(BattleEffectPlayback.interEventPause))
                     }
                     catch { return }
@@ -143,14 +143,19 @@ struct BattleEffectsLayer: View {
                     if !originalPlayed {
                         try await Task.sleep(for:.seconds(reduceMotion ? 1.4 : BattleEffectPlayback.animationDuration(event)))
                     }
-                    active=nil;playback=nil;announcement=nil
+                    active=nil;playback=nil;notices.finish(id: event.id)
                     if let scene=item.scene { onScene(scene) }
                     try await Task.sleep(for:.seconds(BattleEffectPlayback.interEventPause))
                 }
                 catch { return }
             }
             onFinished()
-        }.onDisappear { pending=[];draining=false;busy=false;playback=nil;announcement=nil;showmotion?.stop();showmotion=nil;onFinished() }
+        }.task(id: notices.entries) {
+            guard let expiry = notices.nextExpiry else { return }
+            do { try await Task.sleep(for: .seconds(max(0, expiry.timeIntervalSinceNow))) }
+            catch { return }
+            notices.expire()
+        }.onDisappear { notices = BattleNoticeQueue();pending=[];draining=false;busy=false;playback=nil;showmotion?.stop();showmotion=nil;onFinished() }
     }
     static func presentationDuration(_ event: BattleVisualEvent, reducedMotion: Bool = false) -> Double {
         if event.phase == "state" { return 0.25 }

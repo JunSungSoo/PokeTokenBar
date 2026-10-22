@@ -351,8 +351,14 @@ enum BattleLogText {
         let abilityCause = args.first(where: { $0.hasPrefix("[from] ability:") }).map {
             catalog.abilityName($0.components(separatedBy: "ability:").last?.trimmingCharacters(in: .whitespaces) ?? "", language: language)
         }
-        let cause = abilityCause.map { " · " + $0 } ?? ""
+        let otherCause = args.first(where: { $0.hasPrefix("[from] ") && !$0.hasPrefix("[from] ability:") })
+            .map { l.battleDamageCause(String($0.dropFirst(7))) }
+        let cause = (abilityCause ?? otherCause).map { " · " + $0 } ?? ""
         switch parts[1] {
+        case "cant":
+            let reason = ["par", "slp", "frz", "flinch", "confusion", "attract"].contains(BattleTextCatalog.key(value(1)))
+                ? l.battleStatus(value(1)) : catalog.effectName(value(1), language: language)
+            return pokemon + " · " + reason + " · " + l.battleCannotAct + cause
         case "move": return "\(pokemon) → \(catalog.moveName(value(1),language:language))"
         case "switch", "drag": return "↔ " + catalog.pokemonName(value(1),language:language)
         case "-damage", "-heal": return "\(pokemon) · \(l.battleEvent(parts[1])) · \(value(1).split(separator:" ").first ?? "")" + cause
@@ -361,13 +367,13 @@ enum BattleLogText {
         case "-curestatus": return pokemon + " · " + l.battleEvent(parts[1]) + cause
         case "-ability": return pokemon + " · " + catalog.abilityName(value(1),language:language) + cause
         case "-activate", "-block":
-            return pokemon + " · " + catalog.effectName(value(1), language: language) + " · " + l.battleEvent(parts[1]) + cause
+            return pokemon + " · " + l.battleDamageCause(value(1)) + " · " + l.battleEvent(parts[1]) + cause
         case "-weather": return l.battleWeather(value(0)) + cause
         case "-fieldstart", "-fieldend":
             return l.battleFieldEffect(value(0)) + " · " + l.battleEvent(parts[1] == "-fieldend" ? "-end" : "-activate") + cause
         case "-sidestart", "-sideend":
             return sideName + l.battleFieldEffect(value(1)) + " · " + l.battleEvent(parts[1] == "-sideend" ? "-end" : "-activate") + cause
-        case "-start", "-end": return pokemon + " · " + catalog.effectName(value(1),language:language) + " · " + l.battleEvent(parts[1]) + cause
+        case "-start", "-end": return pokemon + " · " + l.battleDamageCause(value(1)) + " · " + l.battleEvent(parts[1]) + cause
         case "-boost", "-unboost": return pokemon + " · " + l.battleStat(value(1)) + " · " + l.battleEvent(parts[1]) + " " + value(2) + cause
         case "turn": return l.battleTurn(Int(value(0)) ?? 0)
         default: return abilityCause.map { pokemon + " · " + l.battleEvent(parts[1]) + " · " + $0 }

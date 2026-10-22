@@ -39,6 +39,10 @@ struct BattleTextCatalog: Decodable, Sendable {
     func moveName(_ raw: String, language: AppLanguage) -> String {
         moves[Self.key(raw)]?.names[language.rawValue] ?? L(language).battleUnknownMove
     }
+    func moveMenuTitle(_ raw: String, language: AppLanguage) -> String {
+        moveName(raw, language: language) + " · "
+            + typeName(moves[Self.key(raw)]?.type ?? "", language: language)
+    }
     func description(_ raw: String, language: AppLanguage) -> String {
         moves[Self.key(raw)]?.descriptions[language.rawValue] ?? L(language).battleDescriptionUnavailable
     }

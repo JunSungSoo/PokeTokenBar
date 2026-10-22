@@ -252,3 +252,15 @@ extension L {
     var faithfulPreviewPausedGIF: String { "효과 정지 중에도 GIF 재생" }
     func faithfulPreviewDetails(_ status: String) -> String { "\(status)\n오른쪽은 PokéRogue 원본 재생 코드의 독립 실행입니다. 이번 비교는 피카츄 4개 기술에 한정하며, 원본 배경 전환은 요청에 따라 표시하지 않습니다." }
 }
+
+extension L {
+    var battleCannotAct: String { t("행동할 수 없습니다", "Cannot act", "行動できない", "No puede actuar", "Ne peut pas agir", "Não pode agir", "Kann nicht handeln", "Не может действовать") }
+    func battleDamageCause(_ raw: String) -> String {
+        switch BattleTextCatalog.key(raw) {
+        case "brn", "psn", "tox", "confusion": return battleStatus(raw)
+        case "sandstorm", "hail": return battleWeather(raw)
+        case "recoil": return t("반동", "Recoil", "反動", "Retroceso", "Recul", "Recuo", "Rückstoß", "Отдача")
+        default: return BattleTextCatalog.shared.effectName(raw, language: lang)
+        }
+    }
+}

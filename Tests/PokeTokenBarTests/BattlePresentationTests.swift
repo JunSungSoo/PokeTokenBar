@@ -98,7 +98,9 @@ final class BattlePresentationTests: XCTestCase {
         let end=Date().addingTimeInterval(3)
         while probe.finished == nil && Date()<end { try await Task.sleep(for:.milliseconds(30)) }
         XCTAssertNotNil(probe.finished)
-        XCTAssertEqual(try whitePixels(),0,"Announcements must disappear rather than accumulate")
+        let expiry = Date().addingTimeInterval(2)
+        while try whitePixels() > 0 && Date() < expiry { try await Task.sleep(for: .milliseconds(30)) }
+        XCTAssertEqual(try whitePixels(),0,"Announcements must expire after their brief overlap interval")
     }
     func testMoveSelectionKeepsIdenticalSizeInEveryLanguageAndBothGridWidths() throws {
         for language in AppLanguage.allCases {
