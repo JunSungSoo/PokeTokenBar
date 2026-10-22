@@ -18,6 +18,54 @@ import XCTest
         while !condition(),Date()<end{try await Task.sleep(for:.milliseconds(25))}
         XCTAssertTrue(condition(),"Original production renderer timed out")
     }
+    func testOriginalSoundEventsPlayOnceForSpreadTargetsWithLiveIndependentVolume() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer { try? FileManager.default.removeItem(at:directory) }
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:800,height:320).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:800,height:320),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer { player.stop();window.orderOut(nil);window.contentViewController=nil }
+        await player.start();try await wait({player.ready || player.error != nil});XCTAssertNil(player.error)
+        let sprite=try await PokeRogueFaithfulPlayer.spritePayload(back:true,store:store)
+        let prepare="""
+        const manifest=await fetch('manifest.json').then(r=>r.json());
+        const definition=await fetch(manifest.entries.surf.file).then(r=>r.json());
+        const config=Array.isArray(definition)?definition[0]:definition;
+        const expected=Object.values(config.frameTimedEvents).flat().filter(e=>e.eventType==='AnimTimedSoundEvent'&&e.resourceName).length;
+        await window.ptbPrepare({move:'surf',actors:[true,false,true,false].map((own,i)=>({key:(own?'own-':'foe-')+Math.floor(i/2),own,slot:Math.floor(i/2),texture:'sound-test',sprite,x:own?120:520,y:own?298:168})),source:'own-0',targets:[{key:'foe-0'},{key:'foe-1'}],hit:true,width:800,height:320,scale:2});
+        window.ptbAdvance(120000);
+        return {...window.ptbInspect(),expected};
+        """
+        for volume in [0.6,0,0.2] {
+            player.setEffectsVolume(volume)
+            let background=try await player.evaluate(prepare,arguments:["sprite":sprite],background:true)
+            let foreground=try await player.evaluate(prepare,arguments:["sprite":sprite])
+            XCTAssertEqual(background["effectsVolume"] as? Double,0)
+            XCTAssertEqual((background["soundEvents"] as? [[String:Any]])?.count,0)
+            let sounds=try XCTUnwrap(foreground["soundEvents"] as? [[String:Any]])
+            let expected=try XCTUnwrap(foreground["expected"] as? Int)
+            XCTAssertGreaterThan(expected,0)
+            XCTAssertEqual(sounds.count,expected,"A spread move must not replay its shared sound for each target")
+            XCTAssertEqual(try XCTUnwrap(foreground["effectsVolume"] as? Double),volume,accuracy:0.000001)
+            XCTAssertEqual(foreground["audioState"] as? String,"running")
+            XCTAssertGreaterThan(foreground["playingSounds"] as? Int ?? 0,0,"The real sound manager must play decoded sounds, not just record metadata")
+            XCTAssertTrue(sounds.allSatisfy{($0["volume"] as? Double ?? -1)>=0 && ($0["volume"] as? Double ?? 2)<=volume+0.000001})
+            if volume==0 { XCTAssertTrue(sounds.allSatisfy{($0["volume"] as? Double)==0}) }
+            player.setEffectsVolume(0)
+            var muted=try await player.inspect()
+            let deadline=Date().addingTimeInterval(1)
+            while (muted["effectsVolume"] as? Double) != 0 && Date()<deadline {
+                try await Task.sleep(for:.milliseconds(10));muted=try await player.inspect()
+            }
+            XCTAssertEqual(muted["effectsVolume"] as? Double,0,"The running sound manager must update without waiting for the next move")
+            for background in [false,true] {
+                let stopped=try await player.evaluate("window.ptbFinish();return window.ptbInspect();",background:background)
+                XCTAssertEqual(stopped["playingSounds"] as? Int,0)
+                XCTAssertEqual(stopped["soundInstances"] as? Int,0,"Completed/cancelled moves must release all sound instances")
+            }
+        }
+    }
     func testProductionLayersPlaceNativeHUDOverBackgroundAndParticlesOverActors() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore();defer{try? FileManager.default.removeItem(at:directory)}
         let player=PokeRogueBattlePlayer(spriteStore:store),hud=NSView()

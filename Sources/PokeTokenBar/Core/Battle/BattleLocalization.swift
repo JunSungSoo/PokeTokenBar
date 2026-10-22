@@ -1,6 +1,7 @@
 import Foundation
 
 extension L {
+    var battleEffectsVolume: String { t("효과음 볼륨", "Sound effects volume", "効果音音量", "Volumen de efectos", "Volume des effets", "Volume dos efeitos", "Effektlautstärke", "Громкость эффектов") }
     var battleVolume: String { t("BGM 볼륨", "BGM volume", "BGM音量", "Volumen de música", "Volume de la musique", "Volume da música", "Musiklautstärke", "Громкость музыки") }
     var battleDuplicateSpecies: String { t("같은 팀에는 같은 종을 한 마리만 선택할 수 있습니다. 폼이 달라도 같은 종으로 취급합니다.", "Choose only one Pokémon of each species per team. Different forms count as the same species.", "同じチームには同じ種類を1匹だけ選べます。フォルムが違っても同じ種類として扱います。", "Solo se permite un Pokémon de cada especie por equipo, aunque tenga otra forma.", "Un seul Pokémon de chaque espèce par équipe, même avec des formes différentes.", "Apenas um Pokémon de cada espécie por equipe, mesmo com formas diferentes.", "Nur ein Pokémon jeder Art pro Team, auch bei unterschiedlichen Formen.", "В команде может быть только один покемон каждого вида, даже если формы различаются.") }
     var battleItemTypeExcluded: String { t("도구에 따라 타입이 정해지는 포켓몬은 배틀에 참가할 수 없습니다.", "Pokémon whose type depends on a held item cannot battle.", "持ち物でタイプが決まるポケモンは参加できません。", "Los Pokémon cuyo tipo depende de un objeto no pueden combatir.", "Les Pokémon dont le type dépend d’un objet ne peuvent pas combattre.", "Pokémon cujo tipo depende de um item não podem batalhar.", "Pokémon mit einem vom Item abhängigen Typ können nicht kämpfen.", "Покемоны, чей тип зависит от предмета, не могут участвовать в бою.") }

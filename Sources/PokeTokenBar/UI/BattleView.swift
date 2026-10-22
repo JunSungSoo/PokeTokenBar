@@ -8,6 +8,7 @@ struct BattleView: View {
     var onMusic: () -> Void
     var onPlayMusic: () -> Void
     var audioSettings: BattleAudioSettings? = nil
+    var allowsEffectsAudio = true
     var auxiliaryState: BattleAuxiliaryState? = nil
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
@@ -84,6 +85,9 @@ struct BattleView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: .windowBackgroundColor))
         .environment(\.locale,store.state.language.displayLocale)
+        .onChange(of: audioSettings?.effectsVolume, initial: true) { _, volume in
+            roguePlayer.setEffectsVolume(allowsEffectsAudio ? (volume ?? 0) : 0)
+        }
         .onAppear { battle.completePresentation() }
         .onDisappear{roguePlayer.stop()}
         .onChange(of:battle.frame == nil){_,empty in if empty{roguePlayer.stop()}}
@@ -104,7 +108,7 @@ struct BattleView: View {
             Button { musicEnabled.toggle(); onMusic() } label: {
                 Image(systemName: musicEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }.help(l.battleMusic).accessibilityLabel(l.battleMusic)
-            if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume) }
+            if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
         }
         if let auxiliaryState, !auxiliaryState.fieldVisible || !auxiliaryState.statsVisible {
             HStack {
@@ -289,6 +293,7 @@ struct BattleView: View {
 struct BattleVolumeControl: View {
     let settings: BattleAudioSettings
     let label: String
+    let effectsLabel: String
     @State private var showing = false
     var body: some View {
         Button { showing.toggle() } label: { Image(systemName:"slider.horizontal.3") }
@@ -299,6 +304,12 @@ struct BattleVolumeControl: View {
                     Slider(value:Binding(get:{ settings.volume },set:{ settings.setVolume($0) }),in:0...1)
                         .accessibilityLabel(label)
                         .accessibilityValue(Text(settings.volume,format:.percent.precision(.fractionLength(0))))
+                    Divider()
+                    HStack { Text(effectsLabel); Spacer(); Text(settings.effectsVolume,format:.percent.precision(.fractionLength(0))).monospacedDigit() }
+                    Slider(value:Binding(get:{ settings.effectsVolume },set:{ settings.setEffectsVolume($0) }),in:0...1)
+                        .accessibilityLabel(effectsLabel)
+                        .accessibilityIdentifier("battle-effects-volume")
+                        .accessibilityValue(Text(settings.effectsVolume,format:.percent.precision(.fractionLength(0))))
                 }.padding(16).frame(width:260)
             }
     }

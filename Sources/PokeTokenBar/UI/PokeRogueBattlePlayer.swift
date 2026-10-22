@@ -36,6 +36,7 @@ struct PokeRogueActor:Sendable {
     private var readyLayers=Set<String>()
     private(set) var ready=false
     private(set) var isPlaying=false
+    private(set) var effectsVolume=0.0
     private(set) var error:String?
     private var bridge:RogueBattleBridge?
     private var process:Process?
@@ -52,6 +53,10 @@ struct PokeRogueActor:Sendable {
         webView=WKWebView(frame:.zero,configuration:configuration);webView.setValue(false,forKey:"drawsBackground")
         backgroundWebView=WKWebView(frame:.zero,configuration:configuration);backgroundWebView.setValue(false,forKey:"drawsBackground")
         let bridge=RogueBattleBridge(owner:self);self.bridge=bridge;configuration.userContentController.add(bridge,name:"rogue")
+    }
+    func setEffectsVolume(_ value: Double) {
+        effectsVolume = value.isFinite ? min(1, max(0, value)) : 0.35
+        if ready { webView.evaluateJavaScript("window.ptbSetEffectsVolume?.(\(effectsVolume))", completionHandler: nil) }
     }
     func start() async {
         guard process==nil,!starting else{return};starting=true;defer{starting=false}
@@ -131,9 +136,10 @@ struct PokeRogueActor:Sendable {
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
             let payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
-                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale]
+                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume]
             _ = try await evaluateLayers("return await window.ptbPrepare(payload)",arguments:["payload":payload])
             guard !Task.isCancelled,run==generation else{return false}
+            _ = try await evaluate("return {volume: window.ptbSetEffectsVolume(volume)}", arguments: ["volume": effectsVolume])
             isPlaying=true
             if reducedMotion {
                 let entry=PokeRogueOriginalCatalog.shared.manifest.entries[PokeRogueOriginalCatalog.shared.key(event)]

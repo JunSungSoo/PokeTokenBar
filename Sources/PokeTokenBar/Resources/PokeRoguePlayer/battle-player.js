@@ -6,6 +6,9 @@ window.addEventListener('unhandledrejection',e=>post({kind:'error',message:Strin
 let scene,manifest,field,actors=[],runs=[],done=true,physical=0,generation=0,rawDefinitions=new Map(),pending=false;
 const assets=new Map();
 const resourceOrder=[],soundOrder=[];
+let effectsVolume=0;
+const soundEvents=[];
+window.ptbSetEffectsVolume=value=>{effectsVolume=Number.isFinite(value)?Math.max(0,Math.min(1,value)):0.35;if(scene)scene.sound.setVolume(backgroundOnly?0:effectsVolume);return effectsVolume;};
 async function json(path){if(rawDefinitions.size>=24&&!rawDefinitions.has(path))rawDefinitions.delete(rawDefinitions.keys().next().value);if(!rawDefinitions.has(path))rawDefinitions.set(path,fetch(path).then(r=>{if(!r.ok)throw Error('Missing original timeline '+path);return r.json();}));return rawDefinitions.get(path);}
 function loadAssets(entry){return new Promise((resolve,reject)=>{
  const graphics=new Set(entry.graphics),names=[...entry.graphics,...entry.backgrounds];let needed=0;
@@ -46,7 +49,12 @@ function gif(){for(const p of actors){const data=assets.get(p.textureKey),cycle=
 function timedLayer(resource){return /\bFG\b/i.test(resource)||resource==='PRAS- Sketch + Lick'?'effect':'background';}
 function facade(index,user){
  const add={tileSprite:(...args)=>layer(scene.add.tileSprite(...args),timedLayer(args[4])),rectangle:(...args)=>layer(scene.add.rectangle(...args),'background')};
- const owner={field,audioEnabled:false,sound:scene.sound,add,done:false};owner.clock=new Clock(owner);owner.tweens=owner.clock;
+ const audioEnabled=!backgroundOnly&&index===0;
+ const sound={get:key=>scene.sound.get(key),play:(key,config)=>{
+  if(audioEnabled){soundEvents.push({key,volume:config.volume*scene.sound.volume,pitch:config.rate,clock:owner.clock.now});if(soundEvents.length>48)soundEvents.shift();}
+  return scene.sound.play(key,config);
+ }};
+ const owner={field,audioEnabled,sound,add,done:false};owner.clock=new Clock(owner);owner.tweens=owner.clock;
  // One authored background and caster representation for a spread move; each target still gets its own original target/graphic track.
  if(index>0)owner.add={tileSprite:(...args)=>add.tileSprite(...args).setVisible(false),rectangle:(...args)=>add.rectangle(...args).setVisible(false)};
  owner.addFieldSprite=(x,y,key,frame)=>layer(scene.add.sprite(x,y,key,frame),'effect');
@@ -54,11 +62,13 @@ function facade(index,user){
  owner.getEnemyPokemon=()=>actors.find(a=>!a.own);owner.getPlayerPokemon=()=>actors.find(a=>a.own);
  owner.getEnemyField=()=>actors.filter(a=>!a.own);owner.getPlayerField=()=>actors.filter(a=>a.own);return owner;
 }
-function clear(){generation++;scene.sound.stopAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
+function clear(){generation++;soundEvents.length=0;scene.sound.stopAll();scene.sound.removeAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
 window.ptbPrepare=async function(payload){
  if(pending)throw Error('Original player is already preparing');pending=true;
  try{
- clear();const run=generation,entry=manifest.entries[payload.move];if(!entry)throw Error('Unsupported original move '+payload.move);
+ clear();window.ptbSetEffectsVolume(payload.effectsVolume??effectsVolume);
+ if(!backgroundOnly&&effectsVolume>0){scene.sound.unlock();await scene.sound.context?.resume();}
+ const run=generation,entry=manifest.entries[payload.move];if(!entry)throw Error('Unsupported original move '+payload.move);
  const definition=await json(entry.file);await loadAssets(entry);
  const current=new Set(payload.actors.map(a=>a.texture));
  for(const actor of payload.actors){await atlas(actor.texture,actor.sprite);const data=assets.get(actor.texture);assets.delete(actor.texture);assets.set(actor.texture,data);}
@@ -79,7 +89,7 @@ window.ptbPrepare=async function(payload){
 };
 window.ptbAdvance=function(delta){physical=performance.now();gif();for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:runs[0]?.clock.now||0};};
 window.ptbFinish=function(){clear();return true;};
-window.ptbInspect=()=>({done,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:runs[0]?.clock.now||0,backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
+window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:runs[0]?.clock.now||0,backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
 fetch('manifest.json').then(r=>r.json()).then(m=>{
  manifest=m;
  new Phaser.Game({type:Phaser.WEBGL,parent:'stage',width:800,height:320,transparent:true,pixelArt:true,render:{antialias:false,roundPixels:false,preserveDrawingBuffer:true},scene:{

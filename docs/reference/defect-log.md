@@ -15,6 +15,25 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Original move audio needs a single audible owner and independent volume
+
+- The original timed sound events and assets were already imported, but every adapter owner
+  explicitly muted them. Rendering tests ran without audible playback, so they could not
+  prove WebAudio output or detect duplicated spread-move audio. Keep authored sound volume,
+  pitch and clock unchanged; only the first foreground target is audible. Other tracks retain
+  silent sound durations so their source animation timing stays identical.
+- Store effects volume separately from music, including zero; apply it to the foreground
+  sound manager immediately and before each move. The production volume popover exposes both
+  sliders. Respect the existing audio-disabled test/window configuration. Verify actual audio
+  using both WebViews mounted in a real window: an unattached WebView cannot establish the same
+  WebAudio lifecycle. Assert its context runs, both-target sound events occur only once, live
+  mute changes the manager, and a new settings instance restores the effects level independently.
+- Stopping Phaser sounds does not destroy instances created by play(); interrupted sounds
+  never emit COMPLETE. The cleanup regression failed six assertions with stopAll alone.
+  Remove all sound instances when finishing/cancelling while retaining decoded cache entries.
+  Removing the first-target restriction must also fail the mounted regression. Preserve
+  original upstream hashes and licenses; host changes do not rewrite the authored player.
+
 ## Transient battle notices must include status outcomes and remain bounded
 
 - The engine already captured public cant/status/damage scenes, but presentation only announced

@@ -37,7 +37,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
             window.delegate = self
             let hosting = NSHostingController(rootView: BattleView(battle: battle, store: store,
                 onSurrender: { [weak self] in self?.confirmSurrender() }, onMusic: { [weak self] in self?.toggleMusic() },
-                onPlayMusic: { [weak self] in self?.playMusic() }, audioSettings:audioSettings, auxiliaryState: auxiliaryState,
+                onPlayMusic: { [weak self] in self?.playMusic() }, audioSettings:audioSettings, allowsEffectsAudio:allowsAudio, auxiliaryState: auxiliaryState,
                 onShowField: { [weak self] in self?.showAuxiliary(.field) },
                 onShowStats: { [weak self] in self?.showAuxiliary(.stats) },
                 onLayout: { [weak self] measurement in
