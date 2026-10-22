@@ -1,9 +1,11 @@
 import {AnimConfig,bindScene} from './original-player.js';
 import {Clock,TonePipeline,OriginalMove} from './player-core.js';
+import {EntryAnimation} from './entry-player.js';
 const backgroundOnly=new URLSearchParams(location.search).get('layer')==='background';
 const post=m=>window.webkit?.messageHandlers.rogue.postMessage({...m,layer:backgroundOnly?'background':'foreground'});
 window.addEventListener('unhandledrejection',e=>post({kind:'error',message:String(e.reason?.stack||e.reason)}));
 let scene,manifest,field,actors=[],runs=[],done=true,physical=0,generation=0,rawDefinitions=new Map(),pending=false;
+let entryAnimations=[];
 const assets=new Map();
 const resourceOrder=[],soundOrder=[];
 let effectsVolume=0;
@@ -24,6 +26,22 @@ function loadAssets(entry){return new Promise((resolve,reject)=>{
  while(soundOrder.length>48){const old=soundOrder.shift();scene.sound.removeByKey(old);scene.cache.audio.remove(old);}
  resolve();};scene.load.once('complete',finish);scene.load.once('loaderror',fail);scene.load.start();
  });}
+async function loadEntryAssets(){
+ const loadAtlas=async(key,path)=>{
+  if(scene.textures.exists(key))return;
+  const data=await json(path);
+  const images=await Promise.all(data.textures.map(t=>new Promise((resolve,reject)=>{
+   const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('Missing original ball atlas '+t.image));
+   image.src=new URL(t.image,new URL(path,location.href)).href;
+  })));
+  scene.textures.addAtlasJSONArray(key,images,data.textures);
+ };
+ await Promise.all([loadAtlas('entry-pb',manifest.entryAssets.ball),loadAtlas('entry-particles',manifest.entryAssets.particles),
+  (async()=>{if(!scene.cache.audio.exists('entry-release')){
+   const response=await fetch(manifest.entryAssets.release);if(!response.ok)throw Error('Missing original ball sound');
+   const buffer=await scene.sound.context.decodeAudioData(await response.arrayBuffer());scene.cache.audio.add('entry-release',buffer);
+  }})()]);
+}
 async function atlas(key,payload){
  if(scene.textures.exists(key))return;
  const images=await Promise.all(payload.frames.map(src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('Invalid native GIF frame'));image.src=src;})));
@@ -40,7 +58,7 @@ function layer(object,kind){
 }
 function orderLayers(){const rank={background:0,actor:1,effect:2};field.list.sort((a,b)=>(rank[a.getData('battleLayer')]??1)-(rank[b.getData('battleLayer')]??1));}
 function makeActor(data,scale){
- const p=layer(scene.add.container(data.x/scale,data.y/scale),'actor');field.add(p);p.own=data.own;p.slot=data.slot;p.key=data.key;p.visible=true;p.shiny=false;p.variant=0;p.gif=-1;
+ const p=layer(scene.add.container(data.x/scale,data.y/scale),'actor');field.add(p);p.own=data.own;p.slot=data.slot;p.key=data.key;p.visible=data.visible!==false;p.shiny=false;p.variant=0;p.gif=-1;
  const base=scene.add.sprite(0,0,data.texture,'gif-0').setOrigin(.5,1).setPipeline('NativeTone');p.add(base);p.base=base;p.textureKey=data.texture;
  base.pipelineData.tone=[0,0,0,0];base.pipelineData.spriteColors=[];base.pipelineData.fusionSpriteColors=[];
  p.getSprite=()=>base;p.isOnField=()=>true;p.getTag=()=>null;p.isPlayer=()=>data.own;p.getBattleSpriteKey=()=>data.texture;p.cry=()=>null;p.getSpriteScale=()=>1;p.getSubstituteOffset=()=>[0,0];return p;
@@ -62,21 +80,31 @@ function facade(index,user,sharedCaster=true){
  owner.getEnemyPokemon=()=>actors.find(a=>!a.own);owner.getPlayerPokemon=()=>actors.find(a=>a.own);
  owner.getEnemyField=()=>actors.filter(a=>!a.own);owner.getPlayerField=()=>actors.filter(a=>a.own);return owner;
 }
-function clear(){generation++;soundEvents.length=0;scene.sound.stopAll();scene.sound.removeAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
+function clear(){entryAnimations=[];generation++;soundEvents.length=0;scene.sound.stopAll();scene.sound.removeAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
 window.ptbPrepare=async function(payload){
  if(pending)throw Error('Original player is already preparing');pending=true;
  try{
  clear();window.ptbSetEffectsVolume(payload.effectsVolume??effectsVolume);
- if(!backgroundOnly&&effectsVolume>0){scene.sound.unlock();await scene.sound.context?.resume();}
- const run=generation,entry=manifest.entries[payload.move]??manifest.fieldEntries?.[payload.move];if(!entry)throw Error('Unsupported original move '+payload.move);
- const definition=await json(entry.file);await loadAssets(entry);
+ window.ptbEntryStage="audio";if(!backgroundOnly&&effectsVolume>0){scene.sound.unlock();await scene.sound.context?.resume();}
+ const run=generation,entry=manifest.entries[payload.move]??manifest.fieldEntries?.[payload.move];
+ let definition;
+ if(payload.transition){window.ptbEntryStage="assets";await loadEntryAssets();window.ptbEntryStage="loaded";}
+ else {if(!entry)throw Error('Unsupported original move '+payload.move);definition=await json(entry.file);await loadAssets(entry);}
+ payload.actors=[...payload.actors,...(payload.previousActors??(payload.previous?[payload.previous]:[]))];
  const current=new Set(payload.actors.map(a=>a.texture));
- for(const actor of payload.actors){await atlas(actor.texture,actor.sprite);const data=assets.get(actor.texture);assets.delete(actor.texture);assets.set(actor.texture,data);}
+ for(const actor of payload.actors){window.ptbEntryStage="atlas";await atlas(actor.texture,actor.sprite);const data=assets.get(actor.texture);assets.delete(actor.texture);assets.set(actor.texture,data);}
  for(const key of [...assets.keys()])if(assets.size>16&&!current.has(key)){assets.delete(key);scene.textures.remove(key);}
  if(run!==generation)throw Error('Original playback canceled');
  scene.scale.resize(payload.width,payload.height);const scale=payload.scale;field.setScale(scale);
  actors=payload.actors.map(a=>makeActor(a,scale));physical=performance.now();gif();
  const user=actors.find(a=>a.key===payload.source);if(!user)throw Error('Missing original move actor');
+ if(payload.transition){
+  const add=(key,frame)=>{const sprite=layer(scene.add.sprite(0,0,key,frame),'effect');field.add(sprite);return sprite;};
+  entryAnimations=(payload.entrySources??[payload.source]).map((key,index)=>new EntryAnimation({scene,field,
+   incoming:actors.find(a=>a.key===key),outgoing:actors.find(a=>a.key==='entry-outgoing-'+key)??(index===0?actors.find(a=>a.key==='entry-outgoing'):undefined),add,
+   playSound:(key,clock)=>{if(index===0&&!backgroundOnly){soundEvents.push({key,volume:scene.sound.volume,pitch:1,clock});scene.sound.play(key,{volume:1});}}}));
+  done=false;scene.game.loop.sleep();return {frames:Math.ceil(Math.max(...entryAnimations.map(a=>a.duration))/50)};
+ }
  const targets=payload.targets.map(t=>actors.find(a=>a.key===t.key)).filter(Boolean);if(!targets.length)targets.push(user);
  const variants=Array.isArray(definition)?definition:[definition];
  // A global condition's USER-focused particles apply to every active battler. Side conditions stay local.
@@ -91,9 +119,9 @@ window.ptbPrepare=async function(payload){
  done=false;scene.game.loop.sleep();return {frames:runs[0].animation.config.frames.length};
  }finally{pending=false;}
 };
-window.ptbAdvance=function(delta){physical=performance.now();gif();for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:runs[0]?.clock.now||0};};
+window.ptbAdvance=function(delta){physical=performance.now();gif();if(entryAnimations.length){const completed=entryAnimations.map(a=>a.advance(delta));done=completed.every(Boolean);}else{for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);}orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect())};};
 window.ptbFinish=function(){clear();return true;};
-window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:runs[0]?.clock.now||0,backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
+window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect()),backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
 fetch('manifest.json').then(r=>r.json()).then(m=>{
  manifest=m;
  new Phaser.Game({type:Phaser.WEBGL,parent:'stage',width:800,height:320,transparent:true,pixelArt:true,render:{antialias:false,roundPixels:false,preserveDrawingBuffer:true},scene:{

@@ -34,6 +34,10 @@ struct BattlePresentationEvents {
         let stateEvents = (frame.scenes ?? []).filter { !existing.contains($0.id) }.map { scene in
             let index = scene.id - offset
             let line = frame.log.indices.contains(index) ? frame.log[index] : ""
+            if let event=BattleEntryEffects.event(scene:scene,line:line,ownPlayer:ownPlayer) {
+                messages[scene.id]=BattleLogText.describe(line,language:language,ownPlayer:ownPlayer)
+                return event
+            }
             if let effect = fieldEffects[scene.id] {
                 messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
                 return effect.event

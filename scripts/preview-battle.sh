@@ -4,7 +4,13 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 swift build --arch arm64 --build-tests
 PREVIEW_APP="$PWD/build/PokeTokenBarBattlePreview.app"
-if [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
+if [[ "${PTB_ENTRY_PREVIEW:-0}" == "1" ]]; then
+    if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
+        PREVIEW_APP="$PWD/build/PokeTokenBarEntryDoublePreview.app"
+    else
+        PREVIEW_APP="$PWD/build/PokeTokenBarEntryPreview.app"
+    fi
+elif [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarFieldPreview.app"
 elif [[ "${PTB_FAITHFUL_PIKACHU:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarPokeRoguePreview.app"
@@ -32,7 +38,7 @@ python3 - "$PREVIEW_APP" <<'PY'
 import pathlib, plistlib, sys
 app = pathlib.Path(sys.argv[1])
 (app/'Contents/Info.plist').write_bytes(plistlib.dumps({
-    'CFBundleIdentifier':'dev.poketokenbar.fieldpreview' if 'FieldPreview' in app.name else 'dev.poketokenbar.lobbypreview' if 'LobbyPreview' in app.name else 'dev.poketokenbar.loadoutpreview' if 'LoadoutPreview' in app.name else 'dev.poketokenbar.abilitypreview' if 'AbilityPreview' in app.name else 'dev.poketokenbar.pokeroguepreview' if 'PokeRoguePreview' in app.name else 'dev.poketokenbar.battledoublepreview' if 'DoublePreview' in app.name else 'dev.poketokenbar.battlepreview',
+    'CFBundleIdentifier':'dev.poketokenbar.entrydoublepreview' if 'EntryDoublePreview' in app.name else 'dev.poketokenbar.entrypreview' if 'EntryPreview' in app.name else 'dev.poketokenbar.fieldpreview' if 'FieldPreview' in app.name else 'dev.poketokenbar.lobbypreview' if 'LobbyPreview' in app.name else 'dev.poketokenbar.loadoutpreview' if 'LoadoutPreview' in app.name else 'dev.poketokenbar.abilitypreview' if 'AbilityPreview' in app.name else 'dev.poketokenbar.pokeroguepreview' if 'PokeRoguePreview' in app.name else 'dev.poketokenbar.battledoublepreview' if 'DoublePreview' in app.name else 'dev.poketokenbar.battlepreview',
     'CFBundleExecutable':'PTBBattlePreview',
     'CFBundleName':'PokeTokenBar Battle Preview',
     'CFBundlePackageType':'APPL', 'LSUIElement':False,
@@ -46,7 +52,13 @@ swiftc -parse-as-library -target arm64-apple-macos14.0 \
     -lsqlite3 -Xlinker -e -Xlinker _previewmain \
     -o "$PREVIEW_APP/Contents/MacOS/PTBBattlePreview"
 codesign --force --sign - "$PREVIEW_APP"
-if [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
+if [[ "${PTB_ENTRY_PREVIEW:-0}" == "1" ]]; then
+    if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
+        open -n "$PREVIEW_APP" --args --rogue-battle --entry-demo --doubles
+    else
+        open -n "$PREVIEW_APP" --args --rogue-battle --entry-demo
+    fi
+elif [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --rogue-battle --field-effects-pilot
 elif [[ "${PTB_FAITHFUL_PIKACHU:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --faithful-pikachu

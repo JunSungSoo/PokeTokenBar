@@ -42,6 +42,9 @@ struct BattleEffectsLayer: View {
     @State private var showmotion: ShowmotionPlayer?
     @State private var originalRequested = false
     @State private var pending: [(event: BattleVisualEvent, message: String?, scene: BattleScene?)] = []
+    @State private var openingBatch = false
+    @State private var openingThroughID = -1
+    @State private var lastPresentedScene: BattleScene?
     @State private var draining = false
     @State private var runID = 0
     init(events: [BattleVisualEvent],rects: [String:CGRect],busy: Binding<Bool>,playback: Binding<BattleEffectPlayback?> = .constant(nil),messages: [Int: String] = [:],presentOpeningAbilities: Bool = false,reducedMotionOverride: Bool? = nil,scenes: [Int: BattleScene] = [:],onScene: @escaping (BattleScene) -> Void = { _ in },onFinished: @escaping () -> Void = {},originalPlayer:PokeRogueBattlePlayer?=nil,actors:[PokeRogueActor]=[],viewport:CGSize = .zero) {
@@ -50,7 +53,7 @@ struct BattleEffectsLayer: View {
         self.scenes=scenes;self.onScene=onScene;self.onFinished=onFinished
         self.reducedMotionOverride=reducedMotionOverride
         _playback=playback
-        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition", "field"].contains($0.phase ?? "") } : events))
+        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition", "field", "entry"].contains($0.phase ?? "") } : events))
     }
     var body: some View {
         ZStack {
@@ -82,27 +85,39 @@ struct BattleEffectsLayer: View {
         }.onChange(of:events,initial:true) { _, current in
             let incoming=cursor.takeNew(current)
             guard !incoming.isEmpty else { return }
+            if cursor.lastSeen == current.last?.id, !draining, pending.isEmpty,
+               current.first?.id == incoming.first?.id,
+               incoming.contains(where:{$0.phase=="entry"}), scenes.values.allSatisfy({$0.turn<=1}) {
+                openingBatch=true
+                openingThroughID=incoming.last?.id ?? -1
+                originalPlayer?.entryHiddenPositions=Set(incoming.filter{$0.phase=="entry"}.map{ $0.source.key })
+            }
             pending.append(contentsOf:incoming.map { ($0,messages[$0.id],scenes[$0.id]) })
             if !draining { draining=true;busy=true;runID += 1 }
         }.task(id:runID) { [runID] in
             guard runID > 0, draining else { return }
-            defer { active=nil;busy=false;draining=false;originalRequested=false;playback=nil }
+            defer { active=nil;busy=false;draining=false;originalRequested=false;playback=nil;openingBatch=false;originalPlayer?.entryHiddenPositions=[] }
             while !pending.isEmpty {
                 guard !Task.isCancelled else { return }
                 let item=pending.removeFirst(),event=item.event
-                if let message = item.message { notices.append(id: event.id, text: message) }
+                var batch=[item]
+                if let next=pending.first,BattleEntryEffects.canAppearTogether(event,next.event) { batch.append(pending.removeFirst()) }
+                let finalScene=batch.last?.scene
+                let isOpening=openingBatch && event.id<=openingThroughID
+                if openingBatch && !isOpening { openingBatch=false;originalPlayer?.entryHiddenPositions=[] }
+                for member in batch { if let message=member.message { notices.append(id:member.event.id,text:message) } }
                 if event.phase == "state" || event.phase == "transition" {
                     active=nil;playback=nil
                     do {
                         if event.phase == "transition" { try await Task.sleep(for: .seconds(0.45)) }
-                        if let scene=item.scene { onScene(scene) }
+                        if let scene=item.scene, !isOpening { onScene(scene);lastPresentedScene=scene }
                         try await Task.sleep(for: .seconds(event.phase == "transition" ? 0.75 : 0.25))
                         notices.finish(id: event.id)
                     } catch { return }
                     continue
                 }
                 if event.phase == "ability" {
-                    if let scene=item.scene { onScene(scene) }
+                    if let scene=item.scene, !isOpening { onScene(scene);lastPresentedScene=scene }
                     active=nil;playback=nil
                     do {
                         try await Task.sleep(for: .seconds(1.8))
@@ -121,12 +136,33 @@ struct BattleEffectsLayer: View {
                 var originalPlayed=false
                 if let originalPlayer {
                     let eventActors=actors.compactMap { actor -> PokeRogueActor? in
-                        guard let scene=item.scene else{return actor}
+                        guard let scene=finalScene else{return actor}
                         let members=actor.position.own ? scene.own.filter(\.active):scene.foe
-                        guard members.indices.contains(actor.position.slot) else{return nil}
+                        guard members.indices.contains(actor.position.slot) else{return isOpening ? actor:nil}
                         return PokeRogueActor(pokemon:members[actor.position.slot],position:actor.position,rect:actor.rect)
                     }
-                    _ = await originalPlayer.play(event,actors:eventActors,size:viewport,reducedMotion:reduceMotion)
+                    if event.phase == "entry" {
+                        let old:[PokeRogueActor]=isOpening ? []:batch.compactMap { member in
+                            let position=member.event.source
+                            let priorMembers=position.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
+                            guard let actor=actors.first(where:{$0.position==position}) else{return nil}
+                            let pokemon=priorMembers.flatMap { $0.indices.contains(position.slot) ? $0[position.slot]:nil } ?? actor.pokemon
+                            return PokeRogueActor(pokemon:pokemon,position:position,rect:actor.rect)
+                        }
+                        var revealed=false
+                        let reveal={
+                            guard !revealed else{return};revealed=true
+                            for member in batch {
+                                originalPlayer.entryHiddenPositions.remove(member.event.source.key)
+                                if let scene=member.scene,!isOpening { onScene(scene);lastPresentedScene=scene }
+                            }
+                        }
+                        _ = await originalPlayer.play(event,actors:eventActors,size:viewport,reducedMotion:reduceMotion,entrySources:batch.map{$0.event.source},previousActors:old,beforeFinish:reveal)
+                        guard !Task.isCancelled else{return}
+                        reveal()
+                    } else {
+                        _ = await originalPlayer.play(event,actors:eventActors,size:viewport,reducedMotion:reduceMotion)
+                    }
                     guard !Task.isCancelled else{return}
                     originalPlayed=true // Never substitute another renderer if original playback fails.
                 }
@@ -143,8 +179,8 @@ struct BattleEffectsLayer: View {
                     if !originalPlayed {
                         try await Task.sleep(for:.seconds(reduceMotion ? 1.4 : BattleEffectPlayback.animationDuration(event)))
                     }
-                    active=nil;playback=nil;notices.finish(id: event.id)
-                    if let scene=item.scene { onScene(scene) }
+                    active=nil;playback=nil;for member in batch { notices.finish(id:member.event.id) }
+                    if event.phase != "entry", let scene=item.scene, !isOpening { onScene(scene);lastPresentedScene=scene }
                     try await Task.sleep(for:.seconds(BattleEffectPlayback.interEventPause))
                 }
                 catch { return }
@@ -158,6 +194,7 @@ struct BattleEffectsLayer: View {
         }.onDisappear { notices = BattleNoticeQueue();pending=[];draining=false;busy=false;playback=nil;showmotion?.stop();showmotion=nil;onFinished() }
     }
     static func presentationDuration(_ event: BattleVisualEvent, reducedMotion: Bool = false) -> Double {
+        if event.phase == "entry" { return 5 }
         if event.phase == "state" { return 0.25 }
         if event.phase == "transition" { return 1.2 }
         if event.phase == "ability" { return 1.8 + BattleEffectPlayback.interEventPause }

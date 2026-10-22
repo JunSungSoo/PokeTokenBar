@@ -188,12 +188,13 @@ struct BattleView: View {
                 .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
                 .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
                 .foregroundStyle(.black)
+                .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
             if !own { battleSprite(pokemon,own:false,slot:slot) }
         }.opacity(pokemon.fainted ? 0.35 : 1)
     }
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.isPlaying ? 0:1,pokemon:pokemon,back:own,stageSize:size)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.isPlaying || roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 

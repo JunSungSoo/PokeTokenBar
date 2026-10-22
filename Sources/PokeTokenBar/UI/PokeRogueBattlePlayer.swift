@@ -27,6 +27,7 @@ struct PokeRogueActor:Sendable {
         manifest.entries[key(event)] ?? manifest.fieldEntries?[key(event)]
     }
     func estimatedDuration(_ event:BattleVisualEvent)->Double {
+        if event.phase == "entry" { return 6 }
         guard let entry=entry(event) else{return 0}
         // Include authored tails and loading margin; the real player completion remains authoritative.
         return Double(entry.frames.max() ?? 0)*0.05+4
@@ -39,6 +40,7 @@ struct PokeRogueActor:Sendable {
     private var readyLayers=Set<String>()
     private(set) var ready=false
     private(set) var isPlaying=false
+    var entryHiddenPositions=Set<String>()
     private(set) var effectsVolume=0.0
     private(set) var error:String?
     private var bridge:RogueBattleBridge?
@@ -120,7 +122,7 @@ struct PokeRogueActor:Sendable {
         while order.count>12{payloads.removeValue(forKey:order.removeFirst())}
         return(key,value)
     }
-    func play(_ event:BattleVisualEvent,actors:[PokeRogueActor],size:CGSize,reducedMotion:Bool=false) async -> Bool {
+    func play(_ event:BattleVisualEvent,actors:[PokeRogueActor],size:CGSize,reducedMotion:Bool=false,previousActor:PokeRogueActor?=nil,entrySources:[BattleEffectPosition]=[],previousActors:[PokeRogueActor]=[],beforeFinish:()->Void = {}) async -> Bool {
         if error != nil{stop()}
         let run=generation
         do{
@@ -134,19 +136,31 @@ struct PokeRogueActor:Sendable {
             for actor in actors {
                 let (texture,data)=try await sprite(actor.pokemon,back:actor.position.own,reduced:reducedMotion)
                 members.append(["key":actor.position.key,"own":actor.position.own,"slot":actor.position.slot,"texture":texture,"sprite":data,
-                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset])
+                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset,"visible":!entryHiddenPositions.contains(actor.position.key)])
             }
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
-            let payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
+            var payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
                 "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event)]
+            if event.phase == "entry" {
+                payload["transition"]=true
+                payload["entrySources"]=(entrySources.isEmpty ? [event.source]:entrySources).map(\.key)
+                var outgoing:[[String:Any]]=[]
+                for old in previousActors + (previousActor.map{[$0]} ?? []) {
+                    guard let incoming=actors.first(where:{$0.position==old.position}),old.pokemon.id != incoming.pokemon.id,!old.pokemon.fainted else{continue}
+                    let (texture,data)=try await sprite(old.pokemon,back:old.position.own,reduced:reducedMotion)
+                    outgoing.append(["key":"entry-outgoing-"+old.position.key,"own":old.position.own,"slot":old.position.slot,"texture":texture,"sprite":data,
+                        "x":old.rect.midX,"y":old.rect.maxY-BattleSpriteGeometry.footInset])
+                }
+                payload["previousActors"]=outgoing
+            }
             _ = try await evaluateLayers("return await window.ptbPrepare(payload)",arguments:["payload":payload])
             guard !Task.isCancelled,run==generation else{return false}
             _ = try await evaluate("return {volume: window.ptbSetEffectsVolume(volume)}", arguments: ["volume": effectsVolume])
             isPlaying=true
             if reducedMotion {
                 let entry=PokeRogueOriginalCatalog.shared.entry(event)
-                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":Double(entry?.frames.max() ?? 1)*25])
+                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":(event.phase == "entry" ? 10000 : Double(entry?.frames.max() ?? 1)*25)])
                 try await Task.sleep(for:.seconds(1.4))
             }else{
                 var previous=Date();let deadline=previous.addingTimeInterval(60)
@@ -158,6 +172,10 @@ struct PokeRogueActor:Sendable {
                     try await Task.sleep(for:.milliseconds(33))
                 }
             }
+            guard !Task.isCancelled,run==generation else {
+                if run==generation { stop() };return false
+            }
+            beforeFinish()
             _ = try await evaluateLayers("return window.ptbFinish()")
             isPlaying=false;return !Task.isCancelled && run==generation
         }catch{
@@ -172,7 +190,7 @@ struct PokeRogueActor:Sendable {
         if data["kind"] as? String=="error"{error=data["message"] as? String ?? "PokéRogue unavailable"}
     }
     func stop(){
-        generation=UUID();isPlaying=false;ready=false;readyLayers=[];error=nil
+        generation=UUID();isPlaying=false;entryHiddenPositions=[];ready=false;readyLayers=[];error=nil
         for view in [backgroundWebView,webView]{view.evaluateJavaScript("window.ptbFinish?.()",completionHandler:nil);view.stopLoading()}
         let pending=evaluations.values;evaluations=[:];for c in pending{c.resume(throwing:CancellationError())}
         try? input?.fileHandleForWriting.close();input=nil

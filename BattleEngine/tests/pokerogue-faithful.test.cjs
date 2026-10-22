@@ -27,5 +27,5 @@ test('every production move retains the complete original timeline and all offli
   for(const sound of entry.sounds)assert.ok(fs.existsSync(path.join(production,'audio/battle_anims',sound)),key+': '+sound);
  }
  assert.ok(user&&target,'Full original USER/TARGET commands must survive packaging');
- for(const name of ['battle-player.js','player-core.js','original-player.js'])execFileSync(process.execPath,['--input-type=module','--check'],{input:fs.readFileSync(path.join(production,name))});
+ for(const name of ['battle-player.js','player-core.js','entry-player.js','original-player.js'])execFileSync(process.execPath,['--input-type=module','--check'],{input:fs.readFileSync(path.join(production,name))});
 });

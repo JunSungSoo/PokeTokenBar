@@ -92,3 +92,28 @@ test('bounded snapshots survive log rollover without retaining private or unboun
  for(let i=0;i<35;i++)for(const p of [0,1])command(e,p,[move(),move()]);
  for(const p of [0,1]){const f=e.frame(p);assert.ok(f.logOffset>0);assert.ok(f.scenes.length<=160);assert.ok(f.scenes.every(s=>s.id>=f.logOffset));assert.ok(Buffer.byteLength(JSON.stringify(f))<1024*1024);}
 });
+
+test('BW2 Protect and Detect resolve at +4 before faster attacks and +1 moves, including Trick Room and doubles',()=>{
+ for(const mode of ['singles','doubles'])for(const room of [false,true])for(const defense of ['protect','detect'])for(const attack of ['quickattack','tackle']) {
+  const own=team('a',20,500,[defense]);
+  const e=new OwnedBattle(mode,[own,team('b',250,500,[attack])],[1,2,3,4]);
+  assert.equal(e.battle.dex.moves.get(defense).priority,4);
+  if(room)e.battle.field.addPseudoWeather('trickroom',e.battle.sides[0].active[0]);
+  const before=last(e),count=mode==='singles'?1:2;
+  command(e,0,Array.from({length:count},()=>move()));
+  command(e,1,Array.from({length:count},(_,i)=>move(1,mode==='singles'?0:i+1)));
+  for(const player of [0,1]) {
+   const [f,scenes]=recent(e,player,before);
+   const actions=scenes.filter(s=>line(f,s).startsWith('|move|'));
+   assert.equal(actions.length,count*2);
+   const defenses=actions.filter(s=>line(f,s).includes(`|${defense==='protect'?'Protect':'Detect'}|`));
+   const attacks=actions.filter(s=>!defenses.includes(s));
+   assert.equal(defenses.length,count);
+   assert.ok(defenses.every(d=>attacks.every(a=>d.id<a.id)),`${mode} ${defense} must precede ${attack}, room=${room}`);
+   const effects=f.effects.filter(v=>v.id>before);
+   assert.deepEqual(effects.map(v=>v.id),actions.map(s=>s.id),'Animation order must retain the engine priority order');
+   assert.ok(!scenes.some(s=>line(f,s).startsWith('|-damage|')),'Protect/Detect must block the later attacks');
+   assert.ok(f.own.filter(p=>p.active).every(p=>p.hp===500));
+  }
+ }
+});

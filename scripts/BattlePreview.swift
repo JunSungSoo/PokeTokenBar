@@ -349,7 +349,22 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                         }
                     }
                 }
+                var entryDemoAt=Date().addingTimeInterval(16)
+                var entryDemoCount=0
+                if CommandLine.arguments.contains("--entry-demo") {
+                    window.window?.title="PokeTokenBar · 등장·회수 테스트 · \(a.mode == .singles ? "싱글 660px":"더블 680px")"
+                }
                 while window.window?.isVisible == true {
+                    if CommandLine.arguments.contains("--entry-demo"),entryDemoCount<2,Date()>entryDemoAt,
+                       a.phase == .playing,!a.submitted,!a.presentation.pending,let f=a.frame,!f.waiting {
+                        let bench=f.own.firstIndex{!$0.active && !$0.fainted}
+                        if let bench {
+                            a.choose(BattleDecision(decisionID:f.decisionID,actions:f.slots.map{ slot in
+                                slot.slot==0 ? BattleAction(kind:"switch",index:bench+1,target:0):BattleAction(kind:"move",index:1,target:1)
+                            },order:[]))
+                            entryDemoCount+=1;entryDemoAt=Date().addingTimeInterval(16)
+                        }
+                    }
                     if CommandLine.arguments.contains("--versus-codex") {
                         if b.phase == .playing, !b.submitted, let frame = b.frame, !frame.waiting, !frame.ended {
                             let command = duelDirectory.appendingPathComponent("command.json")

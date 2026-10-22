@@ -18,6 +18,72 @@ import XCTest
         while !condition(),Date()<end{try await Task.sleep(for:.milliseconds(25))}
         XCTAssertTrue(condition(),"Original production renderer timed out")
     }
+    func testOriginalBallThrowRecallParticlesSoundAndCompletionInNativePlayer() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:660,height:310).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:660,height:310),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        await player.start();try await wait({player.ready || player.error != nil})
+        XCTAssertNil(player.error)
+        let sprite=try await PokeRogueFaithfulPlayer.spritePayload(back:true,store:store)
+        for recall in [false,true] {
+            for background in [true,false] {
+                let states=try await player.evaluate("""
+                const payload={transition:true,source:'own-0',targets:[],actors:[{key:'own-0',own:true,slot:0,texture:'entry-fixture',sprite,x:120,y:280},{key:'foe-0',own:false,slot:0,texture:'entry-fixture',sprite,x:540,y:140}],width:660,height:310,scale:1.5,effectsVolume:.4};
+                if(recall)payload.previous={...payload.actors[0],key:'entry-outgoing'};
+                await Promise.race([window.ptbPrepare(payload),new Promise((_,reject)=>setTimeout(()=>reject(Error(JSON.stringify({stage:window.ptbEntryStage,diagnostic:window.ptbInspect()}))),3000))]);
+                const start=window.ptbInspect();
+                window.ptbAdvance(125);const first=window.ptbInspect();
+                if(recall)window.ptbAdvance(1000);
+                window.ptbAdvance(395);const opened=window.ptbInspect();
+                window.ptbAdvance(100);const particles=window.ptbInspect();
+                window.ptbAdvance(899);const waiting=window.ptbInspect();
+                window.ptbAdvance(1);const completed=window.ptbInspect();
+                window.ptbFinish();return {start,first,opened,particles,waiting,completed,cleared:window.ptbInspect()};
+                """,arguments:["sprite":sprite,"recall":recall],background:background)
+                func entry(_ key:String) throws -> [String:Any] { try XCTUnwrap((states[key] as? [String:Any])?["entry"] as? [String:Any]) }
+                XCTAssertEqual(try entry("start")["incomingVisible"] as? Bool,false)
+                XCTAssertEqual(try entry("first")["phase"] as? String,recall ? "recall":"throw")
+                XCTAssertEqual(try entry("opened")["incomingVisible"] as? Bool,true)
+                XCTAssertGreaterThan(try entry("particles")["particles"] as? Int ?? 0,0)
+                let opened=try XCTUnwrap(states["opened"] as? [String:Any])
+                XCTAssertEqual(opened["audioState"] as? String,"running","Ball release must use a resumed audio context")
+                if background { XCTAssertEqual(opened["playingSounds"] as? Int,0) }
+                else { XCTAssertGreaterThan(opened["playingSounds"] as? Int ?? 0,0,"The original pb_rel must actually play when the ball opens") }
+                XCTAssertEqual((states["waiting"] as? [String:Any])?["done"] as? Bool,false,"The next action must wait for original settle time")
+                XCTAssertEqual((states["completed"] as? [String:Any])?["done"] as? Bool,true)
+                let sounds=(states["completed"] as? [String:Any])?["soundEvents"] as? [[String:Any]] ?? []
+                XCTAssertEqual(sounds.count,background ? 0:(recall ? 2:1))
+                XCTAssertTrue(sounds.allSatisfy{abs(($0["volume"] as? Double ?? -1)-0.4)<0.0001})
+                XCTAssertNil((states["cleared"] as? [String:Any])?["entry"] as? [String:Any])
+            }
+        }
+    }
+
+    func testCancellingOrClosingEntryNeverCommitsItsPendingScene() async throws {
+        for close in [false,true] {
+            let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+            defer{try? FileManager.default.removeItem(at:directory)}
+            let player=PokeRogueBattlePlayer(spriteStore:store)
+            let host=NSHostingController(rootView:Color.clear.frame(width:660,height:310).modifier(PokeRogueBattlefieldLayers(player:player)))
+            let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:660,height:310),styleMask:[.borderless],backing:.buffered,defer:false)
+            window.contentViewController=host;window.orderFront(nil)
+            defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+            var committed=false
+            let task=Task{await player.play(event("",phase:"entry"),actors:actors(),size:CGSize(width:660,height:310),beforeFinish:{committed=true})}
+            try await wait({player.isPlaying || player.error != nil})
+            if close { player.stop() } else { task.cancel() }
+            let completed=await task.value
+            XCTAssertFalse(completed)
+            XCTAssertFalse(committed,"A closed or cancelled entry cannot apply its old scene after a later battle starts")
+            XCTAssertFalse(player.isPlaying)
+            XCTAssertTrue(player.entryHiddenPositions.isEmpty)
+        }
+    }
+
     func testOriginalSoundEventsPlayOnceForSpreadTargetsWithLiveIndependentVolume() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer { try? FileManager.default.removeItem(at:directory) }

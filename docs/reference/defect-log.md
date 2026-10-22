@@ -15,6 +15,39 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Ball entry must finish before revealing the new state or advancing actions
+
+- Public switch/drag events previously received a generic 450/750ms transition hold,
+  instantly swapping sprites. Technical entry assets live outside move JSON timelines,
+  so importing/testing move animations could never cover ball throws or recall.
+- Route authoritative switch/drag slots to a separate entry event. Preserve perspective,
+  double slots and original balls/particles/pb_rel audio. Illusion `replace` is a disguise
+  update, not another ball throw. Only living, different outgoing actors receive recall;
+  fainted replacements and initial sends enter without recall. Preserve GIF progression.
+- Await the original entry's completion; commit its immutable scene while the original
+  surface is still visible, then restore native GIFs and advance the queue. Track the
+  last presented scene so a hazard KO cannot incorrectly recall a still-alive stale actor.
+  Opening sends hide not-yet-summoned actors and defer partial starting rosters. Bound
+  this opening behavior to the initial batch IDs so appended real turns still replay HP.
+- Phaser's multi-atlas loader stalled in the embedded player, while previous asset tests
+  only loaded individual sheets. Register the untouched original atlas JSON/images directly
+  with the existing texture manager and decode the original sound into the same sound cache.
+  Mounted WebGL regressions must load both real atlases, emit particles and audible events,
+  test the final 1ms completion boundary and verify normal cleanup on both surfaces.
+- A mounted production queue regression requires one scene commit, original visible-frame
+  handoff, continuing GIF frames and a delayed following event in singles and doubles.
+  Removing the original settle pause must fail both the clock and queue-order regressions.
+  Real engine frames cover both perspectives' initial and fainted replacement slots.
+- Appearance runs at the requested 1.25x (1520ms including settle), independently of
+  the original recall clock. Adjacent same-side entries in doubles share one playback;
+  never group across an intervening action or opposing side. Advance every track before
+  testing collective completion (avoid short-circuit `every` that skips later actors).
+  The mounted doubles regression requires both tracks at the same clock, one commit per
+  source scene, and completion within one pair's duration rather than two sequential runs.
+  Replacing full-track advancement with short-circuit `every` fails 114 assertions;
+  restoring it passes the four native entry/cancellation tests. Region coverage confirms
+  the pair-consumption body and both single/pair source payload branches execute.
+
 ## Global battle effects must use arena coordinates and both active sides
 
 - Original SCREEN-focus particles retained fixed 320×180 source coordinates under a

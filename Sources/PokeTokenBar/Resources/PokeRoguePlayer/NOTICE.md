@@ -13,3 +13,14 @@ manifest hashes on redistribution. No claim of a blanket MIT or CC0 asset licens
 Common Gen V weather timelines are bundled separately from move entries. Field-start presentation reuses the corresponding original move timeline when no dedicated common animation exists. Battle mechanics remain BW2 engine-authoritative.
 
 The native host maps original 320×180 SCREEN-focus graphics to its arena viewport. USER-focused graphics for global field conditions run for every active battler, sharing one original background and audible sound owner; original timelines, actor sprite scale and frame timing remain unchanged.
+
+
+Entry/recall presentation is adapted in entry-player.js from the pinned runtime's
+SummonPhase, SwitchSummonPhase, Animation.doDefaultPbOpenParticles and Poké Ball tint.
+Unmodified source references live in original/entry/. Original pb/pb_particles atlases
+and se/pb_rel.wav retain their pinned bytes, source paths, hashes and existing upstream
+licensing/attribution. The host adapts coordinates to native GIF anchors, preserves
+original throw/release easing and staggered radial particles. Appearance and its settle
+pause play at 1.25x speed (520ms throw, 200ms growth, 1520ms total); recall retains
+its original timing. Adjacent same-side double entries share a clock and sound owner. The collection currently has no captured ball type, so the standard Poké Ball
+is used. The existing effects-volume control applies to release/recall audio.
