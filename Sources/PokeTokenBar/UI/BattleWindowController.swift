@@ -7,6 +7,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     private let battle: BattleCoordinator
     private let store: CompanionStore
     private(set) var window: NSWindow?
+    private var windowMode: BattleMode?
     private(set) var contentMeasurement: BattleContentMeasurement?
     let auxiliaryState = BattleAuxiliaryState()
     private(set) var fieldWindow: NSWindow?
@@ -29,10 +30,10 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     }
     func show() {
         if window == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: BattleWindowLayout.preferredWidth, height: 680),
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 680),
                                   styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
             window.title = "PokeTokenBar · " + store.l.battle
-            window.minSize = NSSize(width: 800, height: 400)
+            window.minSize = NSSize(width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 400)
             window.isReleasedWhenClosed = false
             window.delegate = self
             let hosting = NSHostingController(rootView: BattleView(battle: battle, store: store,
@@ -46,8 +47,14 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
             hosting.sizingOptions = []
             window.contentViewController = hosting
             self.window = window
-            if let screen = NSScreen.main { window.setFrame(BattleWindowLayout(screen: screen.visibleFrame).main, display: false) }
+            if let screen = NSScreen.main { window.setFrame(BattleWindowLayout(screen: screen.visibleFrame, mode: battle.mode).main, display: false) }
             else { window.center() }
+        }
+        if windowMode != battle.mode, let window {
+            windowMode = battle.mode
+            let width = BattleWindowLayout.preferredWidth(for: battle.mode)
+            window.minSize.width = width
+            window.setContentSize(NSSize(width: width, height: window.contentRect(forFrameRect: window.frame).height))
         }
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
@@ -62,7 +69,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
         let titleHeight = window.frame.height - window.contentRect(forFrameRect: window.frame).height
         let visible = (window.screen ?? NSScreen.main)?.visibleFrame
         let height = min(ceil(measurement.content.height) + titleHeight, visible?.height ?? .greatestFiniteMagnitude)
-        let minimum = NSSize(width: 800, height: height)
+        let minimum = NSSize(width: BattleWindowLayout.preferredWidth(for: battle.mode), height: height)
         if window.minSize != minimum { window.minSize = minimum }
         guard abs(window.frame.height - height) > 0.5 else { return }
         var rect = window.frame
@@ -102,7 +109,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     }
     private func positionAuxiliaries() {
         guard let window, let screen = window.screen ?? NSScreen.main else { return }
-        let layout = BattleWindowLayout(screen: screen.visibleFrame, main: window.frame)
+        let layout = BattleWindowLayout(screen: screen.visibleFrame, mode: battle.mode, main: window.frame)
         fieldWindow?.setFrame(layout.field, display: true)
         statsWindow?.setFrame(layout.stats, display: true)
     }

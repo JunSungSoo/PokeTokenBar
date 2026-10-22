@@ -47,7 +47,7 @@ function makeActor(data,scale){
 }
 function gif(){for(const p of actors){const data=assets.get(p.textureKey),cycle=data.delays.reduce((a,b)=>a+b,0)*1000;let pos=physical%cycle,i=0;while(i<data.delays.length-1&&pos>=data.delays[i]*1000){pos-=data.delays[i]*1000;i++;}if(i!==p.gif){p.gif=i;p.base.setFrame('gif-'+i);p.base.emit('animationupdate',null,{textureFrame:'gif-'+i});}}}
 function timedLayer(resource){return /\bFG\b/i.test(resource)||resource==='PRAS- Sketch + Lick'?'effect':'background';}
-function facade(index,user){
+function facade(index,user,sharedCaster=true){
  const add={tileSprite:(...args)=>layer(scene.add.tileSprite(...args),timedLayer(args[4])),rectangle:(...args)=>layer(scene.add.rectangle(...args),'background')};
  const audioEnabled=!backgroundOnly&&index===0;
  const sound={get:key=>scene.sound.get(key),play:(key,config)=>{
@@ -58,7 +58,7 @@ function facade(index,user){
  // One authored background and caster representation for a spread move; each target still gets its own original target/graphic track.
  if(index>0)owner.add={tileSprite:(...args)=>add.tileSprite(...args).setVisible(false),rectangle:(...args)=>add.rectangle(...args).setVisible(false)};
  owner.addFieldSprite=(x,y,key,frame)=>layer(scene.add.sprite(x,y,key,frame),'effect');
- owner.addPokemonSprite=(p,x,y,texture,frame)=>{const sprite=layer(scene.add.sprite(x,y,texture,frame).setPipeline('NativeTone'),'actor');if(index>0&&p===user){const set=sprite.setVisible;sprite.setVisible=function(){return set.call(this,false);};}return sprite;};
+ owner.addPokemonSprite=(p,x,y,texture,frame)=>{const sprite=layer(scene.add.sprite(x,y,texture,frame).setPipeline('NativeTone'),'actor');if(index>0&&sharedCaster&&p===user){const set=sprite.setVisible;sprite.setVisible=function(){return set.call(this,false);};}return sprite;};
  owner.getEnemyPokemon=()=>actors.find(a=>!a.own);owner.getPlayerPokemon=()=>actors.find(a=>a.own);
  owner.getEnemyField=()=>actors.filter(a=>!a.own);owner.getPlayerField=()=>actors.filter(a=>a.own);return owner;
 }
@@ -68,7 +68,7 @@ window.ptbPrepare=async function(payload){
  try{
  clear();window.ptbSetEffectsVolume(payload.effectsVolume??effectsVolume);
  if(!backgroundOnly&&effectsVolume>0){scene.sound.unlock();await scene.sound.context?.resume();}
- const run=generation,entry=manifest.entries[payload.move];if(!entry)throw Error('Unsupported original move '+payload.move);
+ const run=generation,entry=manifest.entries[payload.move]??manifest.fieldEntries?.[payload.move];if(!entry)throw Error('Unsupported original move '+payload.move);
  const definition=await json(entry.file);await loadAssets(entry);
  const current=new Set(payload.actors.map(a=>a.texture));
  for(const actor of payload.actors){await atlas(actor.texture,actor.sprite);const data=assets.get(actor.texture);assets.delete(actor.texture);assets.set(actor.texture,data);}
@@ -78,18 +78,22 @@ window.ptbPrepare=async function(payload){
  actors=payload.actors.map(a=>makeActor(a,scale));physical=performance.now();gif();
  const user=actors.find(a=>a.key===payload.source);if(!user)throw Error('Missing original move actor');
  const targets=payload.targets.map(t=>actors.find(a=>a.key===t.key)).filter(Boolean);if(!targets.length)targets.push(user);
- const variants=Array.isArray(definition)?definition:[definition],opposing=!user.own&&variants.length>1;
- for(const [index,target]of targets.entries()){
-  const owner=facade(index,user),config=new AnimConfig(variants[opposing?1:0]);
+ const variants=Array.isArray(definition)?definition:[definition];
+ // A global condition's USER-focused particles apply to every active battler. Side conditions stay local.
+ const localField=payload.globalField&&variants.some(v=>v.frames.some(fs=>fs.some(f=>f.target===2&&f.focus===2)));
+ const pairs=localField?actors.map(a=>({user:a,target:a})):targets.map(target=>({user,target}));
+ for(const [index,pair]of pairs.entries()){
+  const {user,target}=pair,opposing=!user.own&&variants.length>1;
+  const owner=facade(index,user,!localField),config=new AnimConfig(variants[opposing?1:0]);
   if(!payload.hit)config.frames=config.frames.map(fs=>fs.filter(f=>f.target===0||(f.target===2&&(f.focus===2||f.focus===4))));
-  bindScene(owner);owner.animation=new OriginalMove(config,user,target,opposing);runs.push(owner);owner.animation.play(false,()=>{owner.done=true;});
+  bindScene(owner);owner.animation=new OriginalMove(config,user,target,opposing,{width:payload.width/scale,height:payload.height/scale});runs.push(owner);owner.animation.play(false,()=>{owner.done=true;});
  }
  done=false;scene.game.loop.sleep();return {frames:runs[0].animation.config.frames.length};
  }finally{pending=false;}
 };
 window.ptbAdvance=function(delta){physical=performance.now();gif();for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:runs[0]?.clock.now||0};};
 window.ptbFinish=function(){clear();return true;};
-window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:runs[0]?.clock.now||0,backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
+window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:runs[0]?.clock.now||0,backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
 fetch('manifest.json').then(r=>r.json()).then(m=>{
  manifest=m;
  new Phaser.Game({type:Phaser.WEBGL,parent:'stage',width:800,height:320,transparent:true,pixelArt:true,render:{antialias:false,roundPixels:false,preserveDrawingBuffer:true},scene:{

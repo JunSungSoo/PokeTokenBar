@@ -9,3 +9,7 @@ serialized frame stepping. Showdown remains the authoritative BW2 battle rules e
 Original and derived runtime code: AGPL-3.0-only. Phaser: MIT. Mixed asset licenses/credits:
 see root/directory REUSE.toml, README, original/LICENSE and LICENSES. Preserve all notices and
 manifest hashes on redistribution. No claim of a blanket MIT or CC0 asset license.
+
+Common Gen V weather timelines are bundled separately from move entries. Field-start presentation reuses the corresponding original move timeline when no dedicated common animation exists. Battle mechanics remain BW2 engine-authoritative.
+
+The native host maps original 320×180 SCREEN-focus graphics to its arena viewport. USER-focused graphics for global field conditions run for every active battler, sharing one original background and audible sound owner; original timelines, actor sprite scale and frame timing remain unchanged.

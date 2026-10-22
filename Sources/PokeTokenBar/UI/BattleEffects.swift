@@ -50,7 +50,7 @@ struct BattleEffectsLayer: View {
         self.scenes=scenes;self.onScene=onScene;self.onFinished=onFinished
         self.reducedMotionOverride=reducedMotionOverride
         _playback=playback
-        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition"].contains($0.phase ?? "") } : events))
+        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition", "field"].contains($0.phase ?? "") } : events))
     }
     var body: some View {
         ZStack {

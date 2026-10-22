@@ -58,6 +58,14 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         if let random = duelTeams[prefix] { return random }
         let rogue=CommandLine.arguments.contains("--rogue-battle")
         let moves=[["psychic","surf","double-team","rest"],["thunderbolt","protect","volt-switch","flamethrower"],["secret-power","nature-power","sunny-day","power-split"],["ice-beam","reflect","swift","recover"]]
+        if prefix == "a", CommandLine.arguments.contains("--field-effects-pilot") {
+            return [235,181,310,101,587,618].enumerated().map { i,id in
+                BattlePokemon(id:prefix+String(i),speciesID:id,species:["Smeargle","Ampharos","Manectric","Electrode","Emolga","Stunfisk"][i],displayName:"",level:100,
+                    ability:i==0 ? "Own Tempo":"Static",nature:"hardy",gender:"M",shiny:false,form:nil,
+                    ivs:["hp":17,"atk":17,"def":17,"spa":17,"spd":17,"spe":17],stats:["hp":143,"atk":91,"def":87,"spa":96,"spd":89,"spe":107],
+                    moves:i==0 ? ["rain-dance","trick-room","gravity","sunny-day"]:moves[i % moves.count])
+            }
+        }
         if CommandLine.arguments.contains("--fields") {
             let ids = prefix == "a" ? [235,272,59,80,134,212] : [186,143,26,59,134,212]
             let names = prefix == "a" ? ["Smeargle","Ludicolo","Arcanine","Slowbro","Vaporeon","Scizor"] : ["Politoed","Snorlax","Raichu","Arcanine","Vaporeon","Scizor"]
@@ -320,12 +328,15 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
                 window.show();window.window?.title="PokeTokenBar · 실제 배틀 테스트 · PokéRogue / \(a.mode == .doubles ? "더블" : "싱글")"
                 if CommandLine.arguments.contains("--narrow-preview"), let main = window.window {
-                    let width = BattleWindowLayout.preferredWidth
+                    let width = BattleWindowLayout.preferredWidth(for: a.mode)
                     main.setContentSize(NSSize(width: width, height: main.contentRect(forFrameRect: main.frame).height))
                     main.center()
-                    main.title = "PokeTokenBar · 너비 비교 · \(a.mode == .singles ? "싱글 800px (−20%)" : "더블 800px (−20%)")"
+                    main.title = "PokeTokenBar · 너비 비교 · \(a.mode == .singles ? "싱글 \(Int(width))px" : "더블 \(Int(width))px")"
                 }
                 if CommandLine.arguments.contains("--fields") { window.statsWindow?.makeKeyAndOrderFront(nil) }
+                if CommandLine.arguments.contains("--field-effects-pilot") {
+                    window.window?.title = "PokeTokenBar · 날씨·필드 원본 연출 테스트"
+                }
                 if CommandLine.arguments.contains("--versus-codex") {
                     window.window?.title = "PokeTokenBar · 플레이어 vs Codex · 랜덤 6마리 등록 · 3마리 싱글"
                 }

@@ -66,6 +66,71 @@ import XCTest
             }
         }
     }
+    func testGlobalWeatherAndFieldCoverBothSidesOfTheNativeArena() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:780,height:320).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:780,height:320),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        for move in ["commonrain","commonhail","commonsunny","commonsandstorm","trickroom","magicroom","wonderroom","gravity","mudsport","watersport"] {
+            let task=Task{await player.play(event(move,phase:"field"),actors:actors(doubles:true),size:CGSize(width:780,height:320))}
+            try await wait({player.isPlaying || player.error != nil})
+            var left=false,right=false,tracks=0,covered=false,foeVisible=false
+            let needsBackdrop=["commonsunny","commonsandstorm","trickroom","magicroom","wonderroom","gravity"].contains(move)
+            while player.isPlaying {
+                let state=try await player.inspect()
+                tracks=max(tracks,state["tracks"] as? Int ?? 0)
+                if needsBackdrop && !covered {
+                    let pixels=try await player.evaluate("""
+                    const image=new Image();image.src=document.querySelector('canvas').toDataURL();await image.decode();
+                    const c=document.createElement('canvas');c.width=image.width;c.height=image.height;
+                    const ctx=c.getContext('2d');ctx.drawImage(image,0,0);const d=ctx.getImageData(0,0,c.width,c.height).data;
+                    let left=0,right=0;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++)if(d[(y*c.width+x)*4+3]>0){if(x<c.width/4)left++;if(x>c.width*3/4)right++;}
+                    return {left,right};
+                    """,background:true)
+                    covered=(pixels["left"] as? Int ?? 0)>100 && (pixels["right"] as? Int ?? 0)>100
+                }
+                for sprite in state["sprites"] as? [[String:Any]] ?? [] where sprite["visible"] as? Bool == true {
+                    if (sprite["texture"] as? String)?.hasPrefix("25") == true,
+                       (sprite["screenX"] as? Double ?? 0)>400 { foeVisible=true }
+                    guard let texture=sprite["texture"] as? String,texture.hasPrefix("PRAS-") || texture == "weather" else{continue}
+                    let x=sprite["screenX"] as? Double ?? -1
+                    left = left || (x>0 && x<195)
+                    right = right || (x>624 && x<780)
+                }
+                try await Task.sleep(for:.milliseconds(20))
+            }
+            let success=await task.value
+            XCTAssertTrue(success,move)
+            XCTAssertNil(player.error)
+            if needsBackdrop { XCTAssertTrue(covered,move+" background must cover both sides") }
+            if ["commonrain","commonhail"].contains(move) {
+                XCTAssertTrue(left,move+" must reach the player side")
+                XCTAssertTrue(right,move+" must reach the far opponent side, not just the original 320px canvas")
+            } else if ["gravity","mudsport","watersport"].contains(move) {
+                XCTAssertEqual(tracks,4,move+" must animate every active battler on both sides")
+                XCTAssertTrue(foeVisible,move+" must retain the opponent Pokémon during its own field track")
+            }
+        }
+    }
+
+    func testPilotCommonRainAndTrickRoomRunInTheActualOriginalPlayer() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:800,height:320).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:800,height:320),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        for name in ["commonrain","trickroom"] {
+            let played=await player.play(event(name,phase:"field"),actors:actors(),size:CGSize(width:800,height:320))
+            XCTAssertTrue(played,name)
+            XCTAssertNil(player.error,name)
+            XCTAssertFalse(player.isPlaying)
+        }
+    }
     func testProductionLayersPlaceNativeHUDOverBackgroundAndParticlesOverActors() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore();defer{try? FileManager.default.removeItem(at:directory)}
         let player=PokeRogueBattlePlayer(spriteStore:store),hud=NSView()
@@ -149,7 +214,7 @@ import XCTest
         XCTAssertNil(player.error);guard player.ready else{return}
         let sprite=try await PokeRogueFaithfulPlayer.spritePayload(back:true,store:store)
         _ = try await player.evaluate("window.auditSprite=sprite;return {}",arguments:["sprite":sprite])
-        let keys=PokeRogueOriginalCatalog.shared.manifest.entries.keys.sorted()
+        let keys=(Array(PokeRogueOriginalCatalog.shared.manifest.entries.keys)+Array(PokeRogueOriginalCatalog.shared.manifest.fieldEntries?.keys ?? [:].keys)).sorted()
         var failures:[String]=[]
         for start in stride(from:0,to:keys.count,by:8) {
             let batch=Array(keys[start..<min(start+8,keys.count)])

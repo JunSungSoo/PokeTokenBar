@@ -12,13 +12,13 @@ enum BattleAuxiliaryKind { case field, stats }
 
 /// Frames use the visible screen, including title bars, so controls stay above the Dock.
 struct BattleWindowLayout {
-    static let preferredWidth: CGFloat = 800
+    static func preferredWidth(for mode: BattleMode) -> CGFloat { mode == .doubles ? 680 : 660 }
     let main: NSRect
     let field: NSRect
     let stats: NSRect
-    init(screen: NSRect, main existingMain: NSRect? = nil) {
+    init(screen: NSRect, mode: BattleMode, main existingMain: NSRect? = nil) {
         let gap: CGFloat = 10
-        let width = min(Self.preferredWidth, screen.width)
+        let width = min(Self.preferredWidth(for: mode), screen.width)
         let height = min(700, screen.height)
         main = existingMain ?? NSRect(x: screen.midX - width / 2, y: screen.midY - height / 2, width: width, height: height)
         let anchor = main

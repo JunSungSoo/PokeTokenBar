@@ -10,7 +10,7 @@ struct PokeRogueActor:Sendable {
 }
 @MainActor final class PokeRogueOriginalCatalog {
     struct Entry:Decodable {let file:String;let frames:[Int];let graphics:[String];let backgrounds:[String];let sounds:[String]}
-    struct Manifest:Decodable {let assetRevision:String;let runtimeRevision:String;let entries:[String:Entry];let aliases:[String:String]}
+    struct Manifest:Decodable {let assetRevision:String;let runtimeRevision:String;let entries:[String:Entry];let aliases:[String:String];let fieldEntries:[String:Entry]?}
     static var directory:URL {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer")
         if let bundled,FileManager.default.fileExists(atPath:bundled.appendingPathComponent("manifest.json").path){return bundled}
@@ -23,8 +23,11 @@ struct PokeRogueActor:Sendable {
         let raw=BattleTextCatalog.key(event.moveID ?? event.move)
         return (manifest.aliases[raw] ?? raw)+(event.phase=="charge" ? ":charge":"")
     }
+    func entry(_ event: BattleVisualEvent) -> Entry? {
+        manifest.entries[key(event)] ?? manifest.fieldEntries?[key(event)]
+    }
     func estimatedDuration(_ event:BattleVisualEvent)->Double {
-        guard let entry=manifest.entries[key(event)] else{return 0}
+        guard let entry=entry(event) else{return 0}
         // Include authored tails and loading margin; the real player completion remains authoritative.
         return Double(entry.frames.max() ?? 0)*0.05+4
     }
@@ -136,13 +139,13 @@ struct PokeRogueActor:Sendable {
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
             let payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
-                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume]
+                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event)]
             _ = try await evaluateLayers("return await window.ptbPrepare(payload)",arguments:["payload":payload])
             guard !Task.isCancelled,run==generation else{return false}
             _ = try await evaluate("return {volume: window.ptbSetEffectsVolume(volume)}", arguments: ["volume": effectsVolume])
             isPlaying=true
             if reducedMotion {
-                let entry=PokeRogueOriginalCatalog.shared.manifest.entries[PokeRogueOriginalCatalog.shared.key(event)]
+                let entry=PokeRogueOriginalCatalog.shared.entry(event)
                 _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":Double(entry?.frames.max() ?? 1)*25])
                 try await Task.sleep(for:.seconds(1.4))
             }else{

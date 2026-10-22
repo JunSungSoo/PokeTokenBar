@@ -64,4 +64,7 @@ see root/directory REUSE.toml, README, original/LICENSE and LICENSES. Preserve a
 manifest hashes on redistribution. No claim of a blanket MIT or CC0 asset license.
 ''')
  print('Complete:',len(entries),'unfiltered timelines,',len(hashes),'hashed resources',flush=True)
-if __name__=='__main__':main()
+if __name__=='__main__':
+ main()
+ import subprocess,sys
+ subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-field-effects.py')],check=True)

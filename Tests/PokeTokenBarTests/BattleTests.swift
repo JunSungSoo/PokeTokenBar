@@ -629,12 +629,32 @@ final class BattleTests: XCTestCase {
         XCTAssertTrue(a.presentation.frame!.ended)
         XCTAssertEqual(a.history.records.count,1);XCTAssertEqual(b.history.records.count,1)
     }
+    func testReusedBattleWindowAppliesEachModesPreferredWidth() async throws {
+        defer { cleanup() }
+        let (a,b,_,_) = try await connectedPair(mode:.singles)
+        let store = CompanionStore(fileURL:temporaryFile(),defaults:try defaults(code:"mode-width"))
+        let controller = BattleWindowController(battle:a,store:store,allowsAudio:false)
+        controller.show()
+        let window = try XCTUnwrap(controller.window)
+        defer { window.orderOut(nil);controller.fieldWindow?.orderOut(nil);controller.statsWindow?.orderOut(nil) }
+        for mode in [BattleMode.singles,.doubles,.singles] {
+            a.setMode(mode)
+            try await wait { b.mode == mode }
+            controller.show()
+            try await wait { abs(window.contentRect(forFrameRect:window.frame).width-(mode == .doubles ? 680 : 660))<0.5 }
+            XCTAssertTrue(controller.window === window)
+            XCTAssertEqual(window.minSize.width,mode == .doubles ? 680 : 660)
+        }
+        controller.show()
+        XCTAssertEqual(window.contentRect(forFrameRect:window.frame).width,660,accuracy:0.5)
+    }
+
     func testBattleHeightFitsMeasuredCommandsWithoutExtraClearance() async throws {
         defer { cleanup() }
         for mode in [BattleMode.singles, .doubles] {
             let (a,_,_,_) = try await pair(mode: mode)
             for language in [AppLanguage.ko, .en] {
-                for width: CGFloat in [800, 1000] {
+                for width: CGFloat in [BattleWindowLayout.preferredWidth(for: mode), 1000] {
                     let store = CompanionStore(fileURL: temporaryFile(), defaults: try defaults(code: "height"))
                     store.setLanguage(language)
                     let controller = BattleWindowController(battle: a, store: store, allowsAudio: false)

@@ -13,7 +13,7 @@ struct BattleView: View {
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
-    @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth
+    @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth(for: .singles)
     @State private var choices: [Int: BattleAction] = [:]
     @State private var editingSlot = 0
     @State private var musicEnabled = true
@@ -297,8 +297,8 @@ struct BattleVolumeControl: View {
     @State private var showing = false
     var body: some View {
         Button { showing.toggle() } label: { Image(systemName:"slider.horizontal.3") }
-            .help(label).accessibilityLabel(label)
-            .popover(isPresented:$showing) {
+            .help("\(label) / \(effectsLabel)").accessibilityLabel("\(label) / \(effectsLabel)")
+            .popover(isPresented:$showing, arrowEdge:.bottom) {
                 VStack(alignment:.leading,spacing:12) {
                     HStack { Text(label); Spacer(); Text(settings.volume,format:.percent.precision(.fractionLength(0))).monospacedDigit() }
                     Slider(value:Binding(get:{ settings.volume },set:{ settings.setVolume($0) }),in:0...1)

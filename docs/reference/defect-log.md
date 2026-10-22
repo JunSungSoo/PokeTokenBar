@@ -15,6 +15,62 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Global battle effects must use arena coordinates and both active sides
+
+- Original SCREEN-focus particles retained fixed 320×180 source coordinates under a
+  Pokémon-size scale. On the wider native battlefield rain/hail covered mainly the own
+  side. Global USER-focus field particles inherited the move caster, so Gravity and
+  Mud/Water Sport only animated that Pokémon. Earlier tests proved source commands ran,
+  but never asserted their reach across both teams.
+- Map SCREEN-focus graphic positions and scales from the original arena to the current
+  viewport in the host subclass, without editing pinned timelines/runtime or actor motion.
+  Run USER-focused global field graphics once per active battler, sharing the original
+  background and audible sound owner. Keep side conditions and ordinary USER moves local.
+  Sweep all SCREEN graphics and global fields, including doubles, while retaining layer order,
+  original timing, GIFs and cleanup. Use the same mode-specific preferred/minimum width (660 singles, 680 doubles).
+- Mounted native-player regression samples actual rain/hail particle positions in both outer
+  quarters and requires all four active actors for Gravity/Mud Sport/Water Sport. Removing
+  viewport mapping and global actor routing must fail the corresponding assertions. Engine
+  fixtures distinguish global/side conditions; real singles/doubles windows verify mode-specific
+  layout and command height. No new Swift conditional branch was introduced in the player.
+- The app retains its battle window across matches. Refresh its preferred/minimum width when
+  its mode changes, including doubles back to singles; merely lowering minSize does not shrink
+  an existing window. A real connected pair reuses the same controller through singles → doubles
+  → singles and verifies both widths. Initial-window tests alone miss this reuse path.
+
+## Battle audio controls must open inside the battle window
+
+- The toolbar volume popover used SwiftUI's default macOS edge and opened above its
+  button, outside the battle content. Accessibility still exposed both sliders, so settings
+  persistence and audio-player tests passed without checking where users see the controls.
+- Explicitly use the macOS bottom presentation edge, keeping both labels, percentages and
+  sliders below the toolbar. Give the shared button both localized audio labels. Sweep the
+  other two popovers: move descriptions and keychain help are not battle-toolbar controls.
+- A mounted production-control test clicks the actual button and requires a full-height popup
+  below its anchor. Restoring the default edge fails that geometry assertion. Separate settings
+  and original-player tests cover persistence, independent channels and live sound volume.
+
+## Weather/field presentation must follow authoritative scenes, not selected moves
+
+- Move-only imports omitted common weather timelines. Field state existed in engine scenes
+  and the auxiliary panel, but no corresponding original common animation played. Import pinned
+  SUNNY/RAIN/SANDSTORM/HAIL timelines into a separate fieldEntries manifest, preserving all
+  existing move entries, upstream bytes, licenses and source hashes. The pilot covered rain and
+  Trick Room in real-engine frames and the mounted original player before expansion.
+- Replay original weather visuals at start and upkeep; let the engine determine weather damage,
+  duration and suppression. Suppression does not erase the weather itself. Ending weather/fields
+  gets a localized transition notice and normal cleanup. BW2 has no later-generation terrain
+  moves; do not enable those mechanics to obtain a visual. Field conditions without a dedicated
+  common animation reuse their existing original move timeline at the field-start scene, removing
+  only that same move's earlier visual to prevent double playback. Mud/Water Sport use -start,
+  screens/hazards use -sidestart, rooms/gravity use -fieldstart.
+- Ability weather must win routing over ability-only notices at the same log ID. Initial window
+  cursors must permit field events, otherwise opening Drizzle/Drought silently disappears. Include
+  these in timer allowance and retain the same ordered HP/state queue and native GIF lifecycle.
+  Real-engine fixtures cover all four weathers, fifteen fields and four entry weather abilities;
+  native WebGL audits exercise all original move/common tracks in both directions. Mutations
+  removing move deduplication and opening-weather replay must fail separate regressions.
+
 ## Original move audio needs a single audible owner and independent volume
 
 - The original timed sound events and assets were already imported, but every adapter owner
@@ -135,7 +191,7 @@ read_when:
 
 ## Battle controls must fit beside live auxiliary information
 
-- A fixed 720-point battle window placed field effects, active stat stages, ability notices and commands in one outer ScrollView. Selecting moves could leave the second move row or description outside the visible battle area. Earlier rendering tests checked isolated button size and animation pixels, not the complete window hierarchy.
+- A fixed 660-point battle window placed field effects, active stat stages, ability notices and commands in one outer ScrollView. Selecting moves could leave the second move row or description outside the visible battle area. Earlier rendering tests checked isolated button size and animation pixels, not the complete window hierarchy.
 - Weather/field information now has a left companion window; active stage changes and ability notices have a right companion window. Closing these windows only updates their visibility, exposing localized reopen buttons in the main header. Main-window close retains the surrender confirmation; confirmed surrender hides all three windows.
 - The main window fits its measured content, clamped to the visible screen. Battle/commands have no enclosing ScrollView; compact move descriptions expose full text in a localized information popover. Auxiliary information can scroll independently; saved battle history is shown in matching, not combat. A sweep of the battle presentation found no second outer command scroller.
 - Tests exercise actual auxiliary close/reopen identity, continued live battle, main surrender, visible-screen layout including negative-coordinate displays and small screens, and long move descriptions in all eight languages. Mutating the closed-field visibility back to true must fail the lifecycle regression.

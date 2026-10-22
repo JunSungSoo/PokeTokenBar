@@ -13,7 +13,16 @@ export class TonePipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline
  onBind(object){this.flush();const t=object?.pipelineData?.tone||[0,0,0,0];this.set4f('tone',t[0],t[1],t[2],t[3]);}
 }
 export class OriginalMove extends BattleAnim {
- constructor(config,user,target,opposing){super(user,target);this.config=config;this.opposing=opposing;}
+ constructor(config,user,target,opposing,viewport){super(user,target);this.config=config;this.opposing=opposing;this.viewport=viewport;}
+ getGraphicFrameData(frames,onSubstitute){
+  const data=super.getGraphicFrameData(frames,onSubstitute);
+  if(this.viewport){let graphic=0;for(const frame of frames)if(frame.target===2){
+   const point=data.get(2).get(graphic++);
+   // SCREEN coordinates are authored for PokéRogue's 320×180 arena, not a Pokémon anchor.
+   if(frame.focus===4){const sx=this.viewport.width/320,sy=this.viewport.height/180;point.x*=sx;point.y*=sy;point.scaleX*=sx;point.scaleY*=sy;}
+  }}
+  return data;
+ }
  getAnim(){return this.config;}
  isOppAnim(){return this.opposing;}
 }

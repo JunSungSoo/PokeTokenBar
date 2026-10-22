@@ -13,12 +13,18 @@ struct BattlePresentationEvents {
         let offset = frame.logOffset ?? 0
         let notices = BattleLogText.abilityNotices(frame.log, language: language, ownPlayer: ownPlayer)
             .filter { !frame.log[$0.id].hasPrefix("|move|") }
-        let moves = frame.effects ?? []
+        let fieldEffects = Dictionary(uniqueKeysWithValues: (frame.scenes ?? []).compactMap { scene -> (Int, BattleFieldEffects.Effect)? in
+            let index = scene.id - offset
+            guard frame.log.indices.contains(index), let effect = BattleFieldEffects.effect(scene: scene, line: frame.log[index], frame: frame) else { return nil }
+            return (scene.id, effect)
+        })
+        let replacedMoves = Set(fieldEffects.values.compactMap(\.replacesMove))
+        let moves = (frame.effects ?? []).filter { !replacedMoves.contains($0.id) }
         var messages: [Int: String] = [:]
         for (index, line) in frame.log.enumerated() where line.hasPrefix("|move|") {
             messages[offset + index] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
         }
-        let abilityEvents = notices.map { notice in
+        let abilityEvents = notices.filter { fieldEffects[$0.id + offset] == nil }.map { notice in
             let id = offset + notice.id
             messages[id] = notice.text
             return BattleVisualEvent(id: id, move: notice.text, type: "", category: "Status",
@@ -28,8 +34,12 @@ struct BattlePresentationEvents {
         let stateEvents = (frame.scenes ?? []).filter { !existing.contains($0.id) }.map { scene in
             let index = scene.id - offset
             let line = frame.log.indices.contains(index) ? frame.log[index] : ""
+            if let effect = fieldEffects[scene.id] {
+                messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
+                return effect.event
+            }
             let kind = line.split(separator: "|", omittingEmptySubsequences: false).dropFirst().first ?? ""
-            let visible = ["switch", "drag", "replace", "faint", "cant", "-damage", "-heal", "-status", "-curestatus", "-activate"].contains(String(kind))
+            let visible = ["switch", "drag", "replace", "faint", "cant", "-damage", "-heal", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
             if visible { messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer) }
             return BattleVisualEvent(id: scene.id, move: "", type: "", category: "Status",
                 source: BattleEffectPosition(own: true, slot: 0), targets: [], phase: visible ? "transition" : "state")

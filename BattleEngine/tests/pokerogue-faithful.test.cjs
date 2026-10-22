@@ -19,7 +19,7 @@ test('every production move retains the complete original timeline and all offli
  assert.equal(Object.keys(m.entries).filter(k=>!k.endsWith(':charge')).length,559);
  for(const [name,hash]of Object.entries(m.sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(production,name))).digest('hex'),hash,name);
  let user=false,target=false;
- for(const [key,entry]of Object.entries(m.entries)){
+ for(const [key,entry]of [...Object.entries(m.entries),...Object.entries(m.fieldEntries||{})]){
   const raw=JSON.parse(fs.readFileSync(path.join(production,entry.file))),variants=Array.isArray(raw)?raw:[raw];
   assert.deepEqual(variants.map(v=>v.frames.length),entry.frames,key);
   for(const v of variants)for(const frame of v.frames)for(const command of frame){if(command.target===0)user=true;if(command.target===1)target=true;}
