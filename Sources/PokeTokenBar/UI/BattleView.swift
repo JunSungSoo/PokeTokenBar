@@ -158,7 +158,7 @@ struct BattleView: View {
             let members=own ? frame.own.filter(\.active):frame.foe
             for (slot,pokemon) in members.enumerated(){
                 let position=BattleEffectPosition(own:own,slot:slot)
-                if let rect=rects[position.key]{result.append(PokeRogueActor(pokemon:pokemon,position:position,rect:rect))}
+                if let rect=rects[position.key]{result.append(PokeRogueActor(pokemon:pokemon,position:position,rect:rect,pixelScale:spriteSizing.pixelScale))}
             }
         }
         return result
@@ -192,9 +192,22 @@ struct BattleView: View {
             if !own { battleSprite(pokemon,own:false,slot:slot) }
         }.opacity(pokemon.fainted ? 0.35 : 1)
     }
+    private var spriteSizing:BattleSpriteSizing {
+        let catalog=PokeRogueSpriteSizes.shared
+        var ids=Set(battle.registeredTeam.map(\.speciesID)+battle.opponentRoster.map(\.speciesID))
+        if let frame=battle.presentation.frame ?? battle.frame { ids.formUnion(frame.own.map(\.speciesID)+frame.foe.map(\.speciesID)) }
+        // Include both facings and form changes up front so switching/Transform cannot pop the camera.
+        let sizes=ids.flatMap { id in
+            let forms=PokemonForm.forms(speciesID:id)
+            return (forms.isEmpty ? [nil]:forms.map(Optional.some)).flatMap { form in
+                [false,true].map{catalog.size(speciesID:id,form:form,back:$0)}
+            }
+        }
+        return BattleSpriteSizing.make(mode:battle.mode,sizes:sizes)
+    }
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.isPlaying || roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.isPlaying || roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:spriteSizing)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 

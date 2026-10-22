@@ -41,6 +41,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
     var enemy: BattleCoordinator?
     var controller: BattleWindowController?
     var comparisonWindow: NSWindow?
+    var sizeWindows:[NSWindow]=[]
     let left=PreviewLink(),right=PreviewLink()
     var matchingPeers: [BattleCoordinator] = []
     var matchingLinks: [PreviewLink] = []
@@ -56,6 +57,15 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
     }
     func team(_ prefix: String) -> [BattlePokemon] {
         if let random = duelTeams[prefix] { return random }
+        if CommandLine.arguments.contains("--roster-preview") {
+            let members:[(Int,String,String)]=prefix=="a" ? [(6,"Charizard","Blaze"),(26,"Raichu","Static"),(9,"Blastoise","Torrent"),(3,"Venusaur","Overgrow"),(94,"Gengar","Levitate"),(143,"Snorlax","Immunity")]:[(130,"Gyarados","Intimidate"),(260,"Swampert","Torrent"),(149,"Dragonite","Inner Focus"),(376,"Metagross","Clear Body"),(212,"Scizor","Technician"),(59,"Arcanine","Intimidate")]
+            return members.enumerated().map { i,member in
+                BattlePokemon(id:prefix+String(i),speciesID:member.0,species:member.1,displayName:member.1,level:50,
+                    ability:member.2,nature:"hardy",gender:"M",shiny:false,form:nil,
+                    ivs:["hp":17,"atk":17,"def":17,"spa":17,"spd":17,"spe":17],
+                    stats:["hp":143,"atk":91,"def":87,"spa":96,"spd":89,"spe":107],moves:["tackle"])
+            }
+        }
         let rogue=CommandLine.arguments.contains("--rogue-battle")
         let moves=[["psychic","surf","double-team","rest"],["thunderbolt","protect","volt-switch","flamethrower"],["secret-power","nature-power","sunny-day","power-split"],["ice-beam","reflect","swift","recover"]]
         if prefix == "a", CommandLine.arguments.contains("--field-effects-pilot") {
@@ -203,6 +213,22 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if CommandLine.arguments.contains("--size-preview") {
+            let screen=NSScreen.main?.visibleFrame ?? NSRect(x:0,y:0,width:1440,height:900)
+            for mode in [CommandLine.arguments.contains("--doubles") ? BattleMode.doubles:.singles] {
+                let host=NSHostingController(rootView:PokemonSizeComparison(mode:mode,spriteStore:SpriteStore(directory:Bundle.main.resourceURL!.appendingPathComponent("PokeRogueSizeGIFs"))))
+                let window=NSWindow(contentViewController:host)
+                window.styleMask=[.titled,.closable,.miniaturizable]
+                window.title="PokeTokenBar · PokéRogue 크기 비교 · \(mode == .singles ? "싱글 660px":"더블 680px")"
+                window.isReleasedWhenClosed=false
+                let width:CGFloat=mode == .singles ? 660:680
+                let fit=host.view.fittingSize
+                window.setContentSize(NSSize(width:width,height:max(430,fit.height)))
+                window.setFrameOrigin(NSPoint(x:mode == .singles ? screen.minX+8:screen.maxX-width-8,y:screen.maxY-window.frame.height-24))
+                sizeWindows.append(window);window.makeKeyAndOrderFront(nil)
+            }
+            NSApp.activate(ignoringOtherApps:true);return
+        }
         if CommandLine.arguments.contains("--matchmaking") || CommandLine.arguments.contains("--matching-duel") {
             do { try showMatchingPreview() } catch { print("Matching preview: \(error)"); NSApp.terminate(nil) }
             return
@@ -283,7 +309,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB"))
                 try await wait { a.opponent != nil && b.opponent != nil }
                 if CommandLine.arguments.contains("--doubles") { a.setMode(.doubles);try await wait { b.mode == .doubles } }
-                if CommandLine.arguments.contains("--lobby") {
+                if CommandLine.arguments.contains("--lobby") || CommandLine.arguments.contains("--roster-preview") {
                     var state = CompanionState()
                     state.language = .ko
                     state.dex = [26,25,181,310,143,128,587,618].map { id in
@@ -296,11 +322,19 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     }
                     var active = PokemonProfile.generate(seed:134);active.level = 100
                     state.active = MonState(baseID:134,pathIDs:[134],stageIndex:0,usedAtStage:0,rarity:.common,totalForms:1,profile:active)
+                    if CommandLine.arguments.contains("--roster-preview") {
+                        state.dex=team("a").map { pokemon in
+                            var profile=PokemonProfile.generate(seed:UInt64(pokemon.speciesID));profile.level=50
+                            return DexEntry(id:pokemon.id,baseID:pokemon.speciesID,finalID:pokemon.speciesID,chainOrder:[pokemon.speciesID],rarity:.common,caughtAt:Date(),profile:profile)
+                        }
+                        a.register(team:team("a"));b.register(team:team("b"))
+                        try await wait { a.canSelectLineup && b.canSelectLineup }
+                    }
                     let file = directory.appendingPathComponent("lobby.json")
                     try JSONEncoder().encode(state).write(to:file)
                     let store = CompanionStore(fileURL:file,defaults:defaults("lobby"))
                     let window = NSWindow(contentRect:NSRect(x:0,y:0,width:480,height:470),styleMask:[.titled,.closable,.miniaturizable],backing:.buffered,defer:false)
-                    window.title = "PokeTokenBar · 출전 선택 테스트 · 육성 완료 최종 진화체"
+                    window.title = CommandLine.arguments.contains("--roster-preview") ? "PokeTokenBar · 타입·상성 선발 테스트 · 싱글 3마리":"PokeTokenBar · 출전 선택 테스트 · 육성 완료 최종 진화체"
                     window.isReleasedWhenClosed = false
                     window.contentViewController = NSHostingController(rootView:BattleLobbyView(store:store,battle:a).frame(width:480,height:470))
                     comparisonWindow = window

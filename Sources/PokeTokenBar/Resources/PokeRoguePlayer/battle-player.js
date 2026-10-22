@@ -36,17 +36,19 @@ async function loadEntryAssets(){
   })));
   scene.textures.addAtlasJSONArray(key,images,data.textures);
  };
- await Promise.all([loadAtlas('entry-pb',manifest.entryAssets.ball),loadAtlas('entry-particles',manifest.entryAssets.particles),
-  (async()=>{if(!scene.cache.audio.exists('entry-release')){
-   const response=await fetch(manifest.entryAssets.release);if(!response.ok)throw Error('Missing original ball sound');
-   const buffer=await scene.sound.context.decodeAudioData(await response.arrayBuffer());scene.cache.audio.add('entry-release',buffer);
-  }})()]);
+ await Promise.all([loadAtlas('entry-pb',manifest.entryAssets.ball),loadAtlas('entry-particles',manifest.entryAssets.particles),loadAtlas('entry-shiny',manifest.entryAssets.shiny),
+  ...[['entry-release',manifest.entryAssets.release],['entry-sparkle',manifest.entryAssets.sparkle]].map(async([key,path])=>{
+   if(scene.cache.audio.exists(key))return;
+   const response=await fetch(path);if(!response.ok)throw Error('Missing original entry sound '+path);
+   const buffer=await scene.sound.context.decodeAudioData(await response.arrayBuffer());scene.cache.audio.add(key,buffer);
+  })]);
 }
 async function atlas(key,payload){
  if(scene.textures.exists(key))return;
  const images=await Promise.all(payload.frames.map(src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(Error('Invalid native GIF frame'));image.src=src;})));
- const columns=Math.min(32,images.length),rows=Math.ceil(images.length/columns),t=scene.textures.createCanvas(key,64*columns,64*rows);t.context.imageSmoothingEnabled=false;
- images.forEach((image,i)=>{t.context.drawImage(image,(i%columns)*64,Math.floor(i/columns)*64,64,64);t.add('gif-'+i,0,(i%columns)*64,Math.floor(i/columns)*64,64,64);});t.refresh();
+ const width=images[0].width,height=images[0].height;
+ const columns=Math.min(16,images.length),rows=Math.ceil(images.length/columns),t=scene.textures.createCanvas(key,width*columns,height*rows);t.context.imageSmoothingEnabled=false;
+ images.forEach((image,i)=>{t.context.drawImage(image,(i%columns)*width,Math.floor(i/columns)*height,width,height);t.add('gif-'+i,0,(i%columns)*width,Math.floor(i/columns)*height,width,height);});t.refresh();
  assets.set(key,payload);
 }
 // Keep source timing/depth operations intact; render separate native surfaces around the HUD.
@@ -58,7 +60,7 @@ function layer(object,kind){
 }
 function orderLayers(){const rank={background:0,actor:1,effect:2};field.list.sort((a,b)=>(rank[a.getData('battleLayer')]??1)-(rank[b.getData('battleLayer')]??1));}
 function makeActor(data,scale){
- const p=layer(scene.add.container(data.x/scale,data.y/scale),'actor');field.add(p);p.own=data.own;p.slot=data.slot;p.key=data.key;p.visible=data.visible!==false;p.shiny=false;p.variant=0;p.gif=-1;
+ const p=layer(scene.add.container(data.x/scale,data.y/scale),'actor');field.add(p);p.own=data.own;p.slot=data.slot;p.key=data.key;p.visible=data.visible!==false;p.shiny=data.shiny===true;p.variant=0;p.gif=-1;
  const base=scene.add.sprite(0,0,data.texture,'gif-0').setOrigin(.5,1).setPipeline('NativeTone');p.add(base);p.base=base;p.textureKey=data.texture;
  base.pipelineData.tone=[0,0,0,0];base.pipelineData.spriteColors=[];base.pipelineData.fusionSpriteColors=[];
  p.getSprite=()=>base;p.isOnField=()=>true;p.getTag=()=>null;p.isPlayer=()=>data.own;p.getBattleSpriteKey=()=>data.texture;p.cry=()=>null;p.getSpriteScale=()=>1;p.getSubstituteOffset=()=>[0,0];return p;
@@ -100,9 +102,10 @@ window.ptbPrepare=async function(payload){
  const user=actors.find(a=>a.key===payload.source);if(!user)throw Error('Missing original move actor');
  if(payload.transition){
   const add=(key,frame)=>{const sprite=layer(scene.add.sprite(0,0,key,frame),'effect');field.add(sprite);return sprite;};
+  const entrySounds=new Set();
   entryAnimations=(payload.entrySources??[payload.source]).map((key,index)=>new EntryAnimation({scene,field,
    incoming:actors.find(a=>a.key===key),outgoing:actors.find(a=>a.key==='entry-outgoing-'+key)??(index===0?actors.find(a=>a.key==='entry-outgoing'):undefined),add,
-   playSound:(key,clock)=>{if(index===0&&!backgroundOnly){soundEvents.push({key,volume:scene.sound.volume,pitch:1,clock});scene.sound.play(key,{volume:1});}}}));
+   playSound:(key,clock)=>{const token=key+':'+clock;if(!backgroundOnly&&!entrySounds.has(token)){entrySounds.add(token);soundEvents.push({key,volume:scene.sound.volume,pitch:1,clock});scene.sound.play(key,{volume:1});}}}));
   done=false;scene.game.loop.sleep();return {frames:Math.ceil(Math.max(...entryAnimations.map(a=>a.duration))/50)};
  }
  const targets=payload.targets.map(t=>actors.find(a=>a.key===t.key)).filter(Boolean);if(!targets.length)targets.push(user);
@@ -121,7 +124,7 @@ window.ptbPrepare=async function(payload){
 };
 window.ptbAdvance=function(delta){physical=performance.now();gif();if(entryAnimations.length){const completed=entryAnimations.map(a=>a.advance(delta));done=completed.every(Boolean);}else{for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);}orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect())};};
 window.ptbFinish=function(){clear();return true;};
-window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,gif:a.gif,x:a.x,y:a.y})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect()),backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
+window.ptbInspect=()=>({done,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,shiny:a.shiny,gif:a.gif,x:a.x,y:a.y,width:a.base.width,height:a.base.height,pixelScale:field.scaleX})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect()),backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
 fetch('manifest.json').then(r=>r.json()).then(m=>{
  manifest=m;
  new Phaser.Game({type:Phaser.WEBGL,parent:'stage',width:800,height:320,transparent:true,pixelArt:true,render:{antialias:false,roundPixels:false,preserveDrawingBuffer:true},scene:{

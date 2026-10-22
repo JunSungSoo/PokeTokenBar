@@ -63,6 +63,50 @@ import XCTest
         }
     }
 
+    func testOriginalShinySparkleFramesSoundAndPairCompletion() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:680,height:350).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:680,height:350),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        await player.start();try await wait({player.ready || player.error != nil});XCTAssertNil(player.error)
+        let sprite=try await PokeRogueFaithfulPlayer.spritePayload(back:true,store:store)
+        for flags in [[true,false],[false,true],[true,true],[false,false]] {
+            for background in [false,true] {
+                let result=try await player.evaluate("""
+                const actors=flags.map((shiny,i)=>({key:'own-'+i,own:true,slot:i,shiny,texture:'shiny-fixture',sprite,x:120+i*260,y:290}));
+                await window.ptbPrepare({transition:true,source:'own-0',entrySources:['own-0','own-1'],actors,targets:[],width:680,height:350,scale:1.1,effectsVolume:.37});
+                window.ptbAdvance(1519);const before=window.ptbInspect();
+                window.ptbAdvance(1);const start=window.ptbInspect();
+                window.ptbAdvance(500);const middle=window.ptbInspect();
+                window.ptbAdvance(593);const last=window.ptbInspect();
+                window.ptbAdvance(1);const end=window.ptbInspect();
+                window.ptbFinish();return {before,start,middle,last,end,cleared:window.ptbInspect()};
+                """,arguments:["flags":flags,"sprite":sprite],background:background)
+                func state(_ key:String)throws->[String:Any]{try XCTUnwrap(result[key] as? [String:Any])}
+                let shiny=flags.contains(true)
+                XCTAssertEqual(try state("before")["done"] as? Bool,false)
+                XCTAssertEqual(try state("start")["done"] as? Bool,!shiny)
+                XCTAssertEqual(try state("last")["done"] as? Bool,!shiny,"Next action must wait for the final shiny frame")
+                XCTAssertEqual(try state("end")["done"] as? Bool,true)
+                let tracks=try XCTUnwrap(try state("middle")["entries"] as? [[String:Any]])
+                for i in flags.indices {
+                    let sparkle=try XCTUnwrap(tracks[i]["sparkle"] as? [String:Any])
+                    XCTAssertEqual(sparkle["visible"] as? Bool,flags[i])
+                    if flags[i] {XCTAssertEqual(sparkle["frame"] as? String,"16.png")}
+                }
+                let sounds=try XCTUnwrap(try state("end")["soundEvents"] as? [[String:Any]])
+                let sparkles=sounds.filter{$0["key"] as? String=="entry-sparkle"}
+                XCTAssertEqual(sparkles.count,!background && shiny ? 1:0,"Either double slot may own shiny audio, without doubling volume")
+                XCTAssertTrue(sparkles.allSatisfy{abs(($0["volume"] as? Double ?? -1)-0.37)<0.00001})
+                if !background && shiny {XCTAssertGreaterThan(try state("start")["playingSounds"] as? Int ?? 0,0)}
+                XCTAssertEqual((try state("cleared")["entries"] as? [Any])?.count,0)
+            }
+        }
+    }
+
     func testCancellingOrClosingEntryNeverCommitsItsPendingScene() async throws {
         for close in [false,true] {
             let (store,directory)=try PokeRogueFaithfulTests().gifStore()
@@ -317,7 +361,11 @@ import XCTest
             let end=Date().addingTimeInterval(15)
             while player.isPlaying,Date()<end {
                 let snapshot=try await player.inspect();snapshots.append(snapshot)
-                samples.append((Date(),snapshot["clock"] as? Double ?? 0))
+                // inspect() may return after play() has cleared its tracks while awaiting WebKit.
+                // The reset clock belongs to cleanup, not the authored playback rate.
+                if (snapshot["tracks"] as? Int ?? 0)>0,snapshot["done"] as? Bool != true {
+                    samples.append((Date(),snapshot["clock"] as? Double ?? 0))
+                }
                 try await Task.sleep(for:.milliseconds(65))
             }
             let completed=await task.value

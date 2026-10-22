@@ -58,6 +58,7 @@ struct BattlePokemonSprite: View {
     let pokemon: BattleCombatant
     let back: Bool
     let size: CGFloat
+    var pixelScale:CGFloat? = nil
     var spriteStore: SpriteStore = .shared
     var animated = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -91,13 +92,15 @@ struct BattlePokemonSprite: View {
     var body: some View {
         Group {
             if let current = frames.isEmpty ? image : frames[frameIndex % frames.count].image {
-                let fitted = SpriteFit.size(for:current.size,box:size)
+                let target=PokeRogueSpriteSizes.shared.size(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+                let native=SpriteFit.size(for:current.size,width:target.width,height:target.height)
+                let fitted=pixelScale.map{CGSize(width:native.width*$0,height:native.height*$0)} ?? SpriteFit.size(for:current.size,box:size)
                 Image(nsImage:current).interpolation(.none).resizable().frame(width:fitted.width,height:fitted.height)
                     .offset(x:(0.5-horizontalCenter)*fitted.width)
             } else {
                 Image(systemName:"pawprint.fill").font(.system(size:22)).foregroundStyle(.secondary)
             }
-        }.frame(width:size,height:size,alignment:.bottom)
+        }.frame(width:size,height:pixelScale == nil ? size:nil,alignment:.bottom)
         .task(id:key) {
             // Clear old species/form/facing pixels before any await; SwiftUI cancels on replacement/removal.
             image = cachedImage(); frameIndex = 0
@@ -129,15 +132,16 @@ struct BattlePokemonStage: View {
     let pokemon: BattleCombatant
     let back: Bool
     let stageSize: CGFloat
+    var sizing:BattleSpriteSizing? = nil
     var spriteStore: SpriteStore = .shared
     var animated = true
     var body: some View {
         ZStack(alignment:.bottom) {
             Ellipse().fill(Color(red:0.57,green:0.62,blue:0.40))
-                .frame(width:stageSize+20,height:BattleSpriteGeometry.shadowHeight)
+                .frame(width:sizing?.stageWidth ?? (stageSize+20),height:BattleSpriteGeometry.shadowHeight)
                 .overlay(Ellipse().stroke(.white.opacity(0.35),lineWidth:3))
-            BattlePokemonSprite(pokemon:pokemon,back:back,size:BattleSpriteGeometry.imageBox(stageSize:stageSize),spriteStore:spriteStore,animated:animated)
+            BattlePokemonSprite(pokemon:pokemon,back:back,size:BattleSpriteGeometry.imageBox(stageSize:stageSize),pixelScale:sizing?.pixelScale,spriteStore:spriteStore,animated:animated)
                 .padding(.bottom,BattleSpriteGeometry.footInset).opacity(spriteOpacity)
-        }.frame(width:stageSize+20,height:stageSize+5)
+        }.frame(width:sizing?.stageWidth ?? (stageSize+20),height:sizing?.stageHeight ?? (stageSize+5),alignment:.bottom)
     }
 }

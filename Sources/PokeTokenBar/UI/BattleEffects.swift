@@ -139,7 +139,7 @@ struct BattleEffectsLayer: View {
                         guard let scene=finalScene else{return actor}
                         let members=actor.position.own ? scene.own.filter(\.active):scene.foe
                         guard members.indices.contains(actor.position.slot) else{return isOpening ? actor:nil}
-                        return PokeRogueActor(pokemon:members[actor.position.slot],position:actor.position,rect:actor.rect)
+                        return PokeRogueActor(pokemon:members[actor.position.slot],position:actor.position,rect:actor.rect,pixelScale:actor.pixelScale)
                     }
                     if event.phase == "entry" {
                         let old:[PokeRogueActor]=isOpening ? []:batch.compactMap { member in
@@ -147,7 +147,7 @@ struct BattleEffectsLayer: View {
                             let priorMembers=position.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
                             guard let actor=actors.first(where:{$0.position==position}) else{return nil}
                             let pokemon=priorMembers.flatMap { $0.indices.contains(position.slot) ? $0[position.slot]:nil } ?? actor.pokemon
-                            return PokeRogueActor(pokemon:pokemon,position:position,rect:actor.rect)
+                            return PokeRogueActor(pokemon:pokemon,position:position,rect:actor.rect,pixelScale:actor.pixelScale)
                         }
                         var revealed=false
                         let reveal={

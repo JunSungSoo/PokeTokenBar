@@ -5,7 +5,8 @@ export class EntryAnimation {
   Object.assign(this,{scene,field,incoming,outgoing,add,playSound,reducedMotion});
   this.elapsed=0;this.particles=[];this.released=false;this.recalled=false;
   this.recall=!!outgoing;this.phase=this.recall?'recall':'throw';this.delay=this.recall?1000:0;
-  this.duration=this.delay+1900/1.25;this.incoming.setVisible(false);
+  this.sparkleStart=this.delay+1900/1.25;this.sparkled=false;this.sparkle=null;
+  this.duration=this.sparkleStart+(incoming.shiny?35/32*1000:0);this.incoming.setVisible(false);
   this.ball=add('entry-pb','pb').setOrigin(.5,.625).setVisible(false);
  }
  sound(at){this.playSound('entry-release',at);}
@@ -43,10 +44,22 @@ export class EntryAnimation {
     particle.setAlpha(age<500?1:1-sine((age-500)/75));
    }
   }
-  this.phase=t<this.delay?'recall':s<650?'throw':s<900?'release':'settle';
+  // Original ShinySparklePhase follows SummonPhase. Keep the 35-frame, 32fps
+  // sparkle at 1x, independent of the requested 1.25x ball-appearance speed.
+  if(p.shiny&&t>=this.sparkleStart){
+   if(!this.sparkled){
+    this.sparkled=true;this.playSound('entry-sparkle',this.sparkleStart);
+    this.sparkle=this.add('entry-shiny','0.png').setOrigin(.5,1).setPosition(p.x,p.y);
+   }
+   const frame=Math.floor((t-this.sparkleStart)*32/1000);
+   this.sparkle.setVisible(frame<35);
+   if(frame<35)this.sparkle.setFrame(frame+'.png');
+  }
+  this.phase=t<this.delay?'recall':s<650?'throw':s<900?'release':p.shiny&&t>=this.sparkleStart&&t<this.duration?'sparkle':'settle';
   return t>=this.duration;
  }
  inspect(){return {elapsed:this.elapsed,duration:this.duration,phase:this.phase,recall:this.recall,
+  shiny:!!this.incoming.shiny,sparkle:{started:this.sparkled,visible:this.sparkle?.visible??false,frame:this.sparkle?.frame.name??null},
   incomingVisible:this.incoming.visible,outgoingVisible:this.outgoing?.visible??false,
   scale:this.incoming.scaleX,ball:{x:this.ball.x,y:this.ball.y,angle:this.ball.angle,visible:this.ball.visible},
   particles:this.particles.filter(p=>p.visible).length};}

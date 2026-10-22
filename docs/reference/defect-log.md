@@ -15,6 +15,54 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Playback-rate sampling must exclude the completed renderer's reset clock
+
+- The native WebKit playback test could enter `inspect()` while `isPlaying` was true,
+  then receive its response after `ptbFinish()` cleared tracks and reset the clock to 0.
+  Treating that terminal snapshot as the final rate sample produced a negative rate
+  despite successful original-speed playback. Earlier runs missed this scheduling race.
+- Keep terminal snapshots for cleanup assertions, but calculate rate only from active,
+  unfinished tracks. The real native playback regression still checks the 1x clock,
+  actor motion, backgrounds, spread targets and cleanup. A repository sweep found no
+  other first/last playback-rate sampler using the reset clock.
+- During the same gate run, a stalled host WebAudio clock also delayed gain updates;
+  an independent AudioContext diagnostic confirmed the stalled clock and subsequent
+  recovery. Keep actual gain/audio assertions intact and prevent sleep during UI gates.
+
+## Species size must survive both native GIF and original-player rendering
+
+- Cropping every GIF then fitting every species into the same square erased PokéRogue's
+  relative sprite sizes. Existing GIF tests covered cadence, stance and bounds, but used
+  one species, so they could not detect normalization across different species.
+- Use pinned species/form/front/back atlas bounds with a shared camera for both teams.
+  Pass the same scale through native stages, move actors and recalled/replacement actors.
+  Keep the full-animation crop and delay sequence; fit artwork without stretching it.
+- A new native-player size regression exposed NSImage.lockFocus's Retina backing: PNG
+  pixels were twice the logical width/height. The old 64px atlas loader masked this by
+  resampling every image back to 64px. Variable atlas cells reveal the incorrect 2x size.
+  Rasterize into explicit 1px NSBitmapImageRep buffers and retain physical atlas dimensions.
+  Tests assert 47px Pikachu / 88px Wailord heights, common scale, distinct species sizes
+  during both original moves and entries, all supported forms, and continued GIF playback.
+  The initial doubled-raster implementation fails eight native-player size assertions.
+  Native rendered-pixel tests additionally require species-dependent body height and the
+  unchanged foot inset above the shadow; a fixed-size native stage cannot pass them.
+  Validation: 19 integration regressions plus the native geometry regression pass; region
+  inspection confirms both camera modes and native/atlas sizing paths execute. Allocation
+  failure and unsupported-species fallback branches remain defensive, not user-reachable tests.
+
+## Shiny entry must preserve the actor flag and wait for the original sparkle
+
+- Entry presentation previously carried no shiny flag into the original actor adapter;
+  normal-only entry tests could not exercise shiny sound/animation or its longer tail.
+- Carry public shininess with each actor, import the pinned standard shiny atlas and
+  sparkle.wav, and append the authored 35 frames at 32fps after summon settles. Await
+  the full 1093.75ms animation rather than cutting it at the source phase's 1000ms wait.
+- Share sound ownership by sound key/time, not the first double slot: a normal first
+  slot must not suppress a shiny second slot. Coincident identical sounds play once.
+- Native regressions cover normal/shiny, each double slot, two shiny entrants, background
+  silence, live FX volume, GIF progression and queue commits after the sparkle. Removing
+  the extra duration fails 12 assertions; restoring it passes the five entry/cancel tests.
+
 ## Ball entry must finish before revealing the new state or advancing actions
 
 - Public switch/drag events previously received a generic 450/750ms transition hold,

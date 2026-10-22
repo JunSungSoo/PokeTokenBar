@@ -70,3 +70,4 @@ if __name__=='__main__':
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-field-effects.py')],check=True)
 
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-entry.py')],check=True)
+ subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-sizes.py')],check=True)

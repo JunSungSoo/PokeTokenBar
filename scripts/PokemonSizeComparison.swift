@@ -1,0 +1,111 @@
+import AppKit
+import SwiftUI
+@testable import PokeTokenBar
+
+/// Development harness using the production GIF stage, camera sizing and original player.
+@MainActor struct PokemonSizeComparison:View {
+    let mode:BattleMode
+    let spriteStore:SpriteStore
+    @State private var player:PokeRogueBattlePlayer
+    init(mode:BattleMode,spriteStore:SpriteStore) {
+        self.mode=mode;self.spriteStore=spriteStore
+        _player=State(initialValue:PokeRogueBattlePlayer(spriteStore:spriteStore))
+    }
+    @State private var changed=false
+    @State private var shiny=true
+    @State private var audioSettings=BattleAudioSettings(defaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!)
+    @State private var busy=false
+    @State private var rects:[String:CGRect]=[:]
+    @State private var viewport=CGSize.zero
+    private var sizing:BattleSpriteSizing {
+        let catalog=PokeRogueSpriteSizes.shared
+        return .make(mode:mode,sizes:[25,143,321,384].flatMap{id in [false,true].map{catalog.size(speciesID:id,form:nil,back:$0)}})
+    }
+    private var positions:[BattleEffectPosition] {
+        (0..<(mode == .singles ? 2:4)).map{.init(own:$0%2==0,slot:$0/2)}
+    }
+    private func pokemon(_ id:Int)->BattleCombatant {
+        BattleCombatant(id:String(id),speciesID:id,name:BattleTextCatalog.shared.speciesName(id,language:.ko),level:50,shiny:id==25 && shiny,active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
+    }
+    private func current(_ p:BattleEffectPosition,swap:Bool?=nil)->BattleCombatant {
+        if p.own { return pokemon(p.slot==0 ? ((swap ?? changed) ? 143:25):321) }
+        return pokemon(mode == .singles ? 321:(p.slot==0 ? 143:384))
+    }
+    private func actors(swap:Bool?=nil)->[PokeRogueActor] {
+        positions.compactMap{p in rects[p.key].map{PokeRogueActor(pokemon:current(p,swap:swap),position:p,rect:$0,pixelScale:sizing.pixelScale)}}
+    }
+    private func combatant(_ p:BattleEffectPosition)->some View {
+        let mon=current(p)
+        return HStack(spacing:4) {
+            if p.own { sprite(mon,p) }
+            VStack(alignment:.leading,spacing:6) {
+                HStack{Text(mon.name).font(.headline);Spacer(minLength:2);Text("Lv50").font(.caption)}
+                Capsule().fill(.green).frame(height:8)
+                Text("100 / 100").font(.caption.monospacedDigit()).frame(maxWidth:.infinity,alignment:.trailing)
+            }.padding(10).frame(width:mode == .singles ? 205:148)
+                .foregroundStyle(.black).background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
+                .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
+            if !p.own { sprite(mon,p) }
+        }
+    }
+    private func sprite(_ mon:BattleCombatant,_ p:BattleEffectPosition)->some View {
+        BattlePokemonStage(spriteOpacity:player.isPlaying ? 0:1,pokemon:mon,back:p.own,stageSize:mode == .singles ? 108:90,sizing:sizing,spriteStore:spriteStore)
+            .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds){[p.key:$0]}
+    }
+    var body:some View {
+        VStack(spacing:12) {
+            HStack {
+                Text(mode == .singles ? "싱글 · 660px":"더블 · 680px").font(.headline)
+                Spacer()
+                Text("PokéRogue 크기 기준 · 기존 GIF").font(.caption).foregroundStyle(.secondary)
+                BattleVolumeControl(settings:audioSettings,label:"BGM 볼륨",effectsLabel:"효과음 볼륨")
+            }
+            ZStack {
+                VStack {
+                    HStack(spacing:14) {Spacer(minLength:0);ForEach(positions.filter{!$0.own},id:\.key){combatant($0)}}
+                    Spacer(minLength:16)
+                    HStack(spacing:14) {ForEach(positions.filter(\.own),id:\.key){combatant($0)};Spacer(minLength:0)}
+                }.padding(18)
+            }.modifier(PokeRogueBattlefieldLayers(player:player))
+                .overlayPreferenceValue(BattleSpriteAnchorKey.self){anchors in
+                    GeometryReader{g in
+                        let values=anchors.mapValues{g[$0]}
+                        Color.clear.onChange(of:values,initial:true){_,values in rects=values;viewport=g.size}
+                    }
+                }.clipShape(RoundedRectangle(cornerRadius:8))
+            HStack {
+                Button("기술 · 10만볼트") { perform(switching:false) }
+                Button(changed ? "피카츄로 교체":"잠만보로 교체") { perform(switching:true) }
+                Button("다시 등장") { replayAppearance() }
+                Toggle("이로치",isOn:$shiny).toggleStyle(.checkbox)
+                Spacer()
+                Text("크기·연출 비교용").font(.caption).foregroundStyle(.secondary)
+            }.disabled(busy)
+            if let error=player.error {Text(error).font(.caption).foregroundStyle(.red)}
+        }.padding(12).frame(width:mode == .singles ? 660:680)
+            .fixedSize(horizontal:false,vertical:true)
+            .onChange(of:audioSettings.effectsVolume,initial:true){_,value in player.setEffectsVolume(value)}
+            .onDisappear{player.stop()}
+    }
+    private func replayAppearance() {
+        guard !busy else{return};busy=true
+        Task { @MainActor in
+            defer{busy=false}
+            let sources=positions.filter(\.own)
+            let event=BattleVisualEvent(id:1,move:"",type:"",category:"Status",source:sources[0],targets:[],phase:"entry")
+            _ = await player.play(event,actors:actors(),size:viewport,entrySources:sources)
+        }
+    }
+    private func perform(switching:Bool) {
+        guard !busy else{return};busy=true
+        Task { @MainActor in
+            defer{busy=false}
+            let source=BattleEffectPosition(own:true,slot:0)
+            let old=actors().first{$0.position==source}
+            let event=BattleVisualEvent(id:1,move:"thunderbolt",type:"electric",category:"Special",source:source,
+                targets:[.init(position:.init(own:false,slot:0),hit:true)],moveID:"thunderbolt",phase:switching ? "entry":nil)
+            _ = await player.play(event,actors:actors(swap:switching ? !changed:nil),size:viewport,
+                previousActor:switching ? old:nil,beforeFinish:{if switching{changed.toggle()}})
+        }
+    }
+}

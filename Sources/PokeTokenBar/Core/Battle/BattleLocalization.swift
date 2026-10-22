@@ -52,6 +52,18 @@ extension L {
 extension L {
     var battleSelectMove: String { t("기술을 선택하면 상세 정보가 표시됩니다.","Select a move to see its details.","技を選ぶと詳細を表示します。","Elige un movimiento para ver detalles.","Choisis une capacité pour voir ses détails.","Selecione um golpe para ver detalhes.","Wähle eine Attacke für Details.","Выберите приём для просмотра сведений.") }
     var battlePower: String { t("위력","Power","威力","Potencia","Puissance","Poder","Stärke","Мощность") }
+    func battleRosterTypeMatchup(_ outgoing:Double,incoming:Double)->String {
+        let own=outgoing.formatted(.number.locale(lang.displayLocale))
+        let foe=incoming.formatted(.number.locale(lang.displayLocale))
+        return t("타입 기준 · 나의 공격 ×\(own) / 상대 공격 ×\(foe) · 기술·특성 미반영",
+            "Types only · My attack ×\(own) / Opponent attack ×\(foe) · Excludes moves and abilities",
+            "タイプのみ · 自分の攻撃 ×\(own) / 相手の攻撃 ×\(foe) · 技・特性を除く",
+            "Solo tipos · Mi ataque ×\(own) / Rival ×\(foe) · Sin movimientos ni habilidades",
+            "Types seuls · Mon attaque ×\(own) / Adversaire ×\(foe) · Sans capacités ni talents",
+            "Só tipos · Meu ataque ×\(own) / Rival ×\(foe) · Sem golpes e habilidades",
+            "Nur Typen · Mein Angriff ×\(own) / Gegner ×\(foe) · Ohne Attacken und Fähigkeiten",
+            "Только типы · Моя атака ×\(own) / Противник ×\(foe) · Без приёмов и способностей")
+    }
     var battleTypeOnly: String { t("기술 속성 × 현재 상대 타입 기준입니다. 특성·날씨 등의 효과는 포함하지 않습니다.","Move type vs current opposing types only. Abilities, weather and other effects are excluded.","技のタイプと現在の相手タイプのみ。特性・天候などは含みません。","Solo tipos actuales. No incluye habilidades ni clima.","Types actuels uniquement, sans talents ni météo.","Apenas tipos atuais, sem habilidades ou clima.","Nur aktuelle Typen, ohne Fähigkeiten oder Wetter.","Только текущие типы, без способностей и погоды.") }
     func battleCategory(_ category: String) -> String {
         switch category {

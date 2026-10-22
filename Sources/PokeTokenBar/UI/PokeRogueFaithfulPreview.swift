@@ -62,12 +62,13 @@ final class PokeRogueFaithfulPlayer {
         guard !frames.isEmpty else { throw BattleFailure.unavailableEngine }
         let center=BattleSpriteGeometry.horizontalCenter(frames)
         let encoded=try frames.map { frame -> String in
-            let image=NSImage(size:NSSize(width:64,height:64));image.lockFocus()
-            NSGraphicsContext.current?.imageInterpolation = .none
+            guard let bitmap=NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:64,pixelsHigh:64,bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0),
+                  let context=NSGraphicsContext(bitmapImageRep:bitmap) else{throw BattleFailure.invalidMessage}
+            NSGraphicsContext.saveGraphicsState();NSGraphicsContext.current=context;context.imageInterpolation = .none
             let size=SpriteFit.size(for:frame.image.size,box:64)
             frame.image.draw(in:NSRect(x:(64-size.width)/2+(0.5-center)*size.width,y:0,width:size.width,height:size.height),from:.zero,operation:.sourceOver,fraction:1)
-            image.unlockFocus()
-            guard let data=image.tiffRepresentation.flatMap(NSBitmapImageRep.init(data:))?.representation(using:.png,properties:[:]) else { throw BattleFailure.invalidMessage }
+            NSGraphicsContext.restoreGraphicsState()
+            guard let data=bitmap.representation(using:.png,properties:[:]) else { throw BattleFailure.invalidMessage }
             return "data:image/png;base64,"+data.base64EncodedString()
         }
         return ["frames":encoded,"delays":frames.map(\.delay)]

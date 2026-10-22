@@ -25,6 +25,20 @@ struct BattleTextCatalog: Decodable, Sendable {
         // A missing/incomplete resource is a build error, caught by catalog/packaging tests.
         return try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
     }()
+    private static let speciesTypes: [String:[String]] = {
+        let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/species-types.json")
+        let url=bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0:nil }
+            ?? Bundle.module.url(forResource:"species-types",withExtension:"json",subdirectory:"BattleText")!
+        return try! JSONDecoder().decode([String:[String]].self,from:Data(contentsOf:url))
+    }()
+    func pokemonTypes(_ id:Int,form:PokemonForm?)->[String] {
+        let form=PokemonForm.resolved(speciesID:id,form:form)
+        let key=String(id)+(form.map{":"+$0.rawValue} ?? "")
+        return Self.speciesTypes[key] ?? Self.speciesTypes[String(id)] ?? []
+    }
+    func speciesTypeNames(_ id:Int,form:PokemonForm?,language:AppLanguage)->String {
+        pokemonTypes(id,form:form).map{typeName($0,language:language)}.joined(separator:" / ")
+    }
     static func key(_ raw: String) -> String {
         raw.replacingOccurrences(of:"♀",with:"f").replacingOccurrences(of:"♂",with:"m")
             .lowercased().unicodeScalars.filter { (97...122).contains($0.value) || (48...57).contains($0.value) }.map(String.init).joined()

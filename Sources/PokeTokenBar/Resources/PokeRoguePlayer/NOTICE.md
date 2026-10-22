@@ -24,3 +24,15 @@ original throw/release easing and staggered radial particles. Appearance and its
 pause play at 1.25x speed (520ms throw, 200ms growth, 1520ms total); recall retains
 its original timing. Adjacent same-side double entries share a clock and sound owner. The collection currently has no captured ball type, so the standard Poké Ball
 is used. The existing effects-volume control applies to release/recall audio.
+
+pokemon-sizes.json derives per-species/form/front/back visible animation bounds from
+atlas JSON at the pinned asset revision. Each record preserves its source SHA-256;
+prepare-pokerogue-sizes.py verifies source Git blob hashes before extraction. Existing
+PokéAPI GIF artwork/cadence remains in use, fitted without distortion to those bounds.
+All battlers share one camera scale. Native and original-player actors use the same
+size/feet anchors; atlas cells retain natural dimensions instead of 64px normalization.
+
+Standard shiny entries append the original shiny atlas (35 frames at 32fps) and
+se/sparkle.wav after ball appearance/settle. This preserves the authored animation
+through its final frame (1093.75ms), exceeding ShinySparklePhase's 1000ms wait slightly
+so the next native action cannot cut the sparkle short. Both assets retain pinned bytes.
