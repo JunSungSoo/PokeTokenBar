@@ -36,6 +36,8 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
     var onDisconnected: (@Sendable () -> Void)?
     var onMessageReceived: (@Sendable (TradeMessage) -> Void)?
 
+    var onDataReceived: (@Sendable (Data) -> Void)?
+
     private let lock = NSLock()
     private var listener: NWListener?
     private var connection: NWConnection?
@@ -177,6 +179,7 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
                 }
                 self.lock.unlock()
                 for frame in frames {
+                    if let onDataReceived = self.onDataReceived { onDataReceived(frame); continue }
                     if let message = try? JSONDecoder().decode(TradeMessage.self, from: frame) {
                         decodedMessages.append(message)
                     } else {
@@ -206,11 +209,15 @@ final class ManualTradeTransport: NSObject, TradeTransport, @unchecked Sendable 
     func connect(to peer: TradePeer) throws { throw TradeTransportError.notConnected }
 
     func send(_ message: TradeMessage) throws {
+        try sendData(JSONEncoder().encode(message))
+    }
+
+    func sendData(_ data: Data) throws {
+        guard data.count <= TCPFrameBuffer.maxFrameLength else { throw TradeTransportError.sendFailed }
         lock.lock()
         let currentConnection = connection
         lock.unlock()
         guard let currentConnection else { throw TradeTransportError.sendFailed }
-        guard let data = try? JSONEncoder().encode(message) else { throw TradeTransportError.sendFailed }
         currentConnection.send(content: TCPFrameBuffer.frame(data), completion: .contentProcessed { _ in })
     }
 

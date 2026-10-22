@@ -11,6 +11,7 @@
 ## 사전 요구사항
 
 - **macOS 14 (Sonoma) 이상**
+- **Node.js 22.18+와 npm** — 배틀 엔진 빌드용이며, 앱 사용자는 별도 설치가 필요 없습니다.
 - **Swift 6 툴체인** (Xcode 16 이상) — `Package.swift`가 요구
   (`swift-tools-version: 6.0`)
 
@@ -19,6 +20,7 @@
 이 프로젝트는 Swift Package입니다. 저장소 루트에서:
 
 ```bash
+./scripts/prepare-battle-engine.sh  # 오프라인 배틀 엔진 준비
 swift build             # 앱 타깃 컴파일
 ./scripts/test-gate.sh   # 전체 테스트 실행 및 로직 코어 커버리지 검사
 ```

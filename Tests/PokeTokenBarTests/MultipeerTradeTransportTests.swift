@@ -13,6 +13,11 @@ final class MultipeerTradeTransportTests: XCTestCase {
         XCTAssertFalse(serviceType.hasSuffix("-"))
     }
 
+    func testReconnectionAdvertisementIsUnavailableForNewMatches() {
+        XCTAssertFalse(MultipeerTradeTransport.makeTradePeer(displayName: "busy", discoveryInfo: ["code":"BBBB", "available":"false"]).isAvailable)
+        XCTAssertTrue(MultipeerTradeTransport.makeTradePeer(displayName: "ready", discoveryInfo: ["code":"CCCC", "available":"true"]).isAvailable)
+        XCTAssertTrue(MultipeerTradeTransport.makeTradePeer(displayName: "legacy", discoveryInfo: nil).isAvailable)
+    }
     func testMakeTradePeerUsesDiscoveryInfoCode() {
         let peer = MultipeerTradeTransport.makeTradePeer(displayName: "민수의 Mac", discoveryInfo: ["code": "ABCD1234"])
         XCTAssertEqual(peer.id, "민수의 Mac")

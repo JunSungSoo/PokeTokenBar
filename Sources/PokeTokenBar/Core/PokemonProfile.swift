@@ -101,6 +101,12 @@ struct PokemonProfile: Codable, Sendable, Equatable {
     /// Earned growth in standard-balance units, independent of difficulty and repeat boosts.
     var growthTokens: Int
     var moves: [PokemonKnownMove]
+    var hasCustomMoves: Bool? = nil
+    var hasCustomAbility: Bool? = nil
+    /// Resolution identity separates a metadata refresh from evolution/form changes.
+    var loadoutSpeciesID: Int? = nil
+    var loadoutForm: PokemonForm? = nil
+    var automaticMovesLevel: Int? = nil
 
     static func generate(seed: UInt64, growthTokens: Int = 0,
                          instanceID: String = UUID().uuidString) -> PokemonProfile {
@@ -135,11 +141,16 @@ struct PokemonProfile: Codable, Sendable, Equatable {
         abilityName = nil
         abilityIsHidden = false
         moves = []
+        hasCustomMoves = nil
+        hasCustomAbility = nil
+        loadoutSpeciesID = nil; loadoutForm = nil; automaticMovesLevel = nil
         self.growthTokens = rebasedGrowth
         advanceGrowth(to: rebasedGrowth, rarity: rarity)
     }
 
-    mutating func enrich(with details: PokemonDetails) {
+    mutating func enrich(with details: PokemonDetails, form: PokemonForm? = nil) {
+        let resolvedForm = PokemonForm.resolved(speciesID: details.speciesID, form: form)
+        let changedSpecies = loadoutSpeciesID.map { $0 != details.speciesID || loadoutForm != resolvedForm } ?? false
         var random = ProfileRNG(seed: seed ^ 0xA11B_1E5D_9EED)
         if gender == nil {
             if details.genderRate < 0 {
@@ -168,11 +179,40 @@ struct PokemonProfile: Codable, Sendable, Equatable {
             ?? details.abilities.first { $0.slot == abilitySlot }
             ?? normal.first
             ?? hidden.first
-        abilityName = chosen?.name
-        if let chosen { abilitySlot = chosen.slot; abilityIsHidden = chosen.isHidden }
+        if hasCustomAbility == true {
+            let legal = PokemonLoadout.abilityOptions(details: details, form: form)
+            if !legal.contains(where: { BattleTextCatalog.key($0.name) == BattleTextCatalog.key(abilityName ?? "") }),
+               let replacement = legal.first(where: { $0.slot == abilitySlot && $0.isHidden == abilityIsHidden })
+                    ?? legal.first(where: { !$0.isHidden }) ?? legal.first {
+                abilityName = replacement.name
+                abilitySlot = replacement.slot
+                abilityIsHidden = replacement.isHidden
+            }
+        } else if abilityName == nil || changedSpecies {
+            abilityName = chosen?.name
+            if let chosen { abilitySlot = chosen.slot; abilityIsHidden = chosen.isHidden }
+        }
+
+        // Modern API defaults can differ from BW2 (e.g. Gengar's Cursed Body).
+        // Repair only a real API ability; arbitrary incompatible saved names still fail validation.
+        let historicalAbilities = PokemonLoadout.abilityOptions(details: details, form: form)
+        if let name = abilityName,
+           details.abilities.contains(where: { BattleTextCatalog.key($0.name) == BattleTextCatalog.key(name) }),
+           !historicalAbilities.contains(where: { BattleTextCatalog.key($0.name) == BattleTextCatalog.key(name) }),
+           let replacement = historicalAbilities.first(where: { $0.slot == abilitySlot && $0.isHidden == abilityIsHidden })
+                ?? historicalAbilities.first(where: { !$0.isHidden }) ?? historicalAbilities.first {
+            abilityName = replacement.name
+            abilitySlot = replacement.slot
+            abilityIsHidden = replacement.isHidden
+        }
 
         // Automatic moveset: the four most recently learned legal level-up moves.
-        moves = Array(details.levelUpMoves(through: level).suffix(4))
+        if hasCustomMoves != true && (moves.isEmpty || changedSpecies || automaticMovesLevel.map { $0 != level } == true) {
+            moves = Array(details.levelUpMoves(through: level).suffix(4))
+        }
+        loadoutSpeciesID = details.speciesID
+        loadoutForm = resolvedForm
+        automaticMovesLevel = level
     }
 
     mutating func applyGrowth(_ delta: Int, rarity: Rarity) {

@@ -28,6 +28,9 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     var onDisconnected: (@Sendable () -> Void)?
     var onMessageReceived: (@Sendable (TradeMessage) -> Void)?
 
+    var onDataReceived: (@Sendable (Data) -> Void)?
+    private let discoveryService: String
+
     private let myPeerID: MCPeerID
     private let code: String
     /// When this was `lazy`, the first access raced between the caller's thread
@@ -56,7 +59,8 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     /// The nickname is free text entered in Settings, so it can be empty or exceed 63 bytes —
     /// MCPeerID(displayName:) traps on such values, so it must be clamped before construction
     /// (Ruling R5).
-    init(nickname: String, code: String) {
+    init(nickname: String, code: String, service: String = "ptb-trade") {
+        self.discoveryService = service
         let peerID = MCPeerID(displayName: Self.clampNickname(nickname, fallback: Host.current().localizedName ?? "PokeTokenBar"))
         myPeerID = peerID
         self.code = code
@@ -102,7 +106,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     /// discoveryInfo parsing is split out as a pure function — makes it unit-testable without a
     /// network stack.
     static func makeTradePeer(displayName: String, discoveryInfo: [String: String]?) -> TradePeer {
-        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?[discoveryInfoCodeKey] ?? "????")
+        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?[discoveryInfoCodeKey] ?? "????", isAvailable: discoveryInfo?["available"] != "false")
     }
 
     /// MCPeerID(displayName:) requires a non-empty name that's 63 bytes or fewer in UTF-8, and
@@ -120,12 +124,15 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         return truncated.isEmpty ? fallback : truncated
     }
 
-    func startDiscovery() {
-        let newAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: [Self.discoveryInfoCodeKey: code],
-                                                       serviceType: Self.serviceType)
+    func startDiscovery() { startDiscovery(available: true) }
+    func startReconnectionDiscovery() { startDiscovery(available: false) }
+    private func startDiscovery(available: Bool) {
+        stopDiscovery()
+        let newAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: [Self.discoveryInfoCodeKey: code, "available": available ? "true" : "false"],
+                                                       serviceType: discoveryService)
         newAdvertiser.delegate = self
 
-        let newBrowser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: Self.serviceType)
+        let newBrowser = MCNearbyServiceBrowser(peer: myPeerID, serviceType: discoveryService)
         newBrowser.delegate = self
 
         lock.lock()
@@ -135,6 +142,16 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
 
         newAdvertiser.startAdvertisingPeer()
         newBrowser.startBrowsingForPeers()
+    }
+
+    /// Keep the browser alive while its already-sent invitation finishes.
+    func pauseDiscovery() {
+        lock.lock()
+        let currentAdvertiser = advertiser
+        let currentBrowser = browser
+        lock.unlock()
+        currentAdvertiser?.stopAdvertisingPeer()
+        currentBrowser?.stopBrowsingForPeers()
     }
 
     func stopDiscovery() {
@@ -188,13 +205,17 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     }
 
     func send(_ message: TradeMessage) throws {
+        try sendData(JSONEncoder().encode(message))
+    }
+
+    func sendData(_ data: Data) throws {
+        guard data.count <= TCPFrameBuffer.maxFrameLength else { throw TradeTransportError.sendFailed }
         lock.lock()
         let partner = partnerPeerID
         lock.unlock()
         // Restrict the destination to the confirmed single partner rather than connectedPeers —
         // even if a third party lingers in the session, my offer/accept doesn't also go to them.
         guard let partner, session.connectedPeers.contains(partner) else { throw TradeTransportError.sendFailed }
-        guard let data = try? JSONEncoder().encode(message) else { throw TradeTransportError.sendFailed }
         do {
             try session.send(data, toPeers: [partner], with: .reliable)
         } catch {
@@ -246,6 +267,8 @@ extension MultipeerTradeTransport: MCSessionDelegate {
         let isPartner = partnerPeerID == peerID
         lock.unlock()
         guard isPartner else { return }
+        guard data.count <= TCPFrameBuffer.maxFrameLength else { return }
+        if let onDataReceived { onDataReceived(data); return }
         guard let message = try? JSONDecoder().decode(TradeMessage.self, from: data) else {
             // One line to distinguish, in the logs, a message we couldn't decode due to a
             // version mismatch from "the peer simply never made an offer."

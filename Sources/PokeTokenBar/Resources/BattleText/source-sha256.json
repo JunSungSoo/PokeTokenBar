@@ -1,0 +1,12 @@
+{
+  "type_names.csv": "685230c51074cf2f723debcf827a4df4c36ab0ec7e929c806ad65a3e40958705",
+  "move_flavor_text.csv": "43177df8d76dac477fc837aa19b2a50d74ee2c94e47fb827506768c58b360087",
+  "ability_flavor_text.csv": "5ab2165547dce3897b1d88e654f0159511680b1d84f93fd4f265752b66904adb",
+  "ability_names.csv": "8acb80c42210f86ae747dc3347b060d69cd2574a9dbfaf74774ae632ca6348da",
+  "version_groups.csv": "28da8d89d8eb4966941f81a9e62b3990510ed4d76dd774158246551a8e7707a7",
+  "move_names.csv": "99e23ee38ea53d1473474d463b87651deac3cd4928750f8186feae66da45c147",
+  "pokemon_species.csv": "e66e2eeb25fd3836b0ebab6bf87bbf01960aa3c0555e2bac495fa8393c5e0c45",
+  "pokemon_species_names.csv": "820cde17074cdb1c2b0595c997fb8f998e773bd5da3bb525dec85703c86c5fd9",
+  "languages.csv": "fbb60019a6a461783d5671a995d5f590db61792a273e90faa0ed630d102a19b8",
+  "moves.csv": "8aafd37bf78f19471495c05b201545180f50f0a08a2a2a844d69f9837dd39ac9"
+}

@@ -1,0 +1,49 @@
+{
+  "assetRevision": "009cac30c39d3615c7b2c320c3984af368871031",
+  "runtimeRevision": "13f1139f0aef39fa75b8b57268832d6c1d9aa742",
+  "phaser": "3.90.0",
+  "moves": [
+    "thunderbolt",
+    "protect",
+    "quick-attack",
+    "volt-switch"
+  ],
+  "originalSHA256": {
+    "LICENSES/AGPL-3.0-only.txt": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+    "LICENSES/CC-BY-NC-SA-4.0.txt": "600ca4e25fe11762b75a97e714707fab48bb778374e92d24c6ca068791661c11",
+    "LICENSES/LicenseRef-POKEMON-REBORN.txt": "92aa72f63656ea0916891b43e2ec452ddccca44b8a95496a14b522c3beac4fbf",
+    "README.md": "3665ff8253621caa9b659010f5b73233a31dd5019d1a0a882f50384e08cbec80",
+    "REUSE.toml": "26ee19e5367c41ade0c377a92b7070516841029cb092c61dc337288b89f6c52a",
+    "audio/REUSE.toml": "9366be6d3d8ac11d8dd2b4f20aa593f3eb3fbcc8a958633cc9160aa8224259a7",
+    "audio/battle_anims/PRSFX- King's Shield1.wav": "ebbec7af616b7f842b82796c49119794326aa6155902dcc0eb7b903686ed9c2a",
+    "audio/battle_anims/PRSFX- King's Shield2.wav": "f14621d386dc99f56eafef1f8c44d719b8d184ed2ad4d3a935c0844cb297ed64",
+    "audio/battle_anims/PRSFX- Protect.wav": "3d3bfd7f9c80b17383c945aad1968e9bbe13d04bfd0f72e8553fb6636c2a4dbf",
+    "audio/battle_anims/PRSFX- Quick Attack.wav": "602c82ce2d4136f8c7dd7b13a3af14332bd2b96115e95526a09b29eed550b6e6",
+    "audio/battle_anims/PRSFX- Thunderbolt1.wav": "400f8915be2aa4ea67b617fee6df19bd5a4ab60eb19bd51eb6a16ac530bc103c",
+    "audio/battle_anims/PRSFX- Thunderbolt2.wav": "d319b7c2280117e4231856492f6cec52bf53e44aa3657dfb75d90fe76519d96c",
+    "audio/battle_anims/PRSFX- Volt Switch1.wav": "2cac8bd267a916de397a3f15c5ecaecea6a84739e78c013d27f200916c9e4194",
+    "audio/battle_anims/PRSFX- Volt Switch2.wav": "e86f77bd6fbbc65cd1a03375cd1c091fc968012970ca58e01bd30b6b95c82a58",
+    "battle-anims/REUSE.toml": "064d1e95f5b99dd410fd42983a2ae5b4f86924338e4d8d42a2105343f0083960",
+    "battle-anims/protect.json": "4c592709940b28c315227e895ab0491d7afd758ec84659a6e6da86db2a04d138",
+    "battle-anims/quick-attack.json": "54ec75c23b7ea9835ff9db1f61f8895e76f3090e22fd4a45861ca21765d668ad",
+    "battle-anims/thunderbolt.json": "2294a47dba942842982a5b1f1a59ec6a40045089df7b94d304e479b0b0c0195d",
+    "battle-anims/volt-switch.json": "985565a725080890eb6158d323f96abe14f9fadfcb4ac49404f17910371a2994",
+    "images/REUSE.toml": "4f3053ee2f38afdadcaa5e13d8bfee9b850b5a635c1392f538363c84703aa6a9",
+    "images/arenas/plains_a.png": "d164a233537cab42728b397cf5ad3ed84085d66a4189d63f229065315f457f61",
+    "images/arenas/plains_b.png": "7b157282d18735deab27d79485f4c7e60c9a091a50af725ac8b904612b367594",
+    "images/arenas/plains_bg.png": "f17637f5110798c19e2b8f64ec030c9860aa2a5751cc9fc16426110d222721fc",
+    "images/battle_anims/PRAS- Black BG.png": "df1814a5bf7c113142459fc31a8a8ecf65acd49094606f85d2c2e6097cd3af4d",
+    "images/battle_anims/PRAS- Electric.png": "77e25d2c0e1e0379176370b73706846d69580b668ab0a21003d59aa855c70de9",
+    "images/battle_anims/PRAS- Protect.png": "c6792fe7d69e027bc717873c61d8015f29c8f1d790182cd711bcebc5f58698dd",
+    "images/battle_anims/PRAS- Strike.png": "5870432e5afef3063253b485806090a0c0102afa953cbc4f5f297861b58ea773",
+    "original/battle-anims.ts": "f464b19e6b23ef237fc8703b748faec0da5146be2edd7b10558132fec0a6d451",
+    "original/sprite-frag-shader.frag": "f5c93b669da3a2366525f9909f735b79a4c8402b7b60b7b5f7747e83532c9f16",
+    "original/LICENSE": "4df3c306dddaaf4baffdff5ca820cc679ac8cd6dc263c6a74517783e42fa7a3b",
+    "phaser.min.js": "e92ddef111ba42e92d316979c732311757093688ea1810591cb7aa2858eba7a7",
+    "original/PHASER-LICENSE.txt": "080f3d5539e766bb556df5b8e86c4f5d581ece35c692b80956ca352b84d29134"
+  },
+  "extractedRangesSHA256": [
+    "c47fcb4e6552d35bc993b55ec0c0000ea660a3c7b8b274e73c65eea706cab048",
+    "0aab3af288a528cf0153db7a4eb9234330620edee4b90fc2161efe8c596ecf4c"
+  ]
+}

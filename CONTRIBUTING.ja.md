@@ -11,6 +11,7 @@
 ## 前提条件
 
 - **macOS 14 (Sonoma) 以降**
+- **Node.js 22.18+ と npm** — バトルエンジンのビルド用。アプリ利用者の別途インストールは不要です。
 - **Swift 6 ツールチェーン** (Xcode 16 以降) — `Package.swift` が要求
   (`swift-tools-version: 6.0`)
 
@@ -19,6 +20,7 @@
 本プロジェクトは Swift Package です。リポジトリのルートから:
 
 ```bash
+./scripts/prepare-battle-engine.sh  # オフラインバトルエンジンを準備
 swift build             # アプリターゲットをコンパイル
 ./scripts/test-gate.sh   # 全テストを実行し、ロジックコアのカバレッジを検証
 ```

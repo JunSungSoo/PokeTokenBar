@@ -19,6 +19,10 @@ cd "$(dirname "$0")/.."
 THRESHOLD="${THRESHOLD:-75}"
 
 LOGIC_CORE=(
+  "Sources/PokeTokenBar/Core/Battle/BattleTextCatalog.swift"
+  "Sources/PokeTokenBar/Core/Battle/BattleModels.swift"
+  "Sources/PokeTokenBar/Core/Battle/BattleHistory.swift"
+  "Sources/PokeTokenBar/Core/Battle/BattleCoordinator.swift"
   "Sources/PokeTokenBar/Core/CompanionModel.swift"
   "Sources/PokeTokenBar/Core/PokemonForm.swift"
   "Sources/PokeTokenBar/Core/CollectionWeight.swift"
@@ -38,6 +42,9 @@ LOGIC_CORE=(
   "Sources/PokeTokenBar/Core/CustomScanRoots.swift"
   "Sources/PokeTokenBar/Core/UsageRecap.swift"
 )
+
+echo "▶ offline battle engine + rules tests"
+./scripts/prepare-battle-engine.sh
 
 echo "▶ swift test (--enable-code-coverage)"
 swift test --enable-code-coverage

@@ -15,7 +15,287 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Battle UI must pass shared UI integration guards
+
+- Feature-specific battle tests passed while the full source guards still found six View
+  declarations without explicit MainActor isolation, UI-local localization extensions and
+  two scroll containers without a scroller lane. Run the repository-wide gate before committing
+  a new feature: mounted battle fixtures alone do not inspect these cross-cutting contracts.
+  Move existing translations into the Core localization table, explicitly isolate each View,
+  and reserve the scroller lane inside each scroll container. Development comparison copy
+  stays centralized as well; its existing Korean-only harness is separate from production copy.
+- Adding ability/move menus also invalidated an older individual-selector rendering assertion:
+  it counted every NSPopUpButton in the detail screen. Identify the individual selector through
+  its numbered individual menu entries, then assert its conditional presence and item count.
+  The unchanged count assertion had conflated independent controls. The original full-gate
+  failures establish that the guards catch these omissions; retain the guards and exercise
+  both one-individual and multiple-individual mounted branches.
+
+## Combat announcements must follow actual execution, not selection order
+
+- Slowing effects alone still rendered the authoritative end-of-turn frame immediately,
+  so HP, switched species, stages, weather and even the result jumped ahead of playback.
+  Previous mounted regressions observed notices/particles, not the combat state at effect
+  boundaries. Capture immutable owner/public scenes at actual simulator protocol emissions,
+  atomically selecting private split branches. Replay those scenes in the same ordered queue:
+  announce/animate a move, apply its damage/status events, then proceed to the next actor.
+  Switch/faint transitions get their own moment; legal replacement requests and terminal
+  results become visible only after the queue drains. The battlefield and auxiliary panels
+  share this presented state, while the simulator remains authoritative for priority, speed,
+  Trick Room, forced replacement and victory. Keep snapshots bounded to the retained public
+  log and assert encoded frames stay below the transport limit. Add presentation time to the
+  decision allowance, and preserve waiting metadata while replaying (manufacturing a waiting
+  label caused an extra 23-point height change during opening playback).
+- Real-engine fixtures cover both perspectives and both modes; mounted SwiftUI tests inspect
+  HP at each effect start, delayed switch identity and forced replacement. An actual Moxie
+  knockout exercises ability-scene application and the corresponding Attack-stage change.
+  A production-window
+  integration traverses three KOs, replacements and the final result. Replacing historical
+  engine scenes with final state fails the pre-hit regression; applying the final native frame
+  early fails 14 assertions. Both mutations are restored before final verification. Reopening
+  a window adopts the latest state instead of waiting for already-consumed event IDs.
+
+- Minimum notice hold time did not slow the animation's own clock, so short source timelines
+  flashed before the next move. Foreground/background now share 65%-speed presentation progress
+  with at least 2.2 seconds of animation, a 0.45-second notice lead-in and a 0.55-second empty
+  interval. Native Pokémon sprite animation and source resource durations remain unchanged.
+  A task keyed by newest event also canceled in-flight playback and consumed queued IDs when
+  another frame arrived. Append immutable event/message snapshots to one stable drain task;
+  keep input gated through the entire sequence. Mounted tests append a third event while the
+  first of two queued moves is playing and require all three in order with full spacing.
+  Replacing append with overwrite makes that mounted regression lose the middle move and fail;
+  restored before the final passing run. Region inspection confirms enqueue-during-playback,
+  lead-in, ability hold, clear interval and slower presentation progress execute.
+
+- The effects scheduler played engine move events without readable move names, while ability messages accumulated in an auxiliary window. Generate a localized, ordered presentation stream from the same public log: moves and ability consequences share its IDs and playback queue. Keep current owned abilities in snapshots, including Trace changes; do not expose hidden opposing abilities.
+- The event-ID sweep found that IDs were indexes into a log truncated to 160 lines. After rollover, the task/cursor could stop seeing new effects. Use absolute public-log offsets; a 35-turn regression checks monotonic IDs and two actual move events every turn.
+- Temporary overlays do not participate in content-height measurement and remain readable with Reduce Motion. A mounted ability-only regression checks actual announcement pixels and their removal; mutating away the announcement assignment must fail. Queue and eight-language tests cover interleaving and move/ability text. Explicit execution tests cover speed, priority, Trick Room, Tailwind, paralysis and weather suppression.
+
+## Surrender confirmation must name the actual actions
+
+- The battle-close prompt reused generic confirmation and matchmaking cancellation labels, so it displayed “Confirm / Cancel matching” during combat. Keep the matching label in the lobby; use the existing localized “Surrender” and generic “Cancel” actions for active-battle window/app closure.
+- The mounted close regression now checks the actual alert button titles in Korean, as well as cancellation preserving the battle and surrender awarding the opponent victory. Earlier checks only supplied modal response codes and could not catch incorrect wording.
+
+## Battle window height must follow measured content
+
+- The first auxiliary-window change replaced clipping with a fixed 960-point main window. Its GeometryReader expanded a top-aligned stack to the available height, leaving a large blank region above the confirmation footer. Tests required the window to be tall and checked bounds, but never measured content-to-footer clearance.
+- Remove that expanding container. Measure the actual SwiftUI content and command/footer bounds, fit the AppKit content height to that measurement (including after a manual height resize), and leave no extra bottom padding below the command area (the initially requested 30 points were subsequently removed). Disable automatic hosting sizing so AppKit and the measured-height controller do not compete over the frame. Reserve the largest of the four move detail cards so selecting a move does not add unplanned height. Keep header reopen buttons and double-battle controls in the same natural measurement. Preserve the existing window width. Remove the combat-window log section; saved opponent-filtered history remains in matching.
+- Sweep: the main battle no longer uses a screen-derived fixed height after layout or an expanding GeometryReader for its vertical content. Screen clamping remains for physical display bounds; battlefield/effect GeometryReaders remain local to drawing.
+- A mounted production-window test measures command/footer clearance, content height and fitting AppKit frame in singles/doubles, Korean/English and 800/1000-point widths. Injecting extra bottom padding must fail this test. This replaces the former assertion that larger windows are inherently correct. It also enlarges the mounted window without changing its width and asserts that the fitted height is restored. Schedule the resize correction on the next main-actor turn and update minSize only when changed: synchronously resizing from AppKit's layout notification caused a view-layout exception, which the mounted lifecycle regression caught.
+
+## Battle controls must fit beside live auxiliary information
+
+- A fixed 720-point battle window placed field effects, active stat stages, ability notices and commands in one outer ScrollView. Selecting moves could leave the second move row or description outside the visible battle area. Earlier rendering tests checked isolated button size and animation pixels, not the complete window hierarchy.
+- Weather/field information now has a left companion window; active stage changes and ability notices have a right companion window. Closing these windows only updates their visibility, exposing localized reopen buttons in the main header. Main-window close retains the surrender confirmation; confirmed surrender hides all three windows.
+- The main window fits its measured content, clamped to the visible screen. Battle/commands have no enclosing ScrollView; compact move descriptions expose full text in a localized information popover. Auxiliary information can scroll independently; saved battle history is shown in matching, not combat. A sweep of the battle presentation found no second outer command scroller.
+- Tests exercise actual auxiliary close/reopen identity, continued live battle, main surrender, visible-screen layout including negative-coordinate displays and small screens, and long move descriptions in all eight languages. Mutating the closed-field visibility back to true must fail the lifecycle regression.
+
+## Full engine mechanics need public snapshots and privacy-aware adapters
+
+- Ability mechanics already used the complete `gen5` event system, but previous tests concentrated on three visible abilities. Weather/room/side effects had no structured frame representation; field start/end protocol lines were discarded by the native log renderer. Add public state snapshots and eight-language display instead of reimplementing damage/stat rules. A new two-client test traverses actual weather/Gravity/screens/Tailwind choices in both modes.
+- The rendering adapter read real opposing species directly even when Illusion was active. Sweeping the same pattern found target names and type-only matchup previews too. Use the disguise until the real hit reveals it; track public type-change events such as Soak without revealing the hidden original type. Regression restores the old appearance read and must fail; forcing the runtime to a newer generation must fail Gen V weather-duration tests.
+- Upstream Regenerator changes bench HP silently. Report the actual owned switch-out HP increase through the existing private split-log protocol. Do not broadcast an unrevealed passive ability or bench HP to the opponent. Tests assert healing, owner-localized text and opponent exclusion.
+- A no-op fixture must stay legal under the condition being tested. Gravity disables Splash, so a Splash-only waiting Pokémon uses Struggle and adds real damage/contact randomness. Field-state integration/preview fixtures now use Amnesia.
+- All 164 Gen V abilities are inventoried from actual inherited function hooks. Every non-Arceus ability initializes in both six-member modes; triggered category tests cover combat effects and weather/fields. This is distinct from claiming exhaustive pairwise coverage. Keep existing item/final-evolution restrictions and no-battle-effect Gen V abilities explicit in the generated inventory.
+
+## Metadata loading must not regenerate an existing default loadout
+
+- `loadPokemonDetails` runs when the Pokédex opens, including cached details. `enrich` previously rebuilt every automatic moveset and ability name on every call. Deterministic enrichment with identical fixtures and custom-selection tests passed, but never exercised changed metadata against an already formed automatic loadout.
+- Record the resolved species/form and automatic-move level. Preserve existing saved moves/ability on same-identity refreshes, including legacy profiles with no tracking fields. Resolve missing fields once; refresh automatic values on real evolution/form changes and automatic moves on actual level growth. Explicit custom selections remain preserved by their existing flags.
+- A legacy active individual can evolve before old metadata resolves. Stamp the old identity at the real evolution transition before changing the path so deferred new-species enrichment can recognize it. Ditto identity rebasing clears all resolution tracking.
+- Regressions cover caught/evolved defaults under changed metadata, legacy coding, level growth, store evolution before metadata availability, manual choices and restart. Reintroducing unconditional automatic-move replacement must fail the captured-default regression. Ability-menu checks compare actual canonical names rather than assuming a matching slot implies a matching selected ability.
+
+## Starting without Team Preview must refresh initial move requests
+
+- Six-member singles/doubles now start in the submitted roster order, with no public Team Preview. Removing the preview starts Showdown immediately, before the adapter applies its no-PP-Up policy. The cached first request therefore still exposed PP-Up maxima (Thunderbolt 24 instead of 15) even though the Pokémon’s move slots were correct. Existing preview-based tests advanced to a fresh request and concealed this initialization ordering dependency.
+- Refresh the initial move request after resetting every move slot/base slot. Tests assert the initial displayed maximum PP as well as preserved numeric stats, all six roster members, the first one/two submitted leads and absence of public preview rosters. Reject old three/four/five-member teams. Restoring the old size rule must fail the six-member regression test.
+- Preparation UI reads only local selected IDs for cards/order. Opposing slots are six fixed question marks; battle snapshots contain only opposing active combatants. Readiness submits the local order directly, with no second team-preview ordering step.
+
+## Match search lifecycle must be separate from battle timers
+
+- The original ten-second automatic manual fallback contradicted continuous matching. Existing tests connected peers immediately and never exercised a search beyond that deadline. Search now has no deadline; manual connection is explicit. Invitation/reconnect/turn timers retain their separate purposes.
+- Canceling an unpaired search must not send a cancel packet over an unconnected transport; doing so produces a spurious send error on real Wi-Fi while memory links silently accept it. Send only after a peer handshake, then clear lobby errors during cancellation.
+- Stopping browsing after selection must retain the browser handling the pending invitation. Both inviter and receiver pause discovery, and cancellation releases it. Reconnection advertisements are marked unavailable to unrelated match searches.
+- Delegate tasks can already be queued when callbacks are cleared. Every link callback checks its search generation, and discovery callbacks also check the phase. The same sweep covered manual listener/code callbacks and disconnected lobby cleanup.
+- Regression tests wait beyond the previous ten-second deadline, discover late candidates, exercise loss, selection, both participants, cancellation/restart and queued old callbacks. Removing the discovery-phase guard must fail the connected-candidate test. Physical two-Mac discovery remains a separate hardware check.
+
+## Original GPU effects require original rendering proof
+
+- **A native adaptation is not the original Showmotion effect.** Move-ID coverage and native
+  pixel tests proved all moves had effects, but did not establish original effect playback.
+  The new path bundles pinned original assets/runtime/shaders, verifies their hashes, and
+  requires positive particle and draw counters before announcing `Showmotion`. Unsupported
+  moves retain native effects; the registry explicitly contains only nine original handlers.
+- **A hidden WebView cannot prove GPU playback.** Foreground original-asset runs produced
+  positive counts for all nine effects; background command-line runs timed out or skipped
+  playback. The visible NSApplication validation and interactive battle preview are distinct
+  from native XCTest snapshots. Original scene code invalidates its loading epoch when page
+  visibility changes. Wait for resume suppression and retry the cached effect once; stop on
+  disappearance, and disable repeated attempts after a timeout. Rendering pauses while idle.
+- **Reconnect tests must not assume which equal-speed Pokémon takes damage.** Thunderbolt can
+  paralyze and stop the second mover. Preserve both HP snapshots and require actual damage on
+  either side, rather than arbitrarily requiring the host to have lost HP before reconnect.
+
+## Complete move timelines and source validation
+
+- **A matching name is not a visible effect.** Full move import now records effect operations
+  independently of Pokémon animation and uses native fallback effects for sprite-only routines.
+  Test every current canonical move's rendered pixels, sampling actual operation windows: some
+  flying strikes start at 700 ms, so samples only at 25/50/75% falsely report blank animations.
+  Keep ordered playback tests and target/miss/reverse-perspective/Reduced Motion pixel checks.
+- **External animation math can contain non-finite coordinates.** Upstream Spin Out and Matcha
+  Gotcha divide by the loop index at zero. JSON stringification turned Infinity into null,
+  causing the first complete catalog decode to fail even though the current BW2 moves were
+  valid. The exporter discards and reports those two individual particles; Node and Swift tests
+  validate every exported recipe, not only the current preview's four moves, plus texture hashes.
+- **A move's debut is not its animation's generation.** Never label a shared Showdown timeline
+  as generation V/IX based on the move number. Preserve nullable source generation and apply
+  the explicitly requested 5/9/8/7/6/4/3/2/1 priority to tagged variants, then shared data.
+  Reversing the V/IX priority fails the selector test; removing `-fail` suppression fails the
+  full-HP Rest engine test (both verified by mutation and restored).
+
+## Battle stance alignment and persistent audio
+
+- **An alpha bounding box does not locate a Pokémon's stance.** Pikachu's asymmetric tail
+  pushed its back-facing body right of the ellipse and its front-facing body left. Earlier
+  native tests used solid rectangles and verified only the vertical five-point foot gap.
+  Battle sprites now align the opacity-weighted lower-quarter stance to the ellipse center,
+  using one duration-weighted anchor across all GIF poses to preserve their original motion.
+  The shared stage is the sole alignment path for both facings and battle modes. Native
+  regression fixtures add opposite thin tails and check horizontal stance centering as well
+  as the existing vertical gap; animation tests retain distinct poses and frame delays.
+  Removing the production horizontal offset fails all four native stance fixtures (verified).
+- **Battle volume belongs to durable preferences, not a player instance.** The header's
+  localized volume popover updates the active mixer immediately. New players read the same
+  injected preference store, including an explicitly saved zero; missing settings default
+  to 35%. Tests use isolated defaults and recreate settings and players at several volumes.
+  The standalone preview uses its own persistent audio domain, separate from user saves.
+
+## Stable move selection and complete move effects
+
+- **Selection decorations must not add a new layout row.** A conditional “Selected” label
+  increased one move button's height and reflowed the grid. The production label now reserves
+  a 14-point icon slot, uses a constant 64-point height, and changes only background/border
+  color and check visibility. Render tests compare both states in every supported language
+  at 140/220-point widths. Injecting an 80-point selected height fails those comparisons.
+- **The last log entry is not a turn's entire animation sequence.** The former centered
+  sparkle used only the most recent move and was keyed by turn, so it skipped other actions
+  and could repeat a stale move. Frames now carry ordered public visual events with stable
+  log IDs and recipient-relative source/target slots, BW2 display type/category and blocked
+  target flags. A cursor queues all new moves once and seeds from the current frame on reopen.
+  Restricting the cursor to the last event fails its two-action regression test. Engine tests
+  exercise immunity, opposite perspectives and all three Surf targets in doubles; generic
+  Hidden Power visuals do not disclose private IV-derived types. Sprite anchors place beams,
+  particles, impact rings/slashes and status auras at the actual stage positions. The Canvas
+  timeline exists only for active events; Reduce Motion uses a short static outline instead.
+  The first new layer attached `.task` to an initially empty `Group`, so it never mounted its
+  playback task. Cursor/static-image tests passed but a live native click showed no particles.
+  Keep a clear surface mounted inside the overlay `ZStack`. A hosting-window regression starts
+  with zero events, injects two moves, checks busy transitions for both durations and samples
+  live nonblack pixels. It failed all three checks before the fix.
+
+## Engine tests must isolate the requested mechanic
+
+- **A type-immunity assertion can be preempted by unrelated random paralysis.** Both sides of
+  the immunity fixture used Thunderbolt at the same imported speed. If the defender moved first,
+  inflicted paralysis, then fully paralyzed the attacker, no immunity event occurred. An app
+  build caught this after earlier successful runs. Use Growl for the defender in this specific
+  fixture, retaining the opposing command and switch checks while removing the unrelated status
+  gate. Other battle fixtures retain their damaging moves and generation-V random mechanics.
+  A generation-V capped stat increase logs `-boost` with zero, rather than `-fail`. Test failed
+  status visuals with full-HP Rest and an opposing Splash, which actually reaches `-fail`.
+  Inspect the simulator log before assuming modern-generation failure semantics.
+
+## Interactive battle previews and visible confirmation
+
+- **A rendered XCTest window does not prove native user input works.** The original live
+  harness awaited Swift tasks but never ran NSApplication's native event loop. Existing render
+  tests called `window.sendEvent` directly, bypassing the missing event dispatch. The opponent
+  submitted a command; the human could not submit one and lost when the normal 60-second timer
+  elapsed. `scripts/preview-battle.sh` now launches a standalone AppKit application, linking the
+  production battle objects, with an automatic in-memory opponent and isolated temporary saves.
+  It runs `NSApplication.run`, starts the real audio player and uses a 30-minute test turn limit.
+  Normal battles retain 60 seconds. A regression test submits only the guest action, expires an
+  injected short deadline and checks the timeout loss independently of unchanged HP. Live native
+  clicks verified selected metadata, enabled confirmation, turn 2, HP 143→120 and PP 15→14.
+- **Confirmation must remain outside the scrolling commands.** The battle stage and inspector
+  pushed the submit button below the initial viewport. Keep confirmation in the fixed footer,
+  so a selected move can be committed without scrolling past its details.
+- **A score render is not the requested original game recording.** The former renderer removed
+  the first 12.808 seconds and synthesized the Trainer Battle loop. It has been replaced with
+  the archived Johto Wild Pokémon (Day) recording, preserving the source's tagged intro and loop
+  sample counts and recording source/asset hashes. One audio node queues intro once and loop
+  forever; an offline audio-engine test compares output PCM at both joins and throughout the
+  second loop. Playing any sound or merely checking file duration cannot validate track identity,
+  a seamless join, or whether an encounter intro repeats. Repeating the intro buffer must fail
+  the offline sample test (verified by mutation); pinned file hashes reject substituted assets.
+
+## Battle team species clause
+
+- **Individual identity and species identity are separate constraints.** Earlier validation
+  rejected repeated individual IDs but intentionally allowed several captures of one species.
+  The rule now allows one member per National Pokédex number in each team, including forms.
+  The picker disables other captures of a selected species while keeping the selected row
+  removable. Native preparation checks the roster before API requests; readiness rejects
+  duplicate species snapshots; the engine independently resolves canonical species numbers
+  rather than trusting peer-supplied metadata. Singles/doubles tests cover distinct IDs,
+  different forms, and the same species appearing once on each opposing team. Legal battle
+  fixtures now use unique species so the normal battle paths still exercise the real guard.
+
 ## 스프라이트 전환
+
+- **Battle sprites need the same GIF playback path as the floating pet.** The new battle
+  stage loaded only PNGs, so idle poses remained frozen; geometry snapshots could not detect
+  missing temporal behavior. Front/back variants now share the existing cached decoder and
+  cancellable recovery loader, with facing included in every cache/request key. Crop all GIF
+  poses to their combined alpha bounds rather than independently normalizing each pose, which
+  would erase movement and change scale. Native stage tests sample rendered pixels across
+  multiple frame delays for both facings and battle sizes; static/fainted cases remain still.
+  A cold-cache native test serves isolated GIF responses through URLProtocol and verifies both
+  requested facing paths and visible frame advancement through the production download branch.
+  The shared-crop fixture checks distinct pose origins, equal canvas sizes and original delays.
+  Freezing the production frame index at zero must fail the native playback test (verified by mutation).
+
+
+- **A sprite canvas bottom is not a Pokémon's feet.** Adding five pixels of padding to an
+  uncropped 96×96 sprite preserved its transparent bottom rows, so Pokémon floated above the
+  stage. Both facing directions now crop alpha bounds, preserve aspect ratio and align the
+  visible bottom at `shadowHeight / 2 + 5` above the stage bottom. Geometry tests and native
+  pixel tests use both tall/wide shapes and different transparent margins. Removing the crop
+  from the production loader or changing the five-pixel offset must fail these trigger tests.
+- **Selected app language must not silently become English for battle metadata.** API-only
+  BW2 flavor text lacked several translations; UI fallbacks then showed English descriptions,
+  while raw simulator names/types/targets/statuses/logs were also displayed directly. Existing
+  tests only checked that a panel appeared. The bundled catalog covers every supported locale,
+  move and species, and the battle formatter localizes the remaining protocol tokens. Tests
+  check locale-specific lookup results across the entire catalog, render all eight languages,
+  and deliberately replace description lookup with English to prove the regression is caught.
+
+- **Move inspectors must use the battle generation's data, not current metadata values.**
+  Gen-V Thunderbolt has power 95 while the default modern dex gives 90. Type previews now
+  come from the host's gen-V dex/current opponent types, with power/category/description carried
+  in the recipient frame. A test covers all six multipliers, Status moves, unchanged HP/log,
+  both modes, and the Gen-V power. Replacing the chart with a constant or using the modern
+  dex's power makes it fail. Opposing teams may share a species, so target labels include
+  side and slot numbers; tests assert their uniqueness with opposing Pikachu. Native tests send an actual
+  mouse click to the fixed-size sample window, assert that the inspector pixels change while
+  no command is submitted, and capture both the selected state and minimum window size.
+
+- **Render new windows at their minimum size as well as the default size.** Four-move doubles
+  controls fit the default battle window but clipped the header and confirmation at its minimum
+  height. The first render fixture also imposed a fixed root frame, masking resize behavior.
+  The battle pane now scrolls independently of its fixed header and log. Native fixtures render
+  the production flexible root at both default and compact sizes, and CI retains both images.
+
+- **Battle sprites must use the simulator's current form.** The initial frame adapter copied the
+  saved collection form for every turn. A legal Forecast weather change therefore changed the
+  engine's typing but left Castform's sprite unchanged; tests only inspected starting forms.
+  Frames now derive non-cosmetic forms from the current simulator species, retaining saved
+  cosmetic variants only for Unown, Shellos/Gastrodon and seasonal Deerling/Sawsbuck. The engine
+  test changes weather to sun and rain and checks both recipients' forms. Replacing this mapping
+  with the saved form makes that test fail. Item-dependent Arceus is excluded at the picker,
+  native preflight and engine boundary under the item-free battle policy; removing the engine
+  restriction fails its all-forms/singles/doubles test.
 
 - **A transient GIF request failure must not become a permanent static state.** `SpriteView` used
   one `.task(id:)` request, showed its PNG fallback, then returned; neither a later cache fill nor
@@ -614,6 +894,24 @@ read_when:
   **스윕:** 이 파일의 다른 `intValue` 호출은 토큰 수라 0 이 올바른 기본값이다.
 
 ## 빌드·도구체인
+
+- **Choice deadlines must count commitments, not only reveals.** The guest commits a choice
+  before the host chooses, but reveals it only after the host requests it. Counting reveals
+  classified a ready guest as absent when the host timed out. Previous turn tests always chose
+  both sides and never exercised this reachable intermediate phase. The deadline now checks
+  committed players; its outcome test covers each missing player, both absent, and one-sided
+  forced replacement requests. Sweep protocol phase transitions before treating deferred data
+  as a missing action.
+
+- **Engine unit tests do not validate the native decoder contract.** The first battle bridge
+  used `pokemon.shiny`, but the simulator stores that flag on `pokemon.set.shiny`. JavaScript
+  silently omitted the undefined field from JSON, so engine-only stats tests passed while the
+  Swift `BattleCombatant` decoder rejected the very first team-preview frame. Emit an explicit
+  boolean from the set and run both real-subprocess Swift client tests and engine tests in the
+  gate. `BattleTests.testSinglesAndDoublesAcrossTwoClientsKeepCurrentStatsAndResolveTurns`
+  exercises the actual preview and battle frames in both modes, rather than decoding a manually
+  fabricated fixture. Sweep optional/default fields at this boundary whenever simulator versions
+  change; do not classify a missing first frame as slow network discovery.
 
 - **A clean textual merge does not migrate APIs in branch-only callers.** Merging the generic
   `PokemonForm` migration into the network-trade branch left `TradeItem`, `TradeItemRow`, trade
@@ -1359,3 +1657,310 @@ read_when:
   fail the historical-chart assertion. Keep explicit pixel density, candidate diagnostics,
   and both CI fixture PNGs so recognition failures can be checked against rendered pixels.
   Other OCR harnesses passed the same CI runs; this repair is limited to the failing fixture.
+
+## Authored effect samples and comparison timing
+
+- A shared fixed wait is not valid once authored profiles have longer timelines. The Pikachu
+  samples use one profile duration for live progress and input gating. The mounted-layer test
+  derives its deadline and minimum elapsed time from both queued profiles, rather than ending
+  before the new effects finish. Native pixel tests inspect all four samples, both directions,
+  miss impact suppression and the end-of-life transparent frame. Comparison-only timelines
+  normalize both old/new effects to the same phase so a finished old effect cannot misleadingly
+  appear blank beside the new effect. GIF playback is a separate, unchanged production view.
+  Trigger validation: temporarily removing the Thunderbolt hit guard makes the miss-target
+  pixel assertion fail (675.75 sampled alpha instead of zero); restore the guard before
+  building. Inspect region coverage as well: Volt Switch's late return phase requires a
+  separate 1.72-second fixture, since launch/impact frames cannot execute that branch.
+
+## PokéRogue self-target previews
+
+- The source format separates USER and TARGET sprite operations, even for a move used on
+  oneself. In self-target playback, apply TARGET entries and omit the redundant USER entry;
+  otherwise an extra solid Pikachu overlays the intended afterimages. The exact Double Team
+  midpoint test expects three copies on the caster side in both directions. Removing the
+  skip was mutation-tested and fails twice (four copies instead of three), then restored.
+  All 48 selected definitions and original hashes/background dependencies are verified; empty
+  definitions stay explicitly empty. Keep native GIF playback separate from frame transforms.
+- Preview modes use distinct bundle identifiers. Reusing one identifier across simultaneously
+  running standalone comparison apps left UI automation resolving stale window elements after
+  a process replacement. The PokéRogue sandbox now has its own executable app folder/identity.
+
+## Imported effects can be technically valid and visually absent
+
+- Psychic's original background is created at zero opacity and later updates keep it at zero;
+  the earlier 255-opacity update occurs before that background exists. Native color multiplication
+  also cannot faithfully represent the source's positive additive sprite tone. This leaves the
+  preview almost unchanged despite valid data, textures and finite pose coordinates. Earlier
+  tests checked dependencies/coordinates but never required visible target-local feedback.
+  The same-class sweep included Confusion and quiet stat/psychic move profiles. The preview now
+  optionally adds explicitly authored, description-based pressure rings, levitation fields,
+  exchange trails or caster auras for eight named profiles, and a bounded background floor for
+  Psychic/Confusion. Source JSON/hash files remain unchanged; disabling readability restores
+  the unmodified data path. Empty originals remain explicitly empty. New pixel tests require
+  visible target/caster feedback, distinguish Psychic from Confusion, and reject miss/end-frame
+  output. Preserve the separate GIF view: no sprite transform is performed by the added layer.
+  Trigger mutation: bypassing the new layer's miss checks makes all eight profile miss-pixel
+  assertions fail; checks were restored. Psychic is a single-target move in normal BW2 rules,
+  so the permanent test uses the reachable all-miss event, not a fabricated spread Psychic.
+
+## Effect-only PokéRogue battle import
+
+- Removing Pokémon transforms is required to retain the app's GIF/idle animation, but leaves
+  30 motion-only and three empty original definitions without visible feedback. Import-time
+  metadata now selects semantic supplements, and every canonical move/charge path must render
+  pixels. Original match counts alone are not the gate. Six base moves (and one charge record)
+  include out-of-range source indices: discard those operations, retain provenance/counts,
+  and supplement the resulting profile. Never read outside a PNG or silently mark it faithful.
+- Timed backgrounds cannot be drawn in a single foreground overlay without covering Pokémon
+  and HP cards. The production battlefield shares active event/start time across its background
+  preference layer and foreground layer. Actual GIF/stance views stay structurally unchanged.
+- Showdown's resolved spread token omits protected targets instead of always listing them with
+  hit=false. A doubles Surf fixture with ally Splash and opposing Protect verifies the ally and
+  unprotected foe are rendered while the protected foe is absent. All-unprotected spread and
+  single-target immunity tests remain. Volt Switch verifies the outgoing identity before the
+  forced replacement, so slot-based effects are not tested only against the final replacement.
+
+## Ability mechanics need visible attribution; manual loadouts need persistence
+
+- The simulator already executed Gen V abilities, but the view discarded `[from] ability:`
+  causes, showed stage changes without their adjacent `-ability ... boost` source, and hid
+  the log by default. Existing damage/stat tests proved mechanics, not the visible cause.
+  A public-protocol-only ability banner and cause-aware localization now cover both source
+  formats, weather/status/HP/block events, all languages, and viewer-relative ally/foe names.
+  Blocking events between doubles targets must not clear Intimidate attribution. A new move,
+  switch or turn does clear it so a later Growl is never attributed to Intimidate.
+- `PokemonProfile.enrich` regenerated moves on every details load and could resolve a selected
+  historical ability against modern metadata. Earlier tests checked automatic deterministic
+  enrichment only. Explicit optional custom-selection flags preserve manual choices; old
+  saves keep automatic learning. Tests edit the actual store, reload metadata, recreate the
+  store from disk, and check nature/IV/level invariance, active individuals and released records.
+- Ability export must accept only normal slots 0/1 and hidden H. Showdown also has event-only S
+  (e.g. Basculin-Blue-Striped), which is not a numeric PokéAPI slot. A first decoding test caught
+  a null numeric slot before this shipped. The Node catalog test compares every supported
+  species/form to the pinned Gen V slot set, while Swift decodes the packaged resource.
+- Native Menu labels containing a trailing Spacer can collapse to just the slot number, even
+  while accessibility reports the full move name. The real collection preview exposed this;
+  use one explicit textual menu label and verify its rendered appearance, not AX text alone.
+- Trigger mutations: disabling semantic supplements makes the all-move pixel test fail; restored.
+  Removing manual-selection preservation, current-level/duplicate restrictions, released-record
+  protection and boost-source attribution produces 62 assertion failures across the seven
+  loadout/ability tests. Restored all production sources before the final passing run. Mutation
+  tests use count-safe assertions so one missing message does not abort the remaining checks.
+- A real doubles Intimidate → Defiant → second Intimidate target trace revealed that one
+  global “last ability” is insufficient. Keep per-actor boost sources plus the opposing-drop
+  source for Gen V Intimidate until the move/turn boundary. The pinned engine and Swift text
+  tests both reproduce this order. Explicit `[from] ability:` causes take precedence. Public
+  named ability endings (Illusion) and otherwise unhandled ability-caused events get visible
+  localized text too. Disabling source tracking and named-ability endings causes 56 assertions
+  in the five presentation tests to fail; restored. llvm-cov region inspection confirms actual
+  append/replace, auto/custom preservation, active/stored persistence and supplement rendering
+  bodies execute, rather than relying on a line-coverage percentage.
+- Preserving a manual ability blindly across evolution can retain Eevee's Adaptability on
+  Vaporeon. The same-class sweep of all eight enrichment callers now supplies the actual form
+  where an edited profile can exist. Preserve a legal Gen V selection; otherwise remap its
+  normal/hidden slot on the evolved species. Tests distinguish evolution remapping from
+  historical Gengar/modern API and Shaymin-Sky/base API mismatches. Disabling the new remap
+  produces three assertions in the reachable evolution test, then passes after restoration.
+
+## Registered reserves were also battle participants
+
+- Registration is now a one-time snapshot per matching session. Removing only the edit button
+  would leave replacement possible through register(), peer roster/withdrawal messages, mode
+  changes, collection changes and engine-start error cleanup. Lock local/public snapshots,
+  reject repeated publications, replacements and
+  withdrawals, freeze the mode after either registration, and preserve registration on readiness
+  cancel or engine error. Only ending matching/new matching clears it. Tests cover local repeat
+  registration, peer replacement/withdrawal, mode bypass and lobby cancellation in both modes.
+  Removing the local one-registration guard causes four regression assertions to fail; restored
+  before final verification. The UI no longer contains an edit/withdrawal action.
+
+- Registration and final consent previously shared one packet and opposing rosters stayed
+  hidden, so the owner could choose a subset before seeing the opponent's six. Split public
+  registration from final lineup consent. The public DTO contains only species/appearance,
+  identity and level; no selected flags or private loadout data. Require both registered rosters
+  before readiness, preserve immutable registered individuals, reset readiness on re-registration
+  or withdrawal, and keep public roster order unchanged by private final selections. Both rosters
+  render as fixed six-cell rows together. Tests exercise one-sided registration, early ready,
+  public-packet privacy, registration edits, private order and both battle modes; pixel tests
+  require the full twelve-member view to fit within 240 logical pixels in every language.
+  Removing the both-rosters readiness guard fails four assertions in the reachable one-sided
+  registration test; restored. Region inspection covers roster publication/withdrawal, consent
+  gating and registered-snapshot matching. Native QA displays all twelve sprites together,
+  permits three own selections, marks their order/LEAD and leaves the opponent row unmarked.
+
+- Six-member registration was also used as the actual battle roster, so the switch menu and
+  win condition naturally included all six. Separate roster size (six) from battle size
+  (three/four). The lobby validates a distinct ordered subset and sends it first in the six-member
+  roster; the engine validates the complete registration but creates only the selected members.
+  No renderer-only filtering: unselected reserves do not exist in the simulation. Sweep normal
+  switches, forced replacements, simultaneous doubles knockouts, last-member defeat, Illusion's
+  last eligible teammate, peer snapshots and history. Engine tests reject forged reserve switches
+  and finish on selected-team defeat. Two-client tests use non-prefix selections, preserve saved
+  loadouts/stats and verify selected history. The protocol revision excludes older six-on-six peers.
+  Removing the engine subset boundary fails both the ordered-lineup and unselected-reserve
+  regressions; restored before final validation. Native QA confirms 6/6 registration, 3/3 and
+  4/4 readiness, incomplete 3/4 readiness disabled, mode-change reset, and ordered LEAD cards.
+
+## Collection selection candidates omitted descriptions
+
+- Accuracy existed in exported offline JSON but was not decoded; the engine inspector also
+  discarded it. Earlier menu tests required descriptions/power/PP only. Both data paths now
+  preserve percentage versus always-hit values with a shared Codable type. All catalog entries
+  and languages require an accuracy tooltip; real singles/doubles snapshots verify 100, 70,
+  always-hit and OHKO 30 base values. Production details pixel tests distinguish numeric/always
+  values and retain the compact-height limit. Replacing the displayed value with unavailable
+  produces 16 failing pixel assertions; restored before final validation. The wire revision now
+  includes move accuracy.
+
+- Collection selection menus previously exposed names/checkmarks only. Save/loadout tests
+  checked chosen IDs, so missing candidate descriptions went unnoticed. Use native menu-item
+  tooltips as well as control help; SwiftUI help on a closed Menu label alone does not cover
+  candidates while its menu is open. Sweep editable ability/move selections, disabled duplicate
+  candidates, read-only released moves/abilities and the complete learnset. Offline text covers
+  all Gen V moves and abilities in every language, with BW2 move metadata. Native menu tests
+  verify tooltips, checkmarks, enabled states and callback IDs, rather than testing strings alone.
+  Removing menu-item tooltip assignment causes 24 assertions to fail; restored before the final
+  passing run. Region inspection confirms selected/unselected and disabled-selection bodies run.
+
+## Effect coverage did not directly verify provider priority
+
+- Effect-provider priority is now exercised through the production renderer selector, rather
+  than inferred from catalog coverage alone. Every matched move/charge timeline, including the
+  four older Pikachu-specific authored profiles, must select PokéRogue first. Bypassing that
+  selector branch caused 577 assertions to fail; restored before the passing run. Empty-source
+  imports still use documented authored supplements, not a claim of original source particles.
+
+## Public field snapshot omitted effect duration
+
+- Field snapshots preserved IDs/layers but discarded engine timers. Existing mechanics tests
+  checked expiration internally and could not detect missing countdown labels. Observe successful
+  public field/side start and restart events, retaining their initialized duration in a WeakMap;
+  read remaining turns directly from current state. Do not assume all effects last five turns,
+  or count indefinite Gen V ability weather as zero out of five. Sweep weather, pseudo-weather,
+  both side orientations, suppression, permanent hazards, expiration and reapplication in singles
+  and doubles. Disabling initial-duration capture fails the real-turn regression (4/4 vs 4/5).
+  Native rendering tests change each weather/field/side timer independently and require changed
+  production pixels. The protocol revision includes the new duration fields.
+
+## Own battle stats omitted temporary stages
+
+- Frames previously exposed only stored numerical own stats, and the view only displayed HP.
+  Ability mechanics and localized event tests never required a persistent current-rank view;
+  reconstructing ranks from the truncated log would also fail after clearing, switch or reconnect.
+  The engine now sends own-only current boosts, separately from immutable stats, and each active
+  own Pokémon has a compact localized readout. Sweep: singles/doubles, positive Moxie, negative
+  Intimidate, neutral and switch reset, plus opponent privacy. A revision bump prevents an old
+  host from being interpreted as a valid all-neutral snapshot. Pixel tests exercise the actual
+  production readout in all languages and require colored glyphs, not just formatted text.
+- Final presentation is stage-only: `(Attack : -1)`, not `91 (-1)`. The readout model has no
+  numerical-stat field or access to `pokemon.stats`; only stage values reach the view. Real
+  Growl/Dragon Dance/Sand Attack/Haze turns verify capped ranks, stage stat ratios, and clearing.
+  Removing color/sign feedback makes the production pixel/text tests fail; restored before
+  the final passing run. Region inspection covers negative, positive and neutral branches.
+
+## Move target range missing from selected details
+
+- Earlier frames sent selectable individual targets but dropped the move's runtime target rule.
+  The picker worked, so existing command tests missed the absence of spread/self/team scope
+  information. Details now use the actual requested rule, with all fourteen BW2 rules swept.
+  Tests cover singles/doubles, friendly single-target selection, and Curse's Ghost/non-Ghost
+  runtime difference. Substituting the static dex target makes the Curse test fail; restored.
+  Shared translation tests distinguish self, ally, ally team/side, foe side, all and random/
+  scripted recipients. Bump the protocol revision rather than silently mislabel old peers.
+- Trigger mutation: suppressing the selectable-ally distinction makes both normal/any
+  friendly-target assertions fail; restored. Region inspection confirms both ally-capable and
+  opposing-only bodies execute. Native production details verified Surf (everyone except self),
+  Double Team (self), and Psychic (one opponent) as the selected move changes.
+
+## Stored reached species is not proof of a terminal evolution
+
+- The selector excluded active/released Pokémon, but `finalID` and `chainOrder.last` describe the
+  reached species, not an independently verified terminal form. Imported/truncated chains can
+  end at Pikachu. Earlier team tests used lower stages and checked stats, not the eligibility
+  rule. Use a pinned Gen V terminal-species catalog and the actual stored-graduation list;
+  never infer graduation from level 100 or reject legacy graduation records by missing dates.
+- Sweep includes branches, single-stage species, evolved forms and future evolutions inherited
+  by Showdown's Gen V dex (Primeape still lists Annihilape; filter evolution generation explicitly).
+  The UI, builder and both local/remote ready paths now enforce terminal species. Tests send an
+  invalid remote ready packet, verify active level-100 exclusion, preserve legacy saves, and
+  compare every catalog species/form with the pinned Gen V dex. Mutating terminal eligibility
+  to always true fails filtering, builder and ready assertions; restored. llvm-cov confirms both
+  local/remote rejection bodies and the builder's pre-network rejection execute.
+
+
+## Effect-only imports cannot reproduce an original move animation
+
+- The earlier importer deliberately removed USER/TARGET and sound commands, discarded invalid
+  graphic indices and supplemented sparse/empty profiles. Coverage/pixel tests proved that
+  particles existed, not that motion, background commands or cleanup matched PokéRogue.
+- Production now runs the pinned original source player and complete timelines. A packaging
+  gate hashes every raw timeline and dependency; a real production WebGL sweep executes every
+  track in both directions. Legacy comparison providers are excluded from the production queue.
+  Existing native GIFs supply the original player's sprite frames, preserving current characters.
+- An unfocused WKWebView may stop Phaser's automatic loop. Waiting for animation completion
+  would stall HP application despite a correctly working foreground prototype. Native playback
+  now advances both the source clock and actual WebGL renderer while active, and sleeps the
+  automatic loop when idle. Offscreen-window tests exercise the actual production player and
+  real battle tests require damage, forced replacements and final knockout to arrive in order.
+- Psychic's source timeline updates an absent background before creating it. Phaser tolerates
+  missing tween targets; the host clock initially dereferenced them. Sweep both original hosts
+  and skip absent targets in the host shim, leaving source code and JSON unchanged. A real
+  Psychic hit/miss regression executes this exact source event ordering.
+- Validation: 573 raw timelines execute in both directions (1,146 source runs). A mutation
+  removing the missing-tween-target skip fails the real WebGL sweep; restored before passing.
+  Native elapsed-time samples require the original 1× clock rather than the former 65% rate.
+  Charge, hit/miss, spread targets, Reduced Motion, cancellation, failed-player recovery and
+  pending-WebKit shutdown execute in production-player tests. llvm-cov region inspection
+  confirms the normal/reduced, hit/no-hit, charge and recovery bodies execute. Allocation,
+  corrupt-bundle/startup and long-timeout failure regions remain outside the success-path tests.
+
+
+## Modern default abilities blocked BW2 six-member registration
+
+- A complete saved Gengar loadout skipped enrichment in the battle team builder; a newly
+  generated default inherited current PokéAPI Cursed Body. BW2 Gengar requires Levitate, so
+  strict engine validation rejected all six members and the lobby stayed on registration.
+  Prior historical-ability tests covered custom selections only, and the matching demo had
+  never exercised a complete default Gengar through the actual registration builder.
+- Default enrichment now maps a real current API ability that is absent from the BW2 options
+  to its historical slot, falling back to a regular slot when that slot did not yet exist.
+  Legal saved choices remain unchanged; arbitrary incompatible names still fail strict engine
+  validation. The builder refreshes ability compatibility for complete legacy profiles while
+  preserving their equipped moves, stored levels, IVs and collection data.
+- Sweep: all 46 base-species ability-slot differences between the pinned modern and Gen V dex,
+  for new defaults and complete legacy profiles. The six-member Gengar registration fixture
+  starts singles and doubles with Gengar first, checking Levitate and unchanged owned stats.
+  Removing the repair causes 93 regression assertions/errors; restored before the passing run.
+  The actual development lobby was restored to the user's six-member order and visibly reached
+  the own/opponent roster screen with 0/3 selected. Native source-region coverage checks the
+  historical replacement body rather than relying on aggregate line coverage.
+
+
+## Original move effects were occluded by native HP cards
+
+- A single original-player WebView was attached as the battlefield background. Its internal
+  particle/Pokémon ordering was valid in isolation but all WebGL pixels still sat behind native
+  HP cards. Original-source execution tests and isolated canvas snapshots could not detect
+  occlusion by the actual production native view hierarchy.
+- Split the player into synchronized background/foreground surfaces around the native battle
+  HUD. Each receives identical source commands and native deltas at 1×. Background resources
+  render only below native views; original Pokémon commands and graphics render above them.
+  After each source depth update, stable layer ordering puts all move graphics above actors.
+  No source timeline or asset is rewritten. Both WebGL loops sleep outside active playback.
+- Sweep the shared singles/doubles battlefield, timed rectangles/images, Pokémon containers,
+  USER/TARGET clones, spread tracks, front/back directions, failed loading and cleanup.
+  Regression mounts the actual production layer modifier around a native HP probe, checks
+  native sibling order, original actor/particle ordering and real WebGL alpha pixels on both
+  surfaces. Reverting foreground placement behind the HUD must fail this trigger regression.
+- Visual testing also exposed foreground textures delivered as original timed background events:
+  Surf, Muddy Water, Sludge Wave and Flash FG, plus the opposing Lick overlay. Classify these
+  reviewed foreground resources separately from true arena/background changes. Regression
+  exercises their actual source frames/variants (Aeroblast Flash at frame 66, opposite Lick),
+  with wave pixels required in front and absent from the background surface. Treating all
+  timed events as backgrounds fails 85 assertions; restoring native background placement also
+  fails the native hierarchy trigger test. Both mutations are restored before final validation.
+- Final validation: all 573 original timelines execute in both directions; the mounted layer
+  regression covers seven representative moves/variants and both surfaces' cleanup. Original
+  1× elapsed timing, GIF cadence, spread tracks and failure recovery pass. Real battle HP,
+  forced replacement/final knockout and singles/doubles height checks also pass. llvm-cov
+  region inspection confirms both WebView branches and both mounted surfaces execute.

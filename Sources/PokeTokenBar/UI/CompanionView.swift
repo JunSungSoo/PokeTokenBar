@@ -1796,27 +1796,51 @@ struct PokemonDetailView: View {
             }
             VStack(alignment: .leading, spacing: 1) {
                 Text(store.l.ability).font(.system(size: 11)).foregroundStyle(.secondary)
-                if let name = profile.abilityName {
-                    PokemonNameLabel(.ability, name, language: store.language,
-                                     suffix: profile.abilityIsHidden ? " · " + store.l.hiddenAbility : "")
-                        .font(.callout.weight(.semibold))
+                if !entry.isReleased {
+                    let options = PokemonLoadout.abilityOptions(details: details, form: entry.form)
+                    PokemonLoadoutPicker(
+                        title: profile.abilityName.map { BattleTextCatalog.shared.abilityName($0, language: store.language) } ?? "—",
+                        tooltip: profile.abilityName.map { BattleTextCatalog.shared.abilityTooltip($0, language: store.language) } ?? "",
+                        choices: options.map { option in
+                            PokemonLoadoutChoice(id: option.name,
+                                title: BattleTextCatalog.shared.abilityName(option.name, language: store.language) + (option.isHidden ? " · " + store.l.hiddenAbility : ""),
+                                tooltip: BattleTextCatalog.shared.abilityTooltip(option.name, language: store.language),
+                                selected: BattleTextCatalog.key(profile.abilityName ?? "") == BattleTextCatalog.key(option.name))
+                        }, onSelect: { store.setPokemonAbility(entryID: entry.id, name: $0) })
+                } else if let name = profile.abilityName {
+                    Text(BattleTextCatalog.shared.abilityName(name, language: store.language)).font(.callout.weight(.semibold))
+                        .help(BattleTextCatalog.shared.abilityTooltip(name, language: store.language))
                 } else {
                     Text("—").font(.callout.weight(.semibold))
                 }
             }
             statsSection(PokemonStatCalculator.stats(details: details, profile: profile, nature: entry.nature))
             detailTitle(store.l.activeMoves)
-            if profile.moves.isEmpty {
-                Text(store.l.noLevelMoves).font(.callout).foregroundStyle(.secondary)
-            } else {
+            if entry.isReleased {
                 ForEach(profile.moves) { move in
-                    HStack {
-                        PokemonNameLabel(.move, move.name, language: store.language)
-                        Spacer()
-                        Text("Lv. \(move.learnedAtLevel)").foregroundStyle(.secondary)
-                    }
-                    .font(.callout)
+                    Text(BattleTextCatalog.shared.moveName(move.name, language: store.language)).font(.callout)
+                        .help(BattleTextCatalog.shared.moveTooltip(move.name, language: store.language))
                 }
+            } else {
+                let options = PokemonLoadout.moveOptions(details: details, level: profile.level).sorted {
+                    BattleTextCatalog.shared.moveName($0.name, language: store.language)
+                        .localizedStandardCompare(BattleTextCatalog.shared.moveName($1.name, language: store.language)) == .orderedAscending
+                }
+                ForEach(0..<min(4, profile.moves.count + 1), id: \.self) { slot in
+                    PokemonLoadoutPicker(
+                        title: "\(slot + 1). " + (profile.moves.indices.contains(slot)
+                            ? BattleTextCatalog.shared.moveName(profile.moves[slot].name, language: store.language) : store.l.loadoutChooseMove),
+                        tooltip: profile.moves.indices.contains(slot)
+                            ? BattleTextCatalog.shared.moveTooltip(profile.moves[slot].name, language: store.language) : "",
+                        choices: options.map { option in
+                            PokemonLoadoutChoice(id: option.name,
+                                title: BattleTextCatalog.shared.moveName(option.name, language: store.language),
+                                tooltip: BattleTextCatalog.shared.moveTooltip(option.name, language: store.language),
+                                selected: profile.moves.indices.contains(slot) && profile.moves[slot].name == option.name,
+                                enabled: !profile.moves.enumerated().contains { $0.offset != slot && $0.element.name == option.name })
+                        }, onSelect: { store.setPokemonMove(entryID: entry.id, slot: slot, name: $0) })
+                }
+                Text(store.l.loadoutLearnsetHint).font(.caption).foregroundStyle(.secondary)
             }
         }
         .detailCard()
@@ -1868,6 +1892,7 @@ struct PokemonDetailView: View {
                                 suffix: option.isHidden ? " (\(store.l.hidden))" : "")
             }, language: store.language)
             .font(.callout).foregroundStyle(.secondary)
+            .help(details.abilities.map { BattleTextCatalog.shared.abilityTooltip($0.name, language: store.language) }.joined(separator: "\n\n"))
         }
         .detailCard()
     }
@@ -1883,6 +1908,7 @@ struct PokemonDetailView: View {
                         .foregroundStyle(.secondary).multilineTextAlignment(.trailing)
                 }
                 .font(.callout)
+                .help(BattleTextCatalog.shared.moveTooltip(move.name, language: store.language))
                 Divider()
             }
         }

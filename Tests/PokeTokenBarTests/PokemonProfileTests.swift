@@ -569,3 +569,182 @@ final class PokemonProfileMigrationTests: XCTestCase {
         await provider.resumeDetails()
     }
 }
+
+@MainActor
+final class PokemonLoadoutTests: XCTestCase {
+    func testCaughtAndEvolvedDefaultsSurviveMetadataRefreshAndLegacyCoding() throws {
+        func metadata(_ id: Int, _ name: String, _ ability: String, _ moves: [String]) -> PokemonDetails {
+            PokemonDetails(speciesID:id,name:name,height:12,weight:360,baseExperience:63,genderRate:4,
+                types:["water","psychic"],baseStats:profileDetails.baseStats,
+                abilities:[.init(name:ability,slot:1,isHidden:false)],
+                moves:moves.map { .init(name:$0,learnMethods:[.init(method:"level-up",level:1)]) })
+        }
+        var caught = PokemonProfile.generate(seed:7)
+        caught.level = 9; caught.enrich(with:profileDetails)
+        let first = caught
+        let refreshed = metadata(79,"slowpoke","own-tempo",["surf","psychic"])
+        caught.enrich(with:refreshed)
+        XCTAssertEqual(caught, first, "Opening the selector or refreshing metadata must preserve caught defaults")
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with:JSONEncoder().encode(first)) as? [String:Any])
+        for key in ["loadoutSpeciesID","loadoutForm","automaticMovesLevel"] { legacy.removeValue(forKey:key) }
+        var restored = try JSONDecoder().decode(PokemonProfile.self,from:JSONSerialization.data(withJSONObject:legacy))
+        restored.enrich(with:refreshed)
+        XCTAssertEqual(restored.moves,first.moves)
+        XCTAssertEqual(restored.abilityName,first.abilityName)
+        let evolved = metadata(80,"slowbro","own-tempo",["surf","psychic"])
+        caught.enrich(with:evolved)
+        XCTAssertEqual(caught.loadoutSpeciesID,80)
+        XCTAssertEqual(caught.moves.map(\.name),["psychic","surf"])
+        XCTAssertEqual(caught.abilityName,"own-tempo")
+        let evolutionDefault = caught
+        caught.enrich(with:metadata(80,"slowbro","oblivious",["tackle"]))
+        XCTAssertEqual(caught,evolutionDefault)
+        caught = try JSONDecoder().decode(PokemonProfile.self,from:JSONEncoder().encode(caught))
+        caught.enrich(with:evolved)
+        XCTAssertEqual(caught,evolutionDefault)
+        restored.level += 1
+        restored.enrich(with:refreshed)
+        XCTAssertEqual(restored.moves.map(\.name),["psychic","surf"],"Real level growth still learns automatic moves")
+        XCTAssertEqual(restored.abilityName,first.abilityName)
+        caught.rebaseForSpeciesIdentity(from:.common,to:.common)
+        XCTAssertNil(caught.loadoutSpeciesID); XCTAssertNil(caught.automaticMovesLevel)
+    }
+    func testLegacyProfileEvolutionBeforeOldSpeciesMetadataLoads() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:dir,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:dir) }
+        let file = dir.appendingPathComponent("state.json")
+        var profile = PokemonProfile.generate(seed:7)
+        profile.abilityName = "oblivious"; profile.abilitySlot = 1
+        profile.moves = [.init(name:"yawn",learnedAtLevel:1)]
+        var state = CompanionState()
+        state.active = MonState(baseID:79,pathIDs:[79],plannedPathIDs:[79,80],stageIndex:0,usedAtStage:0,rarity:.common,totalForms:2,profile:profile)
+        try JSONEncoder().encode(state).write(to:file)
+        let provider = DeferredEvolutionDefaultsProvider()
+        let store = CompanionStore(provider:provider,detailProvider:provider,fileURL:file)
+        store.update(todayTokensByProvider:["test":0],todayDate:"2026-10-20",monthTotal:0,burnTier:.idle,limitWarning:false,hasUsageData:true)
+        let deadline = Date().addingTimeInterval(3)
+        while store.currentLine == nil && Date() < deadline { await Task.yield() }
+        XCTAssertNotNil(store.currentLine)
+        store.applyUsage(PokemonBalance.phaseThreshold(rarity:.common,totalForms:2,stageIndex:0))
+        XCTAssertEqual(store.currentSpeciesID,80)
+        await store.loadPokemonDetails(speciesID:80)
+        XCTAssertEqual(store.state.active?.profile?.abilityName,"own-tempo")
+        XCTAssertEqual(store.state.active?.profile?.moves.map(\.name),["surf"])
+        await store.loadPokemonDetails(speciesID:80)
+        XCTAssertEqual(store.state.active?.profile?.moves.map(\.name),["surf"])
+    }
+    func testCustomMovesRejectDuplicatesAndFutureLevelsAndSurviveEnrichmentAndCoding() throws {
+        var profile = PokemonProfile.generate(seed: 7)
+        profile.enrich(with: profileDetails)
+        let before = profile
+        XCTAssertNil(PokemonLoadout.replacingMove(profile, slot: 0, name: "water-gun", details: profileDetails))
+        XCTAssertNil(PokemonLoadout.replacingMove(profile, slot: 4, name: "surf", details: profileDetails))
+        XCTAssertNil(PokemonLoadout.replacingMove(profile, slot: 0, name: profile.moves[1].name, details: profileDetails))
+        profile = try XCTUnwrap(PokemonLoadout.replacingMove(profile, slot: 0, name: "surf", details: profileDetails))
+        profile.enrich(with: profileDetails)
+        XCTAssertEqual(profile.moves[0].name, "surf")
+        XCTAssertEqual(profile.ivs, before.ivs)
+        XCTAssertEqual(profile.level, before.level)
+        let decoded = try JSONDecoder().decode(PokemonProfile.self, from: JSONEncoder().encode(profile))
+        XCTAssertEqual(decoded, profile)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(before)) as? [String: Any])
+        legacy.removeValue(forKey: "hasCustomMoves")
+        legacy.removeValue(forKey: "hasCustomAbility")
+        XCTAssertNil(try JSONDecoder().decode(PokemonProfile.self, from: JSONSerialization.data(withJSONObject: legacy)).hasCustomMoves)
+        profile.rebaseForSpeciesIdentity(from: .common, to: .common)
+        XCTAssertNil(profile.hasCustomMoves)
+    }
+
+    func testStoredLoadoutPersistsAndReleasedRecordsRejectEdits() async throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let file = dir.appendingPathComponent("state.json")
+        var state = CompanionState()
+        state.dex = [DexEntry(id: "owned", baseID: 79, finalID: 79, chainOrder: [79], rarity: .common, caughtAt: Date(), nature: .adamant, profile: PokemonProfile.generate(seed: 7)),
+                     DexEntry(id: "released", baseID: 79, finalID: 79, chainOrder: [79], rarity: .common, caughtAt: Date(), profile: PokemonProfile.generate(seed: 8), releasedAt: Date())]
+        state.active = MonState(baseID: 79, pathIDs: [79], stageIndex: 0, usedAtStage: 0, rarity: .common, totalForms: 1, profile: PokemonProfile.generate(seed: 9))
+        try JSONEncoder().encode(state).write(to: file)
+        let store = CompanionStore(provider: ProfileLineProvider(), detailProvider: ProfileDetailProvider(), fileURL: file)
+        await store.loadPokemonDetails(speciesID: 79)
+        let before = try XCTUnwrap(store.state.dex[0].profile)
+        XCTAssertTrue(store.setPokemonMove(entryID: "owned", slot: 0, name: "surf"))
+        XCTAssertTrue(store.setPokemonAbility(entryID: "owned", name: "Regenerator"))
+        XCTAssertFalse(store.setPokemonAbility(entryID: "owned", name: "Intimidate"))
+        XCTAssertFalse(store.setPokemonMove(entryID: "released", slot: 0, name: "surf"))
+        XCTAssertFalse(store.setPokemonAbility(entryID: "released", name: "Regenerator"))
+        XCTAssertFalse(store.setPokemonMove(entryID: "absent", slot: 0, name: "surf"))
+        let activeID = try XCTUnwrap(store.dexEntries.first(where: { store.isActiveDexEntry($0) })?.id)
+        XCTAssertTrue(store.setPokemonMove(entryID: activeID, slot: 0, name: "surf"))
+        XCTAssertTrue(store.setPokemonAbility(entryID: activeID, name: "Regenerator"))
+        await store.loadPokemonDetails(speciesID: 79)
+        let restored = CompanionStore(provider: ProfileLineProvider(), detailProvider: ProfileDetailProvider(), fileURL: file)
+        await restored.loadPokemonDetails(speciesID: 79)
+        let after = try XCTUnwrap(restored.state.dex[0].profile)
+        XCTAssertEqual(after.moves[0].name, "surf")
+        XCTAssertEqual(after.abilityName, "Regenerator")
+        XCTAssertEqual(after.abilitySlot, 3)
+        XCTAssertTrue(after.abilityIsHidden)
+        XCTAssertEqual(after.ivs, before.ivs)
+        XCTAssertEqual(after.level, before.level)
+        XCTAssertEqual(restored.state.dex[0].nature, .adamant)
+        XCTAssertEqual(restored.state.active?.profile?.moves[0].name, "surf")
+        XCTAssertEqual(restored.state.active?.profile?.abilityName, "Regenerator")
+    }
+    func testAppendingFirstMoveAndRejectingIllegalSelections() throws {
+        let empty = PokemonProfile.generate(seed: 1)
+        let selected = try XCTUnwrap(PokemonLoadout.replacingMove(empty, slot: 0, name: "surf", details: profileDetails))
+        XCTAssertEqual(selected.moves.map(\.name), ["surf"])
+        XCTAssertNil(PokemonLoadout.replacingMove(empty, slot: -1, name: "surf", details: profileDetails))
+        XCTAssertNil(PokemonLoadout.replacingMove(empty, slot: 0, name: "not-a-move", details: profileDetails))
+        let legal = PokemonLoadout.moveOptions(details: profileDetails, level: 9)
+        XCTAssertTrue(legal.contains { $0.name == "water-gun" })
+    }
+    func testCustomAbilityFollowsEvolutionButRetainsHistoricalAndFormLegalNames() {
+        func details(_ id: Int, _ name: String, _ ability: String) -> PokemonDetails {
+            PokemonDetails(speciesID:id,name:name,height:10,weight:100,baseExperience:nil,genderRate:4,
+                types:["normal"],baseStats:["hp":50],abilities:[.init(name:ability,slot:1,isHidden:false)],moves:[])
+        }
+        var profile = PokemonProfile.generate(seed: 1)
+        profile.abilitySlot = 2; profile.abilityName = "Adaptability"; profile.hasCustomAbility = true
+        profile.enrich(with: details(134,"vaporeon","water-absorb"))
+        XCTAssertEqual(profile.abilityName, "Water Absorb")
+        XCTAssertEqual(profile.abilitySlot, 1)
+        profile.abilityName = "Levitate"
+        profile.enrich(with: details(94,"gengar","cursed-body"))
+        XCTAssertEqual(profile.abilityName, "Levitate", "modern API must not replace a legal BW2 selection")
+        profile.abilityName = "Serene Grace"
+        profile.enrich(with: details(492,"shaymin","natural-cure"), form: PokemonForm(rawValue:"sky"))
+        XCTAssertEqual(profile.abilityName, "Serene Grace", "a form's legal ability must survive base-form API data")
+        profile.abilityName = "Adaptability"; profile.abilitySlot = 3; profile.abilityIsHidden = true
+        profile.enrich(with: details(134,"vaporeon","water-absorb"))
+        XCTAssertEqual(profile.abilityName, "Hydration")
+        XCTAssertTrue(profile.abilityIsHidden)
+    }
+    func testGenFiveAbilityOptionsIncludeHistoricalAbilityAndForm() {
+        for option in PokemonLoadout.abilities.values.flatMap({ $0 }) {
+            let names = BattleTextCatalog.shared.abilities[BattleTextCatalog.key(option.name)]
+            for language in AppLanguage.allCases {
+                XCTAssertFalse(names?[language.rawValue]?.isEmpty ?? true, "\(option.name) · \(language)")
+            }
+        }
+        XCTAssertEqual(PokemonLoadout.abilities["gengar"]?.map(\.name), ["Levitate"])
+        XCTAssertEqual(PokemonLoadout.abilities["shayminsky"]?.map(\.name), ["Serene Grace"])
+        XCTAssertTrue(PokemonLoadout.abilities["gyarados"]!.contains { $0.name == "Moxie" && $0.isHidden })
+    }
+}
+
+private struct DeferredEvolutionDefaultsProvider: PokeProviding, PokemonDetailProviding {
+    func baseSpeciesIndex() async throws -> [BaseSpecies] { [] }
+    func line(baseSpeciesID: Int) async throws -> EvoLine {
+        EvoLine(baseID:79,tree:EvoNode(speciesID:79,children:[EvoNode(speciesID:80,children:[])]),rarity:.common,names:[:])
+    }
+    func pokemonDetails(speciesID: Int) async throws -> PokemonDetails {
+        guard speciesID == 80 else { throw ProfileDetailTestError.unavailable }
+        return PokemonDetails(speciesID:80,name:"slowbro",height:16,weight:785,baseExperience:172,genderRate:4,
+            types:["water","psychic"],baseStats:profileDetails.baseStats,
+            abilities:[.init(name:"own-tempo",slot:1,isHidden:false)],
+            moves:[.init(name:"surf",learnMethods:[.init(method:"level-up",level:1)])])
+    }
+}

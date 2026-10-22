@@ -938,11 +938,16 @@ final class CompanionStore {
                     state.active!.totalForms = repaired.count
                     AppLog.write("evolve: repaired invalid planned path for base \(a.baseID)")
                 }
+                // Legacy profiles may evolve before their first metadata fetch completes.
+                if state.active!.profile?.loadoutSpeciesID == nil {
+                    state.active!.profile?.loadoutSpeciesID = a.currentID
+                    state.active!.profile?.loadoutForm = PokemonForm.resolved(speciesID: a.currentID, form: a.form)
+                }
                 state.active!.pathIDs = Array(a.pathIDs.prefix(a.stageIndex + 1)) + [next.speciesID]
                 state.active!.stageIndex += 1
                 state.active!.usedAtStage = a.usedAtStage - thr   // 초과분 이월
                 if let details = pokemonDetailsByID[next.speciesID] {
-                    state.active!.profile?.enrich(with: details)
+                    state.active!.profile?.enrich(with: details, form: a.form)
                 } else if detailProvider != nil {
                     Task { await self.loadPokemonDetails(speciesID: next.speciesID) }
                 }
@@ -1025,7 +1030,7 @@ final class CompanionStore {
     private func graduate() {
         guard var a = state.active else { return }
         a.profile?.advanceGrowth(to: PokemonBalance.graduationTotal(a.rarity), rarity: a.rarity)
-        if let details = pokemonDetailsByID[a.currentID] { a.profile?.enrich(with: details) }
+        if let details = pokemonDetailsByID[a.currentID] { a.profile?.enrich(with: details, form: a.form) }
         let finalID = a.currentID
         state.collectedFinals.insert("\(a.baseID):\(finalID)")
         state.dex.append(DexEntry(id: a.profile?.instanceID ?? UUID().uuidString,
@@ -2151,6 +2156,47 @@ final class CompanionStore {
         }
     }
 
+    /// A stored individual is editable; released records are historical and remain immutable.
+    @discardableResult
+    func setPokemonMove(entryID: String, slot: Int, name: String) -> Bool {
+        updatePokemonLoadout(entryID: entryID) { profile, details, _ in
+            PokemonLoadout.replacingMove(profile, slot: slot, name: name, details: details)
+        }
+    }
+
+    @discardableResult
+    func setPokemonAbility(entryID: String, name: String) -> Bool {
+        updatePokemonLoadout(entryID: entryID) { profile, details, form in
+            guard let option = PokemonLoadout.abilityOptions(details: details, form: form).first(where: { $0.name == name }) else { return nil }
+            var updated = profile
+            updated.abilityName = option.name
+            updated.abilitySlot = option.slot
+            updated.abilityIsHidden = option.isHidden
+            updated.hasCustomAbility = true
+            return updated
+        }
+    }
+
+    private func updatePokemonLoadout(entryID: String,
+        transform: (PokemonProfile, PokemonDetails, PokemonForm?) -> PokemonProfile?) -> Bool {
+        if let activeEntry = activeDexEntry, activeEntry.id == entryID,
+           var active = state.active, let profile = active.profile,
+           let details = pokemonDetailsByID[active.currentID],
+           let updated = transform(profile, details, active.form) {
+            active.profile = updated
+            state.active = active
+            save()
+            return true
+        }
+        guard let index = state.dex.firstIndex(where: { $0.id == entryID && !$0.isReleased }),
+              let profile = state.dex[index].profile,
+              let details = pokemonDetailsByID[state.dex[index].finalID],
+              let updated = transform(profile, details, state.dex[index].form) else { return false }
+        state.dex[index].profile = updated
+        save()
+        return true
+    }
+
     /// Loads immutable PokéAPI metadata and persists any deferred profile fields exactly once.
     func loadPokemonDetails(speciesID: Int) async {
         if let details = pokemonDetailsByID[speciesID] {
@@ -2181,7 +2227,7 @@ final class CompanionStore {
         var changed = false
         if var active = state.active, active.currentID == speciesID, var profile = active.profile {
             let before = profile
-            profile.enrich(with: details)
+            profile.enrich(with: details, form: active.form)
             if profile != before {
                 active.profile = profile
                 state.active = active
@@ -2191,7 +2237,7 @@ final class CompanionStore {
         for index in state.dex.indices where state.dex[index].finalID == speciesID {
             guard var profile = state.dex[index].profile else { continue }
             let before = profile
-            profile.enrich(with: details)
+            profile.enrich(with: details, form: state.dex[index].form)
             if profile != before {
                 state.dex[index].profile = profile
                 changed = true
@@ -2262,7 +2308,7 @@ final class CompanionStore {
         let candidate = min(PokemonBalance.graduationTotal(active.rarity),
                             completed + Int((Double(standardPhase) * fraction).rounded(.down)))
         profile.advanceGrowth(to: candidate, rarity: active.rarity)
-        if let details = pokemonDetailsByID[active.currentID] { profile.enrich(with: details) }
+        if let details = pokemonDetailsByID[active.currentID] { profile.enrich(with: details, form: active.form) }
         active.profile = profile
         state.active = active
     }

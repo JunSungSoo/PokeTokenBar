@@ -8,6 +8,7 @@ let package = Package(
         .executableTarget(
             name: "PokeTokenBar",
             path: "Sources/PokeTokenBar",
+            resources: [.copy("Resources/BattleText"), .copy("Resources/BattleEffects"), .copy("Resources/Showmotion"), .copy("Resources/PokeRogue"), .copy("Resources/PokeRoguePlayer")],
             linkerSettings: [.linkedLibrary("sqlite3")]
         ),
         .testTarget(
@@ -15,6 +16,8 @@ let package = Package(
             dependencies: ["PokeTokenBar"],
             path: "Tests/PokeTokenBarTests",
             resources: [
+                .copy("Fixtures/PokeRoguePreview"),
+                .copy("Fixtures/PokeRogueFaithful"),
                 .copy("Fixtures/CodexFork"),
                 .copy("Fixtures/CodexSubagent"),
             ]

@@ -51,6 +51,7 @@ final class IndividualPickerRenderingTests: XCTestCase {
             host.layoutSubtreeIfNeeded()
             func descendants(_ v: NSView) -> [NSView] { [v] + v.subviews.flatMap(descendants) }
             let menus = descendants(host).compactMap { $0 as? NSPopUpButton }
+                .filter { $0.itemTitles.contains { $0.hasPrefix("#1 · ") } }
             XCTAssertEqual(menus.count, count == 1 ? 0 : 1)
             if count == 2 { XCTAssertEqual(menus.first?.numberOfItems, 2) }
             if let output = ProcessInfo.processInfo.environment["PTB_PICKER_RENDER_DIR"] {

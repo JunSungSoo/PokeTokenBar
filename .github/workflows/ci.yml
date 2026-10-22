@@ -20,6 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: npm
+          cache-dependency-path: BattleEngine/package-lock.json
+
       - name: Show Swift version
         run: swift --version
 
@@ -33,6 +39,7 @@ jobs:
         env:
           PTB_SNAPSHOT_SCREENSHOT_DIR: ${{ runner.temp }}/snapshot-history-renders
           PTB_ZERO_USAGE_SCREENSHOT_DIR: ${{ runner.temp }}/snapshot-history-renders/zero-usage
+          PTB_BATTLE_SCREENSHOT_DIR: ${{ runner.temp }}/snapshot-history-renders/battle
         run: ./scripts/test-gate.sh
 
       - name: Preserve native snapshot-history renders

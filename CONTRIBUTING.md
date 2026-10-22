@@ -11,6 +11,7 @@ Please read the short sections below before opening a pull request.
 ## Prerequisites
 
 - **macOS 14 (Sonoma) or newer**
+- **Node.js 22.18+ and npm** for preparing the offline battle engine; end users do not need Node.
 - **Swift 6 toolchain** (Xcode 16 or newer) — required by `Package.swift`
   (`swift-tools-version: 6.0`)
 
@@ -19,6 +20,7 @@ Please read the short sections below before opening a pull request.
 The project is a Swift Package. From the repository root:
 
 ```bash
+./scripts/prepare-battle-engine.sh  # prepare the offline battle engine
 swift build             # compile the app target
 ./scripts/test-gate.sh   # run all tests and enforce logic-core coverage
 ```

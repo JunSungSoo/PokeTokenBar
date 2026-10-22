@@ -1,0 +1,871 @@
+{
+  "repository": "https://github.com/pagefaultgames/pokerogue-assets",
+  "revision": "009cac30c39d3615c7b2c320c3984af368871031",
+  "moves": [
+    {
+      "move": "afteryou",
+      "path": "battle-anims/after-you.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 2,
+      "frames": 48,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- After You1.wav",
+        "PRSFX- After You2.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "agility",
+      "path": "battle-anims/agility.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 16,
+      "effectEntries": 0,
+      "sheets": [
+        "mixed"
+      ],
+      "backgrounds": [
+        "PRAS- Speed BG"
+      ],
+      "audio": [
+        "PRSFX- Agility.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "allyswitch",
+      "path": "battle-anims/ally-switch.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 14,
+      "effectEntries": 0,
+      "sheets": [
+        "Ancient-PowerFilesheet"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Ally Switch.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "bind",
+      "path": "battle-anims/bind.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 16,
+      "effectEntries": 0,
+      "sheets": [
+        "block"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Bind.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "bounce",
+      "path": "battle-anims/bounce.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 2,
+      "frames": 26,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Bounce3.wav",
+        "PRSFX- Bounce4.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "camouflage",
+      "path": "battle-anims/camouflage.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 20,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Camouflage.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "confusion",
+      "path": "battle-anims/confusion.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 28,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Confusion BG"
+      ],
+      "audio": [
+        "PRSFX- Confusion.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "copycat",
+      "path": "battle-anims/copycat.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 29,
+      "effectEntries": 0,
+      "sheets": [
+        "!"
+      ],
+      "backgrounds": [],
+      "audio": [],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "doubleteam",
+      "path": "battle-anims/double-team.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 23,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Stats"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Double Team.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "endure",
+      "path": "battle-anims/endure.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 11,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Endure.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "entrainment",
+      "path": "battle-anims/entrainment.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 35,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Entrainment.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "flash",
+      "path": "battle-anims/flash.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 19,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Recovery"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Flash.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "hail",
+      "path": "battle-anims/hail.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 12,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Ice"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- HailMove.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "heatwave",
+      "path": "battle-anims/heat-wave.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 2,
+      "frames": 58,
+      "effectEntries": 0,
+      "sheets": [
+        "fly copy"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Heat Wave.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "magicroom",
+      "path": "battle-anims/magic-room.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 39,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Magic Room BG"
+      ],
+      "audio": [
+        "PRSFX- Magic Room.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "magnitude",
+      "path": "battle-anims/magnitude.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 63,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Magnitude BG"
+      ],
+      "audio": [
+        "PRSFX- Magnitude.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "meditate",
+      "path": "battle-anims/meditate.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 21,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Meditate.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "memento",
+      "path": "battle-anims/memento.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 24,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Memento1.wav",
+        "PRSFX- Memento2.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "mimic",
+      "path": "battle-anims/mimic.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 19,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Mimic1.wav",
+        "PRSFX- Mimic2.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "minimize",
+      "path": "battle-anims/minimize.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 32,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Minimize2.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "morningsun",
+      "path": "battle-anims/morning-sun.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 19,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Recovery"
+      ],
+      "backgrounds": [
+        "PRAS- Sunny Day"
+      ],
+      "audio": [
+        "PRSFX- Morning Sun.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "muddywater",
+      "path": "battle-anims/muddy-water.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 2,
+      "frames": 84,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Muddy Water FG",
+        "PRAS- Muddy Water FG Opp"
+      ],
+      "audio": [
+        "PRSFX- Muddy Water.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "naturepower",
+      "path": "battle-anims/nature-power.json",
+      "classification": "empty",
+      "variants": 1,
+      "frames": 0,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "nightmare",
+      "path": "battle-anims/nightmare.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 44,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Love"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Nightmare.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "nightshade",
+      "path": "battle-anims/night-shade.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 23,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Psychic BG"
+      ],
+      "backgrounds": [
+        "PRAS- Ghost BG"
+      ],
+      "audio": [
+        "PRSFX- Night Shade.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "ominouswind",
+      "path": "battle-anims/ominous-wind.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 34,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Ominous Wind BG"
+      ],
+      "audio": [
+        "PRSFX- Ominous Wind.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "powersplit",
+      "path": "battle-anims/power-split.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 13,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Power Split.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "powertrick",
+      "path": "battle-anims/power-trick.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 11,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Power Trick.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "psychic",
+      "path": "battle-anims/psychic.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 24,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Psychic BG"
+      ],
+      "backgrounds": [
+        "PRAS- Psychic BG"
+      ],
+      "audio": [
+        "PRSFX- Psychic.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "quash",
+      "path": "battle-anims/quash.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 17,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Quash.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "raindance",
+      "path": "battle-anims/rain-dance.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 25,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Water"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Rain Dance.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "rest",
+      "path": "battle-anims/rest.json",
+      "classification": "empty",
+      "variants": 1,
+      "frames": 0,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Status"
+      ],
+      "backgrounds": [],
+      "audio": [],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "roleplay",
+      "path": "battle-anims/role-play.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 2,
+      "frames": 70,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Curse"
+      ],
+      "backgrounds": [
+        "PRAS- Black BG"
+      ],
+      "audio": [
+        "PRSFX- Roleplay.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "secretpower",
+      "path": "battle-anims/secret-power.json",
+      "classification": "empty",
+      "variants": 1,
+      "frames": 0,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Strike"
+      ],
+      "backgrounds": [],
+      "audio": [],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "skydrop",
+      "path": "battle-anims/sky-drop.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 35,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Sky Drop2.wav",
+        "PRSFX- Sky Drop3.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "sludgewave",
+      "path": "battle-anims/sludge-wave.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 2,
+      "frames": 84,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Sludge Wave FG",
+        "PRAS- Sludge Wave FG Opp"
+      ],
+      "audio": [
+        "PRSFX- Sludge Wave.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "snatch",
+      "path": "battle-anims/snatch.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 9,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Snatch.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "struggle",
+      "path": "battle-anims/struggle.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 15,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Strike"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Struggle.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "sunnyday",
+      "path": "battle-anims/sunny-day.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 19,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- SunnyDay"
+      ],
+      "backgrounds": [
+        "PRAS- Sunny Day BG"
+      ],
+      "audio": [
+        "PRSFX- Sunny Day.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "surf",
+      "path": "battle-anims/surf.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 2,
+      "frames": 84,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Surf FG",
+        "PRAS- Surf FG Opp - Copie"
+      ],
+      "audio": [
+        "PRSFX- Surf.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "tailwhip",
+      "path": "battle-anims/tail-whip.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 24,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Tail Glow"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Tail Whip.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "teeterdance",
+      "path": "battle-anims/teeter-dance.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 29,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Teeter Dance.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "telekinesis",
+      "path": "battle-anims/telekinesis.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 29,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Telekinesis.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "tickle",
+      "path": "battle-anims/tickle.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 33,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Tickle.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "transform",
+      "path": "battle-anims/transform.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 14,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Transform.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "trickroom",
+      "path": "battle-anims/trick-room.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 39,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Wonder Room BG"
+      ],
+      "audio": [
+        "PRSFX- Wonder Room.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "wonderroom",
+      "path": "battle-anims/wonder-room.json",
+      "classification": "background-without-effect-graphics",
+      "variants": 1,
+      "frames": 39,
+      "effectEntries": 0,
+      "sheets": [],
+      "backgrounds": [
+        "PRAS- Trick Room BG"
+      ],
+      "audio": [
+        "PRSFX- Trick Room.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    },
+    {
+      "move": "workup",
+      "path": "battle-anims/work-up.json",
+      "classification": "motion-without-effect-graphics",
+      "variants": 1,
+      "frames": 22,
+      "effectEntries": 0,
+      "sheets": [
+        "PRAS- Revenge"
+      ],
+      "backgrounds": [],
+      "audio": [
+        "PRSFX- Work Up.wav"
+      ],
+      "missingResources": [],
+      "frameIndexWarnings": []
+    }
+  ],
+  "sha256": {
+    "LICENSES/AGPL-3.0-only.txt": "d8a6cc31abc16b6748c7a21f21611f5a1ec33f67d22ca23d7da1c19b95496bee",
+    "LICENSES/CC-BY-NC-SA-4.0.txt": "600ca4e25fe11762b75a97e714707fab48bb778374e92d24c6ca068791661c11",
+    "LICENSES/LicenseRef-POKEMON-REBORN.txt": "92aa72f63656ea0916891b43e2ec452ddccca44b8a95496a14b522c3beac4fbf",
+    "README.md": "3665ff8253621caa9b659010f5b73233a31dd5019d1a0a882f50384e08cbec80",
+    "REUSE.toml": "26ee19e5367c41ade0c377a92b7070516841029cb092c61dc337288b89f6c52a",
+    "battle-anims/REUSE.toml": "064d1e95f5b99dd410fd42983a2ae5b4f86924338e4d8d42a2105343f0083960",
+    "battle-anims/after-you.json": "6813c9c79220dee8559ed471421693a12bfd65fefc6e45a27b988d3ce97ae393",
+    "battle-anims/agility.json": "041edcb749c39820f570886e9fe0a02926d0c00a699c0a71512eaa11675787ec",
+    "battle-anims/ally-switch.json": "c7d6cab6ce4c903523aeec7ce29f23e904714b4a8ddb8aae72738ed23df116c8",
+    "battle-anims/bind.json": "9126ad868455a0e9487375ba2215abc4299b2c021beceec305b1c910c6750e0e",
+    "battle-anims/bounce.json": "96ea00c387c7c6e05ac5622a94e00bef02223471c191f32a49a956c3829ad323",
+    "battle-anims/camouflage.json": "fa14d8c886fc06a14d3264d32a5cbebebedb6d94c00e630cb519957021b544d2",
+    "battle-anims/confusion.json": "f2fd83f17e379c02cd4c47fc53a6e37e11bbdd56c3323d2701d5c71f372fff9b",
+    "battle-anims/copycat.json": "e8da3559982e0c8461d9096bcd294ec6e187d0857d77c2aa688e51b898b6ba77",
+    "battle-anims/double-team.json": "3bf4ea5bbb70111bd4392f0d5b656b8f8540fba7c6d62c73977bb32b5b3bedc7",
+    "battle-anims/endure.json": "85aee3ff22af531a0038f839956da06e64b700a28f9490954a10f5b2961c952b",
+    "battle-anims/entrainment.json": "8bcb2343beb5a257bc5da21ad89d94d470aed752e0e30c5810e2646a9dd49933",
+    "battle-anims/flash.json": "7f59b10f76e2fcc0c19adf65c793ca604f96c9a5cc4b84081cdd53468e3ab1b6",
+    "battle-anims/hail.json": "3c16f3d5661908fe5439353549fcfa687cafa625464998d920376027831e1188",
+    "battle-anims/heat-wave.json": "b6e4303da2f1ed61080cf884675fb7ea70c45cc94275c8e99dc2e4fb7ff09df3",
+    "battle-anims/magic-room.json": "bb8fa3443104889433c4645dcd5ef0a99100200335d3d8a73229a4c33ef0346d",
+    "battle-anims/magnitude.json": "a861c1b09f6343ec5ab7254b8eb28e587f347f9113ab00d6884c1367427560bc",
+    "battle-anims/meditate.json": "9617f0b3742585ecb770a28e0b44f9ac297b7fab93fa67596fd05acf578e2b1e",
+    "battle-anims/memento.json": "4350b9130e260dede968a641465bc3938ec949074c67f77bf4de2d32f60805b3",
+    "battle-anims/mimic.json": "27ba506d6a6af0816571dc3f9dca1604bf4b972000b4d070af66a4b364d2122e",
+    "battle-anims/minimize.json": "3c2b5c31e606a348f9ef8548f67146a2f49cf0f8007cb8a207ca64ebb57f3d5e",
+    "battle-anims/morning-sun.json": "fc82dc29c3d26acd1cb0a883604a78742eef4ddbe70528d74f36ec23253954d8",
+    "battle-anims/muddy-water.json": "e3565d0c33d44531b19e10c66212c42ce7942638d3617a8f1ea5fe22eb2e5c08",
+    "battle-anims/nature-power.json": "a1bc3326dfe23ec6dcb63f20ee7164e36e642b3655601768b24b8dad5f49e7d4",
+    "battle-anims/night-shade.json": "2fc8aa9ea0c5ae4bf63acf0769f743fc1c2be11d0c8e9d455f2674cea8d0fcb5",
+    "battle-anims/nightmare.json": "677a3bbc6c4c78c553cf30cec9a60165862c0f7c1fded8fddcee5399bb6e0ff0",
+    "battle-anims/ominous-wind.json": "1af02b5c22f402de7531691e9fda96bcb032eec9b64b63d48c0b8abf594af77b",
+    "battle-anims/power-split.json": "ab8e26aae5c00b974f04bd7e793ea1c29894c91f8fde98c0fc80aedde9bd9780",
+    "battle-anims/power-trick.json": "a0228e3df13c0e1857083a693dac350d4ea0daae818faadee22d81b28f85bcc1",
+    "battle-anims/psychic.json": "2afee566796c652d70988db443d270df7466e6f30e60a5f603238585e29371d3",
+    "battle-anims/quash.json": "a2e6a4a86e3e82c4fa5ebf947545acf5774bb3390961ddd022e3cc7837392623",
+    "battle-anims/rain-dance.json": "904c77831c58098f6f184c4971ca84c2eb73db5c2a94260e8facf5bdf5af8517",
+    "battle-anims/rest.json": "d9542cbfecad4ed1004979f4d0b02065929fbee07c0241c89375c667b2ad85af",
+    "battle-anims/role-play.json": "2258464982479327e4bafbe18fd573d5054707e70c6835b7be12a96f40727d67",
+    "battle-anims/secret-power.json": "9a1321bcbbfd6828e02e3379136faabe6bdf010014ef591b2d4c5686268d95e1",
+    "battle-anims/sky-drop.json": "5d2c29f6e6cbea5446522ab3a9a5b283582cc913d97b0f623cc59472ecb591d2",
+    "battle-anims/sludge-wave.json": "0349718f66e2249185bd11de5ce2fbc79f11c3c30369fab2d73c62cede4f48f3",
+    "battle-anims/snatch.json": "7a8e4e8e15694b29bd340013af783b972be8001282e6b1095a36c3e0d8f344f0",
+    "battle-anims/struggle.json": "a4eec6eadae972398495c809c38013fc6afdbfdd1219dec95f82e3b87aee36e1",
+    "battle-anims/sunny-day.json": "d3e351c14676e6fa0eac44129c51e2384c04b5348155d3c57b993ccfc2706e24",
+    "battle-anims/surf.json": "106af176f537b9294ce3b897a672ed43825fbd8d36891fe44e260613ccd7f879",
+    "battle-anims/tail-whip.json": "474e80b98c4c5f48eefa7ea90f504c411145e0b19212331c14e7e0ab7793dc80",
+    "battle-anims/teeter-dance.json": "ca9256cf5c99e6a9072da95e48f75f8a59bc24f93ad86d67a17f3996d09a331e",
+    "battle-anims/telekinesis.json": "70cb5164db19d17743138e16cb7339f8c3923637b32b3ca2a992df76244c17e3",
+    "battle-anims/tickle.json": "462449c28eccebbd25ce2437bab4d6b2728f3069d44d672a835a4d9d4ced19e0",
+    "battle-anims/transform.json": "8787fc23655b3946fa6ed661192174e6ac58a443a738c46fd1f0d37ea19dedee",
+    "battle-anims/trick-room.json": "c51af36a871ee66127913457af06cabde0c8d22fa3b44ac98b8accb9c21dd40a",
+    "battle-anims/wonder-room.json": "54141736c7876cf7773b2bb421a37a882e14219412fc715b31ebfa8825223fc7",
+    "battle-anims/work-up.json": "b1d00ae55101365fe2f84e03c56aa041d2d6341361c32d2ecd59a6b05e932897",
+    "images/REUSE.toml": "4f3053ee2f38afdadcaa5e13d8bfee9b850b5a635c1392f538363c84703aa6a9",
+    "images/battle_anims/PRAS- Black BG.png": "df1814a5bf7c113142459fc31a8a8ecf65acd49094606f85d2c2e6097cd3af4d",
+    "images/battle_anims/PRAS- Confusion BG.png": "ff0ae841978e8a8556a7d6b2395a126424b00f3e5eeeba5dadabaa7aa39a4404",
+    "images/battle_anims/PRAS- Ghost BG.png": "f5208b18592116951a5eccedfa70dd1df342d3eeb33dc0d4c401b6e372e2d8e7",
+    "images/battle_anims/PRAS- Magic Room BG.png": "ffc76eb8d4a648d2591ebd6a4536a3a889db9ee78581a34ad42b3db941009756",
+    "images/battle_anims/PRAS- Magnitude BG.png": "55560f2a441d0c7ba3dcaad1ca3db649765dfbc2f6fc65f88f4b809892ba76ef",
+    "images/battle_anims/PRAS- Muddy Water FG Opp.png": "60a7b11ab114b6281ae4bee18e86c907af1d07c1af56f10c6e38f6999bf52c9c",
+    "images/battle_anims/PRAS- Muddy Water FG.png": "c2dc83e4a373f02b7b45772b4be336666e1fd93f5cfef130b0b93e45f8df4768",
+    "images/battle_anims/PRAS- Ominous Wind BG.png": "727a3741dfba922104bd90f08962fe1b9b19aa9518415c088b7d25a9d0340502",
+    "images/battle_anims/PRAS- Psychic BG.png": "bd72f1018c6a151a748ed707a5dd51065eb23e1ba034195589c60f19d66b33be",
+    "images/battle_anims/PRAS- Sludge Wave FG Opp.png": "b564085e6191c5c9509ca1c446fa44918274a82a542f49a5a410ae08921f631c",
+    "images/battle_anims/PRAS- Sludge Wave FG.png": "e21034d9e8d5ce6158492b2cdd8dce3ef6765f209b19e9f5e00cef170e898ab0",
+    "images/battle_anims/PRAS- Speed BG.png": "832799c2c1d48911585a1ce3b6aaebef368fafb24785974538579a550f8dadc7",
+    "images/battle_anims/PRAS- Sunny Day BG.png": "5900007c61924ba82d85e689dbd6ef574469fd20d47327b5011bceb354c11597",
+    "images/battle_anims/PRAS- Sunny Day.png": "6553da6da7b07497929a45a4280484f1ccf0053e1c38620221e4cdf035bd3f74",
+    "images/battle_anims/PRAS- Surf FG Opp - Copie.png": "3c59e57ba8d8639d72e42695bf700ccdf2145b7d71a25a260579f6c158321f08",
+    "images/battle_anims/PRAS- Surf FG.png": "66eb2fabd742c2a8fbfe61a801720ffc6ef97bb7bc08b1f3eaffa703da0b6990",
+    "images/battle_anims/PRAS- Trick Room BG.png": "77e966caa2b0d8c1e9e768e6d2cb878e1e56ace2f0788619f90e1fc8ae7e04b1",
+    "images/battle_anims/PRAS- Wonder Room BG.png": "e12fd7c6737c0842516ecbebfbd47e8f535cb5f7ddf18ce2f19b70235d4b77f6"
+  }
+}

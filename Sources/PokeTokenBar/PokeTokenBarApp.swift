@@ -22,9 +22,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var outsideClickMonitor = OutsideClickMonitor()
     private var store: UsageStore!
     private var companion: CompanionStore!
+    private var battle: BattleCoordinator!
+    private var battleWindow: BattleWindowController!
     private var updater: UpdateChecker!
     private var floatingPet: FloatingPetController!
     private let navigation = PopoverNavigation()
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard battle?.isActive == true else { battle?.shutdown(); return .terminateNow }
+        let alert = NSAlert()
+        alert.messageText = companion.l.battleConfirmClose
+        alert.informativeText = companion.l.battleCloseDetail
+        alert.addButton(withTitle: companion.l.battleSurrender)
+        alert.addButton(withTitle: companion.l.cancel)
+        guard alert.runModal() == .alertFirstButtonReturn else { return .terminateCancel }
+        battle.surrender()
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            self?.battle.shutdown()
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
+    }
 
     // 메뉴바 캐릭터 애니메이션 — 단일 타이머로 프레임 순환.
     // 프레임 = 이미 22px 로 합성된 이미지 + delay. egg/static 은 2프레임 bob, animated 는 GIF 실제 프레임.
@@ -85,6 +104,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         LoginItem.migrateFromLegacyLoginItemIfNeeded()   // 로그인아이템 → KeepAlive 에이전트(크래시 자동 재실행)
         store = UsageStore()
         companion = CompanionStore()
+        battle = BattleCoordinator()
+        battleWindow = BattleWindowController(battle: battle, store: companion)
         Task { await companion.preparePokemonProfiles() }
         updater = UpdateChecker()
         store.localizationLanguage = companion.language   // 알림 현지화용 미러 시드
@@ -566,7 +587,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private func buildPopoverContent() {
         popover.contentViewController = NSHostingController(
             rootView: PopoverView()
-                .environment(store).environment(companion).environment(updater).environment(navigation))
+                .environment(store).environment(companion).environment(updater).environment(navigation).environment(battle))
     }
 
     @objc private func statusItemClicked() {

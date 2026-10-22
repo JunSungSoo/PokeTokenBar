@@ -1,0 +1,21 @@
+{
+  "track": "GSC 010 Battle! Wild Pokémon (Johto) (Day)",
+  "sourcePage": "https://www.enls.eu/prelooped/album/?game=GSC",
+  "sourceURL": "https://www.enls.eu/prelooped/downloads/GSC/GSC%20010%20Battle%21%20Wild%20Pok%C3%A9mon%20%28Johto%29%20%28Day%29.ogg",
+  "sourceSHA256": "684e27d7ef7a61e4761e24acedd2765c49ff8ccdf22db86d44ce7c9fb0c656e3",
+  "sampleRate": 44100,
+  "channels": 2,
+  "loopStartFrame": 1038645,
+  "loopFrameCount": 1612668,
+  "conversion": "Vorbis decode to PCM16; no resynthesis, resampling, fades or normalization",
+  "files": {
+    "GoldSilverWildBattleIntro.wav": {
+      "frames": 1038645,
+      "sha256": "3bbfb18ee4b5c0cc35db197b1c5449f3de2fa1dcd410ac61e04c8a2b24311fb7"
+    },
+    "GoldSilverWildBattleLoop.wav": {
+      "frames": 1612668,
+      "sha256": "359e8c720f145879e7c472d13de1d8f40bc4e83052cfca3c852c3ecd44979f09"
+    }
+  }
+}

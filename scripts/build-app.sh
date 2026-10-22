@@ -16,6 +16,8 @@ if [[ "${PTB_NATIVE_ARCH_ONLY:-0}" == "1" ]]; then
     [[ "${PTB_REQUIRE_STABLE_SIGN:-0}" == "1" ]] && { echo "   ✗ 릴리스 빌드는 PTB_NATIVE_ARCH_ONLY 를 쓸 수 없다 (universal 필수)." >&2; exit 1; }
     ARCHS=("$(uname -m)")
 fi
+echo "==> prepare offline battle engine"
+./scripts/prepare-battle-engine.sh
 SLICES=()
 for arch in "${ARCHS[@]}"; do
     echo "==> swift build -c release --arch $arch"
@@ -32,6 +34,31 @@ echo "   archs: $(lipo -archs "$APP/Contents/MacOS/$APP_NAME")"
 # 심볼 strip — 릴리스 바이너리 1.84MB → 0.80MB(-57%). codesign 전에 수행(서명 무효화 방지).
 strip -rSTx "$APP/Contents/MacOS/$APP_NAME" 2>/dev/null || strip -rSx "$APP/Contents/MacOS/$APP_NAME"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp -R Sources/PokeTokenBar/Resources/BattleText "$APP/Contents/Resources/BattleText"
+cp -R Sources/PokeTokenBar/Resources/BattleEffects "$APP/Contents/Resources/BattleEffects"
+cp -R Sources/PokeTokenBar/Resources/Showmotion "$APP/Contents/Resources/Showmotion"
+cp -R Sources/PokeTokenBar/Resources/PokeRogue "$APP/Contents/Resources/PokeRogue"
+cp -R Sources/PokeTokenBar/Resources/PokeRoguePlayer "$APP/Contents/Resources/PokeRoguePlayer"
+ENGINE="$APP/Contents/Resources/BattleEngine"
+mkdir -p "$ENGINE/node_modules/pokemon-showdown/dist"
+cp BattleEngine/engine.cjs BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav "$ENGINE/"
+cp BattleEngine/music/wild-battle-source.json "$ENGINE/"
+if [[ ${#ARCHS[@]} -eq 1 ]]; then
+    # Development builds only ship the requested CPU slice, including the helper runtime.
+    lipo BattleEngine/runtime/node -thin "${ARCHS[0]}" -output "$ENGINE/node"
+    chmod +x "$ENGINE/node"
+else
+    cp BattleEngine/runtime/node "$ENGINE/node"
+fi
+cp BattleEngine/runtime/node-v22.18.0-darwin-arm64/LICENSE "$ENGINE/NODE-LICENSE"
+cp BattleEngine/node_modules/pokemon-showdown/LICENSE "$ENGINE/SHOWDOWN-LICENSE"
+cp BattleEngine/node_modules/pokemon-showdown/package.json "$ENGINE/node_modules/pokemon-showdown/"
+for directory in sim lib data config; do
+    cp -R "BattleEngine/node_modules/pokemon-showdown/dist/$directory" "$ENGINE/node_modules/pokemon-showdown/dist/"
+done
+cp -R BattleEngine/node_modules/ts-chacha20 "$ENGINE/node_modules/"
+find "$ENGINE/node_modules" -type f \( -name '*.map' -o -name '*.d.ts' \) -delete
+cp BattleEngine/music/README.md "$ENGINE/MUSIC-SOURCE.md"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -49,11 +76,13 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>LSUIElement</key><true/>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSLocalNetworkUsageDescription</key>
-    <string>Local network access is required to trade Pokémon with nearby devices.</string>
+    <string>Local network access is required to trade Pokémon and battle with nearby devices.</string>
     <key>NSBonjourServices</key>
     <array>
         <string>_ptb-trade._tcp</string>
         <string>_ptb-trade._udp</string>
+        <string>_ptb-battle._tcp</string>
+        <string>_ptb-battle._udp</string>
     </array>
 </dict>
 </plist>
@@ -90,6 +119,7 @@ SIGN_IDENTITY="${CODESIGN_IDENTITY:-PokeTokenBar Local}"
 # 안정적 Keychain ACL 을 위해서는 인증서 존재가 아니라 유효한 codesigning identity 가 필요하다.
 if security find-identity -v -p codesigning | grep -F "\"$SIGN_IDENTITY\"" >/dev/null; then
     # 안정적 자체 서명 신원 → 재빌드해도 Keychain "항상 허용" 유지
+    codesign --force -s "$SIGN_IDENTITY" "$ENGINE/node"
     codesign --force -s "$SIGN_IDENTITY" "$APP"
 else
     # 인증서 없음 → ad-hoc (빌드마다 cdhash 변경 = Keychain 재프롬프트 가능)
@@ -101,7 +131,13 @@ else
     fi
     echo "   ('$SIGN_IDENTITY' 유효 codesigning identity 없음 → ad-hoc 서명 — 로컬 개발용)"
     echo "   반복 Keychain 허용 프롬프트를 줄이려면 ./scripts/create-signing-cert.sh 실행 후 다시 빌드하세요."
+    codesign --force -s - "$ENGINE/node"
     codesign --force -s - "$APP"
+fi
+
+if [[ "${PTB_SKIP_INSTALL:-0}" == "1" ]]; then
+    echo "완료: $APP (installation skipped)"
+    exit 0
 fi
 
 echo "==> 기존 인스턴스 종료 + /Applications 설치"
