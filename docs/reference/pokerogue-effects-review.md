@@ -143,3 +143,51 @@ filtering and no sound initially. Compare existing effects, the authored sample 
 on the same Pokémon stage. If the pixel-art style is approved, expand the data adapter and
 validate the 48 fallback cases and six frame-index warnings. This offers broad reusable 2D
 coverage; it is not a shortcut to hundreds of Showmotion-quality 3D effects.
+
+
+## Original status activation playback (2026-10-23)
+
+- Import eight unmodified common timelines (sleep, poison, toxic, paralysis, confusion,
+  burn, frozen, attract), graphics and authored sounds into `statusEntries`. The regular
+  player preparation script regenerates them alongside moves/weather/entry resources.
+  Pinned assets remain `009cac30c39d3615c7b2c320c3984af368871031`; original paths and
+  SHA-256 records are retained in the production manifest.
+- Runtime reference: PokéRogue `13f1139f0aef39fa75b8b57268832d6c1d9aa742`,
+  [MovePhase triggerStatus](https://github.com/pagefaultgames/pokerogue/blob/13f1139f0aef39fa75b8b57268832d6c1d9aa742/src/phases/move-phase.ts),
+  [PostTurnStatusEffectPhase](https://github.com/pagefaultgames/pokerogue/blob/13f1139f0aef39fa75b8b57268832d6c1d9aa742/src/phases/post-turn-status-effect-phase.ts),
+  and [ConfusedTag/InfatuatedTag](https://github.com/pagefaultgames/pokerogue/blob/13f1139f0aef39fa75b8b57268832d6c1d9aa742/src/data/battler-tags.ts).
+  Each common animation uses the affected Pokémon as both user and target.
+- BW2 remains authoritative: do not copy PokéRogue's paralysis probability, confusion
+  probability or burn damage formula. Render actual Showdown status application, blocked
+  action, confusion/attract activation and poison/burn residual events. Toxic residual
+  logs use `[from] psn`; distinguish toxic using the captured battler condition.
+- Keep each original effect/sound at its authored tempo, original GIF cadence, existing
+  idle floating, localized notices and effect volume. Residual HP commits only after
+  playback completes. Cure, flinch, successful paralyzed actions and confusion self-damage
+  do not duplicate common animations. Existing flinch/cure notifications remain visible.
+
+
+## Original entry cries (2026-10-23)
+
+Bundle all 649 BW2 species cries plus six distinct form cries from the existing
+pinned PokéRogue asset revision. `prepare-pokerogue-cries.py` regenerates their
+manifest paths and hashes. The mapping follows pinned
+[PokemonSpecies.getCryKey](https://github.com/pagefaultgames/pokerogue/blob/13f1139f0aef39fa75b8b57268832d6c1d9aa742/src/data/pokemon-species.ts#L545);
+all other supported forms share the base-species cry. Both teams use SummonPhase's
+post-growth timing and 0.85x playback at HP <=25%. Keep the prior 1.25x ball motion,
+original GIF/floating and shiny sequence. Decode entry-source cries only, cache
+with the existing bounded audio cache, and play them once on the foreground audio
+owner using the effects volume. Include decoded cry length in entry completion
+and reduced-motion audio waits. No BGM setting or simulator mechanics change.
+
+### Weather damage feedback
+
+Actual BW2 Sandstorm/Hail damage scenes now use a dedicated awaited weather-hit
+phase: original `se/hit.wav` and six visibility states at 100ms intervals, followed
+by the shared smooth HP drain. No transient weather-damage text is displayed.
+This intentionally enables normal-hit feedback for weather damage: pinned
+PokéRogue's `WeatherEffectPhase` uses INDIRECT and its `DamageAnimPhase` skips
+blink/audio for that result. Both reference sources and the untouched sound are
+bundled with hashes/provenance. Immunity and Cloud Nine remain engine-controlled;
+only an actual damage log can start the feedback. Effects volume/live mute apply,
+and the background WebKit surface stays silent.

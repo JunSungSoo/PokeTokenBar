@@ -3,6 +3,81 @@ import XCTest
 @testable import PokeTokenBar
 
 final class MultipeerTradeTransportTests: XCTestCase {
+    func testBattleAdvertisementsKeepSinglesDoublesAndReconnectGroupsSeparate() {
+        for group in ["singles","doubles"] {
+            for available in [true,false] {
+                let info=MultipeerTradeTransport.discoveryInfo(code:"BBBB",available:available,group:group)
+                let peer=MultipeerTradeTransport.makeTradePeer(displayName:"Bob",discoveryInfo:info)
+                XCTAssertEqual(peer.discoveryGroup,group);XCTAssertEqual(peer.isAvailable,available)
+                XCTAssertTrue(MultipeerTradeTransport.matchesDiscoveryGroup(group,info:info))
+                XCTAssertFalse(MultipeerTradeTransport.matchesDiscoveryGroup(group=="singles" ? "doubles":"singles",info:info))
+            }
+            XCTAssertFalse(MultipeerTradeTransport.matchesDiscoveryGroup(group,info:nil))
+            XCTAssertFalse(MultipeerTradeTransport.matchesDiscoveryGroup(group,info:["group":"unknown"]))
+        }
+        let tradeInfo=MultipeerTradeTransport.discoveryInfo(code:"TRADE",available:true,group:nil)
+        XCTAssertNil(tradeInfo["group"])
+        XCTAssertTrue(MultipeerTradeTransport.matchesDiscoveryGroup(nil,info:tradeInfo))
+    }
+    func testBattleInvitationContextsRequireTheSameGroupWhileTradesKeepTheirFormat() {
+        for group in ["singles","doubles"] {
+            let context=MultipeerTradeTransport.invitationContext(code:"BBBB",group:group)
+            XCTAssertEqual(MultipeerTradeTransport.invitationCode(context,group:group),"BBBB")
+            XCTAssertNil(MultipeerTradeTransport.invitationCode(context,group:group=="singles" ? "doubles":"singles"))
+            XCTAssertNil(MultipeerTradeTransport.invitationCode(Data("BBBB".utf8),group:group))
+            XCTAssertNil(MultipeerTradeTransport.invitationCode(nil,group:group))
+        }
+        let trade=MultipeerTradeTransport.invitationContext(code:"TRADE",group:nil)
+        XCTAssertEqual(trade,Data("TRADE".utf8))
+        XCTAssertEqual(MultipeerTradeTransport.invitationCode(trade,group:nil),"TRADE")
+    }
+    func testBrowserAndInvitationDelegatesRejectDifferentBattleGroups() throws {
+        let transport=MultipeerTradeTransport(nickname:"ModeTest",code:"AAAA",service:"ptb-battle",group:"singles")
+        defer{transport.disconnect()}
+        let local=MCPeerID(displayName:"Local"),peer=MCPeerID(displayName:"Bob")
+        let browser=MCNearbyServiceBrowser(peer:local,serviceType:"ptb-battle")
+        let log=ModeDiscoveryLog()
+        transport.onPeerFound={log.found($0)};transport.onPeerLost={log.lost($0)}
+        transport.browser(browser,foundPeer:peer,withDiscoveryInfo:["code":"BBBB","group":"doubles"])
+        XCTAssertTrue(log.peers.isEmpty)
+        transport.browser(browser,foundPeer:peer,withDiscoveryInfo:["code":"BBBB","group":"singles"])
+        XCTAssertEqual(log.peers.map(\.discoveryGroup),["singles"])
+        XCTAssertThrowsError(try transport.connect(to:log.peers[0])) // Matching group passes; no active browser.
+        XCTAssertThrowsError(try transport.connect(to:TradePeer(id:"Bob",nickname:"Bob",code:"BBBB",discoveryGroup:"doubles")))
+        transport.browser(browser,foundPeer:peer,withDiscoveryInfo:["code":"BBBB","group":"doubles"])
+        XCTAssertEqual(log.lostIDs,["Bob"])
+        transport.browser(browser,foundPeer:MCPeerID(displayName:"Other"),withDiscoveryInfo:nil)
+        XCTAssertEqual(log.lostIDs,["Bob"])
+        let advertiser=MCNearbyServiceAdvertiser(peer:local,discoveryInfo:nil,serviceType:"ptb-battle")
+        for group in ["singles","doubles"] {
+            let context=MultipeerTradeTransport.invitationContext(code:"BBBB",group:group)
+            var called=false
+            transport.advertiser(advertiser,didReceiveInvitationFromPeer:peer,withContext:context){accepted,session in
+                called=true;XCTAssertEqual(accepted,group=="singles");XCTAssertEqual(session != nil,accepted)
+            }
+            XCTAssertTrue(called)
+        }
+    }
+
+    func testUngroupedTradeDelegatesStillAcceptLegacyDiscoveryAndInvitations() throws {
+        let transport=MultipeerTradeTransport(nickname:"TradeTest",code:"AAAA")
+        defer{transport.disconnect()}
+        let local=MCPeerID(displayName:"Local"),peer=MCPeerID(displayName:"TradePeer")
+        let browser=MCNearbyServiceBrowser(peer:local,serviceType:MultipeerTradeTransport.serviceType)
+        let log=ModeDiscoveryLog();transport.onPeerFound={log.found($0)}
+        transport.browser(browser,foundPeer:peer,withDiscoveryInfo:["code":"BBBB"])
+        XCTAssertEqual(log.peers.map(\.code),["BBBB"]);XCTAssertNil(log.peers.first?.discoveryGroup)
+        XCTAssertThrowsError(try transport.connect(to:log.peers[0])) // No browser was started.
+        let advertiser=MCNearbyServiceAdvertiser(peer:local,discoveryInfo:nil,serviceType:MultipeerTradeTransport.serviceType)
+        for context in [Data("BBBB".utf8),nil] {
+            var called=false
+            transport.advertiser(advertiser,didReceiveInvitationFromPeer:peer,withContext:context){accepted,session in
+                called=true;XCTAssertTrue(accepted);XCTAssertNotNil(session)
+            }
+            XCTAssertTrue(called)
+        }
+    }
+
     /// Bonjour service type rules: 1-15 characters, alphanumerics and hyphens only, must not
     /// start or end with a hyphen.
     func testServiceTypeIsValidBonjourServiceType() {
@@ -157,4 +232,13 @@ final class MultipeerTradeTransportTests: XCTestCase {
             invitationFrom: "Bob", partner: nil, invited: nil, myKey: myKey, theirKey: theirKey),
             "once the expired invitation is cleared their invitation must be accepted")
     }
+}
+
+private final class ModeDiscoveryLog: @unchecked Sendable {
+    private let lock=NSLock()
+    private var foundPeers:[TradePeer]=[],lostPeers:[String]=[]
+    var peers:[TradePeer]{lock.lock();defer{lock.unlock()};return foundPeers}
+    var lostIDs:[String]{lock.lock();defer{lock.unlock()};return lostPeers}
+    func found(_ peer:TradePeer){lock.lock();foundPeers.append(peer);lock.unlock()}
+    func lost(_ id:String){lock.lock();lostPeers.append(id);lock.unlock()}
 }

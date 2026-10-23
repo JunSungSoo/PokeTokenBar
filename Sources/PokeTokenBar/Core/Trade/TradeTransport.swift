@@ -6,6 +6,7 @@ struct TradePeer: Identifiable, Equatable, Sendable {
     let nickname: String
     let code: String
     var isAvailable: Bool = true
+    var discoveryGroup: String? = nil
 }
 
 enum TradeTransportError: Error, Equatable {

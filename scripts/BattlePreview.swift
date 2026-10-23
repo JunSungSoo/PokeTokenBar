@@ -10,10 +10,12 @@ private final class PreviewLink: BattleLink, @unchecked Sendable {
     var onDataReceived: (@Sendable (Data) -> Void)?
     weak var other: PreviewLink?
     var candidates: [TradePeer] = []
+    var discoveryGroup: String?
     var routes: [String: PreviewLink] = [:]
-    func startDiscovery() { candidates.forEach { onPeerFound?($0) } }
+    func startDiscovery() { candidates.filter{$0.discoveryGroup == discoveryGroup}.forEach { onPeerFound?($0) } }
     func stopDiscovery() {}
     func connect(to peer: TradePeer) throws {
+        guard peer.discoveryGroup == discoveryGroup else { throw TradeTransportError.notConnected }
         if let route = routes[peer.id] { other = route; route.other = self }
         onConnected?();other?.onConnected?()
     }
@@ -113,16 +115,18 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         directory = FileManager.default.temporaryDirectory.appendingPathComponent("ptb-matching-preview-\(UUID())")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let interactive=CommandLine.arguments.contains("--matching-duel")
-        let a = BattleCoordinator(defaults: defaults("AAAA"), history: BattleHistoryStore(url: directory.appendingPathComponent("a.json")), decisionTimeLimit:1800, linkFactory: { _ in self.left })
+        let a = BattleCoordinator(defaults: defaults("AAAA"), history: BattleHistoryStore(url: directory.appendingPathComponent("a.json")), decisionTimeLimit:1800, linkFactory: { _,mode in self.left.discoveryGroup=mode.rawValue;return self.left })
         battle = a
         let opponents:[String] = interactive ? ["Codex"] : ["지우", "이슬", "웅"]
         for (index, nickname) in opponents.enumerated() {
             let code = ["BBBB", "CCCC", "DDDD"][index]
             let link = PreviewLink()
             let preferences = defaults(code); preferences.set(nickname, forKey: "tradeNickname")
-            let coordinator = BattleCoordinator(defaults: preferences, history: BattleHistoryStore(url: directory.appendingPathComponent("\(code).json")), decisionTimeLimit:1800, linkFactory: { _ in link })
+            let coordinator = BattleCoordinator(defaults: preferences, history: BattleHistoryStore(url: directory.appendingPathComponent("\(code).json")), decisionTimeLimit:1800, linkFactory: { _,mode in link.discoveryGroup=mode.rawValue;return link })
             matchingLinks.append(link); matchingPeers.append(coordinator)
-            left.candidates.append(TradePeer(id: code, nickname: nickname, code: code)); left.routes[code] = link
+            let mode:BattleMode=index == 2 ? .doubles:.singles
+            coordinator.setMode(mode)
+            left.candidates.append(TradePeer(id: code, nickname: nickname, code: code, discoveryGroup:mode.rawValue)); left.routes[code] = link
             coordinator.search()
         }
         var state = CompanionState(); state.language = .ko
@@ -161,7 +165,6 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     if let peer=self.matchingPeers.first(where:{$0.opponent != nil}) {
                         self.enemy=peer
                         if peer.phase == .connected {
-                            if peer.mode != a.mode{peer.setMode(a.mode)}
                             if peer.registeredTeam.isEmpty { peer.register(team:self.team("b")) }
                             if peer.canSelectLineup,!peer.localReady {peer.ready(team:peer.registeredTeam)}
                         }
@@ -219,7 +222,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let host=NSHostingController(rootView:PokemonSizeComparison(mode:mode,spriteStore:SpriteStore(directory:Bundle.main.resourceURL!.appendingPathComponent("PokeRogueSizeGIFs"))))
                 let window=NSWindow(contentViewController:host)
                 window.styleMask=[.titled,.closable,.miniaturizable]
-                window.title="PokeTokenBar · \(CommandLine.arguments.contains("--background-preview") ? "배경 연출":"PokéRogue 크기 비교") · \(mode == .singles ? "싱글 660px":"더블 680px")"
+                window.title="PokeTokenBar · \(CommandLine.arguments.contains("--cry-preview") ? "등장·교체 울음소리 테스트" : CommandLine.arguments.contains("--status-preview") ? "상태이상 연출 테스트" : CommandLine.arguments.contains("--background-preview") ? "배경 연출":"PokéRogue 크기 비교") · \(mode == .singles ? "싱글 660px":"더블 680px")"
                 window.isReleasedWhenClosed=false
                 let width:CGFloat=mode == .singles ? 660:680
                 let fit=host.view.fittingSize
@@ -303,12 +306,12 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     guard duelTeams["a"]?.count == 6, duelTeams["b"]?.count == 6 else { throw BattleFailure.invalidMessage }
                 }
                 left.other=right;right.other=left
-                let a=BattleCoordinator(defaults:defaults("AAAA"),history:BattleHistoryStore(url:directory.appendingPathComponent("a.json")),decisionTimeLimit:1800,linkFactory:{_ in self.left})
-                let b=BattleCoordinator(defaults:defaults("BBBB"),history:BattleHistoryStore(url:directory.appendingPathComponent("b.json")),decisionTimeLimit:1800,linkFactory:{_ in self.right})
+                let a=BattleCoordinator(defaults:defaults("AAAA"),history:BattleHistoryStore(url:directory.appendingPathComponent("a.json")),decisionTimeLimit:1800,linkFactory:{_,mode in self.left.discoveryGroup=mode.rawValue;return self.left})
+                let b=BattleCoordinator(defaults:defaults("BBBB"),history:BattleHistoryStore(url:directory.appendingPathComponent("b.json")),decisionTimeLimit:1800,linkFactory:{_,mode in self.right.discoveryGroup=mode.rawValue;return self.right})
                 battle=a;enemy=b
-                a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB"))
+                if CommandLine.arguments.contains("--doubles") { a.setMode(.doubles);b.setMode(.doubles) }
+                a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB",discoveryGroup:a.mode.rawValue))
                 try await wait { a.opponent != nil && b.opponent != nil }
-                if CommandLine.arguments.contains("--doubles") { a.setMode(.doubles);try await wait { b.mode == .doubles } }
                 if CommandLine.arguments.contains("--lobby") || CommandLine.arguments.contains("--roster-preview") {
                     var state = CompanionState()
                     state.language = .ko
@@ -361,6 +364,9 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let store=CompanionStore(fileURL:directory.appendingPathComponent("profile.json"),defaults:defaults("preview"));store.setLanguage(.ko)
                 let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
                 window.show();window.window?.title="PokeTokenBar · 실제 배틀 테스트 · PokéRogue / \(a.mode == .doubles ? "더블" : "싱글")"
+                if CommandLine.arguments.contains("--hp-preview") {
+                    window.window?.title="PokeTokenBar · 타격 후 HP 감소 테스트 · 싱글 660px"
+                }
                 if CommandLine.arguments.contains("--narrow-preview"), let main = window.window {
                     let width = BattleWindowLayout.preferredWidth(for: a.mode)
                     main.setContentSize(NSSize(width: width, height: main.contentRect(forFrameRect: main.frame).height))

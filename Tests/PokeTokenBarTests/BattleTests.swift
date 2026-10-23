@@ -49,13 +49,13 @@ final class BattleTests: XCTestCase {
     func testMatchingContinuesPastFormerTimeoutAndStopsOnSelectionOrCancel() async throws {
         defer { cleanup() }
         let link = MemoryBattleLink()
-        let battle = BattleCoordinator(defaults: try defaults(code: "AAAA"), history: BattleHistoryStore(url: temporaryFile()), linkFactory: { _ in link })
+        let battle = BattleCoordinator(defaults: try defaults(code: "AAAA"), history: BattleHistoryStore(url: temporaryFile()), linkFactory: { _, _ in link })
         coordinators.append(battle)
         battle.search()
-        let first = TradePeer(id: "B", nickname: "B", code: "BBBB")
-        let second = TradePeer(id: "C", nickname: "C", code: "CCCC")
+        let first = TradePeer(id: "B", nickname: "B", code: "BBBB", discoveryGroup: "singles")
+        let second = TradePeer(id: "C", nickname: "C", code: "CCCC", discoveryGroup: "singles")
         link.onPeerFound?(first); link.onPeerFound?(first)
-        link.onPeerFound?(TradePeer(id: "busy", nickname: "busy", code: "DDDD", isAvailable: false))
+        link.onPeerFound?(TradePeer(id: "busy", nickname: "busy", code: "DDDD", isAvailable: false, discoveryGroup: "singles"))
         try await wait { battle.peers.count == 1 }
         try await Task.sleep(for: .milliseconds(10_200))
         XCTAssertEqual(battle.phase, .searching)
@@ -92,7 +92,7 @@ final class BattleTests: XCTestCase {
         let (a, b, left, right) = try await connectedPair(mode: .singles)
         XCTAssertEqual(a.phase, .connected); XCTAssertEqual(b.phase, .connected)
         XCTAssertGreaterThanOrEqual(left.pauses, 1); XCTAssertEqual(right.pauses, 1)
-        left.onPeerFound?(TradePeer(id: "C", nickname: "C", code: "CCCC"))
+        left.onPeerFound?(TradePeer(id: "C", nickname: "C", code: "CCCC", discoveryGroup: "singles"))
         try await Task.sleep(for: .milliseconds(40))
         XCTAssertFalse(a.peers.contains { $0.code == "CCCC" })
         a.cancelLobby()
@@ -101,6 +101,97 @@ final class BattleTests: XCTestCase {
         XCTAssertTrue(left.sent.contains { $0.kind == "cancel" })
         XCTAssertEqual(left.stops, 1); XCTAssertEqual(right.stops, 1)
         XCTAssertEqual(left.starts, 1); XCTAssertEqual(right.starts, 1)
+    }
+    func testDifferentRequestedModesCannotCompleteHandshake() async throws {
+        defer { cleanup() }
+        let left=MemoryBattleLink(),right=MemoryBattleLink();left.other=right;right.other=left
+        let a=BattleCoordinator(defaults:try defaults(code:"AAAA"),history:BattleHistoryStore(url:temporaryFile()),linkFactory:{_,_ in left})
+        let b=BattleCoordinator(defaults:try defaults(code:"BBBB"),history:BattleHistoryStore(url:temporaryFile()),linkFactory:{_,_ in right})
+        coordinators += [a,b];b.setMode(.doubles);a.search();b.search()
+        // A direct/manual connection bypasses the discovery list entirely.
+        left.onConnected?();right.onConnected?()
+        try await Task.sleep(for:.milliseconds(150))
+        XCTAssertNil(a.opponent);XCTAssertNil(b.opponent)
+        XCTAssertEqual(a.mode,.singles);XCTAssertEqual(b.mode,.doubles)
+        XCTAssertEqual(a.phase,.idle);XCTAssertEqual(b.phase,.idle)
+        XCTAssertTrue(a.history.records.isEmpty);XCTAssertTrue(b.history.records.isEmpty)
+    }
+    func testMatchingListsOnlyRequestedModeAndRestartsWithoutOldCallbacks() async throws {
+        defer { cleanup() }
+        var links:[MemoryBattleLink]=[],requested:[BattleMode]=[]
+        let battle=BattleCoordinator(defaults:try defaults(code:"AAAA"),history:BattleHistoryStore(url:temporaryFile()),linkFactory:{_,mode in
+            let link=MemoryBattleLink();links.append(link);requested.append(mode);return link
+        })
+        coordinators.append(battle);battle.search()
+        for mode in [BattleMode.singles,.doubles,.singles] {
+            let old=links.last!,staleFound=old.onPeerFound,staleConnected=old.onConnected
+            battle.setMode(mode)
+            let link=links.last!
+            if old !== link {
+                XCTAssertEqual(old.stops,1);XCTAssertTrue(battle.peers.isEmpty)
+                staleFound?(TradePeer(id:"stale",nickname:"stale",code:"CCCC",discoveryGroup:mode.rawValue));staleConnected?()
+            }
+            let same=TradePeer(id:"same",nickname:"same",code:"BBBB",discoveryGroup:mode.rawValue)
+            link.onPeerFound?(same)
+            link.onPeerFound?(TradePeer(id:"other",nickname:"other",code:"CCCC",discoveryGroup:mode == .singles ? "doubles":"singles"))
+            link.onPeerFound?(TradePeer(id:"legacy",nickname:"legacy",code:"DDDD"))
+            link.onPeerFound?(TradePeer(id:"unknown",nickname:"unknown",code:"EEEE",discoveryGroup:"unknown"))
+            link.onPeerFound?(TradePeer(id:"busy",nickname:"busy",code:"FFFF",isAvailable:false,discoveryGroup:mode.rawValue))
+            try await Task.sleep(for:.milliseconds(50))
+            XCTAssertEqual(battle.phase,.searching);XCTAssertEqual(battle.peers,[same])
+            link.onPeerFound?(TradePeer(id:"same",nickname:"same",code:"BBBB",discoveryGroup:mode == .singles ? "doubles":"singles"))
+            try await wait { battle.peers.isEmpty }
+            XCTAssertEqual(link.starts,1)
+        }
+        XCTAssertEqual(requested,[.singles,.doubles,.singles])
+    }
+    func testWrongModeAndLegacyRowsCannotBeSelected() async throws {
+        defer { cleanup() }
+        for mode in BattleMode.allCases {
+            let link=MemoryBattleLink()
+            let battle=BattleCoordinator(defaults:try defaults(code:"AAAA"),history:BattleHistoryStore(url:temporaryFile()),linkFactory:{_,_ in link})
+            coordinators.append(battle);battle.setMode(mode);battle.search()
+            for peer in [TradePeer(id:"other",nickname:"other",code:"BBBB",discoveryGroup:mode == .singles ? "doubles":"singles"),TradePeer(id:"old",nickname:"old",code:"CCCC"),TradePeer(id:"busy",nickname:"busy",code:"DDDD",isAvailable:false,discoveryGroup:mode.rawValue)] {
+                battle.select(peer)
+                XCTAssertEqual(battle.phase,.searching);XCTAssertNil(battle.selectedPeer);XCTAssertEqual(link.pauses,0)
+            }
+            battle.select(TradePeer(id:"valid",nickname:"valid",code:"EEEE",discoveryGroup:mode.rawValue))
+            XCTAssertEqual(battle.phase,.connecting);XCTAssertEqual(link.pauses,1)
+        }
+    }
+    func testMatchingHelloCarriesModeAndMatchedFormatCannotChange() async throws {
+        defer { cleanup() }
+        for mode in BattleMode.allCases {
+            let (a,b,left,right)=try await connectedPair(mode:mode)
+            XCTAssertEqual(left.sent.first{$0.kind=="hello"}?.mode,mode)
+            XCTAssertEqual(right.sent.first{$0.kind=="hello"}?.mode,mode)
+            XCTAssertFalse(a.canEditMode);XCTAssertFalse(b.canEditMode)
+            let other:BattleMode=mode == .singles ? .doubles:.singles
+            a.setMode(other);b.setMode(other)
+            var oldModePacket=BattleWire(kind:"mode",matchID:[a.identity.nonce,b.identity.nonce].sorted().joined(separator:":"))
+            oldModePacket.mode=other;oldModePacket.sequence=100
+            right.onDataReceived?(try JSONEncoder().encode(oldModePacket))
+            try await Task.sleep(for:.milliseconds(50))
+            XCTAssertEqual(a.mode,mode);XCTAssertEqual(b.mode,mode)
+            // The injected legacy packet deliberately advanced the receiver sequence.
+            a.cancelLobby();b.cancelLobby()
+            XCTAssertEqual(a.phase,.idle);XCTAssertEqual(b.phase,.idle)
+            a.setMode(other);b.setMode(other)
+            XCTAssertEqual(a.mode,other);XCTAssertEqual(b.mode,other)
+        }
+    }
+    func testHelloWithoutRequestedModeIsRejected() async throws {
+        defer { cleanup() }
+        let link=MemoryBattleLink()
+        let battle=BattleCoordinator(defaults:try defaults(code:"AAAA"),history:BattleHistoryStore(url:temporaryFile()),linkFactory:{_,_ in link})
+        coordinators.append(battle);battle.search();link.onConnected?()
+        try await wait { battle.phase == .connected }
+        var hello=BattleWire(kind:"hello")
+        hello.identity=BattleIdentity(nickname:"old",code:"BBBB",nonce:UUID().uuidString)
+        link.onDataReceived?(try JSONEncoder().encode(hello))
+        try await wait { battle.phase == .idle }
+        XCTAssertNil(battle.opponent);XCTAssertEqual(battle.error,"Battle mode mismatch")
+        for language in AppLanguage.allCases {XCTAssertNotEqual(L(language).battleUserError(battle.error!),battle.error)}
     }
     private func team(_ prefix: String, mode: BattleMode) -> [BattlePokemon] {
         (0..<mode.teamSize).map { i in
@@ -122,14 +213,14 @@ final class BattleTests: XCTestCase {
         }
         let left = MemoryBattleLink(), right = MemoryBattleLink()
         left.other = right; right.other = left
-        let a = BattleCoordinator(defaults: try defaults(code: "AAAA"), history: BattleHistoryStore(url: temporaryFile()), decisionTimeLimit:decisionTimeLimit, linkFactory: { _ in left })
-        let b = BattleCoordinator(defaults: try defaults(code: "BBBB"), history: BattleHistoryStore(url: temporaryFile()), decisionTimeLimit:decisionTimeLimit, linkFactory: { _ in right })
+        let a = BattleCoordinator(defaults: try defaults(code: "AAAA"), history: BattleHistoryStore(url: temporaryFile()), decisionTimeLimit:decisionTimeLimit, linkFactory: { _, _ in left })
+        let b = BattleCoordinator(defaults: try defaults(code: "BBBB"), history: BattleHistoryStore(url: temporaryFile()), decisionTimeLimit:decisionTimeLimit, linkFactory: { _, _ in right })
         coordinators += [a,b]
-        a.setMode(mode); a.search(); b.search()
-        a.select(TradePeer(id: "BBBB", nickname: "BBBB", code: "BBBB"))
+        a.setMode(mode); b.setMode(mode); a.search(); b.search()
+        a.select(TradePeer(id: "BBBB", nickname: "BBBB", code: "BBBB", discoveryGroup: mode.rawValue))
         try await wait { a.opponent != nil && b.opponent != nil && b.mode == mode }
-        left.onPeerFound?(TradePeer(id: "BBBB", nickname: "BBBB", code: "BBBB"))
-        right.onPeerFound?(TradePeer(id: "AAAA", nickname: "AAAA", code: "AAAA"))
+        left.onPeerFound?(TradePeer(id: "BBBB", nickname: "BBBB", code: "BBBB", discoveryGroup: mode.rawValue))
+        right.onPeerFound?(TradePeer(id: "AAAA", nickname: "AAAA", code: "AAAA", discoveryGroup: mode.rawValue))
         return (a,b,left,right)
     }
     private func registerPair(_ a: BattleCoordinator, _ b: BattleCoordinator, _ own: [BattlePokemon], _ foe: [BattlePokemon]) async throws {
@@ -202,7 +293,7 @@ final class BattleTests: XCTestCase {
                 let own = team("a", mode: mode), foe = team("b", mode: mode)
                 if ["changed", "reregister", "unregister"].contains(scenario) { try await registerPair(a,b,own,foe) }
                 var packet = BattleWire(kind: scenario == "unregister" ? "unregister" : ["duplicate", "reregister"].contains(scenario) ? "roster" : "ready")
-                packet.matchID = try XCTUnwrap(left.sent.last { $0.matchID != nil }?.matchID)
+                packet.matchID = [a.identity.nonce,b.identity.nonce].sorted().joined(separator:":")
                 packet.sequence = 100; packet.mode = mode
                 if scenario == "duplicate" {
                     var roster = foe.map(BattleRosterMember.init); roster[1] = roster[0]; packet.roster = roster
@@ -479,8 +570,10 @@ final class BattleTests: XCTestCase {
     }
     func testReadinessCanCancelButRegisteredRosterAndModeStayLockedUntilLobbyEnds() async throws {
         defer { cleanup() }
-        let (a,b,_,_) = try await connectedPair(mode: .singles)
-        a.setMode(.doubles); try await wait { b.mode == .doubles }
+        let (a,b,_,_) = try await connectedPair(mode: .doubles)
+        a.setMode(.singles);b.setMode(.singles)
+        XCTAssertEqual(a.mode,.doubles);XCTAssertEqual(b.mode,.doubles)
+        XCTAssertFalse(a.canEditMode);XCTAssertFalse(b.canEditMode)
         try await registerPair(a,b,team("a",mode:.doubles),team("b",mode:.doubles))
         a.ready(team:team("a",mode:.doubles)); try await wait { b.remoteReady }
         a.unready(); try await wait { !b.remoteReady }
@@ -525,7 +618,7 @@ final class BattleTests: XCTestCase {
         delayedConnection?()
         try await Task.sleep(for:.milliseconds(50))
         XCTAssertEqual(a.phase,.ended,"late transport callbacks must not revive a finished match")
-        a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB"))
+        a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB",discoveryGroup:"singles"))
         try await wait { a.opponent != nil && b.opponent != nil }
         try await registerPair(a,b,team("a",mode:.singles),team("b",mode:.singles))
         a.ready(team:team("a",mode:.singles));try await wait { b.remoteReady }
@@ -638,8 +731,10 @@ final class BattleTests: XCTestCase {
         let window = try XCTUnwrap(controller.window)
         defer { window.orderOut(nil);controller.fieldWindow?.orderOut(nil);controller.statsWindow?.orderOut(nil) }
         for mode in [BattleMode.singles,.doubles,.singles] {
-            a.setMode(mode)
-            try await wait { b.mode == mode }
+            a.cancelLobby();try await wait { b.phase == .idle }
+            a.setMode(mode);b.setMode(mode);a.search();b.search()
+            a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB",discoveryGroup:mode.rawValue))
+            try await wait { a.opponent != nil && b.opponent != nil && b.mode == mode }
             controller.show()
             try await wait { abs(window.contentRect(forFrameRect:window.frame).width-(mode == .doubles ? 680 : 660))<0.5 }
             XCTAssertTrue(controller.window === window)
@@ -920,9 +1015,9 @@ final class BattleTests: XCTestCase {
             a.ready(team:invalid)
             XCTAssertFalse(a.localReady)
             XCTAssertEqual(L(.ko).battleUserError(a.error ?? ""),L(.ko).battleFinalOnly)
-            let (receiver,_,source,sender) = try await connectedPair(mode:mode)
+            let (receiver,_,_,sender) = try await connectedPair(mode:mode)
             var packet = BattleWire(kind:"ready")
-            packet.matchID = try XCTUnwrap(source.sent.last { $0.matchID != nil }?.matchID)
+            packet.matchID = [receiver.identity.nonce,try XCTUnwrap(receiver.opponent).nonce].sorted().joined(separator:":")
             packet.sequence = 100
             packet.mode = mode
             packet.team = invalid

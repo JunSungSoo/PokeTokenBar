@@ -42,3 +42,19 @@ with a centred cover transform, independently of Pokémon camera scale, includin
 foreground surfaces. Original timeline bytes, assets, event clocks and layers are unchanged.
 It creates same-frame backgrounds before fading them, separates exported scrolling defaults
 from independent opacity fades, and retains the final authored fade-out.
+
+Entry cries use original pinned audio/cry/*.m4a for all 649 BW2 species and six
+forms with distinct cries (Sky Shaymin, Therian trio, Black/White Kyurem).
+PokemonSpecies.getCryKey selects these form suffixes; other supported forms use
+the species cry. SummonPhase starts the cry after the 250ms growth animation,
+slowing it to 0.85x at HP <=25%. The host's existing 1.25x appearance clock is
+preserved; cry audio retains its original rate, subject only to the low-HP rule.
+Cries share the user's effects volume, play only on the foreground audio owner,
+and extend the serialized entry lifetime if their decoded duration requires it.
+All original asset hashes, audio REUSE notices and licenses remain applicable.
+
+Weather damage hit feedback adapts DamageAnimPhase's 100ms sprite blinking and
+se/hit.wav. Original weather INDIRECT damage intentionally omits this feedback;
+the host explicitly enables normal-hit feedback for actual BW2 sandstorm/hail
+damage at the user's request, with no damage numbers/notices. The authored hit
+audio is unchanged; the six visibility states end at 500ms before HP interpolation.

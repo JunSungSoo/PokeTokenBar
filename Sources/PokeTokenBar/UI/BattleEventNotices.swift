@@ -18,13 +18,19 @@ struct BattlePresentationEvents {
             guard frame.log.indices.contains(index), let effect = BattleFieldEffects.effect(scene: scene, line: frame.log[index], frame: frame) else { return nil }
             return (scene.id, effect)
         })
+        let statusEffects = Dictionary(uniqueKeysWithValues: (frame.scenes ?? []).compactMap { scene -> (Int, BattleVisualEvent)? in
+            let index = scene.id - offset
+            guard frame.log.indices.contains(index),
+                  let event = BattleStatusEffects.event(scene: scene, line: frame.log[index], ownPlayer: ownPlayer) else { return nil }
+            return (scene.id, event)
+        })
         let replacedMoves = Set(fieldEffects.values.compactMap(\.replacesMove))
         let moves = (frame.effects ?? []).filter { !replacedMoves.contains($0.id) }
         var messages: [Int: String] = [:]
         for (index, line) in frame.log.enumerated() where line.hasPrefix("|move|") {
             messages[offset + index] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
         }
-        let abilityEvents = notices.filter { fieldEffects[$0.id + offset] == nil }.map { notice in
+        let abilityEvents = notices.filter { fieldEffects[$0.id + offset] == nil && statusEffects[$0.id + offset] == nil }.map { notice in
             let id = offset + notice.id
             messages[id] = notice.text
             return BattleVisualEvent(id: id, move: notice.text, type: "", category: "Status",
@@ -38,15 +44,39 @@ struct BattlePresentationEvents {
                 messages[scene.id]=BattleLogText.describe(line,language:language,ownPlayer:ownPlayer)
                 return event
             }
+            if let event = statusEffects[scene.id] {
+                messages[scene.id] = notices.first { $0.id + offset == scene.id }?.text
+                    ?? BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
+                return event
+            }
+            if let event=BattleWeatherHitEffects.event(scene:scene,line:line,ownPlayer:ownPlayer) {
+                return event
+            }
             if let effect = fieldEffects[scene.id] {
                 messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
                 return effect.event
             }
             let kind = line.split(separator: "|", omittingEmptySubsequences: false).dropFirst().first ?? ""
-            let visible = ["switch", "drag", "replace", "faint", "cant", "-damage", "-heal", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
+            if kind == "-damage" || kind == "-heal" {
+                messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
+                let token=line.split(separator:"|",omittingEmptySubsequences:false)[2].prefix(3)
+                let source=BattleEffectPosition(own:token.hasPrefix("p\(ownPlayer+1)"),slot:token.hasSuffix("b") ? 1:0)
+                return BattleVisualEvent(id:scene.id,move:"",type:"",category:"Status",source:source,targets:[],phase:"health")
+            }
+            let visible = ["switch", "drag", "replace", "faint", "cant", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
             if visible { messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer) }
             return BattleVisualEvent(id: scene.id, move: "", type: "", category: "Status",
                 source: BattleEffectPosition(own: true, slot: 0), targets: [], phase: visible ? "transition" : "state")
+        }
+        // The field panel owns recurring condition information; retain the animation/HP scene.
+        for (index,line) in frame.log.enumerated() {
+            let parts=line.split(separator:"|",omittingEmptySubsequences:false).map(String.init)
+            guard parts.count>1 else{continue}
+            let upkeep=parts[1]=="-weather" && parts.contains("[upkeep]")
+            let residual=parts[1]=="-damage" && parts.dropFirst(4).contains { part in
+                part.hasPrefix("[from] ") && ["sandstorm","hail","firepledge"].contains(BattleTextCatalog.key(String(part.dropFirst(7))))
+            }
+            if upkeep || residual { messages.removeValue(forKey:offset+index) }
         }
         self.events = (moves + abilityEvents + stateEvents).sorted { $0.id < $1.id }
         self.messages = messages

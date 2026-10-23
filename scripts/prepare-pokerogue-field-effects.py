@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Import pinned, unmodified common weather timelines without changing move entries."""
+"""Import pinned, unmodified common weather/status timelines without changing move entries."""
 import hashlib,json,pathlib,sys,urllib.request,urllib.parse
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 OUT=ROOT/'Sources/PokeTokenBar/Resources/PokeRoguePlayer'
 CACHE=pathlib.Path('/private/tmp/ptb-pokerogue-assets-review')
 PIN='009cac30c39d3615c7b2c320c3984af368871031'
-NAMES=['rain'] if '--pilot' in sys.argv else ['sunny','rain','sandstorm','hail']
+STATUS='--status' in sys.argv
+NAMES=['sleep','poison','toxic','paralysis','confusion','burn','frozen','attract'] if STATUS else (['rain'] if '--pilot' in sys.argv else ['sunny','rain','sandstorm','hail'])
 m=json.loads((OUT/'manifest.json').read_text())
 assert m['assetRevision']==PIN
 entries={}
@@ -30,6 +31,6 @@ for name in NAMES:
  for resource in graphics|backgrounds:copy('images/battle_anims/'+resource+'.png')
  for resource in sounds:copy('audio/battle_anims/'+resource)
  entries[key]={'file':dest,'graphics':sorted(graphics),'backgrounds':sorted(backgrounds),'sounds':sorted(sounds),'frames':[len(v['frames']) for v in variants]}
-m['fieldEntries']=entries
+m['statusEntries' if STATUS else 'fieldEntries']=entries
 (OUT/'manifest.json').write_text(json.dumps(m,separators=(',',':')))
-print('Imported common weather effects:',', '.join(entries))
+print('Imported common '+('status' if STATUS else 'weather')+' effects:',', '.join(entries))

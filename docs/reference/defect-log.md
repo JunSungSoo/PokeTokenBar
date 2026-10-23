@@ -15,6 +15,136 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Weather HP loss needs an explicit awaited hit presentation
+
+- Weather residuals previously shared the generic health event. Tests proved that HP
+  changed and notices were hidden, but never required a hit animation/audio, so the
+  presentation gap remained. Sweep all residual causes: BW2 damaging weather is
+  Sandstorm/Hail; poison/burn retain their status animation and Fire Pledge stays a
+  separate field residual. Do not infer damage from active weather or animate immune
+  or weather-suppressed battlers.
+- Build a weather-hit event only from the engine's actual weather damage scene, with
+  its affected side/slot. Await the normal-hit blink and original se/hit.wav before
+  the existing smooth HP drain; the queue then advances. Share effects volume and
+  keep the background surface silent. No transient weather damage notice is added.
+- Pinned PokéRogue deliberately skips blink/audio for INDIRECT weather damage. This
+  user-requested adaptation reuses its normal-hit sound and 100ms blink cadence, not
+  an assertion that original weather damage already behaves this way. Preserve source
+  references/hashes and the original audio bytes.
+- Real engine regressions cover both formats, perspectives, slots, immune leads and
+  Cloud Nine. Offscreen native tests verify foreground-only audio, live volume/mute,
+  blink cadence, GIF progression and hit -> interpolated HP -> next-scene ordering.
+  Disable the initial blink in an isolated module copy: the cadence regression fails.
+  Region inspection confirms both weather/type/slot branches and weather event routing;
+  malformed engine-token fallbacks remain unhit because the engine produces valid slots.
+  Wait for the WebAudio render quantum before reading gain values in volume assertions;
+  sound-event diagnostics record the requested weather gain rather than a stale AudioParam.
+
+## HP changes must be awaited presentation, not immediate frame replacement
+
+- HP HUDs rendered the captured integer directly. The queue delayed a damage scene with
+  a generic text transition, then applied its final HP at once. Earlier timing tests only
+  checked that damage followed a move, not that intermediate HP existed or that the next
+  move waited for the gauge. Damage notices also exposed the captured remaining HP.
+- Remove ordinary damage notices; status/ability causes retain localized text without HP
+  amounts. Explicitly preserve critical/type-effectiveness notices. Route health scenes
+  through an awaited 0.4–0.8s, 30fps presentation interpolation shared by HUD numbers/bars
+  and auxiliary panels. The engine frame and legal commands remain authoritative/separate.
+- Snapshot individual IDs and max HP: do not tween across switches, bench HP changes or
+  a different max-HP scale. Keep faint/status/identity transitions pending until the last
+  tick. Reset/cancel cannot resurrect an old frame. Consecutive different-target health
+  scenes share one drain; repeated hits on the same target remain separate. Finish every
+  grouped notice, not just the first one.
+- Offscreen queue tests sample intermediate health, assert the next move has not started,
+  then verify it starts with final HP. Cover simultaneous spread targets versus repeated
+  hits, healing/faint, replacement/max-HP changes, reset/cancel and translated status,
+  ability, critical and effectiveness notices. Existing real engine scene/status tests
+  remain relevant for post-effect ordering.
+- Mutate the positive-duration guard into immediate application: the interpolation test
+  fails three assertions (no intermediate damage/healing and no drain duration). Restore
+  the guard before final validation. Inspect region coverage for the animation loop,
+  cancellation/reset and different-target batching branches.
+
+## Entry audio must include the incoming species cry and retain its lifetime
+
+- The adapted entry sequence imported ball/shiny sounds only. The native move facade's
+  `cry()` is intentionally a no-op, so copying the summon motion did not copy SummonPhase's
+  explicit post-growth cry. Previous entry tests checked release sounds, motion and GIF
+  cadence without asserting a species-specific cry, allowing this audio gap to remain.
+- Sweep own/foe opening, voluntary switch, forced replacement and paired entries through
+  the shared entry player. Bundle all 649 BW2 species plus six distinct-form cries with
+  pinned hashes/provenance. Pass visible species/form and HP ratio, resolve the original
+  form suffix rules, and play once after growth. HP <=25% uses rate 0.85. Recall itself
+  does not cry; only incoming entry sources load/play cries. Background surfaces stay silent.
+- Share the effects manager volume (including live changes/mute), bound the shared audio
+  cache and keep decoded cry length in entry/reduced-motion completion. Do not alter BGM,
+  ball speed, GIF/floating or simulator mechanics. Mark native playback inactive immediately
+  before clearing the finished surface; otherwise observers can see an empty JS entry list
+  while `isPlaying` still reports true across the finish evaluation await.
+- Node tests cover every species/form mapping, HP threshold, once-only post-growth timing,
+  long cry tails and recall separation. Native offscreen WebAudio covers both sides,
+  actual distinct outgoing IDs for switches, original audio decoding, form cries, rate,
+  volume/mute and silent background ownership. Use tolerance for AudioParam Float32 values
+  and allow an audio quantum after setting volume before reading it back.
+- Disable the cry trigger deliberately: the timing regression fails (0 cries versus 1).
+  Restore it: five Node source/dependency/cry tests and four native cry/entry regressions
+  pass. Region coverage inspects native species/form/HP payloads and completion state;
+  the existing entry regression also verifies GIF cadence and serialized scene commits.
+
+## Status activations need original common animations, not only notices
+
+- The presentation queue mapped status application, blocked actions and residual damage
+  to generic text transitions. The original player/catalog imported moves and weather,
+  but no common status entries. Existing status tests asserted translated notices and
+  engine damage, so they never exercised an original status animation or its dependencies.
+- Sweep all common BW2 conditions: sleep, poison, toxic, paralysis, confusion, burn,
+  frozen and attract. Import their complete pinned timelines/sounds and replay activation
+  log scenes through the same serialized original player as moves. Do not synthesize
+  procs from a persistent status, replay cure/flinch events, or double-play attract's
+  `-activate` plus `cant` or confusion's activation plus self-damage.
+- A status inflicted by an ability can also produce an ability notice. Prefer its common
+  animation without losing the localized cause. Distinguish toxic residual `[from] psn`
+  with the affected battler's captured status. Keep simulator mechanics authoritative;
+  the renderer must not adopt PokéRogue's different damage/probability rules.
+- Regression fixtures invoke real BW2 condition handlers and turns in singles/doubles,
+  both perspectives and all four active slots. Offscreen production WebGL tests exercise
+  all eight timelines in both formats/directions, sleep particles, poison tone on the
+  affected actor only, authored audio, cleanup and original GIF cadence. Queue tests keep
+  poison HP unchanged until original playback ends, then commit damage before the next scene.
+- Remove the status lookup deliberately: the ability-caused status regression fails eight
+  assertions across the supported languages. Restore the lookup and nine Swift status,
+  field and scene-playback regressions pass; three source/hash/dependency Node tests pass.
+  `llvm-cov show --show-regions` confirms activation, non-activation, both slot/side routes,
+  toxic/poison/burn and ability-notice alternatives execute. Optional string-splitting
+  fallbacks have no real nonempty protocol trigger; do not invent engine states for them.
+
+## Battle matchmaking must separate requested formats before pairing
+
+- Every battle advertised the same service without its requested format; the coordinator
+  listed all available peers and the host changed the guest's mode after connecting.
+  Previous fixtures only set the host's mode, so even doubles tests depended on that
+  override and never tested two different requests. The direct mixed-format regression
+  fails five assertions on the original code.
+- Include an optional generic discovery group in Multipeer advertisements, discovered
+  peers and invitation context. Battles require the exact singles/doubles group in the
+  browser, selection and invitation paths. Ungrouped/unknown old battle peers cannot enter
+  a requested-format queue. Ordinary trades keep legacy advertisements and raw-code contexts.
+- Hello independently carries and verifies the requested mode, including manual connections.
+  Lock the format once pairing begins; old mode packets cannot rewrite it. Changing format
+  while searching replaces the transport, clears peers/manual state and invalidates queued
+  callbacks through the existing generation token. Reconnect advertisements retain the group.
+- Native delegate regressions exercise matching/mismatched metadata and invitations without
+  starting network discovery. Coordinator fixtures cover both queues, stale callbacks,
+  cancellation, missing/mismatched hello and matched-format locking. Existing singles/doubles
+  engine, reconnect, manual TCP and trade tests remain relevant. Remove the guards and the
+  six focused regressions fail 40 assertions; restore them before running the final suite.
+- Wire-injection tests derive match IDs from the two hello identities, rather than relying
+  on the removed host-mode proposal. Preview peers advertise their actual requested format.
+- Validation: 78 non-window battle/transport/manual/trade regressions pass; the 23 native
+  transport tests also pass after adding the matching-group connect branch. Region coverage
+  verifies mismatch guards and matching/nil-group alternatives execute. Preview code typechecks
+  without opening windows. Actual over-the-air discovery is not required by these delegate tests.
+
 ## Timed move backgrounds need their own viewport and independent fade channels
 
 - Timed background/foreground surfaces inherited the Pokémon camera scale. Their source

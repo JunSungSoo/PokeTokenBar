@@ -42,6 +42,9 @@ extension L {
         ally ? t("아군","Ally","味方","Aliado","Allié","Aliado","Verbündet","Союзник") : t("상대","Opponent","相手","Rival","Adversaire","Oponente","Gegner","Противник")
     }
     func battleUserError(_ raw: String) -> String {
+        if raw == "Battle mode mismatch" {
+            return t("상대와 같은 배틀 방식(싱글/더블)으로 매칭을 요청해 주세요.","Request the same battle format (singles/doubles) as your opponent.","相手と同じ形式（シングル・ダブル）でマッチングしてください。","Solicita el mismo formato (individual/doble) que tu rival.","Choisis le même format (simple/double) que ton adversaire.","Escolha o mesmo formato (individual/dupla) do oponente.","Wähle dasselbe Kampfformat (Einzel/Doppel) wie dein Gegner.","Выберите одинаковый формат боя (одиночный/двойной).")
+        }
         if raw.contains("Invalid battle lineup") { return battleRegisterHint }
         if raw == battleFinalOnly || raw.contains("Fully evolved Pokémon required") { return battleFinalOnly }
         if raw == battleDuplicateSpecies || raw.contains("Duplicate species") { return battleDuplicateSpecies }

@@ -74,7 +74,7 @@ if [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
         open -n "$PREVIEW_APP" --args --size-preview --doubles
     else
-        open -n "$PREVIEW_APP" --args --size-preview ${PTB_BACKGROUND_PREVIEW:+--background-preview}
+        open -n "$PREVIEW_APP" --args --size-preview ${PTB_BACKGROUND_PREVIEW:+--background-preview} ${PTB_STATUS_PREVIEW:+--status-preview} ${PTB_CRY_PREVIEW:+--cry-preview}
     fi
 elif [[ "${PTB_ENTRY_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
@@ -113,6 +113,8 @@ elif [[ "${PTB_NARROW_BATTLE_PREVIEW:-0}" == "1" ]]; then
     fi
 elif [[ "${PTB_FIELD_BATTLE:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --rogue-battle --fields --doubles
+elif [[ "${PTB_HP_PREVIEW:-0}" == "1" ]]; then
+    open -n "$PREVIEW_APP" --args --rogue-battle --hp-preview
 elif [[ "${PTB_ROGUE_BATTLE:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
         open -n "$PREVIEW_APP" --args --rogue-battle --doubles

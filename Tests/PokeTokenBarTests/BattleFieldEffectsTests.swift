@@ -27,7 +27,7 @@ final class BattleFieldEffectsTests: XCTestCase {
         try process.run();let data=output.fileHandleForReading.readDataToEndOfFile();process.waitUntilExit()
         XCTAssertEqual(process.terminationStatus,0)
         let frames=try JSONDecoder().decode([BattleFrame].self,from:data)
-        var renderedKeys=Set<String>()
+        var renderedKeys=Set<String>(),silentResiduals=Set<String>()
         for frame in frames {
             let events=BattlePresentationEvents(frame:frame,language:.en,ownPlayer:0)
             for effect in events.events where effect.phase=="field" {
@@ -40,11 +40,20 @@ final class BattleFieldEffectsTests: XCTestCase {
             }
             for scene in frame.scenes ?? [] {
                 let line=frame.log[scene.id-(frame.logOffset ?? 0)]
+                if line.hasPrefix("|-damage|"),let cause=line.components(separatedBy:"[from] ").dropFirst().first {
+                    let key=BattleTextCatalog.key(cause)
+                    if ["sandstorm","hail","firepledge"].contains(key) {
+                        silentResiduals.insert(key)
+                        XCTAssertNil(events.messages[scene.id],line)
+                        XCTAssertEqual(events.events.first{$0.id==scene.id}?.phase,key=="firepledge" ? "health":"weather-hit","The HP drain remains after its hit feedback")
+                    }
+                }
                 if line.hasPrefix("|-weather|"),line.contains("[from] ability:") {
                     XCTAssertEqual(events.events.first{$0.id==scene.id}?.phase,"field","Entry abilities must not consume the same scene as an ability-only notice")
                 }
             }
         }
+        XCTAssertEqual(silentResiduals,["sandstorm","hail","firepledge"])
         XCTAssertTrue(Set(BattleFieldEffects.weather.values).isSubset(of:renderedKeys))
         XCTAssertTrue(BattleFieldEffects.fields.isSubset(of:renderedKeys))
         for language in AppLanguage.allCases {
@@ -52,7 +61,8 @@ final class BattleFieldEffectsTests: XCTestCase {
             let weather=rain.events.filter{$0.phase=="field"}
             XCTAssertEqual(weather.count,2,"Original weather animation plays when weather starts and at upkeep")
             XCTAssertTrue(weather.allSatisfy{$0.moveID=="commonrain"})
-            XCTAssertTrue(weather.allSatisfy{rain.messages[$0.id]?.contains(L(language).battleWeather("raindance"))==true})
+            XCTAssertTrue(rain.messages[weather[0].id]?.contains(L(language).battleWeather("raindance"))==true,"Weather activation still announces the change")
+            XCTAssertNil(rain.messages[weather[1].id],"Turn upkeep must not repeat the weather notice")
             let room=BattlePresentationEvents(frame:frames[1],language:language,ownPlayer:0)
             let effects=room.events.filter{$0.moveID=="trickroom"}
             XCTAssertEqual(effects.count,1,"The move and field-start scene must share one original animation")

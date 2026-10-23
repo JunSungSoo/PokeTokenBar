@@ -60,14 +60,14 @@ final class BattleCoordinator {
     var canSelectLineup: Bool { registeredTeam.count == mode.teamSize && opponentRoster.count == mode.teamSize }
     private(set) var decisionDeadline: Date?
     private(set) var manualCode: String?
-    var mode: BattleMode = .singles
+    private(set) var mode: BattleMode = .singles
     let history: BattleHistoryStore
     private(set) var identity: BattleIdentity
     var onBattleWindow: (() -> Void)?
     var onStopMusic: (() -> Void)?
     @ObservationIgnored private var transport: (any BattleLink)?
     @ObservationIgnored private let identityDefaults: UserDefaults
-    @ObservationIgnored private let linkFactory: (BattleIdentity) -> any BattleLink
+    @ObservationIgnored private let linkFactory: (BattleIdentity, BattleMode) -> any BattleLink
     @ObservationIgnored private var manual: ManualTradeTransport?
     @ObservationIgnored private var engine: BattleEngineProcess?
     @ObservationIgnored private var latestFrames: [BattleFrame] = []
@@ -91,8 +91,8 @@ final class BattleCoordinator {
     @ObservationIgnored private var timerKey = ""
 
     init(defaults: UserDefaults = .standard, history: BattleHistoryStore? = nil, decisionTimeLimit: TimeInterval = 60,
-         linkFactory: @escaping (BattleIdentity) -> any BattleLink = {
-             MultipeerTradeTransport(nickname: $0.nickname, code: $0.code, service: "ptb-battle")
+         linkFactory: @escaping (BattleIdentity, BattleMode) -> any BattleLink = { identity, mode in
+             MultipeerTradeTransport(nickname: identity.nickname, code: identity.code, service: "ptb-battle", group: mode.rawValue)
          }) {
         self.decisionTimeLimit = decisionTimeLimit
         self.linkFactory = linkFactory
@@ -103,7 +103,7 @@ final class BattleCoordinator {
     }
     var isHost: Bool { localPlayer == 0 }
     var isActive: Bool { [.preparing, .playing, .reconnecting].contains(phase) }
-    var canEditMode: Bool { phase != .connecting && !isActive && !localReady && !remoteReady && registeredTeam.isEmpty && opponentRoster.isEmpty && (opponent == nil || isHost) }
+    var canEditMode: Bool { (phase == .idle || phase == .searching) && !isActive && !localReady && !remoteReady && registeredTeam.isEmpty && opponentRoster.isEmpty && opponent == nil }
 
     func search() {
         guard !isActive else { return }
@@ -116,7 +116,7 @@ final class BattleCoordinator {
         phase = .searching; peers = []; selectedPeer = nil; opponent = nil; error = nil
         localReady = false; remoteReady = false; ownTeam = []; peerTeam = []; outcome = nil
         registeredTeam = []; opponentRoster = []
-        let link = linkFactory(identity)
+        let link = linkFactory(identity,mode)
         transport = link
         let generation = linkGeneration
         link.onPeerFound = { [weak self] peer in Task { @MainActor [weak self] in
@@ -140,12 +140,13 @@ final class BattleCoordinator {
 
     private func found(_ peer: TradePeer) {
         guard phase == .searching || phase == .reconnecting else { return }
+        guard peer.discoveryGroup == mode.rawValue else { peers.removeAll { $0.id == peer.id };return }
         if phase == .searching && !peer.isAvailable { peers.removeAll { $0.id == peer.id }; return }
         guard peer.code != identity.code || peer.nickname != identity.nickname else { return }
         peers.removeAll { $0.id == peer.id }; peers.append(peer)
     }
     func select(_ peer: TradePeer) {
-        guard phase == .searching, opponent == nil else { return }
+        guard phase == .searching, opponent == nil, peer.isAvailable, peer.discoveryGroup == mode.rawValue else { return }
         selectedPeer = peer
         if !peers.contains(where: { $0.id == peer.id }) { peers.append(peer) }
         phase = .connecting
@@ -199,7 +200,7 @@ final class BattleCoordinator {
             return
         }
         phase = .connected
-        var message = BattleWire(kind: "hello"); message.identity = identity
+        var message = BattleWire(kind: "hello"); message.identity = identity; message.mode = mode
         send(message)
     }
     private func receive(_ data: Data) {
@@ -211,12 +212,12 @@ final class BattleCoordinator {
                 guard let peer = message.identity, peer.code.count <= 80, peer.nickname.count <= 100, peer.nonce.count <= 80,
                       UUID(uuidString: peer.nonce) != nil, !peer.code.isEmpty,
                       peer != identity, phase == .connected, opponent == nil else { return }
+                guard message.mode == mode else { cancelLobby(); error = "Battle mode mismatch"; return }
                 receivedSequence = message.sequence
                 opponent = peer
                 localPlayer = (identity.code + identity.nonce) < (peer.code + peer.nonce) ? 0 : 1
                 matchID = [identity.nonce, peer.nonce].sorted().joined(separator: ":")
-                selectedPeer = TradePeer(id: peer.nonce, nickname: peer.nickname, code: peer.code)
-                if isHost { var proposal = wire("mode"); proposal.mode = mode; send(proposal) }
+                selectedPeer = TradePeer(id: peer.nonce, nickname: peer.nickname, code: peer.code, discoveryGroup: mode.rawValue)
                 return
             }
             guard opponent != nil, message.matchID == matchID, message.sequence > receivedSequence else { return }
@@ -233,9 +234,6 @@ final class BattleCoordinator {
                 finish(winner: winner, reason: "timeout")
             case "abort":
                 error = message.reason; finish(winner: -1, reason: "engineFailure")
-            case "mode":
-                guard !isActive, !isHost, registeredTeam.isEmpty, opponentRoster.isEmpty, let value = message.mode else { return }
-                mode = value; clearReady()
             case "roster":
                 guard phase == .connected, message.mode == mode, let roster = message.roster,
                       roster.count == mode.teamSize, Set(roster.map(\.id)).count == roster.count,
@@ -288,9 +286,9 @@ final class BattleCoordinator {
         } catch { self.error = error.localizedDescription }
     }
     func setMode(_ value: BattleMode) {
-        guard canEditMode else { return }
+        guard canEditMode, mode != value else { return }
         mode = value; clearReady()
-        var message = wire("mode"); message.mode = value; send(message)
+        if phase == .searching { search() }
     }
     func register(team: [BattlePokemon]) {
         guard phase == .connected, opponent != nil, registeredTeam.isEmpty, team.count == mode.teamSize,

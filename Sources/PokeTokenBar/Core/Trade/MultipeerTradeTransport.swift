@@ -21,6 +21,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     /// The code key in the discoveryInfo dictionary — shared between startDiscovery and
     /// makeTradePeer so the value can't drift between them.
     static let discoveryInfoCodeKey = "code"
+    static let discoveryInfoGroupKey = "group"
 
     var onPeerFound: (@Sendable (TradePeer) -> Void)?
     var onPeerLost: (@Sendable (String) -> Void)?
@@ -30,6 +31,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
 
     var onDataReceived: (@Sendable (Data) -> Void)?
     private let discoveryService: String
+    private let discoveryGroup: String?
 
     private let myPeerID: MCPeerID
     private let code: String
@@ -59,8 +61,9 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     /// The nickname is free text entered in Settings, so it can be empty or exceed 63 bytes —
     /// MCPeerID(displayName:) traps on such values, so it must be clamped before construction
     /// (Ruling R5).
-    init(nickname: String, code: String, service: String = "ptb-trade") {
+    init(nickname: String, code: String, service: String = "ptb-trade", group: String? = nil) {
         self.discoveryService = service
+        self.discoveryGroup = group
         let peerID = MCPeerID(displayName: Self.clampNickname(nickname, fallback: Host.current().localizedName ?? "PokeTokenBar"))
         myPeerID = peerID
         self.code = code
@@ -106,7 +109,27 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     /// discoveryInfo parsing is split out as a pure function — makes it unit-testable without a
     /// network stack.
     static func makeTradePeer(displayName: String, discoveryInfo: [String: String]?) -> TradePeer {
-        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?[discoveryInfoCodeKey] ?? "????", isAvailable: discoveryInfo?["available"] != "false")
+        TradePeer(id: displayName, nickname: displayName, code: discoveryInfo?[discoveryInfoCodeKey] ?? "????", isAvailable: discoveryInfo?["available"] != "false", discoveryGroup: discoveryInfo?[discoveryInfoGroupKey])
+    }
+
+    static func discoveryInfo(code: String, available: Bool, group: String?) -> [String:String] {
+        var info=[discoveryInfoCodeKey:code,"available":available ? "true":"false"]
+        info[discoveryInfoGroupKey]=group
+        return info
+    }
+    private struct Invitation: Codable { let code: String; let group: String }
+    static func invitationContext(code: String, group: String?) -> Data {
+        guard let group else { return Data(code.utf8) } // Existing trade invitation format.
+        return try! JSONEncoder().encode(Invitation(code: code, group: group))
+    }
+    static func invitationCode(_ context: Data?, group: String?) -> String? {
+        guard let context else { return nil }
+        guard let group else { return String(data: context, encoding: .utf8) }
+        guard let invitation=try? JSONDecoder().decode(Invitation.self,from:context),invitation.group==group else { return nil }
+        return invitation.code
+    }
+    static func matchesDiscoveryGroup(_ group: String?, info: [String:String]?) -> Bool {
+        group == nil || info?[discoveryInfoGroupKey] == group
     }
 
     /// MCPeerID(displayName:) requires a non-empty name that's 63 bytes or fewer in UTF-8, and
@@ -128,7 +151,8 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     func startReconnectionDiscovery() { startDiscovery(available: false) }
     private func startDiscovery(available: Bool) {
         stopDiscovery()
-        let newAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: [Self.discoveryInfoCodeKey: code, "available": available ? "true" : "false"],
+        let info=Self.discoveryInfo(code:code,available:available,group:discoveryGroup)
+        let newAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerID, discoveryInfo: info,
                                                        serviceType: discoveryService)
         newAdvertiser.delegate = self
 
@@ -167,6 +191,7 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
     }
 
     func connect(to peer: TradePeer) throws {
+        guard discoveryGroup == nil || peer.discoveryGroup == discoveryGroup else { throw TradeTransportError.notConnected }
         lock.lock()
         let mcPeer = discoveredPeers[peer.id]
         let currentBrowser = browser
@@ -189,9 +214,9 @@ final class MultipeerTradeTransport: NSObject, TradeTransport, @unchecked Sendab
         invitationQueue.asyncAfter(deadline: .now() + Self.invitationTimeoutSeconds) { [weak self] in
             self?.clearInvitationIfExpired(generation: pendingGeneration)
         }
-        // Send my code along for crossed-invitation tiebreaking — the receiving side determines
-        // ordering from this value alone, without discoveryInfo.
-        currentBrowser.invitePeer(mcPeer, to: session, withContext: Data(code.utf8),
+        // The receiver verifies the optional matchmaking group and uses the code for
+        // crossed-invitation tiebreaking, independently of cached discoveryInfo.
+        currentBrowser.invitePeer(mcPeer, to: session, withContext: Self.invitationContext(code: code, group: discoveryGroup),
                                   timeout: Self.invitationTimeoutSeconds)
     }
 
@@ -285,6 +310,14 @@ extension MultipeerTradeTransport: MCSessionDelegate {
 
 extension MultipeerTradeTransport: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+        guard Self.matchesDiscoveryGroup(discoveryGroup,info:info) else {
+            lock.lock()
+            let removed=discoveredPeers[peerID.displayName] == peerID
+            if removed { discoveredPeers.removeValue(forKey:peerID.displayName) }
+            lock.unlock()
+            if removed { onPeerLost?(peerID.displayName) }
+            return
+        }
         lock.lock()
         discoveredPeers[peerID.displayName] = peerID
         lock.unlock()
@@ -310,7 +343,8 @@ extension MultipeerTradeTransport: MCNearbyServiceAdvertiserDelegate {
         let invited = invitedPeerID?.displayName
         lock.unlock()
 
-        let theirCode = context.flatMap { String(data: $0, encoding: .utf8) }
+        let theirCode = Self.invitationCode(context,group:discoveryGroup)
+        guard discoveryGroup == nil || theirCode != nil else { invitationHandler(false,nil);return }
         let accepted = Self.shouldAccept(invitationFrom: peerID.displayName, partner: partner, invited: invited,
                                          myKey: Self.tiebreakKey(displayName: myPeerID.displayName, code: code),
                                          theirKey: Self.tiebreakKey(displayName: peerID.displayName, code: theirCode))

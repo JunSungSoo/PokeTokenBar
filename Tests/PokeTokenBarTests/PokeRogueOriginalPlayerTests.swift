@@ -128,6 +128,37 @@ import XCTest
         }
     }
 
+    func testRealTimeAttacksKeepAudibleSoundAfterEntryAndHPPlayback() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:660,height:310).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:660,height:310),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        player.setEffectsVolume(0.35)
+        let appeared=await player.play(event("",phase:"entry"),actors:actors(),size:CGSize(width:660,height:310))
+        XCTAssertTrue(appeared)
+        for move in ["psychic","surf","tackle"] {
+            var finished=false,played=false,heard=false
+            let task=Task{played=await player.play(event(move),actors:actors(),size:CGSize(width:660,height:310));finished=true}
+            let deadline=Date().addingTimeInterval(15)
+            while !finished,Date()<deadline {
+                if player.isPlaying {
+                    let state=try await player.inspect()
+                    if let sounds=state["soundEvents"] as? [[String:Any]],!sounds.isEmpty {
+                        XCTAssertTrue(sounds.allSatisfy{($0["volume"] as? Double ?? 0)>0})
+                        heard = heard || (state["playingSounds"] as? Int ?? 0)>0
+                        XCTAssertEqual(state["audioState"] as? String,"running")
+                    }
+                }
+                try await Task.sleep(for:.milliseconds(25))
+            }
+            if !finished{task.cancel()};await task.value
+            XCTAssertTrue(played,player.error ?? move);XCTAssertTrue(heard,move+" must actually play during the normal native timeline")
+            try await Task.sleep(for:.milliseconds(800))
+        }
+    }
     func testOriginalSoundEventsPlayOnceForSpreadTargetsWithLiveIndependentVolume() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer { try? FileManager.default.removeItem(at:directory) }

@@ -3,10 +3,11 @@
 export class EntryAnimation {
  constructor({scene,field,incoming,outgoing,add,playSound,reducedMotion=false}) {
   Object.assign(this,{scene,field,incoming,outgoing,add,playSound,reducedMotion});
-  this.elapsed=0;this.particles=[];this.released=false;this.recalled=false;
+  this.elapsed=0;this.particles=[];this.released=false;this.recalled=false;this.cried=false;
   this.recall=!!outgoing;this.phase=this.recall?'recall':'throw';this.delay=this.recall?1000:0;
   this.sparkleStart=this.delay+1900/1.25;this.sparkled=false;this.sparkle=null;
-  this.duration=this.sparkleStart+(incoming.shiny?35/32*1000:0);this.incoming.setVisible(false);
+  this.cryStart=this.delay+900/1.25;
+  this.duration=Math.max(this.sparkleStart+(incoming.shiny?35/32*1000:0),this.cryStart+(incoming.cryInfo?incoming.cryInfo.duration/incoming.cryInfo.rate*1000:0));this.incoming.setVisible(false);
   this.ball=add('entry-pb','pb').setOrigin(.5,.625).setVisible(false);
  }
  sound(at){this.playSound('entry-release',at);}
@@ -44,6 +45,9 @@ export class EntryAnimation {
     particle.setAlpha(age<500?1:1-sine((age-500)/75));
    }
   }
+  if(s>=900&&!this.cried&&p.cryInfo){
+   this.cried=true;this.playSound(p.cryInfo.key,this.cryStart,{rate:p.cryInfo.rate});
+  }
   // Original ShinySparklePhase follows SummonPhase. Keep the 35-frame, 32fps
   // sparkle at 1x, independent of the requested 1.25x ball-appearance speed.
   if(p.shiny&&t>=this.sparkleStart){
@@ -59,7 +63,7 @@ export class EntryAnimation {
   return t>=this.duration;
  }
  inspect(){return {elapsed:this.elapsed,duration:this.duration,phase:this.phase,recall:this.recall,
-  shiny:!!this.incoming.shiny,sparkle:{started:this.sparkled,visible:this.sparkle?.visible??false,frame:this.sparkle?.frame.name??null},
+  cried:this.cried,cry:this.incoming.cryInfo??null,shiny:!!this.incoming.shiny,sparkle:{started:this.sparkled,visible:this.sparkle?.visible??false,frame:this.sparkle?.frame.name??null},
   incomingVisible:this.incoming.visible,outgoingVisible:this.outgoing?.visible??false,
   scale:this.incoming.scaleX,ball:{x:this.ball.x,y:this.ball.y,angle:this.ball.angle,visible:this.ball.visible},
   particles:this.particles.filter(p=>p.visible).length};}

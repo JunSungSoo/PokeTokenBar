@@ -146,7 +146,7 @@ struct BattleView: View {
                 let presentation = BattlePresentationEvents(frame: latest, language: store.language, ownPlayer: battle.isHost ? 0 : 1)
                 BattleEffectsLayer(events:presentation.events,rects:anchors.mapValues { geometry[$0] },busy:$effectsBusy,playback:$effectPlayback,messages:presentation.messages,presentOpeningAbilities:latest.turn <= 1,
                     scenes:Dictionary(uniqueKeysWithValues:(latest.scenes ?? []).map { ($0.id,$0) }),
-                    onScene:{ battle.presentation.apply($0) },onFinished:{ battle.completePresentation() },originalPlayer:roguePlayer,
+                    onScene:{ battle.presentation.apply($0) },onFinished:{ battle.completePresentation() },onAnimatedScene:{ await battle.presentation.animate($0) },originalPlayer:roguePlayer,
                     actors:renderActors(frame,rects:anchors.mapValues{geometry[$0]}),viewport:geometry.size)
             }.allowsHitTesting(false)
         }.clipShape(RoundedRectangle(cornerRadius:8))
@@ -386,7 +386,10 @@ enum BattleLogText {
             return pokemon + " · " + reason + " · " + l.battleCannotAct + cause
         case "move": return "\(pokemon) → \(catalog.moveName(value(1),language:language))"
         case "switch", "drag": return "↔ " + catalog.pokemonName(value(1),language:language)
-        case "-damage", "-heal": return "\(pokemon) · \(l.battleEvent(parts[1])) · \(value(1).split(separator:" ").first ?? "")" + cause
+        case "-damage":
+            guard !cause.isEmpty else { return nil }
+            return pokemon + " · " + l.battleEvent(parts[1]) + cause
+        case "-heal": return "\(pokemon) · \(l.battleEvent(parts[1])) · \(value(1).split(separator:" ").first ?? "")" + cause
         case "faint", "-immune", "-supereffective", "-resisted", "-crit", "-fail": return pokemon + " · " + l.battleEvent(parts[1]) + cause
         case "-status": return pokemon + " · " + l.battleStatus(value(1)) + cause
         case "-curestatus": return pokemon + " · " + l.battleEvent(parts[1]) + cause
