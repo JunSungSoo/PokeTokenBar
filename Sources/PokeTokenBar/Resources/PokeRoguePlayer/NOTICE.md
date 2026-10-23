@@ -36,3 +36,9 @@ Standard shiny entries append the original shiny atlas (35 frames at 32fps) and
 se/sparkle.wav after ball appearance/settle. This preserves the authored animation
 through its final frame (1093.75ms), exceeding ShinySparklePhase's 1000ms wait slightly
 so the next native action cannot cut the sparkle short. Both assets retain pinned bytes.
+
+The host timed-background adapter maps the original 320x180 arena to the native viewport
+with a centred cover transform, independently of Pokémon camera scale, including timed
+foreground surfaces. Original timeline bytes, assets, event clocks and layers are unchanged.
+It creates same-frame backgrounds before fading them, separates exported scrolling defaults
+from independent opacity fades, and retains the final authored fade-out.

@@ -1,6 +1,7 @@
 import {AnimConfig,bindScene} from './original-player.js';
 import {Clock,TonePipeline,OriginalMove} from './player-core.js';
 import {EntryAnimation} from './entry-player.js';
+import {renderTimedSurface,adaptTimedBackgrounds} from './timed-backgrounds.js';
 const backgroundOnly=new URLSearchParams(location.search).get('layer')==='background';
 const post=m=>window.webkit?.messageHandlers.rogue.postMessage({...m,layer:backgroundOnly?'background':'foreground'});
 window.addEventListener('unhandledrejection',e=>post({kind:'error',message:String(e.reason?.stack||e.reason)}));
@@ -52,10 +53,13 @@ async function atlas(key,payload){
  assets.set(key,payload);
 }
 // Keep source timing/depth operations intact; render separate native surfaces around the HUD.
-function layer(object,kind){
+function layer(object,kind,viewport){
  object.setData('battleLayer',kind);
  const render=object.renderWebGL;
- object.renderWebGL=function(...args){if(backgroundOnly===(kind==='background'))return render.apply(this,args);};
+ object.renderWebGL=function(...args){
+  if(backgroundOnly!==(kind==='background'))return;
+  return viewport ? renderTimedSurface(this,render,args,viewport):render.apply(this,args);
+ };
  return object;
 }
 function orderLayers(){const rank={background:0,actor:1,effect:2};field.list.sort((a,b)=>(rank[a.getData('battleLayer')]??1)-(rank[b.getData('battleLayer')]??1));}
@@ -67,8 +71,8 @@ function makeActor(data,scale){
 }
 function gif(){for(const p of actors){const data=assets.get(p.textureKey),cycle=data.delays.reduce((a,b)=>a+b,0)*1000;let pos=physical%cycle,i=0;while(i<data.delays.length-1&&pos>=data.delays[i]*1000){pos-=data.delays[i]*1000;i++;}if(i!==p.gif){p.gif=i;p.base.setFrame('gif-'+i);p.base.emit('animationupdate',null,{textureFrame:'gif-'+i});}}}
 function timedLayer(resource){return /\bFG\b/i.test(resource)||resource==='PRAS- Sketch + Lick'?'effect':'background';}
-function facade(index,user,sharedCaster=true){
- const add={tileSprite:(...args)=>layer(scene.add.tileSprite(...args),timedLayer(args[4])),rectangle:(...args)=>layer(scene.add.rectangle(...args),'background')};
+function facade(index,user,sharedCaster=true,viewport){
+ const add={tileSprite:(...args)=>layer(scene.add.tileSprite(...args),timedLayer(args[4]),viewport),rectangle:(...args)=>layer(scene.add.rectangle(...args),'background',viewport)};
  const audioEnabled=!backgroundOnly&&index===0;
  const sound={get:key=>scene.sound.get(key),play:(key,config)=>{
   if(audioEnabled){soundEvents.push({key,volume:config.volume*scene.sound.volume,pitch:config.rate,clock:owner.clock.now});if(soundEvents.length>48)soundEvents.shift();}
@@ -115,7 +119,8 @@ window.ptbPrepare=async function(payload){
  const pairs=localField?actors.map(a=>({user:a,target:a})):targets.map(target=>({user,target}));
  for(const [index,pair]of pairs.entries()){
   const {user,target}=pair,opposing=!user.own&&variants.length>1;
-  const owner=facade(index,user,!localField),config=new AnimConfig(variants[opposing?1:0]);
+  const owner=facade(index,user,!localField,{width:payload.width,height:payload.height}),config=new AnimConfig(variants[opposing?1:0]);
+  adaptTimedBackgrounds(config,owner);
   if(!payload.hit)config.frames=config.frames.map(fs=>fs.filter(f=>f.target===0||(f.target===2&&(f.focus===2||f.focus===4))));
   bindScene(owner);owner.animation=new OriginalMove(config,user,target,opposing,{width:payload.width/scale,height:payload.height/scale});runs.push(owner);owner.animation.play(false,()=>{owner.done=true;});
  }

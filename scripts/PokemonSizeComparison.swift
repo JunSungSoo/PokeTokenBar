@@ -5,6 +5,8 @@ import SwiftUI
 /// Development harness using the production GIF stage, camera sizing and original player.
 @MainActor struct PokemonSizeComparison:View {
     let mode:BattleMode
+    private let backdropPreview=CommandLine.arguments.contains("--background-preview")
+    @State private var currentMove=""
     let spriteStore:SpriteStore
     @State private var player:PokeRogueBattlePlayer
     init(mode:BattleMode,spriteStore:SpriteStore) {
@@ -57,7 +59,7 @@ import SwiftUI
             HStack {
                 Text(mode == .singles ? "싱글 · 660px":"더블 · 680px").font(.headline)
                 Spacer()
-                Text("PokéRogue 크기 기준 · 기존 GIF").font(.caption).foregroundStyle(.secondary)
+                Text(backdropPreview ? "배경 연출 확인 · 기존 GIF":"PokéRogue 크기 기준 · 기존 GIF").font(.caption).foregroundStyle(.secondary)
                 BattleVolumeControl(settings:audioSettings,label:"BGM 볼륨",effectsLabel:"효과음 볼륨")
             }
             ZStack {
@@ -66,13 +68,22 @@ import SwiftUI
                     Spacer(minLength:16)
                     HStack(spacing:14) {ForEach(positions.filter(\.own),id:\.key){combatant($0)};Spacer(minLength:0)}
                 }.padding(18)
-            }.modifier(PokeRogueBattlefieldLayers(player:player))
+            }.frame(height:backdropPreview ? 310:nil).modifier(PokeRogueBattlefieldLayers(player:player))
                 .overlayPreferenceValue(BattleSpriteAnchorKey.self){anchors in
                     GeometryReader{g in
                         let values=anchors.mapValues{g[$0]}
                         Color.clear.onChange(of:values,initial:true){_,values in rects=values;viewport=g.size}
                     }
                 }.clipShape(RoundedRectangle(cornerRadius:8))
+            if backdropPreview {
+                HStack {
+                    ForEach(["closecombat","thunder","psychic","surf"],id:\.self){move in
+                        Button(BattleTextCatalog.shared.moveName(move,language:.ko)){perform(switching:false,move:move)}
+                    }
+                    Spacer()
+                    Text(busy ? currentMove+" 재생 중":"기술을 눌러 연출 확인").font(.caption).foregroundStyle(.secondary)
+                }.disabled(busy)
+            } else {
             HStack {
                 Button("기술 · 10만볼트") { perform(switching:false) }
                 Button(changed ? "피카츄로 교체":"잠만보로 교체") { perform(switching:true) }
@@ -81,6 +92,7 @@ import SwiftUI
                 Spacer()
                 Text("크기·연출 비교용").font(.caption).foregroundStyle(.secondary)
             }.disabled(busy)
+            }
             if let error=player.error {Text(error).font(.caption).foregroundStyle(.red)}
         }.padding(12).frame(width:mode == .singles ? 660:680)
             .fixedSize(horizontal:false,vertical:true)
@@ -96,14 +108,14 @@ import SwiftUI
             _ = await player.play(event,actors:actors(),size:viewport,entrySources:sources)
         }
     }
-    private func perform(switching:Bool) {
-        guard !busy else{return};busy=true
+    private func perform(switching:Bool,move:String="thunderbolt") {
+        guard !busy else{return};busy=true;currentMove=BattleTextCatalog.shared.moveName(move,language:.ko)
         Task { @MainActor in
             defer{busy=false}
             let source=BattleEffectPosition(own:true,slot:0)
             let old=actors().first{$0.position==source}
-            let event=BattleVisualEvent(id:1,move:"thunderbolt",type:"electric",category:"Special",source:source,
-                targets:[.init(position:.init(own:false,slot:0),hit:true)],moveID:"thunderbolt",phase:switching ? "entry":nil)
+            let event=BattleVisualEvent(id:1,move:move,type:["closecombat":"fighting","thunder":"electric","psychic":"psychic","surf":"water"][move] ?? "electric",category:move=="closecombat" ? "Physical":"Special",source:source,
+                targets:[.init(position:.init(own:false,slot:0),hit:true)],moveID:move,phase:switching ? "entry":nil)
             _ = await player.play(event,actors:actors(swap:switching ? !changed:nil),size:viewport,
                 previousActor:switching ? old:nil,beforeFinish:{if switching{changed.toggle()}})
         }

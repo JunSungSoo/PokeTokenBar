@@ -59,6 +59,9 @@ The verbatim AnimConfig/timed-event and BattleAnim source ranges are transpiled 
 from runtime '''+m['runtimeRevision']+'''. Phaser version '''+m['phaser']+'''.
 Host adapters supply current native GIF frames, actual battle anchors, guarded lifecycle and
 serialized frame stepping. Showdown remains the authoritative BW2 battle rules engine.
+The host timed-background adapter uses a centred viewport cover transform independent of
+Pokémon camera scale. Same-frame creation precedes fades; scrolling defaults preserve
+separate opacity fades, including final fade-out. Authored clocks and source bytes stay intact.
 Original and derived runtime code: AGPL-3.0-only. Phaser: MIT. Mixed asset licenses/credits:
 see root/directory REUSE.toml, README, original/LICENSE and LICENSES. Preserve all notices and
 manifest hashes on redistribution. No claim of a blanket MIT or CC0 asset license.

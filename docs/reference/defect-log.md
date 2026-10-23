@@ -15,6 +15,37 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Timed move backgrounds need their own viewport and independent fade channels
+
+- Timed background/foreground surfaces inherited the Pokémon camera scale. Their source
+  256px textures repeat every 320 source pixels, so native battle widths exposed repeated
+  spotlights and changing crops as team size changed the actor camera. Existing audits
+  proved command execution, layer ordering and some visible pixels, not visual framing.
+- Render those surfaces with a separate centred cover matrix for the authored 320x180
+  arena. Keep aspect ratio, authored scrolling, original clocks and foreground/background
+  layers; leave actor/particle/GIF transforms untouched. Using an inverse actor transform
+  instead introduces avoidable Float32 sampling differences at small camera scales.
+- Some exported frames put a fade before background creation. Scrolling update events
+  also carry a default zero opacity that overrides an independent fade-in (Thunder),
+  while late scrolling fades are intentional (Psychic/Psybeam). Execute creation first
+  within the same frame and separate movement-only defaults from explicit/final fades.
+  Alpha-only fades retain the current scroll position rather than sliding back to origin.
+- Audit all 106 timed-background timelines at singles 660x310/doubles 680x260, both sides,
+  and two actual Pokémon camera scales. Compare rendered pixels (allowing a one-pixel
+  nearest-neighbour edge), including late-created backgrounds. Representative scrolling
+  moves must show multiple fade-in/out steps, retain opacity and clear all rendered pixels.
+  Run borderless windows at (-10000,-10000) and assert no physical screen intersects them.
+- Surf/Muddy Water/Sludge Wave omit coordinates in opacity-only events and opacity in
+  movement-only events. Preserve that optional-field contract rather than converting
+  undefined values to positions/zero alpha. The layer regression caught NaN geometry
+  in the initial adapter; the complete audit now rejects non-finite sprite coordinates
+  even for surfaces intentionally hidden on the background WebView.
+- Keep upstream timeline/runtime bytes and source hashes unchanged; the adaptation lives
+  only in the host. Preserve it in the asset-import notice so regeneration retains context.
+  Disabling both host corrections fails the rendered-pixel and fade regressions; the old
+  path renders Thunder/Confusion with peak opacity 0. Restoring the adapter passes both.
+  Seventeen related native regressions pass, followed by the actual-size background audit.
+
 ## Playback-rate sampling must exclude the completed renderer's reset clock
 
 - The native WebKit playback test could enter `inspect()` while `isPlaying` was true,

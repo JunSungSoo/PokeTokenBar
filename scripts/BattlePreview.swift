@@ -219,7 +219,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let host=NSHostingController(rootView:PokemonSizeComparison(mode:mode,spriteStore:SpriteStore(directory:Bundle.main.resourceURL!.appendingPathComponent("PokeRogueSizeGIFs"))))
                 let window=NSWindow(contentViewController:host)
                 window.styleMask=[.titled,.closable,.miniaturizable]
-                window.title="PokeTokenBar · PokéRogue 크기 비교 · \(mode == .singles ? "싱글 660px":"더블 680px")"
+                window.title="PokeTokenBar · \(CommandLine.arguments.contains("--background-preview") ? "배경 연출":"PokéRogue 크기 비교") · \(mode == .singles ? "싱글 660px":"더블 680px")"
                 window.isReleasedWhenClosed=false
                 let width:CGFloat=mode == .singles ? 660:680
                 let fit=host.view.fittingSize

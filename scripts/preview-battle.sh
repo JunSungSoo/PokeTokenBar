@@ -74,7 +74,7 @@ if [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
         open -n "$PREVIEW_APP" --args --size-preview --doubles
     else
-        open -n "$PREVIEW_APP" --args --size-preview
+        open -n "$PREVIEW_APP" --args --size-preview ${PTB_BACKGROUND_PREVIEW:+--background-preview}
     fi
 elif [[ "${PTB_ENTRY_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
