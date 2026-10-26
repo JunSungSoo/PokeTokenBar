@@ -16,6 +16,7 @@ struct BattleView: View {
     @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth(for: .singles)
     @State private var choices: [Int: BattleAction] = [:]
     @State private var editingSlot = 0
+    @State private var megaSelection=BattleMegaSelection()
     @State private var musicEnabled = true
     @State private var effectsBusy = false
     @State private var roguePlayer=PokeRogueBattlePlayer()
@@ -25,12 +26,12 @@ struct BattleView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            header
+            header.measureBattleContent("header")
             Divider()
             if let frame = battle.presentation.frame ?? battle.frame {
                 VStack(spacing: 0) {
                     VStack(spacing: 8) {
-                        battlefield(frame).frame(height: battle.mode == .doubles ? 260 : 310)
+                        battlefield(frame).measureBattleContent("battlefield")
                         HStack(spacing: 8) {
                             ForEach(frame.own) { member in
                                 HStack(spacing: 4) {
@@ -38,7 +39,7 @@ struct BattleView: View {
                                     Text(BattleTextCatalog.shared.speciesName(member.speciesID,language:store.state.language)).font(.caption2).lineLimit(1)
                                 }.opacity(member.fainted ? 0.4 : 1)
                             }
-                        }
+                        }.measureBattleContent("roster")
                         if let outcome = battle.outcome, !battle.presentation.pending, !effectsBusy {
                             Text(l.battleResult(outcome)).font(.largeTitle.bold()).padding()
                         } else if battle.phase == .reconnecting {
@@ -64,7 +65,7 @@ struct BattleView: View {
                     }
                 }
                 .onChange(of: frame.decisionID, initial: true) { _, _ in
-                    choices = [:]; editingSlot = 0
+                    choices = [:]; editingSlot = 0; megaSelection=BattleMegaSelection()
                     for slot in frame.slots where slot.canPass { choices[slot.slot] = .pass }
                 }
             } else {
@@ -80,7 +81,7 @@ struct BattleView: View {
         .onPreferenceChange(BattleContentBoundsKey.self) { regions in
             guard let content = regions["content"], content.width > 0, content.height > 0 else { return }
             if abs(layoutWidth - content.width) > 0.5 { layoutWidth = content.width }
-            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"]))
+            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"], header:regions["header"],battlefield:regions["battlefield"],battlers:regions["battlers"],roster:regions["roster"],commandTitle:regions["command-title"]))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -137,9 +138,14 @@ struct BattleView: View {
                     ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot) }
                     Spacer(minLength: 0)
                 }
-            }.padding(18)
+            }.padding(18).measureBattleContent("battlers")
             if frame.preview { Image(systemName:"bolt.shield").font(.system(size:50)).foregroundStyle(.black.opacity(0.3)) }
-        }.modifier(PokeRogueBattlefieldLayers(player:roguePlayer))
+        }
+        // Fix the viewport after the native battlers have chosen their required height.
+        // An outer fixed-height frame only centers an oversized child; it does not constrain drawing.
+        .fixedSize(horizontal:false,vertical:true)
+        .frame(minHeight:battle.mode == .doubles ? 260:310)
+        .modifier(PokeRogueBattlefieldLayers(player:roguePlayer))
         .overlayPreferenceValue(BattleSpriteAnchorKey.self) { anchors in
             GeometryReader { geometry in
                 let latest = battle.frame ?? frame
@@ -168,9 +174,12 @@ struct BattleView: View {
             if own { battleSprite(pokemon,own:true,slot:slot) }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text(BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.state.language)).font(.headline).lineLimit(1)
+                    Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(.headline).lineLimit(1)
                     Spacer(minLength: 2)
                     Text("\(l.level) \(pokemon.level)").font(.caption.monospacedDigit())
+                }
+                if own,let item=BattleHeldItems.item(pokemon.item) {
+                    Text(item.name(store.language)).font(.caption2).foregroundStyle(.secondary).help(item.tooltip(store.language))
                 }
                 HStack(spacing: 5) {
                     Text(l.battleHP).font(.caption2.bold()).foregroundStyle(.orange)
@@ -198,8 +207,7 @@ struct BattleView: View {
         if let frame=battle.presentation.frame ?? battle.frame { ids.formUnion(frame.own.map(\.speciesID)+frame.foe.map(\.speciesID)) }
         // Include both facings and form changes up front so switching/Transform cannot pop the camera.
         let sizes=ids.flatMap { id in
-            let forms=PokemonForm.forms(speciesID:id)
-            return (forms.isEmpty ? [nil]:forms.map(Optional.some)).flatMap { form in
+            return BattleHeldItems.sizingForms(speciesID:id).flatMap { form in
                 [false,true].map{catalog.size(speciesID:id,form:form,back:$0)}
             }
         }
@@ -223,9 +231,13 @@ struct BattleView: View {
             HStack(alignment: .top, spacing: 12) {
                 ForEach(frame.slots.filter { $0.slot == editingSlot }) { slot in
                     VStack(alignment: .leading, spacing: 7) {
-                        if let own = frame.own.filter(\.active).dropFirst(slot.slot).first { Text(BattleTextCatalog.shared.speciesName(own.speciesID,language:store.state.language) + " · " + l.battleFight).font(.headline) }
+                        if let own = frame.own.filter(\.active).dropFirst(slot.slot).first { Text(BattleTextCatalog.shared.speciesName(own.speciesID,language:store.state.language) + " · " + l.battleFight).font(.headline).measureBattleContent("command-title") }
                         if !slot.canPass {
                             if !slot.mustSwitch {
+                                if slot.canMegaEvo == true {
+                                    Toggle(l.battleMegaEvolution,isOn:Binding(get:{megaSelection.slot==slot.slot},set:{megaSelection.set($0,slot:slot.slot)}))
+                                        .toggleStyle(.checkbox).accessibilityIdentifier("battle-mega-\(slot.slot)")
+                                }
                                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 6) {
                                     ForEach(slot.moves) { move in
                                         Button {
@@ -282,7 +294,9 @@ struct BattleView: View {
     private func submitButton(_ frame: BattleFrame) -> some View {
         Button(l.battleSubmit) {
             battle.choose(BattleDecision(decisionID:frame.decisionID,
-                actions:frame.slots.map { choices[$0.slot] ?? .pass },order:[]))
+                actions:frame.slots.map { slot in
+                    megaSelection.applying(to:choices[slot.slot] ?? .pass,slot:slot.slot,canMega:slot.canMegaEvo==true)
+                },order:[]))
         }.buttonStyle(.borderedProminent)
             .accessibilityIdentifier("battle-confirm")
             .disabled(battle.submitted || frame.waiting || effectsBusy || battle.presentation.pending || !validChoices(frame))
@@ -357,7 +371,7 @@ enum BattleLogText {
                 // Reactions such as Defiant or Clear Body may interleave two Intimidate targets.
                 if !parts[1].hasPrefix("-") { boostSources.removeAll() }
                 let namedAbility = parts.count > 3 && ["-start", "-end", "-activate"].contains(parts[1])
-                    && BattleTextCatalog.shared.abilities[BattleTextCatalog.key(parts[3])] != nil
+                    && (BattleTextCatalog.shared.abilities[BattleTextCatalog.key(parts[3])] != nil || BattleMegaText.catalog.abilities[BattleTextCatalog.key(parts[3])] != nil)
                 if parts.dropFirst(2).contains(where: { $0.contains("ability:") }) || namedAbility,
                    let text = describe(event, language: language, ownPlayer: ownPlayer) { result.append(BattleAbilityNotice(id: index, text: text)) }
             }
@@ -393,6 +407,9 @@ enum BattleLogText {
         case "faint", "-immune", "-supereffective", "-resisted", "-crit", "-fail": return pokemon + " · " + l.battleEvent(parts[1]) + cause
         case "-status": return pokemon + " · " + l.battleStatus(value(1)) + cause
         case "-curestatus": return pokemon + " · " + l.battleEvent(parts[1]) + cause
+        case "-item", "-enditem":
+            return pokemon + " · " + (BattleHeldItems.item(value(1))?.name(language) ?? l.battleHeldItem) + " · " + (parts[1] == "-enditem" ? l.battleItemConsumed:l.battleEvent("-activate"))
+        case "-mega": return pokemon + " · " + l.battleMegaEvolution + (BattleHeldItems.item(value(2)).map{" · "+$0.name(language)} ?? "")
         case "-ability": return pokemon + " · " + catalog.abilityName(value(1),language:language) + cause
         case "-activate", "-block":
             return pokemon + " · " + l.battleDamageCause(value(1)) + " · " + l.battleEvent(parts[1]) + cause

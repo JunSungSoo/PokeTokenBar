@@ -6,6 +6,8 @@ struct BattleLobbyView: View {
     let battle: BattleCoordinator
     var tradeActive = false
     @State private var selectedIDs: [String] = []
+    @State private var itemLoadout=BattleItemLoadout()
+    @State private var editingItem:DexEntry?
     @State private var lineupIDs: [String] = []
     @State private var selectingLineup = false
     @State private var building = false
@@ -63,7 +65,18 @@ struct BattleLobbyView: View {
             if battle.localReady { lineupIDs = Array(battle.ownTeam.prefix(battle.mode.battleSize)).map(\.id) }
             selectingLineup = battle.canSelectLineup
         } }
-        .onChange(of: battle.mode) { _, _ in selectedIDs = []; lineupIDs = []; selectingLineup = false }
+        .sheet(item:$editingItem) { entry in
+            BattleItemPicker(pokemon:entry,current:itemLoadout.items[entry.id] ?? "",assignments:itemLoadout.items,language:store.language,
+                onApply:{ id in
+                    guard battle.registeredTeam.isEmpty,battle.phase == .connected,
+                          let current=entries.first(where:{$0.id==entry.id}),itemLoadout.apply(id,to:current,roster:selectedIDs) else{return false}
+                    BattleItemUsageStore.shared.recordApplied(id);editingItem=nil;return true
+                },onCancel:{editingItem=nil}).id(entry.id)
+        }
+        .onChange(of:selectedIDs) { _,ids in itemLoadout.retain(ids);if let editingItem,!ids.contains(editingItem.id){self.editingItem=nil} }
+        .onChange(of:battle.registeredTeam.isEmpty) { _,empty in if !empty{editingItem=nil} }
+        .onChange(of:battle.opponent?.code) { _,code in if code==nil{resetSelection()} }
+        .onChange(of: battle.mode) { _, _ in resetSelection() }
         .onChange(of: entries.map(\.id)) { _, ids in
             selectedIDs.removeAll { !ids.contains($0) }
             lineupIDs.removeAll { !selectedIDs.contains($0) }
@@ -124,6 +137,12 @@ struct BattleLobbyView: View {
                         SpriteView(speciesID: entry.finalID, size: 52, shiny: entry.isShiny, form: entry.form)
                             .frame(maxWidth: .infinity).padding(.top, 16)
                         Text(BattleTextCatalog.shared.speciesName(entry.finalID, language: store.state.language)).font(.caption2).lineLimit(1)
+                        Button {
+                            editingItem=entry
+                        } label: {
+                            Text(BattleHeldItems.item(itemLoadout.items[id])?.name(store.language) ?? l.battleChooseItem)
+                                .font(.caption2).lineLimit(1)
+                        }.buttonStyle(.bordered).accessibilityIdentifier("battle-item-edit-\(id)")
                         HStack(spacing: 6) {
                             Button { reorder(position, position - 1) } label: { Image(systemName: "chevron.left") }
                                 .disabled(position == 0)
@@ -151,6 +170,7 @@ struct BattleLobbyView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack { Text(l.battleRegisteredTeam).font(.headline); Spacer(); Text("\(selectedIDs.count)/6").monospacedDigit() }
             Text(l.battleRegisterHint).font(.caption).foregroundStyle(.secondary)
+            Text(l.battleDuplicateItem).font(.caption).foregroundStyle(.secondary)
             selectedRoster
             Text(l.battleFinalOnly).font(.caption).foregroundStyle(.secondary)
             Text(l.battleDuplicateSpecies).font(.caption).foregroundStyle(.secondary)
@@ -202,7 +222,7 @@ struct BattleLobbyView: View {
     private func reorder(_ from: Int, _ to: Int) {
         selectedIDs.swapAt(from, to)
     }
-    private func resetSelection() { selectedIDs = []; lineupIDs = []; selectingLineup = false }
+    private func resetSelection() { selectedIDs = []; lineupIDs = []; selectingLineup = false;itemLoadout=BattleItemLoadout();editingItem=nil }
     private var history: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
@@ -227,12 +247,12 @@ struct BattleLobbyView: View {
     }
     private func prepareRegistration() {
         building = true; buildError = nil
-        let ids = selectedIDs, mode = battle.mode
+        let ids = selectedIDs, mode = battle.mode, items=itemLoadout.items
         Task { @MainActor in
             defer { building = false }
             do {
-                let team = try await BattleTeamBuilder.build(ids: ids, entries: entries, mode: mode, language: store.language)
-                guard battle.mode == mode, battle.phase == .connected,
+                let team = try await BattleTeamBuilder.build(ids: ids, entries: entries, mode: mode, language: store.language,heldItems:items)
+                guard battle.mode == mode, battle.phase == .connected, selectedIDs == ids, itemLoadout.items == items,
                       ids.allSatisfy({ id in entries.contains { $0.id == id } }) else { return }
                 battle.register(team: team)
             } catch { buildError = error.localizedDescription }

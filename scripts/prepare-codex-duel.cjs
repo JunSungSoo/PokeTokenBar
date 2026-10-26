@@ -24,7 +24,16 @@ function team(prefix) {
   validateTeam(result, 6);
   return result;
 }
-const teams = {a:team('a'), b:team('b')};
+function megaTestTeam(prefix) {
+  const members=[['Charizard','charizarditex',['flamethrower','airslash','dragonclaw','protect']],['Blastoise','leftovers',['surf','icebeam','protect','aquatail']],['Venusaur','miracleseed',['energyball','sludgebomb','protect','synthesis']],['Raichu','sitrusberry',['thunderbolt','quickattack','protect','voltswitch']],['Gengar','lifeorb',['shadowball','psychic','thunderbolt','protect']],['Snorlax','lumberry',['bodyslam','crunch','rest','earthquake']]];
+  return members.map(([name,item,moves],index)=>{
+    const species=dex.species.get(name),ivs=Object.fromEntries(['hp','atk','def','spa','spd','spe'].map(k=>[k,17]));
+    const stats=Object.fromEntries(Object.entries(species.baseStats).map(([k,base])=>[k,Math.floor((2*base+17)*0.5)+(k==='hp'?60:5)]));
+    return {id:prefix+index,speciesID:species.num,species:species.name,displayName:species.name,level:50,ability:species.abilities[0],nature:'Hardy',gender:'M',shiny:false,ivs,stats,moves,item};
+  });
+}
+const megaTest=process.argv.includes('--mega-test');
+const teams = megaTest ? {a:megaTestTeam('a'),b:megaTestTeam('b')} : {a:team('a'), b:team('b')};
 const battle = new OwnedBattle('singles', [teams.a, teams.b]);
 for (let side=0; side<2; side++) {
   const frame=battle.frame(side);
@@ -36,4 +45,4 @@ for (let side=0; side<2; side++) {
 }
 fs.writeFileSync(dir+'/teams.json', JSON.stringify(teams));
 for (const name of ['command.json','state.json']) { try { fs.unlinkSync(dir+'/'+name); } catch (e) { if (e.code !== 'ENOENT') throw e; } }
-console.log('Random bring-six/pick-three singles teams validated: final species, no duplicates/items, level 50, owned stats preserved.');
+console.log(megaTest ? 'Mega/item singles teams validated: unique held items, level 50, owned stats preserved.' : 'Random bring-six/pick-three singles teams validated: final species, no duplicates/items, level 50, owned stats preserved.');

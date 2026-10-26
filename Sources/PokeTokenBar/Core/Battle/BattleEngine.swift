@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 final class BattleEngineProcess {
-    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1"
+    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1"
     var onFrames: (([BattleFrame]) -> Void)?
     var onFailure: ((String) -> Void)?
     var onExit: ((String) -> Void)?

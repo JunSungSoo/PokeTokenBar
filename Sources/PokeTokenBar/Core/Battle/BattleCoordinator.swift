@@ -244,6 +244,7 @@ final class BattleCoordinator {
             case "unregister":
                 throw BattleFailure.invalidMessage
             case "ready":
+                if let team=message.team,BattleHeldItems.hasDuplicates(team){throw BattleFailure.invalidTeam("Duplicate held item")}
                 guard phase == .connected, message.mode == mode, let team = message.team,
                       team.count == mode.teamSize, Set(team.map(\.id)).count == team.count else { throw BattleFailure.invalidMessage }
                 guard team.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) }) else {
@@ -291,6 +292,7 @@ final class BattleCoordinator {
         if phase == .searching { search() }
     }
     func register(team: [BattlePokemon]) {
+        guard !BattleHeldItems.hasDuplicates(team) else{error="Duplicate held item";return}
         guard phase == .connected, opponent != nil, registeredTeam.isEmpty, team.count == mode.teamSize,
               Set(team.map(\.id)).count == team.count, Set(team.map(\.speciesID)).count == team.count,
               team.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) && BattleTeamBuilder.isSpeciesEligible($0.speciesID) }) else { return }
@@ -298,6 +300,7 @@ final class BattleCoordinator {
         var message = wire("roster"); message.mode = mode; message.roster = team.map(BattleRosterMember.init); send(message)
     }
     func ready(team: [BattlePokemon]) {
+        guard !BattleHeldItems.hasDuplicates(team) else{error="Duplicate held item";return}
         guard phase == .connected, opponent != nil, team.count == mode.teamSize else { return }
         guard team.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) }) else {
             error = "Fully evolved Pokémon required"; return

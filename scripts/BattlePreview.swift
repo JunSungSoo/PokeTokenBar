@@ -50,7 +50,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
     var suiteNames: [String] = []
     var directory: URL!
     var duelTeams: [String: [BattlePokemon]] = [:]
-    let duelDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("build/codex-duel")
+    let duelDirectory = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("build/codex-duel")
     func defaults(_ code: String) -> UserDefaults {
         let name="BattlePreview.\(UUID())";suiteNames.append(name)
         let defaults=UserDefaults(suiteName:name)!
@@ -58,8 +58,18 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         return defaults
     }
     func team(_ prefix: String) -> [BattlePokemon] {
+        if CommandLine.arguments.contains("--mega-design-preview") {
+            let members:[(Int,String,String,String)]=[
+                prefix=="a" ? (6,"Charizard","Blaze","charizarditex"):(248,"Tyranitar","Sand Stream","tyranitarite"),
+                (26,"Raichu","Static",""),(9,"Blastoise","Torrent",""),(3,"Venusaur","Overgrow",""),(94,"Gengar","Levitate",""),(143,"Snorlax","Immunity","")]
+            return members.enumerated().map { i,m in
+                BattlePokemon(id:prefix+String(i),speciesID:m.0,species:m.1,displayName:m.1,level:50,ability:m.2,nature:"hardy",gender:"M",shiny:false,form:nil,
+                    ivs:["hp":17,"atk":17,"def":17,"spa":17,"spd":17,"spe":17],stats:["hp":500,"atk":100,"def":150,"spa":100,"spd":150,"spe":100],
+                    moves:["protect","flamethrower","thunderbolt","dragonclaw"],item:m.3.isEmpty ? nil:m.3)
+            }
+        }
         if let random = duelTeams[prefix] { return random }
-        if CommandLine.arguments.contains("--roster-preview") {
+        if CommandLine.arguments.contains("--roster-preview") || CommandLine.arguments.contains("--item-preview") {
             let members:[(Int,String,String)]=prefix=="a" ? [(6,"Charizard","Blaze"),(26,"Raichu","Static"),(9,"Blastoise","Torrent"),(3,"Venusaur","Overgrow"),(94,"Gengar","Levitate"),(143,"Snorlax","Immunity")]:[(130,"Gyarados","Intimidate"),(260,"Swampert","Torrent"),(149,"Dragonite","Inner Focus"),(376,"Metagross","Clear Body"),(212,"Scizor","Technician"),(59,"Arcanine","Intimidate")]
             return members.enumerated().map { i,member in
                 BattlePokemon(id:prefix+String(i),speciesID:member.0,species:member.1,displayName:member.1,level:50,
@@ -182,7 +192,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                                     let moves=slot.moves.filter{!$0.disabled && $0.pp>0}
                                     guard !moves.isEmpty else{return nil}
                                     let move=moves[(max(0,frame.turn-1)+slot.slot)%moves.count]
-                                    return BattleAction(kind:"move",index:move.index,target:move.targetRequired ? (move.targets.first?.location ?? 0):0)
+                                    return BattleAction(kind:"move",index:move.index,target:move.targetRequired ? (move.targets.first?.location ?? 0):0,mega:CommandLine.arguments.contains("--mega-test") && slot.slot==0 && slot.canMegaEvo==true ? true:nil)
                                 }
                                 if actions.count==frame.slots.count{peer.choose(BattleDecision(decisionID:frame.decisionID,actions:actions,order:[]))}
                             }
@@ -312,7 +322,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 if CommandLine.arguments.contains("--doubles") { a.setMode(.doubles);b.setMode(.doubles) }
                 a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB",discoveryGroup:a.mode.rawValue))
                 try await wait { a.opponent != nil && b.opponent != nil }
-                if CommandLine.arguments.contains("--lobby") || CommandLine.arguments.contains("--roster-preview") {
+                if CommandLine.arguments.contains("--lobby") || CommandLine.arguments.contains("--roster-preview") || CommandLine.arguments.contains("--item-preview") {
                     var state = CompanionState()
                     state.language = .ko
                     state.dex = [26,25,181,310,143,128,587,618].map { id in
@@ -325,19 +335,23 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     }
                     var active = PokemonProfile.generate(seed:134);active.level = 100
                     state.active = MonState(baseID:134,pathIDs:[134],stageIndex:0,usedAtStage:0,rarity:.common,totalForms:1,profile:active)
-                    if CommandLine.arguments.contains("--roster-preview") {
+                    if CommandLine.arguments.contains("--roster-preview") || CommandLine.arguments.contains("--item-preview") {
                         state.dex=team("a").map { pokemon in
                             var profile=PokemonProfile.generate(seed:UInt64(pokemon.speciesID));profile.level=50
+                            profile.abilityName=pokemon.ability;profile.abilitySlot=1
+                            profile.moves=pokemon.moves.map{.init(name:$0,learnedAtLevel:1)}
                             return DexEntry(id:pokemon.id,baseID:pokemon.speciesID,finalID:pokemon.speciesID,chainOrder:[pokemon.speciesID],rarity:.common,caughtAt:Date(),profile:profile)
                         }
-                        a.register(team:team("a"));b.register(team:team("b"))
-                        try await wait { a.canSelectLineup && b.canSelectLineup }
+                        if !CommandLine.arguments.contains("--item-preview") {
+                            a.register(team:team("a"));b.register(team:team("b"))
+                            try await wait { a.canSelectLineup && b.canSelectLineup }
+                        }
                     }
                     let file = directory.appendingPathComponent("lobby.json")
                     try JSONEncoder().encode(state).write(to:file)
                     let store = CompanionStore(fileURL:file,defaults:defaults("lobby"))
                     let window = NSWindow(contentRect:NSRect(x:0,y:0,width:480,height:470),styleMask:[.titled,.closable,.miniaturizable],backing:.buffered,defer:false)
-                    window.title = CommandLine.arguments.contains("--roster-preview") ? "PokeTokenBar · 타입·상성 선발 테스트 · 싱글 3마리":"PokeTokenBar · 출전 선택 테스트 · 육성 완료 최종 진화체"
+                    window.title = CommandLine.arguments.contains("--item-preview") ? "PokeTokenBar · 6마리 등록 · 도구 선택 테스트" : CommandLine.arguments.contains("--roster-preview") ? "PokeTokenBar · 타입·상성 선발 테스트 · 싱글 3마리":"PokeTokenBar · 출전 선택 테스트 · 육성 완료 최종 진화체"
                     window.isReleasedWhenClosed = false
                     window.contentViewController = NSHostingController(rootView:BattleLobbyView(store:store,battle:a).frame(width:480,height:470))
                     comparisonWindow = window
@@ -349,6 +363,15 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 try await wait { a.frame != nil && b.frame != nil }
                 for side in [a,b] where side.frame?.preview == true { let frame=side.frame!;side.choose(BattleDecision(decisionID:frame.decisionID,actions:[],order:Array(1...side.mode.teamSize))) }
                 try await wait { a.frame?.preview == false && b.frame?.preview == false }
+                if CommandLine.arguments.contains("--mega-design-preview") {
+                    for c in [a,b] {
+                        let f=c.frame!
+                        c.choose(BattleDecision(decisionID:f.decisionID,actions:[.init(kind:"move",index:1,target:0,mega:true)],order:[]))
+                    }
+                    try await wait { a.frame?.turn==2 && b.frame?.turn==2 }
+                    guard a.frame?.own[0].mega==true,b.frame?.own[0].mega==true else{throw BattleFailure.invalidMessage}
+                    a.completePresentation();b.completePresentation()
+                }
                 if CommandLine.arguments.contains("--fields") {
                     for index in 1...3 {
                         let old = a.frame!.turn
@@ -364,6 +387,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let store=CompanionStore(fileURL:directory.appendingPathComponent("profile.json"),defaults:defaults("preview"));store.setLanguage(.ko)
                 let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
                 window.show();window.window?.title="PokeTokenBar · 실제 배틀 테스트 · PokéRogue / \(a.mode == .doubles ? "더블" : "싱글")"
+                if CommandLine.arguments.contains("--mega-design-preview") {window.window?.title="PokeTokenBar · PokéRogue 메가진화 디자인 · 싱글"}
                 if CommandLine.arguments.contains("--hp-preview") {
                     window.window?.title="PokeTokenBar · 타격 후 HP 감소 테스트 · 싱글 660px"
                 }

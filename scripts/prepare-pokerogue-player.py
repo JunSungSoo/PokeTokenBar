@@ -76,4 +76,5 @@ if __name__=='__main__':
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-entry.py')],check=True)
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-cries.py')],check=True)
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-weather-hit.py')],check=True)
+ subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-mega-effects.py')],check=True)
  subprocess.run([sys.executable,str(ROOT/'scripts/prepare-pokerogue-sizes.py')],check=True)

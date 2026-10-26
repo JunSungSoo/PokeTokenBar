@@ -46,7 +46,7 @@ final class BattleScenePlayback {
                 guard p.active, let target = next.first(where: { $0.id == p.id && $0.active && $0.maxHP == p.maxHP }) else { return p }
                 return BattleCombatant(id:p.id,speciesID:p.speciesID,name:p.name,level:p.level,shiny:p.shiny,active:p.active,form:p.form,
                     fainted:p.fainted,hp:Int((Double(p.hp)+Double(target.hp-p.hp)*progress).rounded()),maxHP:p.maxHP,status:p.status,
-                    stats:p.stats,boosts:p.boosts,ability:p.ability)
+                    stats:p.stats,boosts:p.boosts,ability:p.ability,item:p.item,mega:p.mega)
             }
         }
         for step in 1...steps {

@@ -312,6 +312,34 @@ final class BattleTests: XCTestCase {
             }
         }
     }
+    func testDuplicateItemsAreBlockedAtRegistrationReadyAndIncomingConsent() async throws {
+        defer{cleanup()}
+        for mode in BattleMode.allCases {
+            let (a,b,left,_)=try await connectedPair(mode:mode)
+            var own=team("a",mode:mode),foe=team("b",mode:mode)
+            own[0].item="Leftovers";own[5].item="leftovers"
+            a.register(team:own)
+            XCTAssertTrue(a.registeredTeam.isEmpty);XCTAssertEqual(a.error,"Duplicate held item")
+            XCTAssertFalse(left.sent.contains{$0.kind=="roster"})
+            own[5].item="lifeorb";foe[0].item="leftovers"
+            try await registerPair(a,b,own,foe)
+            var duplicate=own;duplicate[5].item="leftovers"
+            a.ready(team:duplicate)
+            XCTAssertFalse(a.localReady);XCTAssertFalse(left.sent.contains{$0.kind=="ready"})
+            a.shutdown();b.shutdown()
+            let (c,d,_,peer)=try await connectedPair(mode:mode)
+            try await registerPair(c,d,own,foe)
+            d.ready(team:foe);try await wait{c.remoteReady}
+            XCTAssertNil(c.error)
+            var incoming=try XCTUnwrap(peer.sent.last{$0.kind=="ready"})
+            incoming.sequence += 1;var changed=foe;changed[5].item="leftovers";incoming.team=changed
+            try peer.sendData(JSONEncoder().encode(incoming))
+            try await wait{c.error != nil}
+            XCTAssertFalse(c.isActive);XCTAssertNil(c.frame)
+            XCTAssertEqual(L(.ko).battleUserError(c.error!),L(.ko).battleDuplicateItem)
+            c.shutdown();d.shutdown()
+        }
+    }
     func testPublicSixMemberRegistrationPrecedesPrivateLineupConsentAndStaysLocked() async throws {
         defer { cleanup() }
         for mode in BattleMode.allCases {
@@ -1311,6 +1339,54 @@ final class BattleTests: XCTestCase {
             popup.orderOut(nil);a.shutdown();b.shutdown()
         }
     }
+    func testHeldItemAndMegaControlsFitProductionSinglesAndDoublesOffscreen() async throws {
+        defer{cleanup()}
+        for mode in BattleMode.allCases {
+            let (a,b,left,_) = try await connectedPair(mode:mode)
+            var own=team("a",mode:mode),foe=team("b",mode:mode)
+            let items=["raichunitex","sitrusberry","lumberry","leftovers","lifeorb","focussash"]
+            for i in own.indices {own[i].item=items[i];foe[i].item=i==0 ? "magnet":items[i]}
+            try await registerPair(a,b,own,foe);a.ready(team:own);b.ready(team:foe)
+            try await wait{a.frame != nil && b.frame != nil}
+            XCTAssertEqual(left.sent.first{$0.kind=="ready"}?.team?.first?.item,"raichunitex")
+            XCTAssertTrue(a.frame!.slots[0].canMegaEvo==true)
+            // Layout a reopened mid-match window, after a real Protect turn; opening animation
+            // timing is covered separately by entry/player tests, not by a half-loaded snapshot.
+            for coordinator in [a,b] {
+                coordinator.choose(BattleDecision(decisionID:coordinator.frame!.decisionID,actions:coordinator.frame!.slots.map{_ in BattleAction(kind:"move",index:2,target:0)},order:[]))
+            }
+            try await wait{a.frame!.turn==2 && b.frame!.turn==2}
+            a.completePresentation();b.completePresentation()
+            let store=CompanionStore(fileURL:temporaryFile(),defaults:try defaults(code:"item-layout"));store.setLanguage(.ko)
+            var measurement:BattleContentMeasurement?
+            let width=BattleWindowLayout.preferredWidth(for:mode)
+            let host=NSHostingController(rootView:BattleView(battle:a,store:store,onSurrender:{},onMusic:{},onPlayMusic:{},allowsEffectsAudio:false,onLayout:{measurement=$0}).frame(width:width))
+            let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:width,height:850),styleMask:[.borderless],backing:.buffered,defer:false)
+            XCTAssertTrue(NSScreen.screens.allSatisfy{!$0.frame.intersects(window.frame)})
+            window.contentViewController=host;window.orderFront(nil)
+            defer{window.orderOut(nil);window.contentViewController=nil}
+            try await wait{measurement != nil}
+            let bounds=try XCTUnwrap(measurement)
+            XCTAssertEqual(bounds.content.width,width,accuracy:1)
+            XCTAssertLessThan(bounds.content.height,850)
+            XCTAssertLessThanOrEqual(try XCTUnwrap(bounds.commands).maxY,try XCTUnwrap(bounds.footer).minY+1)
+            let header=try XCTUnwrap(bounds.header),field=try XCTUnwrap(bounds.battlefield)
+            let battlers=try XCTUnwrap(bounds.battlers),roster=try XCTUnwrap(bounds.roster),title=try XCTUnwrap(bounds.commandTitle)
+            XCTAssertLessThanOrEqual(header.maxY,field.minY)
+            XCTAssertGreaterThanOrEqual(battlers.minY,field.minY-0.5)
+            XCTAssertLessThanOrEqual(battlers.maxY,field.maxY+0.5)
+            XCTAssertLessThanOrEqual(field.maxY,roster.minY)
+            XCTAssertLessThanOrEqual(roster.maxY,title.minY)
+            window.setContentSize(NSSize(width:width,height:bounds.content.height));host.view.layoutSubtreeIfNeeded()
+            if let bitmap=host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds){
+                host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+                let file=URL(fileURLWithPath:"/tmp/ptb-held-battle-\(mode.rawValue).png")
+                try bitmap.representation(using:.png,properties:[:])?.write(to:file)
+            }
+            a.shutdown();b.shutdown()
+        }
+    }
+
 }
 
 private struct BattleDetailFixture: PokemonDetailProviding {

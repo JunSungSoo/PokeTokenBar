@@ -7,7 +7,8 @@ enum BattleFieldEffects {
     static let fields: Set<String> = ["trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport",
         "reflect", "lightscreen", "safeguard", "mist", "tailwind", "luckychant", "spikes", "stealthrock", "toxicspikes"]
 
-    static let globalFields: Set<String> = ["trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport"]
+    static let megaFields:Set<String> = ["electricterrain"]
+    static let globalFields: Set<String> = ["electricterrain", "trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport"]
     static func isGlobal(_ event: BattleVisualEvent) -> Bool {
         event.phase == "field" && (weather.values.contains(event.moveID ?? event.move) || globalFields.contains(event.moveID ?? event.move))
     }
@@ -30,7 +31,7 @@ enum BattleFieldEffects {
             guard parts.indices.contains(argument) else { return nil }
             let raw = parts[argument].components(separatedBy: ": ").last ?? ""
             let name = BattleTextCatalog.key(raw)
-            guard fields.contains(name) else { return nil }
+            guard fields.contains(name) || megaFields.contains(name) else { return nil }
             key = name
             let index = scene.id - (frame.logOffset ?? 0)
             if let moveIndex = frame.log.indices.last(where: { $0 < index && frame.log[$0].hasPrefix("|move|") }) {

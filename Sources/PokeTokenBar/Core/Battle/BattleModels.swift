@@ -21,6 +21,7 @@ struct BattlePokemon: Codable, Sendable, Identifiable, Equatable {
     let ivs: [String: Int]
     let stats: [String: Int]
     let moves: [String]
+    var item: String? = nil
 }
 
 /// The public six-member preview intentionally has no moves, ability, IVs or stats.
@@ -84,6 +85,7 @@ struct BattleSlot: Codable, Sendable, Identifiable {
     let canPass: Bool
     let trapped: Bool
     let moves: [BattleMove]
+    var canMegaEvo: Bool? = nil
 }
 struct BattleCombatant: Codable, Sendable, Identifiable {
     let id: String
@@ -100,6 +102,8 @@ struct BattleCombatant: Codable, Sendable, Identifiable {
     let stats: [String: Int]?
     var boosts: [String: Int]? = nil
     var ability: String? = nil
+    var item: String? = nil
+    var mega: Bool? = nil
 }
 struct BattleEffectPosition: Codable, Sendable, Hashable {
     let own: Bool
@@ -180,7 +184,20 @@ struct BattleAction: Codable, Sendable, Hashable {
     let kind: String
     let index: Int
     let target: Int
+    var mega: Bool? = nil
     static let pass = BattleAction(kind: "pass", index: 0, target: 0)
+}
+/// One trainer may arm only one active slot; switching/passing never requests evolution.
+struct BattleMegaSelection:Sendable {
+    private(set) var slot:Int? = nil
+    mutating func set(_ selected:Bool,slot:Int) {
+        if selected {self.slot=slot} else if self.slot==slot {self.slot=nil}
+    }
+    func applying(to action:BattleAction,slot:Int,canMega:Bool)->BattleAction {
+        var command=action
+        command.mega=action.kind=="move" && self.slot==slot && canMega ? true:nil
+        return command
+    }
 }
 struct BattleDecision: Codable, Sendable {
     let decisionID: String
@@ -231,7 +248,8 @@ enum BattleTeamBuilder {
 
     @MainActor
     static func build(ids: [String], entries: [DexEntry], mode: BattleMode,
-                      language: AppLanguage, provider: any PokemonDetailProviding = PokeAPIClient.shared) async throws -> [BattlePokemon] {
+                      language: AppLanguage, provider: any PokemonDetailProviding = PokeAPIClient.shared,
+                      heldItems:[String:String]=[:]) async throws -> [BattlePokemon] {
         guard ids.count == mode.teamSize, Set(ids).count == ids.count else {
             throw BattleFailure.invalidTeam("Select exactly \(mode.teamSize) different individuals.")
         }
@@ -277,8 +295,9 @@ enum BattleTeamBuilder {
                 displayName: entry.names?[entry.finalID].flatMap { language.resolveName($0) } ?? details.name,
                 level: profile.level, ability: ability, abilitySlot: profile.abilitySlot, nature: entry.nature?.rawValue ?? "hardy",
                 gender: profile.gender == .male ? "M" : profile.gender == .female ? "F" : "",
-                shiny: entry.isShiny, form: resolved, ivs: ivs, stats: stats, moves: profile.moves.map(\.name)))
+                shiny: entry.isShiny, form: resolved, ivs: ivs, stats: stats, moves: profile.moves.map(\.name),item:heldItems[entry.id]))
         }
+        guard !BattleHeldItems.hasDuplicates(team) else {throw BattleFailure.invalidTeam(L(language).battleDuplicateItem)}
         let abilities = try await BattleEngineProcess.validate(mode: mode, team: team)
         guard abilities.count == team.count else { throw BattleFailure.invalidMessage }
         for index in team.indices { team[index].ability = abilities[index] }

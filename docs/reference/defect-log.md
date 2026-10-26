@@ -15,6 +15,66 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## A fixed outer frame does not contain a larger battlefield's drawing
+
+- The battlefield clipped its natural-size contents before an outer 310/260-point
+  frame was applied. With Mega forms included in the shared camera, two native
+  battler rows plus padding exceeded that frame. SwiftUI centered the larger child,
+  letting the arena cover the header and the move-command title above and below it.
+- Earlier layout tests only compared the command block, footer and total window
+  height; those reported frames stayed valid while the battlefield itself overflowed.
+  Large regular forms and held-item/status HUDs belong to the same class of trigger.
+- Let native battler rows determine the battlefield's intrinsic height, apply only
+  the minimum height before the original-player layers, then clip that final viewport.
+  The existing window fitter measures the resulting content; keep widths unchanged.
+- Measure header, arena, native battlers, roster and command title in one coordinate
+  space. Assert containment and ordering for singles/doubles with the registered
+  roster's Mega sizing forms, alongside existing exact footer-clearance checks.
+
+## Sprite provider and atlas identity must be verified beyond “is an image”
+
+- Mega sprites were downloaded from PokéAPI's Showdown GIF/static endpoints, so the
+  image was valid but did not match the requested PokéRogue design. Earlier tests
+  verified decoding/form availability and never asserted the provider or source pixels.
+- Import every Mega from pinned PokéRogue source PNG/JSON, preserving front/rear and
+  standard shiny identity. Some shiny atlases have a different layout/frame count;
+  using normal-color JSON can fail cropping or silently sample the wrong frame.
+  Support both TexturePacker `textures` and Aseprite top-level `frames` metadata.
+- Validate all 256 variants' provider, source hashes, facing/color paths, frame counts
+  and original cadence. Keep a native animated + static original-player integration test.
+- Form-only cache keys also retain earlier providers' decoded GIFs and static files.
+  Include the Mega artwork hash in native cache keys; leave ordinary GIF keys unchanged.
+  Regression tests seed the actual legacy disk paths and require both cached frame
+  and static image lookups to ignore them before fetching the new original resource.
+
+## Native item rows must constrain text vertically, not return a bare label
+
+- The held-item table returned an `NSTextField` as its entire row view. Its intrinsic
+  text height did not center the glyphs in the 29-point row, leaving names at the top.
+  Selection/localization tests checked values only and missed the actual row geometry.
+- Use an `NSTableCellView` with its text field constrained to the vertical center and
+  padded horizontally. Sweep native table row providers; the held-item picker is the
+  only custom provider. Test the production provider at both 29- and 35-point heights
+  and assert the text frame's center and containment, not just the displayed string.
+
+## Mega evolution must preserve the owned HP scale as well as non-HP stats
+
+- The original owned-stat adapter only overrode `spreadModify`. Mega evolution also
+  calls `Pokemon.updateMaxHp` through `formeChange`, which directly uses `statModify`;
+  a custom 500-HP Charizard silently became a 153-HP Mega. Earlier base-species tests
+  never reached this transformation-specific path, so preserving `spreadModify`
+  alone falsely appeared sufficient.
+- Keep the separate Mega dex, add the calculated non-HP delta to the actual owned
+  stats and skip max-HP recalculation only for owned Mega forms. Do not heal, rescale
+  damage, clear stages, or globally alter ordinary transformations/species data.
+- Sweep all 64 allowed stones in both formats with custom 500 HP/current 350 HP and
+  custom non-HP stats. Check the first captured Mega scene, not only a final frame
+  after weather/residuals. Verify saved stats through the native process bridge.
+- In an isolated engine copy, disable the Mega HP guard: the sweep fails for every
+  stone. Keep the mutation outside the working source. Static-only Mega art also
+  needs a terminal GIF-unavailable branch; otherwise the original player's recovery
+  await never finishes. Native real-player tests cover both GIF and static Mega forms.
+
 ## Weather HP loss needs an explicit awaited hit presentation
 
 - Weather residuals previously shared the generic health event. Tests proved that HP

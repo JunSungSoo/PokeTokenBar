@@ -113,6 +113,7 @@ struct PokemonForm: RawRepresentable, Codable, Hashable, Sendable {
     /// The appearance of an individual at one species: its own form when that species has it,
     /// otherwise the species default. Nil for species without forms.
     static func resolved(speciesID: Int, form: PokemonForm?) -> PokemonForm? {
+        if BattleHeldItems.mega(speciesID:speciesID,form:form) != nil {return form}
         let forms = forms(speciesID: speciesID)
         guard let first = forms.first else { return nil }
         return form.flatMap { forms.contains($0) ? $0 : nil } ?? first
@@ -127,7 +128,7 @@ struct PokemonForm: RawRepresentable, Codable, Hashable, Sendable {
     }
 
     static func isDefault(_ form: PokemonForm?, speciesID: Int) -> Bool {
-        forms(speciesID: speciesID).first == resolved(speciesID: speciesID, form: form)
+        BattleHeldItems.mega(speciesID:speciesID,form:form) == nil && forms(speciesID: speciesID).first == resolved(speciesID: speciesID, form: form)
     }
 
     static func sortOrder(_ form: PokemonForm?, speciesID: Int) -> Int {
@@ -159,6 +160,7 @@ struct PokemonForm: RawRepresentable, Codable, Hashable, Sendable {
 
     /// Static PNGs of forms that are separate PokéAPI varieties live under the variety id.
     static func staticAssetName(speciesID: Int, form: PokemonForm?) -> String {
+        if let mega=BattleHeldItems.mega(speciesID:speciesID,form:form){return String(mega.pokemonID)}
         let resolved = resolved(speciesID: speciesID, form: form)
         if let pokemonID = entries(speciesID: speciesID).first(where: { $0.form == resolved })?.pokemonID {
             return String(pokemonID)
@@ -230,6 +232,9 @@ extension PokemonForm {
     static func label(speciesID: Int, form: PokemonForm?, language: AppLanguage,
                       names: PokemonNameDisplayStore = .shared) -> String? {
         guard let form = resolved(speciesID: speciesID, form: form) else { return nil }
+        if BattleHeldItems.mega(speciesID:speciesID,form:form) != nil {
+            return L(language).battleMegaEvolution+(form.rawValue=="mega" ? "":" "+form.rawValue.replacingOccurrences(of:"mega-",with:"").uppercased())
+        }
         if speciesID == unownSpeciesID { return form.symbol }
         if hasUnnamedDefault(speciesID: speciesID, form: form) { return L(language).normalForm }
         let translations = nameResource(speciesID: speciesID, form: form).flatMap { names.names[$0] }

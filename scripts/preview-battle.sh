@@ -4,7 +4,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 swift build --arch arm64 --build-tests
 PREVIEW_APP="$PWD/build/PokeTokenBarBattlePreview.app"
-if [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
+if [[ "${PTB_MEGA_DESIGN_PREVIEW:-0}" == "1" ]]; then
+    PREVIEW_APP="$PWD/build/PokeTokenBarMegaPreview.app"
+elif [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
         PREVIEW_APP="$PWD/build/PokeTokenBarSizeDoublePreview.app"
     else
@@ -20,7 +22,7 @@ elif [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarFieldPreview.app"
 elif [[ "${PTB_FAITHFUL_PIKACHU:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarPokeRoguePreview.app"
-elif [[ "${PTB_ROSTER_PREVIEW:-0}" == "1" || "${PTB_LOBBY_PREVIEW:-0}" == "1" || "${PTB_MATCHMAKING_PREVIEW:-0}" == "1" || "${PTB_MATCHING_DUEL:-0}" == "1" ]]; then
+elif [[ "${PTB_ITEM_PREVIEW:-0}" == "1" || "${PTB_ROSTER_PREVIEW:-0}" == "1" || "${PTB_LOBBY_PREVIEW:-0}" == "1" || "${PTB_MATCHMAKING_PREVIEW:-0}" == "1" || "${PTB_MATCHING_DUEL:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarLobbyPreview.app"
 elif [[ "${PTB_LOADOUT_PREVIEW:-0}" == "1" ]]; then
     PREVIEW_APP="$PWD/build/PokeTokenBarLoadoutPreview.app"
@@ -56,7 +58,7 @@ python3 - "$PREVIEW_APP" <<'PY'
 import pathlib, plistlib, sys
 app = pathlib.Path(sys.argv[1])
 (app/'Contents/Info.plist').write_bytes(plistlib.dumps({
-    'CFBundleIdentifier':'dev.poketokenbar.sizedoublepreview' if 'SizeDoublePreview' in app.name else 'dev.poketokenbar.sizepreview' if 'SizePreview' in app.name else 'dev.poketokenbar.entrydoublepreview' if 'EntryDoublePreview' in app.name else 'dev.poketokenbar.entrypreview' if 'EntryPreview' in app.name else 'dev.poketokenbar.fieldpreview' if 'FieldPreview' in app.name else 'dev.poketokenbar.lobbypreview' if 'LobbyPreview' in app.name else 'dev.poketokenbar.loadoutpreview' if 'LoadoutPreview' in app.name else 'dev.poketokenbar.abilitypreview' if 'AbilityPreview' in app.name else 'dev.poketokenbar.pokeroguepreview' if 'PokeRoguePreview' in app.name else 'dev.poketokenbar.battledoublepreview' if 'DoublePreview' in app.name else 'dev.poketokenbar.battlepreview',
+    'CFBundleIdentifier':'dev.poketokenbar.megapreview' if 'MegaPreview' in app.name else 'dev.poketokenbar.sizedoublepreview' if 'SizeDoublePreview' in app.name else 'dev.poketokenbar.sizepreview' if 'SizePreview' in app.name else 'dev.poketokenbar.entrydoublepreview' if 'EntryDoublePreview' in app.name else 'dev.poketokenbar.entrypreview' if 'EntryPreview' in app.name else 'dev.poketokenbar.fieldpreview' if 'FieldPreview' in app.name else 'dev.poketokenbar.lobbypreview' if 'LobbyPreview' in app.name else 'dev.poketokenbar.loadoutpreview' if 'LoadoutPreview' in app.name else 'dev.poketokenbar.abilitypreview' if 'AbilityPreview' in app.name else 'dev.poketokenbar.pokeroguepreview' if 'PokeRoguePreview' in app.name else 'dev.poketokenbar.battledoublepreview' if 'DoublePreview' in app.name else 'dev.poketokenbar.battlepreview',
     'CFBundleExecutable':'PTBBattlePreview',
     'CFBundleName':'PokeTokenBar Battle Preview',
     'CFBundlePackageType':'APPL', 'LSUIElement':False,
@@ -70,7 +72,9 @@ swiftc -parse-as-library -target arm64-apple-macos14.0 \
     -lsqlite3 -Xlinker -e -Xlinker _previewmain \
     -o "$PREVIEW_APP/Contents/MacOS/PTBBattlePreview"
 codesign --force --sign - "$PREVIEW_APP"
-if [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
+if [[ "${PTB_MEGA_DESIGN_PREVIEW:-0}" == "1" ]]; then
+    open -n "$PREVIEW_APP" --args --mega-design-preview
+elif [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
     if [[ "${PTB_BATTLE_DOUBLES:-0}" == "1" ]]; then
         open -n "$PREVIEW_APP" --args --size-preview --doubles
     else
@@ -87,12 +91,19 @@ elif [[ "${PTB_FIELD_EFFECTS_PILOT:-0}" == "1" ]]; then
 elif [[ "${PTB_FAITHFUL_PIKACHU:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --faithful-pikachu
 elif [[ "${PTB_MATCHING_DUEL:-0}" == "1" ]]; then
-    node scripts/prepare-codex-duel.cjs
-    open -n "$PREVIEW_APP" --args --matching-duel
+    if [[ "${PTB_MEGA_TEST:-0}" == "1" ]]; then
+        BattleEngine/runtime/node scripts/prepare-codex-duel.cjs --mega-test
+        open -n "$PREVIEW_APP" --args --matching-duel --mega-test
+    else
+        BattleEngine/runtime/node scripts/prepare-codex-duel.cjs
+        open -n "$PREVIEW_APP" --args --matching-duel
+    fi
 elif [[ "${PTB_MATCHMAKING_PREVIEW:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --matchmaking
 elif [[ "${PTB_ROSTER_PREVIEW:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --roster-preview
+elif [[ "${PTB_ITEM_PREVIEW:-0}" == "1" ]]; then
+    open -n "$PREVIEW_APP" --args --item-preview
 elif [[ "${PTB_LOBBY_PREVIEW:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --lobby
 elif [[ "${PTB_LOADOUT_PREVIEW:-0}" == "1" ]]; then

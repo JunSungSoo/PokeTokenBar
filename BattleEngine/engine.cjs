@@ -1,16 +1,20 @@
 'use strict';
-const {Battle, Dex} = require('pokemon-showdown');
+const {Battle, Dex, Pokemon} = require('pokemon-showdown');
 const crypto = require('node:crypto');
-const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1';
+const {battleDex,heldItem,allowed:allowedItems}=require('./held-items.cjs');
+const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1';
 const keys = ['hp','atk','def','spa','spd','spe'];
 function validateTeam(team, count) {
   if (!Array.isArray(team) || team.length !== count) throw Error(`Select exactly ${count} Pokémon`);
-  const ids = new Set(), speciesIDs = new Set();
+  const ids = new Set(), speciesIDs = new Set(), items=new Set();
   return team.map(mon => {
     if (!mon.id || ids.has(mon.id)) throw Error('Duplicate individual');
     ids.add(mon.id);
     const dex = Dex.mod('gen5');
     const species = dex.species.get(mon.species);
+    if(species.isMega)throw Error('Register the base Pokémon, not its Mega form');
+    const item=heldItem(mon.item,species);
+    if(item){if(items.has(item))throw Error('Duplicate held item');items.add(item);}
     if (!species.exists || species.gen > 5 || species.num < 1 || species.num > 649) throw Error('Unsupported species');
     if (species.num === 493) throw Error('Arceus cannot battle: its type depends on a held item.');
     if (speciesIDs.has(species.num)) throw Error('Duplicate species: only one Pokémon of each species per team.');
@@ -36,8 +40,8 @@ function validateTeam(team, count) {
     if (!nature.exists) throw Error('Invalid nature');
     return {name: species.name, species: species.name, level: mon.level, gender: mon.gender || '',
       ability: ability.name, nature: nature.name, moves: mon.moves, ivs: mon.ivs,
-      evs: Object.fromEntries(keys.map(k => [k,0])), shiny: !!mon.shiny, item: '',
-      ptbStats: {...mon.stats}, ptbBaseStats: {...species.baseStats}, ptbID: mon.id, ptbForm: mon.form, ptbMoves: mon.moves};
+      evs: Object.fromEntries(keys.map(k => [k,0])), shiny: !!mon.shiny, item,
+      ptbMegaStats:allowedItems.get(item)?.mega?.stats, ptbStats: {...mon.stats}, ptbBaseStats: {...species.baseStats}, ptbID: mon.id, ptbForm: mon.form, ptbMoves: mon.moves};
   });
 }
 function publicLog(log, player, bounded = true) {
@@ -69,15 +73,25 @@ class OwnedBattle {
     const sets = teams.map(t => validateTeam(t, count).slice(0, battleSize));
     this.errors = [];
     this.inputCounter = 0;
+    battleDex();
     this.battle = new Battle({format: {
       ...Dex.formats.get('gen5customgame'),
-      id: 'ptbownedstats', name:'PokeTokenBar BW2', mod:'gen5', gameType:mode,
+      id: 'ptbownedstats', name:'PokeTokenBar BW2 + Mega', mod:'ptbmegabw2', gameType:mode,
       ruleset:['Cancel Mod'],
+      pokemon:{updateMaxHp(){
+        // Mega forms retain the owned individual's HP scale and current damage.
+        if(this.species.isMega && this.set.ptbStats)return;
+        return Pokemon.prototype.updateMaxHp.call(this);
+      }},
       battle: {
         spreadModify(base, set) {
           const original = Battle.prototype.spreadModify.call(this, base, set);
           // Only the original species uses imported stats. Genuine form changes keep engine mechanics.
           if (set.ptbStats && keys.every(k => base[k] === set.ptbBaseStats[k])) return {...set.ptbStats};
+          if(set.ptbMegaStats && keys.every(k=>base[k]===set.ptbMegaStats[k])){
+            const baseline=Battle.prototype.spreadModify.call(this,set.ptbBaseStats,set);
+            return Object.fromEntries(keys.map(k=>[k,k==='hp'?set.ptbStats.hp:Math.max(1,set.ptbStats[k]+original[k]-baseline[k])]));
+          }
           return original;
         }
       }
@@ -92,7 +106,7 @@ class OwnedBattle {
     const durations = this.fieldDurations;
     this.battle.singleEvent = function(event, effect, state, ...args) {
       const result = singleEvent.call(this, event, effect, state, ...args);
-      if (['FieldStart','FieldRestart','SideStart','SideRestart'].includes(event) && result && state?.duration > 0) {
+      if (['FieldStart','FieldRestart','SideStart','SideRestart','TerrainStart','TerrainRestart'].includes(event) && result && state?.duration > 0) {
         durations.set(state, state.duration);
       }
       return result;
@@ -140,7 +154,7 @@ class OwnedBattle {
       command = actions.map(a => {
         if (a.kind === 'pass') return 'pass';
         if (a.kind === 'switch' && Number.isInteger(a.index) && a.index >= 1 && a.index <= side.pokemon.length) return `switch ${a.index}`;
-        if (a.kind === 'move' && Number.isInteger(a.index) && a.index >= 1 && a.index <= 4 && Number.isInteger(a.target) && Math.abs(a.target) <= 2) return `move ${a.index}${a.target ? ' '+a.target : ''}`;
+        if (a.kind === 'move' && Number.isInteger(a.index) && a.index >= 1 && a.index <= 4 && Number.isInteger(a.target) && Math.abs(a.target) <= 2) return `move ${a.index}${a.target ? ' '+a.target : ''}${a.mega===true ? ' mega':''}`;
         throw Error('Invalid action');
       }).join(', ');
     }
@@ -184,7 +198,7 @@ class OwnedBattle {
       level:p.level, shiny:!!appearance.set.shiny, form:currentForm(appearance), active:p.side.active.includes(p), fainted:p.fainted || p.hp === 0,
       hp:own ? p.hp : Math.ceil(p.hp / p.maxhp * 100), maxHP:own ? p.maxhp : 100,
       status:p.status || '', stats:own ? {hp:p.maxhp,...p.storedStats} : undefined,
-      boosts:own ? {...p.boosts} : undefined, ability:own ? p.getAbility().name : undefined};
+      boosts:own ? {...p.boosts} : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega};
     };
     // Only public battlefield conditions and their actual finite durations.
     const visibleSide = new Set(['reflect','lightscreen','safeguard','mist','tailwind','stealthrock','spikes','toxicspikes','luckychant','rainbow','swamp','seaoffire']);
@@ -192,8 +206,8 @@ class OwnedBattle {
     const sideEffects = target => Object.keys(target.sideConditions).filter(id=>visibleSide.has(id)).sort().map(id=>({id,layers:target.sideConditions[id].layers || 1,timing:timing(target.sideConditions[id])}));
     const field = {weather:b.field.weather || '', weatherSuppressed:!!b.field.weather && b.field.suppressingWeather(),
       weatherTiming:timing(b.field.weatherState),
-      conditions:Object.keys(b.field.pseudoWeather).sort(),
-      conditionTimings:Object.fromEntries(Object.entries(b.field.pseudoWeather).flatMap(([id,state])=>timing(state)?[[id,timing(state)]]:[])),
+      conditions:[...Object.keys(b.field.pseudoWeather),...(b.field.terrain?[b.field.terrain]:[])].sort(),
+      conditionTimings:Object.fromEntries([...Object.entries(b.field.pseudoWeather),...(b.field.terrain?[[b.field.terrain,b.field.terrainState]]:[])].flatMap(([id,state])=>timing(state)?[[id,timing(state)]]:[])),
       ownSide:sideEffects(side), foeSide:sideEffects(side.foe)};
     for(const id of ['mudsport','watersport'])if(b.getAllActive().some(p=>p.volatiles[id]))field.conditions.push(id);
     return {turn:b.turn,own:side.pokemon.map(p=>mon(p,true)),foe:side.foe.active.filter(Boolean).map(p=>mon(p,false)),field};
@@ -219,10 +233,13 @@ class OwnedBattle {
       const force = !!request.forceSwitch?.[i] && ++forcedCount <= benches;
       const data=request.active?.[i];
       return {slot:i, mustSwitch:force, canPass: request.forceSwitch ? !force : !p || p.fainted,
-        trapped:!!data?.trapped,
+        trapped:!!data?.trapped,canMegaEvo:!!data?.canMegaEvo,
         moves:(data?.moves || []).map((m,j) => {
           const move=b.dex.moves.get(m.id);
-          const type = move.id === 'hiddenpower' ? p.hpType : move.type;
+          let type = move.id === 'hiddenpower' ? p.hpType : move.type;
+          if(type==='Normal')for(const [ability,converted]of Object.entries({pixilate:'Fairy',aerilate:'Flying',refrigerate:'Ice',dragonize:'Dragon'})){
+            if(p.hasAbility(ability)){type=converted;break;}
+          }
           const matchups = side.foe.active.filter(t=>t && !t.fainted).map(t=>({
             location:p.getLocOf(t), name:appearance(t).species.name,
             multiplier:move.category==='Status' ? null : b.dex.getImmunity(type,visibleTypes(t)) ? 2 ** b.dex.getEffectiveness(type,visibleTypes(t)) : 0

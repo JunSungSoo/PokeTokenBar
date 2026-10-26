@@ -42,6 +42,7 @@ extension L {
         ally ? t("아군","Ally","味方","Aliado","Allié","Aliado","Verbündet","Союзник") : t("상대","Opponent","相手","Rival","Adversaire","Oponente","Gegner","Противник")
     }
     func battleUserError(_ raw: String) -> String {
+        if raw == battleDuplicateItem || raw.contains("Duplicate held item"){return battleDuplicateItem}
         if raw == "Battle mode mismatch" {
             return t("상대와 같은 배틀 방식(싱글/더블)으로 매칭을 요청해 주세요.","Request the same battle format (singles/doubles) as your opponent.","相手と同じ形式（シングル・ダブル）でマッチングしてください。","Solicita el mismo formato (individual/doble) que tu rival.","Choisis le même format (simple/double) que ton adversaire.","Escolha o mesmo formato (individual/dupla) do oponente.","Wähle dasselbe Kampfformat (Einzel/Doppel) wie dein Gegner.","Выберите одинаковый формат боя (одиночный/двойной).")
         }
@@ -169,6 +170,7 @@ extension L {
     func battleFieldEffect(_ raw: String) -> String {
         let id = BattleTextCatalog.key(raw.components(separatedBy: ": ").last ?? raw)
         switch id {
+        case "electricterrain": return t("일렉트릭필드","Electric Terrain","エレキフィールド","Campo eléctrico","Champ Électrifié","Terreno Elétrico","Elektrofeld","Электрическое поле")
         case "rainbow": return t("무지개", "Rainbow", "にじ", "Arcoíris", "Arc-en-ciel", "Arco-íris", "Regenbogen", "Радуга")
         case "swamp": return t("습지", "Swamp", "しつげん", "Pantano", "Marécage", "Pântano", "Sumpf", "Болото")
         case "seaoffire": return t("불바다", "Sea of fire", "ひのうみ", "Mar de fuego", "Mer de feu", "Mar de fogo", "Feuermeer", "Море огня")

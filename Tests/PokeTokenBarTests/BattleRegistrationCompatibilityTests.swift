@@ -52,4 +52,47 @@ private struct ModernRegistrationDetails:PokemonDetailProviding {
         }
         XCTAssertEqual(entries[4].profile?.abilityName,"cursed-body","Building must not overwrite the saved collection")
     }
+    func testRegistrationItemsReachRealSinglesAndDoublesMegaRequests() async throws {
+        let provider=ModernRegistrationDetails();var entries:[DexEntry]=[]
+        for id in [6,26,9,3,94,143] {
+            let details=try await provider.pokemonDetails(speciesID:id)
+            var profile=PokemonProfile.generate(seed:UInt64(id));profile.level=50
+            profile.abilityName=details.abilities[0].name;profile.abilitySlot=1
+            profile.moves=[.init(name:"protect",learnedAtLevel:1)]
+            entries.append(DexEntry(id:"item-registration-\(id)",baseID:id,finalID:id,chainOrder:[id],rarity:.common,caughtAt:Date(),nature:.adamant,profile:profile))
+        }
+        let items=["charizarditex","sitrusberry","lumberry","leftovers","lifeorb","focussash"]
+        let assignments=Dictionary(uniqueKeysWithValues:zip(entries.map(\.id),items))
+        for mode in BattleMode.allCases {
+            let team=try await BattleTeamBuilder.build(ids:entries.map(\.id),entries:entries,mode:mode,language:.ko,provider:provider,heldItems:assignments)
+            XCTAssertEqual(team.map{$0.item ?? ""},items)
+            let restored=try JSONDecoder().decode([BattlePokemon].self,from:JSONEncoder().encode(team));XCTAssertEqual(restored,team)
+            let engine=BattleEngineProcess();defer{engine.stop()};var frames:[BattleFrame]=[]
+            try engine.start(mode:mode,teams:[team,team]);engine.onFrames={frames=$0}
+            let start=Date().addingTimeInterval(10)
+            while frames.isEmpty,Date()<start {try await Task.sleep(for:.milliseconds(20))}
+            XCTAssertEqual(frames.count,2);guard frames.count==2 else{continue}
+            XCTAssertEqual(frames[0].own[0].stats,team[0].stats);XCTAssertTrue(frames[0].slots[0].canMegaEvo==true)
+            let initial=frames
+            for p in [0,1] {
+                let actions=initial[p].slots.map{slot in BattleAction(kind:"move",index:1,target:0,mega:slot.slot==0 ? true:nil)}
+                try engine.choose(player:p,decision:BattleDecision(decisionID:initial[p].decisionID,actions:actions,order:[]))
+            }
+            let end=Date().addingTimeInterval(10)
+            while frames.first?.own[0].mega != true,Date()<end {try await Task.sleep(for:.milliseconds(20))}
+            XCTAssertEqual(frames.first?.own[0].form?.rawValue,"mega-x")
+            XCTAssertEqual(frames.first?.own[0].maxHP,team[0].stats["hp"])
+            XCTAssertEqual(frames.first?.own[0].hp,team[0].stats["hp"])
+            XCTAssertEqual(frames.first?.own[0].ability,"Tough Claws")
+            XCTAssertTrue(frames.first?.slots.allSatisfy{$0.canMegaEvo != true}==true)
+        }
+        let unassigned=try await BattleTeamBuilder.build(ids:entries.map(\.id),entries:entries,mode:.singles,language:.ko,provider:provider)
+        XCTAssertTrue(unassigned.allSatisfy{$0.item == nil || $0.item == ""})
+        do {
+            var duplicates=assignments;duplicates[entries[5].id]="charizarditex"
+            _ = try await BattleTeamBuilder.build(ids:entries.map(\.id),entries:entries,mode:.singles,language:.ko,provider:provider,heldItems:duplicates)
+            XCTFail("The sixth reserve must still obey the item clause")
+        } catch {XCTAssertEqual(error.localizedDescription,L(.ko).battleDuplicateItem)}
+    }
+
 }

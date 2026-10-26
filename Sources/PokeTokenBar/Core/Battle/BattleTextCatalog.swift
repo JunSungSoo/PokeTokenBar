@@ -37,7 +37,7 @@ struct BattleTextCatalog: Decodable, Sendable {
         return Self.speciesTypes[key] ?? Self.speciesTypes[String(id)] ?? []
     }
     func speciesTypeNames(_ id:Int,form:PokemonForm?,language:AppLanguage)->String {
-        pokemonTypes(id,form:form).map{typeName($0,language:language)}.joined(separator:" / ")
+        (BattleHeldItems.mega(speciesID:id,form:form)?.types ?? pokemonTypes(id,form:form)).map{typeName($0,language:language)}.joined(separator:" / ")
     }
     static func key(_ raw: String) -> String {
         raw.replacingOccurrences(of:"♀",with:"f").replacingOccurrences(of:"♂",with:"m")
@@ -48,6 +48,9 @@ struct BattleTextCatalog: Decodable, Sendable {
     }
     func pokemonName(_ raw: String, language: AppLanguage) -> String {
         let bare = raw.components(separatedBy:": ").last?.components(separatedBy:",").first ?? raw
+        if let mega=BattleHeldItems.all.compactMap(\.mega).first(where:{$0.species.lowercased()==bare.lowercased()}) {
+            return L(language).battleMegaEvolution+" · "+speciesName(mega.baseID,language:language)+(mega.form=="mega" ? "":" "+mega.form.replacingOccurrences(of:"mega-",with:"").uppercased())
+        }
         return aliases[Self.key(bare)].flatMap { species[$0]?[language.rawValue] } ?? L(language).battleUnknownPokemon
     }
     func moveName(_ raw: String, language: AppLanguage) -> String {
@@ -61,13 +64,13 @@ struct BattleTextCatalog: Decodable, Sendable {
         moves[Self.key(raw)]?.descriptions[language.rawValue] ?? L(language).battleDescriptionUnavailable
     }
     func typeName(_ raw: String, language: AppLanguage) -> String {
-        types[Self.key(raw)]?[language.rawValue] ?? L(language).battleUnknownType
+        types[Self.key(raw)]?[language.rawValue] ?? BattleMegaText.catalog.types[Self.key(raw)]?[language.rawValue] ?? L(language).battleUnknownType
     }
     func abilityName(_ raw: String, language: AppLanguage) -> String {
-        abilities[Self.key(raw)]?[language.rawValue] ?? L(language).battleAbility
+        abilities[Self.key(raw)]?[language.rawValue] ?? BattleMegaText.catalog.abilities[Self.key(raw)]?.names[language.rawValue] ?? L(language).battleAbility
     }
     func abilityDescription(_ raw: String, language: AppLanguage) -> String {
-        abilityDescriptions?[Self.key(raw)]?[language.rawValue] ?? L(language).battleDescriptionUnavailable
+        abilityDescriptions?[Self.key(raw)]?[language.rawValue] ?? BattleMegaText.catalog.abilities[Self.key(raw)]?.descriptions[language.rawValue] ?? L(language).battleDescriptionUnavailable
     }
     func moveTooltip(_ raw: String, language: AppLanguage) -> String {
         let l = L(language)
@@ -84,9 +87,10 @@ struct BattleTextCatalog: Decodable, Sendable {
     }
     func effectName(_ raw: String, language: AppLanguage) -> String {
         let bare = raw.components(separatedBy:": ").last ?? raw
+        if let item=BattleHeldItems.item(bare) {return item.name(language)}
         if raw.lowercased().hasPrefix("ability:") { return abilityName(bare, language: language) }
         if let move = moves[Self.key(bare)] { return move.names[language.rawValue] ?? L(language).battleUnknownMove }
-        if abilities[Self.key(bare)] != nil { return abilityName(bare, language: language) }
+        if abilities[Self.key(bare)] != nil || BattleMegaText.catalog.abilities[Self.key(bare)] != nil { return abilityName(bare, language: language) }
         return L(language).battleStatus(Self.key(bare))
     }
 }
