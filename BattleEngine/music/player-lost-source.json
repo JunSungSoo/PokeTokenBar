@@ -1,0 +1,14 @@
+{
+  "track": "025 - Player Lost Fanfare",
+  "game": "Pokémon Battle Revolution",
+  "sourcePage": "https://www.zophar.net/music/nintendo-wii/pokemon-battle-revolution",
+  "sourceURL": "https://fi.zophar.net/soundfiles/nintendo-wii/pokemon-battle-revolution/025%20-%20Player%20Lost%20Fanfare.mp3",
+  "sourceSHA256": "2b45a56a5952fbf28fcce6e4ffaf03330a83f415cc0a4a3c570e9274ca30f12b",
+  "sampleRate": 32000,
+  "channels": 2,
+  "frames": 138240,
+  "playback": "Once; no loop",
+  "conversion": "MP3 decode to PCM16; no resynthesis, resampling, fades or normalization",
+  "file": "BattleRevolutionPlayerLost.wav",
+  "sha256": "5974105c862f35e6c5a4783b5ee4d9a73d96e4230f26bb18672f0f0359b5ba57"
+}

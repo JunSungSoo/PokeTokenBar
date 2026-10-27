@@ -28,7 +28,7 @@ import SwiftUI
     @State private var viewport=CGSize.zero
     private var sizing:BattleSpriteSizing {
         let catalog=PokeRogueSpriteSizes.shared
-        return .make(mode:mode,sizes:[25,143,321,384].flatMap{id in [false,true].map{catalog.size(speciesID:id,form:nil,back:$0)}})
+        return .make(mode:mode,sizes:[25,143,321,384].flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
     }
     private var positions:[BattleEffectPosition] {
         (0..<(mode == .singles ? 2:4)).map{.init(own:$0%2==0,slot:$0/2)}
@@ -71,7 +71,7 @@ import SwiftUI
             HStack {
                 Text(mode == .singles ? "싱글 · 660px":"더블 · 680px").font(.headline)
                 Spacer()
-                Text(cryPreview ? "등장·교체 울음소리 테스트" : statusPreview ? "상태이상 연출 테스트 · 기존 GIF" : backdropPreview ? "배경 연출 확인 · 기존 GIF":"PokéRogue 크기 기준 · 기존 GIF").font(.caption).foregroundStyle(.secondary)
+                Text(cryPreview ? "등장·교체 울음소리 테스트" : statusPreview ? "상태이상 연출 테스트 · 기존 GIF" : backdropPreview ? "배경 연출 확인 · 기존 GIF":"종 정보의 키 기준 · 기존 GIF").font(.caption).foregroundStyle(.secondary)
                 BattleVolumeControl(settings:audioSettings,label:"BGM 볼륨",effectsLabel:"효과음 볼륨")
             }
             ZStack {

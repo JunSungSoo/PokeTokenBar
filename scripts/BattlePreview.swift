@@ -49,6 +49,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
     var matchingLinks: [PreviewLink] = []
     var suiteNames: [String] = []
     var directory: URL!
+    var preparingResult = false
     var duelTeams: [String: [BattlePokemon]] = [:]
     let duelDirectory = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("build/codex-duel")
     func defaults(_ code: String) -> UserDefaults {
@@ -225,7 +226,65 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         }
         window.center(); window.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps:true)
     }
+    func showResultPreview(win: Bool) {
+        guard !preparingResult else { return }
+        preparingResult = true
+        Task { @MainActor in
+            defer { preparingResult = false }
+            do {
+                controller?.window?.performClose(nil)
+                battle?.shutdown();enemy?.shutdown()
+                let folder=directory.appendingPathComponent(UUID().uuidString)
+                try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+                let ownLink=PreviewLink(),foeLink=PreviewLink()
+                ownLink.other=foeLink;foeLink.other=ownLink
+                let a=BattleCoordinator(defaults:defaults("AAAA"),history:BattleHistoryStore(url:folder.appendingPathComponent("a.json")),decisionTimeLimit:1800,linkFactory:{_,mode in ownLink.discoveryGroup=mode.rawValue;return ownLink})
+                let b=BattleCoordinator(defaults:defaults("BBBB"),history:BattleHistoryStore(url:folder.appendingPathComponent("b.json")),decisionTimeLimit:1800,linkFactory:{_,mode in foeLink.discoveryGroup=mode.rawValue;return foeLink})
+                battle=a;enemy=b
+                a.search();b.search();a.select(TradePeer(id:"BBBB",nickname:"상대",code:"BBBB",discoveryGroup:a.mode.rawValue))
+                try await wait { a.opponent != nil && b.opponent != nil }
+                a.register(team:team("a"));b.register(team:team("b"))
+                try await wait { a.canSelectLineup && b.canSelectLineup }
+                a.ready(team:team("a"));try await wait { b.remoteReady };b.ready(team:team("b"))
+                try await wait { a.frame != nil && b.frame != nil }
+                for side in [a,b] where side.frame?.preview == true {
+                    side.choose(BattleDecision(decisionID:side.frame!.decisionID,actions:[],order:Array(1...side.mode.teamSize)))
+                }
+                try await wait { a.frame?.preview == false && b.frame?.preview == false }
+                a.completePresentation();b.completePresentation()
+                if win { b.surrender() } else { a.surrender() }
+                try await wait { a.outcome != nil && b.outcome != nil }
+                let store=CompanionStore(fileURL:folder.appendingPathComponent("profile.json"),defaults:defaults("preview"));store.setLanguage(.ko)
+                let window=BattleWindowController(battle:a,store:store,audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!)
+                controller=window
+                window.auxiliaryState.fieldVisible=false;window.auxiliaryState.statsVisible=false
+                window.show()
+                window.window?.title=win ? "PokeTokenBar · 승리 음원·종료 버튼 테스트" : "PokeTokenBar · 패배 음원·종료 버튼 테스트"
+            } catch { print("Result preview: \(error)") }
+        }
+    }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if CommandLine.arguments.contains("--result-audio-preview") {
+            directory=FileManager.default.temporaryDirectory.appendingPathComponent("ptb-result-preview-\(UUID())")
+            try? FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
+            let panel=NSWindow(contentRect:NSRect(x:0,y:0,width:380,height:166),styleMask:[.titled,.closable,.miniaturizable],backing:.buffered,defer:false)
+            panel.isReleasedWhenClosed=false
+            panel.title="PokeTokenBar · 승패 음원 테스트 선택"
+            panel.contentViewController=NSHostingController(rootView:VStack(spacing:14) {
+                Text("승리·패배 음원 / 종료 버튼").font(.headline)
+                Text("결과창 하단의 종료 또는 X로 닫을 수 있습니다.\n다시 듣고 싶으면 아래에서 결과를 선택하세요.").font(.caption)
+                HStack {
+                    Button("승리 화면 열기") { [weak self] in self?.showResultPreview(win:true) }
+                    Button("패배 화면 열기") { [weak self] in self?.showResultPreview(win:false) }
+                    Button("테스트 종료") { NSApp.terminate(nil) }
+                }
+            }.padding(18))
+            comparisonWindow=panel
+            if let screen=NSScreen.main?.visibleFrame { panel.setFrameOrigin(NSPoint(x:screen.minX+20,y:screen.maxY-205)) }
+            panel.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true)
+            showResultPreview(win:true)
+            return
+        }
         if CommandLine.arguments.contains("--size-preview") {
             let screen=NSScreen.main?.visibleFrame ?? NSRect(x:0,y:0,width:1440,height:900)
             for mode in [CommandLine.arguments.contains("--doubles") ? BattleMode.doubles:.singles] {
@@ -363,7 +422,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 try await wait { a.frame != nil && b.frame != nil }
                 for side in [a,b] where side.frame?.preview == true { let frame=side.frame!;side.choose(BattleDecision(decisionID:frame.decisionID,actions:[],order:Array(1...side.mode.teamSize))) }
                 try await wait { a.frame?.preview == false && b.frame?.preview == false }
-                if CommandLine.arguments.contains("--mega-design-preview") {
+                if CommandLine.arguments.contains("--mega-design-preview"), !CommandLine.arguments.contains("--mega-effect-preview") {
                     for c in [a,b] {
                         let f=c.frame!
                         c.choose(BattleDecision(decisionID:f.decisionID,actions:[.init(kind:"move",index:1,target:0,mega:true)],order:[]))
@@ -387,7 +446,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                 let store=CompanionStore(fileURL:directory.appendingPathComponent("profile.json"),defaults:defaults("preview"));store.setLanguage(.ko)
                 let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
                 window.show();window.window?.title="PokeTokenBar · 실제 배틀 테스트 · PokéRogue / \(a.mode == .doubles ? "더블" : "싱글")"
-                if CommandLine.arguments.contains("--mega-design-preview") {window.window?.title="PokeTokenBar · PokéRogue 메가진화 디자인 · 싱글"}
+                if CommandLine.arguments.contains("--mega-design-preview") {window.window?.title=CommandLine.arguments.contains("--mega-effect-preview") ? "PokeTokenBar · 메가진화 연출·크기 테스트 · 싱글":"PokeTokenBar · PokéRogue 메가진화 디자인 · 싱글"}
                 if CommandLine.arguments.contains("--hp-preview") {
                     window.window?.title="PokeTokenBar · 타격 후 HP 감소 테스트 · 싱글 660px"
                 }
@@ -451,6 +510,9 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                             if slot.mustSwitch {
                                 guard let i=frame.own.indices.first(where:{ !frame.own[$0].active && !frame.own[$0].fainted && !used.contains($0) }) else { return nil }
                                 used.insert(i);return BattleAction(kind:"switch",index:i+1,target:0)
+                            }
+                            if CommandLine.arguments.contains("--mega-effect-preview"),let move=slot.moves.first(where:{$0.apiName=="protect" && !$0.disabled && $0.pp>0}) {
+                                return BattleAction(kind:"move",index:move.index,target:0,mega:slot.canMegaEvo==true ? true:nil)
                             }
                             let quiet=CommandLine.arguments.contains("--rogue-battle") && frame.turn%3 != 0
                             guard let move=(quiet ? slot.moves.first(where:{$0.apiName == "splash"}) : slot.moves.first(where:{ !$0.disabled && $0.pp > 0 && $0.category != "Status" })) ?? slot.moves.first(where:{ !$0.disabled && $0.pp > 0 }) else { return nil }

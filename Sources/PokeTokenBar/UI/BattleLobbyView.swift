@@ -70,10 +70,12 @@ struct BattleLobbyView: View {
                 onApply:{ id in
                     guard battle.registeredTeam.isEmpty,battle.phase == .connected,
                           let current=entries.first(where:{$0.id==entry.id}),itemLoadout.apply(id,to:current,roster:selectedIDs) else{return false}
+                    BattlePokemonItemStore.shared.recordApplied(id,to:current)
+                    restoreItems(selectedIDs)
                     BattleItemUsageStore.shared.recordApplied(id);editingItem=nil;return true
                 },onCancel:{editingItem=nil}).id(entry.id)
         }
-        .onChange(of:selectedIDs) { _,ids in itemLoadout.retain(ids);if let editingItem,!ids.contains(editingItem.id){self.editingItem=nil} }
+        .onChange(of:selectedIDs) { _,ids in restoreItems(ids);if let editingItem,!ids.contains(editingItem.id){self.editingItem=nil} }
         .onChange(of:battle.registeredTeam.isEmpty) { _,empty in if !empty{editingItem=nil} }
         .onChange(of:battle.opponent?.code) { _,code in if code==nil{resetSelection()} }
         .onChange(of: battle.mode) { _, _ in resetSelection() }
@@ -140,9 +142,9 @@ struct BattleLobbyView: View {
                         Button {
                             editingItem=entry
                         } label: {
-                            Text(BattleHeldItems.item(itemLoadout.items[id])?.name(store.language) ?? l.battleChooseItem)
+                            Text(BattleHeldItems.item(itemLoadout.items[id])?.name(store.language) ?? l.battleNoItem)
                                 .font(.caption2).lineLimit(1)
-                        }.buttonStyle(.bordered).accessibilityIdentifier("battle-item-edit-\(id)")
+                        }.buttonStyle(.bordered).help(l.battleChooseItem).accessibilityIdentifier("battle-item-edit-\(id)")
                         HStack(spacing: 6) {
                             Button { reorder(position, position - 1) } label: { Image(systemName: "chevron.left") }
                                 .disabled(position == 0)
@@ -221,6 +223,11 @@ struct BattleLobbyView: View {
     }
     private func reorder(_ from: Int, _ to: Int) {
         selectedIDs.swapAt(from, to)
+    }
+    private func restoreItems(_ ids:[String]) {
+        let remembered=battle.registeredTeam.isEmpty ? BattlePokemonItemStore.shared.items:
+            Dictionary(uniqueKeysWithValues:battle.registeredTeam.map{($0.id,$0.item ?? "")})
+        itemLoadout.restore(roster:ids.compactMap{id in entries.first{$0.id==id}},remembered:remembered)
     }
     private func resetSelection() { selectedIDs = []; lineupIDs = []; selectingLineup = false;itemLoadout=BattleItemLoadout();editingItem=nil }
     private var history: some View {

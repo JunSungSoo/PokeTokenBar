@@ -72,6 +72,7 @@ swiftc -parse-as-library -target arm64-apple-macos14.0 \
     -lsqlite3 -Xlinker -e -Xlinker _previewmain \
     -o "$PREVIEW_APP/Contents/MacOS/PTBBattlePreview"
 codesign --force --sign - "$PREVIEW_APP"
+if [[ "${PTB_PREVIEW_BUILD_ONLY:-0}" == "1" ]]; then exit 0; fi
 if [[ "${PTB_MEGA_DESIGN_PREVIEW:-0}" == "1" ]]; then
     open -n "$PREVIEW_APP" --args --mega-design-preview
 elif [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then

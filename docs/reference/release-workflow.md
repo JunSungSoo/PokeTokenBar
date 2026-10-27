@@ -13,8 +13,14 @@ read_when:
 
 ## 로컬 ZIP 배포
 
-ZIP 생성/갱신도 배포다. 완성된 UTF-8 TXT 노트를 날짜별 `docs/releases/zip/`에
-보관한다. 본문은 `YYYY-MM-DD (N차 배포)` 제목, 빈 줄, `- 변경사항` 목록만 사용한다.
+릴리즈노트 새 이력은 사용자가 추가·기록을 명시적으로 지시할 때만 작성한다.
+ZIP 생성·갱신, 빌드, 커밋·푸시 또는 기존 노트 포함 요청만으로 이력을 추가하거나
+배포 회차를 올리지 않는다. 지시가 없으면 날짜별 TXT·전체 이력·`history.json`을 유지하고
+기존 전체 이력을 ZIP에 포함한다. 파일명 중복은 생성 시각으로 구분하며 노트 회차를 올리지 않는다.
+
+새 이력 추가를 지시받으면 완성된 UTF-8 TXT 노트를 날짜별 `docs/releases/zip/`에
+보관하고 전체 이력과 `history.json`도 갱신한다.
+본문은 `YYYY-MM-DD (N차 배포)` 제목, 빈 줄, `- 변경사항` 목록만 사용한다.
 날짜마다 회차를 1부터 부여하고 같은 날짜 안에서는 높은 회차부터 내림차순으로 표시한다.
 다음 배포는 빈 줄로 구분한다. 날짜도 최신 날짜부터 내림차순으로 표시한다. 버전·검증·출처는
 노트 본문 대신 메타데이터에 보관한다. 과거 기록 복원은 실제 ZIP, 배포 완료 메시지,
@@ -23,7 +29,7 @@ ZIP 생성/갱신도 배포다. 완성된 UTF-8 TXT 노트를 날짜별 `docs/re
 ```bash
 PTB_NATIVE_ARCH_ONLY=1 PTB_SKIP_INSTALL=1 bash scripts/build-app.sh
 python3 scripts/package-zip.py --app build/PokeTokenBar.app \
-  --notes docs/releases/zip/YYYY-MM-DD.txt \
+  --notes "docs/releases/zip/00-Release History.txt" \
   --output "$HOME/Desktop/PokeTokenBar-VERSION-arm64-YYYYMMDD.zip"
 ```
 

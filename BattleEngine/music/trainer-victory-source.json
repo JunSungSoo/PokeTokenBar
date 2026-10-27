@@ -1,0 +1,21 @@
+{
+  "track": "GSC 019 Victory! (Trainer)",
+  "sourcePage": "https://www.enls.eu/prelooped/album/?game=GSC",
+  "sourceURL": "https://www.enls.eu/prelooped/downloads/GSC/GSC%20019%20Victory%21%20%28Trainer%29.ogg",
+  "sourceSHA256": "130d7f6503edcfc41dd468dddeca5926ba909878ccad43cd49a3b0e4e31b714e",
+  "sampleRate": 44100,
+  "channels": 2,
+  "loopStartFrame": 444950,
+  "loopFrameCount": 531648,
+  "conversion": "Vorbis decode to PCM16; no resynthesis, resampling, fades or normalization",
+  "files": {
+    "GoldSilverTrainerVictoryIntro.wav": {
+      "frames": 444950,
+      "sha256": "68131e79644dc6fff423cc2b78c9f5ce10aa28d76f1e9cb363f6c7770ded2467"
+    },
+    "GoldSilverTrainerVictoryLoop.wav": {
+      "frames": 531648,
+      "sha256": "f154e6482b45fd829b84a5aab903afd74a89be556e496786b0d9ef779a215ffb"
+    }
+  }
+}

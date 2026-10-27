@@ -92,7 +92,7 @@ struct BattlePokemonSprite: View {
     var body: some View {
         Group {
             if let current = frames.isEmpty ? image : frames[frameIndex % frames.count].image {
-                let target=PokeRogueSpriteSizes.shared.size(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+                let target=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
                 let native=SpriteFit.size(for:current.size,width:target.width,height:target.height)
                 let fitted=pixelScale.map{CGSize(width:native.width*$0,height:native.height*$0)} ?? SpriteFit.size(for:current.size,box:size)
                 Image(nsImage:current).interpolation(.none).resizable().frame(width:fitted.width,height:fitted.height)

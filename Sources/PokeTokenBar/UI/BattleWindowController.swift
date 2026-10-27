@@ -17,6 +17,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     let audioSettings: BattleAudioSettings
     var isMusicPlaying: Bool { player?.isPlaying == true }
     var musicOutputVolume: Double? { player?.volume }
+    private var acceptsMusic = true
     private var confirmingClose = false
     private(set) var muted = false
     init(battle: BattleCoordinator, store: CompanionStore, allowsAudio: Bool = true, audioDefaults: UserDefaults = .standard) {
@@ -26,9 +27,10 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
         super.init()
         audioSettings.onVolumeChange = { [weak self] volume in self?.player?.volume = volume }
         battle.onBattleWindow = { [weak self] in self?.show() }
-        battle.onStopMusic = { [weak self] in self?.stopMusic() }
+        battle.onStopMusic = { [weak self] in self?.refreshMusic() }
     }
     func show() {
+        acceptsMusic = true
         if window == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 680),
                                   styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -41,6 +43,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
                 onPlayMusic: { [weak self] in self?.playMusic() }, audioSettings:audioSettings, allowsEffectsAudio:allowsAudio, auxiliaryState: auxiliaryState,
                 onShowField: { [weak self] in self?.showAuxiliary(.field) },
                 onShowStats: { [weak self] in self?.showAuxiliary(.stats) },
+                onClose: { [weak self] in self?.window?.performClose(nil) },
                 onLayout: { [weak self] measurement in
                     Task { @MainActor [weak self] in self?.fitContent(measurement) }
                 }))
@@ -61,7 +64,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
         if auxiliaryState.fieldVisible { showAuxiliary(.field) }
         if auxiliaryState.statsVisible { showAuxiliary(.stats) }
         window?.makeKey()
-        if battle.phase == .playing { playMusic() }
+        playMusic()
     }
     private func fitContent(_ measurement: BattleContentMeasurement) {
         contentMeasurement = measurement
@@ -80,7 +83,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         if sender === fieldWindow { auxiliaryState.fieldVisible = false; return true }
         if sender === statsWindow { auxiliaryState.statsVisible = false; return true }
-        guard battle.isActive else { stopMusic(); hideAuxiliaries(); return true }
+        guard battle.isActive else { acceptsMusic = false; stopMusic(); hideAuxiliaries(); return true }
         confirmSurrender(); return false
     }
     func showAuxiliary(_ kind: BattleAuxiliaryKind) {
@@ -140,15 +143,27 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
                 guard let self else { return }
                 self.confirmingClose = false
                 if response == .alertFirstButtonReturn {
-                    self.battle.surrender(); self.stopMusic(); self.hideAuxiliaries(); self.window?.orderOut(nil)
+                    self.acceptsMusic = false; self.battle.surrender(); self.stopMusic(); self.hideAuxiliaries(); self.window?.orderOut(nil)
                 }
             }
         }
     }
+    var musicCue: BattleMusicCue? { player?.cue }
+    private func refreshMusic() {
+        guard BattleMusicCue.resolve(phase:battle.phase,outcome:battle.outcome,pending:battle.presentation.pending) != nil else { stopMusic(); return }
+        playMusic()
+    }
+    func windowWillClose(_ notification: Notification) {
+        guard notification.object as? NSWindow === window else { return }
+        acceptsMusic = false; stopMusic(); hideAuxiliaries()
+    }
     func playMusic() {
-        guard allowsAudio, !muted, battle.phase == .playing, player?.isPlaying != true else { return }
+        guard acceptsMusic, allowsAudio, !muted,
+              let cue = BattleMusicCue.resolve(phase:battle.phase,outcome:battle.outcome,pending:battle.presentation.pending) else { return }
+        if player?.cue == cue && (player?.isPlaying == true || !cue.repeats) { return }
+        stopMusic()
         do {
-            player = try BattleMusicPlayer(directory:BattleEngineProcess.resourceDirectory,volume:audioSettings.volume)
+            player = try BattleMusicPlayer(directory:BattleEngineProcess.resourceDirectory,volume:audioSettings.volume,cue:cue)
             try player?.play()
         } catch { AppLog.write("battle BGM unavailable: \(error.localizedDescription)") }
     }

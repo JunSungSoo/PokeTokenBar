@@ -28,7 +28,7 @@ is used. The existing effects-volume control applies to release/recall audio.
 pokemon-sizes.json derives per-species/form/front/back visible animation bounds from
 atlas JSON at the pinned asset revision. Each record preserves its source SHA-256;
 prepare-pokerogue-sizes.py verifies source Git blob hashes before extraction. Existing
-PokéAPI GIF artwork/cadence remains in use, fitted without distortion to those bounds.
+PokéAPI GIF artwork/cadence remains in use; atlas bounds preserve aspect and facing ratios.
 All battlers share one camera scale. Native and original-player actors use the same
 size/feet anchors; atlas cells retain natural dimensions instead of 64px normalization.
 
@@ -65,3 +65,18 @@ group (woods, water, highlands, caves, settlements). Both peers derive the same
 cosmetic selection from their shared random match nonces using SHA-256; this
 does not change battle weather, terrain, statistics or engine RNG. Native Pokémon
 GIFs, floating animation and existing sprite stages remain unchanged.
+
+Battle display size now uses original PokéAPI CSV height (decimetres), including
+all 649 species and 64 permitted Mega forms: extent = 90 * metres^0.3, normalized
+against the largest front/back atlas dimension before the existing shared camera.
+Physical length is never forced into vertical image height. Source CSV snapshots
+and hashes are preserved in original/physical/ and pokemon-heights.json.
+
+MegaAnimation is a battle-space adaptation of pinned FormChangePhase and Animation
+spiral/arc/circle/spray commands, using unchanged evo_sparkle and charge/beam/
+sparkle/shine sounds. Source references live in original/mega/. The visual clock runs at 2x (2026-10-27 user setting); GIF cadence, audio pitch,
+effects gain and old/new sprite/size identity are preserved. Playback waits for
+original-pitch sound/cry tails before advancing.
+The battle adapter omits the modal evolution video, BGM/fanfare replacement and
+confirmation UI. It holds the preceding detailschange scene until the Mega reveal
+finishes; cancellation never commits an old scene.

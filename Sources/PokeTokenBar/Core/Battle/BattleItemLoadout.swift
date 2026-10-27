@@ -5,6 +5,15 @@ import Observation
 struct BattleItemLoadout:Sendable {
     private(set) var items:[String:String]=[:]
     mutating func retain(_ roster:[String]) {items=items.filter{roster.contains($0.key)}}
+    /// Restore in registration order, never dictionary or collection order.
+    /// Conflicting defaults remain remembered, but only the first holder equips them.
+    mutating func restore(roster:[DexEntry],remembered:[String:String]) {
+        items=[:]
+        let ids=roster.map(\.id)
+        for entry in roster {
+            _ = apply(remembered[entry.id] ?? "",to:entry,roster:ids)
+        }
+    }
     func owner(of itemID:String,excluding pokemonID:String?=nil)->String? {
         guard !itemID.isEmpty else{return nil}
         return items.keys.sorted().first{$0 != pokemonID && items[$0]==itemID}
@@ -19,6 +28,24 @@ struct BattleItemLoadout:Sendable {
         retain(roster)
         if itemID.isEmpty {items.removeValue(forKey:entry.id)} else {items[entry.id]=itemID}
         return true
+    }
+}
+
+/// Explicit Apply choices belong to an owned individual, not a species or consumed battle item.
+/// Automatic duplicate/compatibility fallbacks must not erase that individual's last choice.
+@MainActor final class BattlePokemonItemStore {
+    static let shared=BattlePokemonItemStore()
+    private let defaults:UserDefaults
+    private let key="battlePokemonHeldItems.v1"
+    private(set) var items:[String:String]
+    init(defaults:UserDefaults = .standard) {
+        self.defaults=defaults
+        items=defaults.data(forKey:key).flatMap{try? JSONDecoder().decode([String:String].self,from:$0)} ?? [:]
+    }
+    func recordApplied(_ itemID:String,to entry:DexEntry) {
+        guard !entry.isReleased,itemID.isEmpty || BattleHeldItems.choices(speciesID:entry.finalID,form:entry.form).contains(where:{$0.id==itemID}) else{return}
+        items[entry.id]=itemID
+        if let data=try? JSONEncoder().encode(items){defaults.set(data,forKey:key)}
     }
 }
 

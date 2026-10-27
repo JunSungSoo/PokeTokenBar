@@ -32,6 +32,7 @@ struct PokeRogueActor:Sendable {
     }
     func estimatedDuration(_ event:BattleVisualEvent)->Double {
         if event.phase == "entry" { return 6 }
+        if event.phase == "mega" { return 12 }
         if event.phase == "weather-hit" { return 1 }
         guard let entry=entry(event) else{return 0}
         // Include authored tails and loading margin; the real player completion remains authoritative.
@@ -116,7 +117,7 @@ struct PokeRogueActor:Sendable {
         guard !frames.isEmpty else{throw BattleFailure.unavailableEngine}
         let center=BattleSpriteGeometry.horizontalCenter(frames)
         let encoded=try frames.map{ frame -> String in
-            let target=PokeRogueSpriteSizes.shared.size(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+            let target=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
             let fit=SpriteFit.size(for:frame.image.size,width:target.width,height:target.height)
             // Reserve both sides of the stance so tails/wings are not clipped by the atlas.
             let width=ceil(max(target.width,2*max(center,1-center)*fit.width))
@@ -154,15 +155,15 @@ struct PokeRogueActor:Sendable {
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
             var payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
-                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event),"weatherHit":event.phase == "weather-hit"]
-            if event.phase == "entry" {
-                payload["transition"]=true
+                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event),"weatherHit":event.phase == "weather-hit","reducedMotion":reducedMotion]
+            if ["entry","mega"].contains(event.phase ?? "") {
+                payload[event.phase == "mega" ? "mega":"transition"]=true
                 payload["entrySources"]=(entrySources.isEmpty ? [event.source]:entrySources).map(\.key)
                 var outgoing:[[String:Any]]=[]
                 for old in previousActors + (previousActor.map{[$0]} ?? []) {
-                    guard let incoming=actors.first(where:{$0.position==old.position}),old.pokemon.id != incoming.pokemon.id,!old.pokemon.fainted else{continue}
+                    guard let incoming=actors.first(where:{$0.position==old.position}),event.phase == "mega" || old.pokemon.id != incoming.pokemon.id,!old.pokemon.fainted else{continue}
                     let (texture,data)=try await sprite(old.pokemon,back:old.position.own,reduced:reducedMotion)
-                    outgoing.append(["key":"entry-outgoing-"+old.position.key,"own":old.position.own,"slot":old.position.slot,"shiny":old.pokemon.shiny,"texture":texture,"sprite":data,
+                    outgoing.append(["key":(event.phase == "mega" ? "mega-outgoing-":"entry-outgoing-")+old.position.key,"own":old.position.own,"slot":old.position.slot,"shiny":old.pokemon.shiny,"texture":texture,"sprite":data,
                         "x":old.rect.midX,"y":old.rect.maxY-BattleSpriteGeometry.footInset])
                 }
                 payload["previousActors"]=outgoing
@@ -173,7 +174,7 @@ struct PokeRogueActor:Sendable {
             isPlaying=true
             if reducedMotion {
                 let entry=PokeRogueOriginalCatalog.shared.entry(event)
-                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":(["entry","weather-hit"].contains(event.phase ?? "") ? 10000 : Double(entry?.frames.max() ?? 1)*25)])
+                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":(["entry","mega","weather-hit"].contains(event.phase ?? "") ? 30000 : Double(entry?.frames.max() ?? 1)*25)])
                 try await Task.sleep(for:.seconds(max(1.4,prepared["audioTail"] as? Double ?? 0)))
             }else{
                 var previous=Date();let deadline=previous.addingTimeInterval(60)

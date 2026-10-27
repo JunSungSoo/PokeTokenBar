@@ -12,6 +12,7 @@ struct BattleView: View {
     var auxiliaryState: BattleAuxiliaryState? = nil
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
+    var onClose: () -> Void = {}
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
     @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth(for: .singles)
     @State private var choices: [Int: BattleAction] = [:]
@@ -59,6 +60,11 @@ struct BattleView: View {
                     }.padding(.horizontal, 12).padding(.top, 12)
                         .frame(maxWidth: .infinity, alignment: .top)
                     Divider().measureBattleContent("footer")
+                    if battle.outcome != nil && !battle.presentation.pending && !effectsBusy {
+                        HStack { Spacer(); Button(l.quit, action:onClose)
+                            .accessibilityIdentifier("battle-close-result") }
+                            .padding(.horizontal,18).padding(.vertical,8)
+                    }
                     if !frame.preview && !frame.ended && (battle.phase == .playing || battle.presentation.pending) {
                         HStack { Spacer(); submitButton(frame) }.padding(.horizontal,18).padding(.vertical,8)
                         Divider()
@@ -208,7 +214,7 @@ struct BattleView: View {
         // Include both facings and form changes up front so switching/Transform cannot pop the camera.
         let sizes=ids.flatMap { id in
             return BattleHeldItems.sizingForms(speciesID:id).flatMap { form in
-                [false,true].map{catalog.size(speciesID:id,form:form,back:$0)}
+                [false,true].map{catalog.battleSize(speciesID:id,form:form,back:$0)}
             }
         }
         return BattleSpriteSizing.make(mode:battle.mode,sizes:sizes)

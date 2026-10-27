@@ -5,18 +5,21 @@
 
 ## 로컬 ZIP 배포
 
-수정한 앱을 ZIP으로 제공하는 것도 배포다. 날짜별 TXT 노트를
-`docs/releases/zip/YYYY-MM-DD.txt`에 작성한 뒤 공통 패키저로 압축한다.
+릴리즈노트 새 이력은 사용자가 추가·기록을 명시적으로 지시할 때만 작성한다.
+ZIP 생성·갱신, 빌드, 커밋·푸시 또는 기존 노트 포함 요청만으로 이력을 추가하거나
+배포 회차를 올리지 않는다. 지시가 없으면 날짜별 TXT·전체 이력·`history.json`을 유지한다.
+공통 패키저로 압축할 때 기존 전체 릴리즈노트를 사용한다.
 앱과 같은 압축 최상위에 `Release Notes.txt`를 반드시 포함한다.
 
 ```bash
 PTB_NATIVE_ARCH_ONLY=1 PTB_SKIP_INSTALL=1 bash scripts/build-app.sh
 python3 scripts/package-zip.py --app build/PokeTokenBar.app \
-  --notes docs/releases/zip/YYYY-MM-DD.txt \
+  --notes "docs/releases/zip/00-Release History.txt" \
   --output "$HOME/Desktop/PokeTokenBar-VERSION-arm64-YYYYMMDD.zip"
 ```
 
-본문은 `YYYY-MM-DD (N차 배포)`와 `- 변경사항` 목록만 작성한다. 같은 날짜 안의
+새 이력 추가를 지시받으면 날짜별 `docs/releases/zip/YYYY-MM-DD.txt`와 전체 이력,
+`history.json`을 갱신한다. 본문은 `YYYY-MM-DD (N차 배포)`와 `- 변경사항` 목록만 작성한다. 같은 날짜 안의
 회차는 1부터 부여하고, 표시 순서는 높은 회차부터 내림차순이다(5차 → 4차 → 3차). 날짜도 최신 날짜부터 표시한다.
 검증·버전·해시는 ZIP의 `Release Metadata.json`에 분리한다.
 아래 공개 릴리스 절차는 GitHub/Homebrew 배포를 요청한 경우에만 추가 적용한다.

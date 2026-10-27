@@ -3,12 +3,13 @@ import {Clock,TonePipeline,OriginalMove} from './player-core.js';
 import {EntryAnimation} from './entry-player.js';
 import {entryCry} from './entry-cries.js';
 import {WeatherHitAnimation} from './weather-hit-player.js';
+import {MegaAnimation} from './mega-player.js';
 import {renderTimedSurface,adaptTimedBackgrounds} from './timed-backgrounds.js';
 const backgroundOnly=new URLSearchParams(location.search).get('layer')==='background';
 const post=m=>window.webkit?.messageHandlers.rogue.postMessage({...m,layer:backgroundOnly?'background':'foreground'});
 window.addEventListener('unhandledrejection',e=>post({kind:'error',message:String(e.reason?.stack||e.reason)}));
 let scene,manifest,field,actors=[],runs=[],done=true,physical=0,generation=0,rawDefinitions=new Map(),pending=false;
-let entryAnimations=[],weatherHit=null;
+let entryAnimations=[],weatherHit=null,mega=null;
 const assets=new Map();
 const resourceOrder=[],soundOrder=[];
 let effectsVolume=0;
@@ -94,7 +95,7 @@ function facade(index,user,sharedCaster=true,viewport){
  owner.getEnemyPokemon=()=>actors.find(a=>!a.own);owner.getPlayerPokemon=()=>actors.find(a=>a.own);
  owner.getEnemyField=()=>actors.filter(a=>!a.own);owner.getPlayerField=()=>actors.filter(a=>a.own);return owner;
 }
-function clear(){weatherHit=null;entryAnimations=[];generation++;soundEvents.length=0;scene.sound.stopAll();scene.sound.removeAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
+function clear(){mega=null;weatherHit=null;entryAnimations=[];generation++;soundEvents.length=0;scene.sound.stopAll();scene.sound.removeAll();for(const r of runs)r.clock.reset();runs=[];actors=[];field.removeAll(true);done=true;scene.game.step(performance.now(),0);scene.game.loop.sleep();}
 window.ptbPrepare=async function(payload){
  if(pending)throw Error('Original player is already preparing');pending=true;
  try{
@@ -102,7 +103,23 @@ window.ptbPrepare=async function(payload){
  window.ptbEntryStage="audio";if(!backgroundOnly&&effectsVolume>0){scene.sound.unlock();await scene.sound.context?.resume();}
  const run=generation,entry=manifest.entries[payload.move]??manifest.fieldEntries?.[payload.move]??manifest.statusEntries?.[payload.move];
  let definition;
- if(payload.weatherHit){
+ if(payload.mega){
+  const paths=Object.entries(manifest.megaAssets.sounds).map(([name,path])=>['mega-'+name,path]);
+  const actor=payload.actors.find(a=>a.key===payload.source);
+  actor.cry=entryCry(actor.speciesID,actor.form,actor.hpRatio,manifest.cries);
+  if(actor.cry)paths.push([actor.cry.key,actor.cry.path]);
+  await Promise.all(paths.map(async([key,path])=>{if(!scene.cache.audio.exists(key)){
+   const response=await fetch(path);if(!response.ok)throw Error('Missing Mega sound '+path);
+   scene.cache.audio.add(key,await scene.sound.context.decodeAudioData(await response.arrayBuffer()));
+  }}));
+  if(actor.cry)actor.cry.duration=scene.cache.audio.get(actor.cry.key).duration;
+  for(const [key] of paths){const i=soundOrder.indexOf(key);if(i>=0)soundOrder.splice(i,1);soundOrder.push(key);}
+  while(soundOrder.length>48){const old=soundOrder.shift();scene.sound.removeByKey(old);scene.cache.audio.remove(old);}
+  if(!scene.textures.exists('mega-particle')){
+   const image=new Image();image.src=manifest.megaAssets.particle;await image.decode();scene.textures.addImage('mega-particle',image);
+  }
+ }
+ else if(payload.weatherHit){
   if(!scene.cache.audio.exists('weather-hit')){
    const response=await fetch(manifest.weatherHitAssets.sound);if(!response.ok)throw Error('Missing weather hit sound');
    scene.cache.audio.add('weather-hit',await scene.sound.context.decodeAudioData(await response.arrayBuffer()));
@@ -118,6 +135,15 @@ window.ptbPrepare=async function(payload){
  scene.scale.resize(payload.width,payload.height);const scale=payload.scale;field.setScale(scale);
  actors=payload.actors.map(a=>makeActor(a,scale));physical=performance.now();gif();
  const user=actors.find(a=>a.key===payload.source);if(!user)throw Error('Missing original move actor');
+ if(payload.mega){
+  const addParticle=()=>{const p=layer(scene.add.image(0,0,'mega-particle'),'effect');field.add(p);return p;};
+  const addBackdrop=color=>{const p=layer(scene.add.rectangle(payload.width/scale/2,payload.height/scale/2,payload.width/scale,payload.height/scale,color,1).setAlpha(0),'background');field.add(p);return p;};
+  mega=new MegaAnimation({incoming:user,outgoing:actors.find(a=>a.key==='mega-outgoing-'+payload.source),addParticle,addBackdrop,reducedMotion:payload.reducedMotion,
+   audioTail:Math.max(...Object.entries({charge:250,beam:3350,sparkle:4850,shine:5750}).filter(([name])=>!payload.reducedMotion||name==='shine').map(([name,at])=>at/2+scene.cache.audio.get('mega-'+name).duration*1000)),
+   playSound:(key,clock,config={})=>{if(!backgroundOnly){soundEvents.push({key,clock,volume:effectsVolume,pitch:config.rate??1});scene.sound.play(key,{volume:1,...config});}}});
+  done=false;scene.game.loop.sleep();return {frames:Math.ceil(mega.duration/50),audioTail:Math.max(scene.cache.audio.get('mega-shine').duration,user.cryInfo?.duration??0)};
+ }
+
  if(payload.weatherHit){
   weatherHit=new WeatherHitAnimation({actor:user,playSound:()=>{if(!backgroundOnly){soundEvents.push({key:'weather-hit',volume:effectsVolume,pitch:1,clock:0});scene.sound.play('weather-hit',{volume:1});}}});
   done=false;scene.game.loop.sleep();return {frames:10};
@@ -145,9 +171,9 @@ window.ptbPrepare=async function(payload){
  done=false;scene.game.loop.sleep();return {frames:runs[0].animation.config.frames.length};
  }finally{pending=false;}
 };
-window.ptbAdvance=function(delta){physical=performance.now();gif();if(weatherHit){done=weatherHit.advance(delta);}else if(entryAnimations.length){const completed=entryAnimations.map(a=>a.advance(delta));done=completed.every(Boolean);}else{for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);}orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect())};};
+window.ptbAdvance=function(delta){physical=performance.now();gif();if(mega){done=mega.advance(delta);}else if(weatherHit){done=weatherHit.advance(delta);}else if(entryAnimations.length){const completed=entryAnimations.map(a=>a.advance(delta));done=completed.every(Boolean);}else{for(const r of runs){if(r.done)continue;bindScene(r);r.clock.advance(delta);}done=runs.every(r=>r.done);}orderLayers();scene.game.isPaused=false;scene.game.step(performance.now(),0);scene.game.loop.sleep();return {done,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect())};};
 window.ptbFinish=function(){clear();return true;};
-window.ptbInspect=()=>({done,weatherHit:weatherHit?.inspect()??null,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,shiny:a.shiny,gif:a.gif,x:a.x,y:a.y,width:a.base.width,height:a.base.height,pixelScale:field.scaleX})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,actor:a.getData('actorKey'),tone:a.pipelineData?.tone??[0,0,0,0],x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect()),backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
+window.ptbInspect=()=>({done,mega:mega?.inspect()??null,weatherHit:weatherHit?.inspect()??null,effectsVolume:scene.sound.volume,audioState:scene.sound.context?.state,soundEvents:[...soundEvents],playingSounds:scene.sound.sounds.filter(s=>s.isPlaying).length,soundInstances:scene.sound.sounds.length,layer:backgroundOnly?'background':'foreground',layers:field.list.map(a=>a.getData('battleLayer')),actors:actors.map(a=>({key:a.key,shiny:a.shiny,gif:a.gif,x:a.x,y:a.y,width:a.base.width,height:a.base.height,pixelScale:field.scaleX})),tracks:runs.length,sprites:field.list.filter(a=>a.texture).map(a=>({texture:a.texture.key,actor:a.getData('actorKey'),tone:a.pipelineData?.tone??[0,0,0,0],x:a.x,y:a.y,screenX:a.getWorldTransformMatrix().tx,screenY:a.getWorldTransformMatrix().ty,visible:a.visible})),graphics:field.list.filter(a=>a.texture?.key?.startsWith('PRAS-')).length,clock:entryAnimations[0]?.elapsed??runs[0]?.clock.now??0,entry:entryAnimations[0]?.inspect()??null,entries:entryAnimations.map(a=>a.inspect()),backdrops:field.list.filter(a=>a.type==='TileSprite').map(a=>({resource:a.displayTexture?.key,layer:a.getData('battleLayer'),visible:a.visible,alpha:a.alpha}))});
 fetch('manifest.json').then(r=>r.json()).then(m=>{
  manifest=m;
  new Phaser.Game({type:Phaser.WEBGL,parent:'stage',width:800,height:320,transparent:true,pixelArt:true,render:{antialias:false,roundPixels:false,preserveDrawingBuffer:true},scene:{

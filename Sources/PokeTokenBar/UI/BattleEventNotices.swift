@@ -37,10 +37,15 @@ struct BattlePresentationEvents {
                 source: BattleEffectPosition(own: true, slot: 0), targets: [], phase: "ability")
         }
         let existing = Set((moves + abilityEvents).map(\.id))
-        let stateEvents = (frame.scenes ?? []).filter { !existing.contains($0.id) }.map { scene in
+        let deferredMegaDetails=BattleMegaEffects.deferredSceneIDs(frame:frame)
+        let stateEvents = (frame.scenes ?? []).filter { !existing.contains($0.id) && !deferredMegaDetails.contains($0.id) }.map { scene in
             let index = scene.id - offset
             let line = frame.log.indices.contains(index) ? frame.log[index] : ""
             if let event=BattleEntryEffects.event(scene:scene,line:line,ownPlayer:ownPlayer) {
+                messages[scene.id]=BattleLogText.describe(line,language:language,ownPlayer:ownPlayer)
+                return event
+            }
+            if let event=BattleMegaEffects.event(scene:scene,line:line,ownPlayer:ownPlayer) {
                 messages[scene.id]=BattleLogText.describe(line,language:language,ownPlayer:ownPlayer)
                 return event
             }

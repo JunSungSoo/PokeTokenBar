@@ -11,7 +11,15 @@ Battle appears immediately after Trade. Two Macs use the trade connection infras
 
 ## Mechanics and individual stats
 
-`BattleEngine/engine.cjs` wraps pinned Pokémon Showdown 0.11.11 with generation-V BW2 mechanics. `BattleTeamBuilder` freezes the current level, all six computed values, IVs, nature and existing moves. There are no EVs, level normalization, held items, PP Ups, rewards or permanent HP/status changes. Duplicate individuals and duplicate species within one team are rejected. Different forms share the same National Pokédex species number; each opposing team may independently use the same species. The picker disables other individuals of a selected species, and readiness and the canonical engine roster validate the rule again. A preflight helper validates the roster before readiness.
+`BattleEngine/engine.cjs` wraps pinned Pokémon Showdown 0.11.11 with generation-V BW2 mechanics. `BattleTeamBuilder` freezes the current level, all six computed values, IVs, nature and existing moves. There are no EVs, level normalization, PP Ups, rewards or permanent HP/status changes. Duplicate individuals and duplicate species within one team are rejected. Different forms share the same National Pokédex species number; each opposing team may independently use the same species. The picker disables other individuals of a selected species, and readiness and the canonical engine roster validate the rule again. A preflight helper validates the roster before readiness.
+
+Held-item defaults remember the last explicit Apply choice per owned collection
+entry, independently of species, global item recency and battle consumption.
+First appearances use None; explicit None is remembered too. Resolve the six-member
+roster in selection order: the first compatible holder gets a duplicate item,
+later holders get None. Reordering/removing a holder re-resolves defaults without
+overwriting remembered preferences. Preview/Cancel never writes them, and a locked
+registered team retains its frozen assignments.
 
 Pokémon whose type depends on a held item cannot participate. In generation V this excludes Arceus in every form, including Normal. The picker disables these individuals with an explanation; both native preflight and the host engine reject them as well. Weather-driven form changes remain legal and sprites follow the current battle form.
 
@@ -469,3 +477,11 @@ Timed-event resources explicitly authored as foreground (`FG` wave/flash texture
 opposing Lick overlay) are placed with foreground graphics, despite their source background-event
 API. True background changes remain below characters/HUD. Source timing and original assets
 are preserved in both cases.
+
+### Result audio and close button
+
+After the final animation and HP presentation complete, a local win switches from the wild-battle theme to the archived Gold/Silver `Victory! (Trainer)` (GSC 019). Its intro plays once, then its source loop repeats. The existing BGM volume/mute control applies. Loss plays the archived Pokémon Battle Revolution `Player Lost Fanfare` once (4.32 seconds) and stops. Draw and interruption stop BGM. Repeated presentation callbacks do not replay the defeat fanfare.
+
+Completed results have a localized **Quit / 종료** button in the bottom footer. It calls the main window's `performClose`, sharing the title-bar X delegate path: stop music, hide auxiliary windows, and close without changing the saved result. Late presentation callbacks cannot restart music after closing. Active-battle X still asks for surrender confirmation.
+
+For a repeatable result/audio test, build the standalone preview and launch `PTBBattlePreview --result-audio-preview`. Its helper window opens real local win/loss outcomes via the in-memory opponent surrender path, one result window at a time. Use the result footer or X to test closing, and reopen either result to hear it again. Preview histories/profiles are isolated from the user's collection.

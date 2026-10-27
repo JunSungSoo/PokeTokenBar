@@ -41,8 +41,8 @@ cp -R Sources/PokeTokenBar/Resources/PokeRogue "$APP/Contents/Resources/PokeRogu
 cp -R Sources/PokeTokenBar/Resources/PokeRoguePlayer "$APP/Contents/Resources/PokeRoguePlayer"
 ENGINE="$APP/Contents/Resources/BattleEngine"
 mkdir -p "$ENGINE/node_modules/pokemon-showdown/dist"
-cp BattleEngine/engine.cjs BattleEngine/held-items.cjs BattleEngine/held-items.json BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav "$ENGINE/"
-cp BattleEngine/music/wild-battle-source.json "$ENGINE/"
+cp BattleEngine/engine.cjs BattleEngine/held-items.cjs BattleEngine/held-items.json BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav BattleEngine/GoldSilverTrainerVictoryIntro.wav BattleEngine/GoldSilverTrainerVictoryLoop.wav BattleEngine/BattleRevolutionPlayerLost.wav "$ENGINE/"
+cp BattleEngine/music/wild-battle-source.json BattleEngine/music/trainer-victory-source.json BattleEngine/music/player-lost-source.json "$ENGINE/"
 if [[ ${#ARCHS[@]} -eq 1 ]]; then
     # Development builds only ship the requested CPU slice, including the helper runtime.
     lipo BattleEngine/runtime/node -thin "${ARCHS[0]}" -output "$ENGINE/node"

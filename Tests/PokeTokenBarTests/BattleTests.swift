@@ -894,14 +894,96 @@ final class BattleTests: XCTestCase {
         XCTAssertNotEqual(digest,BattleCoordinator.digest(decision,nonce: "b",matchID: "m"))
         XCTAssertNotEqual(digest,BattleCoordinator.digest(decision,nonce: "a",matchID: "n"))
     }
+    func testWinningPeerStartsVictoryMusicAndClosingPreventsRestart() async throws {
+        defer { cleanup() }
+        let (a,b,_,_) = try await pair(mode:.singles)
+        let settings=try defaults(code:"result-music")
+        settings.set(0,forKey:BattleAudioSettings.volumeKey)
+        let store=CompanionStore(fileURL:temporaryFile(),defaults:settings)
+        let winner=BattleWindowController(battle:a,store:store,audioDefaults:settings)
+        let loser=BattleWindowController(battle:b,store:store,audioDefaults:settings)
+        winner.playMusic();loser.playMusic()
+        XCTAssertEqual(winner.musicCue,.battle)
+        XCTAssertEqual(loser.musicCue,.battle)
+        b.surrender()
+        try await wait { a.outcome == "win" && b.outcome == "loss" }
+        XCTAssertTrue(winner.isMusicPlaying)
+        XCTAssertEqual(winner.musicCue,.trainerVictory)
+        XCTAssertEqual(winner.musicOutputVolume,0)
+        XCTAssertTrue(loser.isMusicPlaying)
+        XCTAssertEqual(loser.musicCue,.playerLost)
+        try await Task.sleep(for:.seconds(4.6))
+        XCTAssertFalse(loser.isMusicPlaying)
+        b.completePresentation();loser.playMusic()
+        XCTAssertFalse(loser.isMusicPlaying,"Defeat fanfare plays once, including repeated presentation callbacks")
+        a.completePresentation()
+        XCTAssertEqual(winner.musicCue,.trainerVictory)
+        // Exercise the delegate path shared by the title-bar X and result footer.
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:100,height:100),styleMask:[.titled,.closable],backing:.buffered,defer:false)
+        window.isReleasedWhenClosed=false
+        XCTAssertTrue(winner.windowShouldClose(window))
+        XCTAssertFalse(winner.isMusicPlaying)
+        a.completePresentation();winner.playMusic()
+        XCTAssertFalse(winner.isMusicPlaying,"Presentation callbacks after closing must not restart the result track")
+        XCTAssertEqual(a.outcome,"win");XCTAssertEqual(b.outcome,"loss")
+        window.close()
+    }
+    func testResultMusicWaitsForFinalPresentationAndOnlyCelebratesWins() {
+        XCTAssertEqual(BattleMusicCue.resolve(phase:.playing,outcome:nil,pending:false),.battle)
+        for result in ["win","loss","draw","interrupted"] {
+            XCTAssertEqual(BattleMusicCue.resolve(phase:.ended,outcome:result,pending:true),.battle)
+            XCTAssertEqual(BattleMusicCue.resolve(phase:.ended,outcome:result,pending:false),result == "win" ? .trainerVictory : result == "loss" ? .playerLost : nil)
+        }
+        XCTAssertNil(BattleMusicCue.resolve(phase:.reconnecting,outcome:nil,pending:false))
+        XCTAssertNil(BattleMusicCue.resolve(phase:.idle,outcome:nil,pending:false))
+    }
+    func testPlayerLostFanfarePreservesPCMAndDoesNotLoop() throws {
+        let track=try BattleMusicTrack(directory:BattleEngineProcess.sourceRoot,cue:.playerLost)
+        XCTAssertNil(track.loop)
+        XCTAssertEqual(track.intro.frameLength,138_240)
+        XCTAssertEqual(track.intro.format.sampleRate,32_000)
+        XCTAssertEqual(track.intro.format.channelCount,2)
+        let data=try Data(contentsOf:BattleEngineProcess.sourceRoot.appendingPathComponent("BattleRevolutionPlayerLost.wav"))
+        XCTAssertEqual(SHA256.hash(data:data).map{String(format:"%02x",$0)}.joined(),"5974105c862f35e6c5a4783b5ee4d9a73d96e4230f26bb18672f0f0359b5ba57")
+        let engine=AVAudioEngine(),node=AVAudioPlayerNode()
+        engine.attach(node);engine.connect(node,to:engine.mainMixerNode,format:track.intro.format)
+        try engine.enableManualRenderingMode(.offline,format:track.intro.format,maximumFrameCount:4096)
+        track.schedule(on:node);try engine.start();node.play()
+        defer { node.stop();engine.stop() }
+        let buffer=try XCTUnwrap(AVAudioPCMBuffer(pcmFormat:track.intro.format,frameCapacity:4096))
+        var rendered=0,silentFrames=0
+        while rendered < Int(track.intro.frameLength)+8192 {
+            XCTAssertEqual(try engine.renderOffline(4096,to:buffer),.success)
+            for i in 0..<Int(buffer.frameLength) where rendered+i >= Int(track.intro.frameLength)+256 {
+                XCTAssertLessThan(abs(buffer.floatChannelData![0][i]),0.00001)
+                silentFrames+=1
+            }
+            rendered+=Int(buffer.frameLength)
+        }
+        XCTAssertGreaterThan(silentFrames,7000)
+    }
+    func testGoldSilverTrainerVictoryPreservesArchivedPCM() throws {
+        let track=try BattleMusicTrack(directory:BattleEngineProcess.sourceRoot,cue:.trainerVictory)
+        XCTAssertEqual(track.intro.frameLength,444_950)
+        XCTAssertEqual(try XCTUnwrap(track.loop).frameLength,531_648)
+        XCTAssertEqual(track.intro.format.sampleRate,44_100)
+        XCTAssertEqual(track.intro.format.channelCount,2)
+        XCTAssertEqual(track.intro.format,try XCTUnwrap(track.loop).format)
+        let hashes=["Intro":"68131e79644dc6fff423cc2b78c9f5ce10aa28d76f1e9cb363f6c7770ded2467",
+                    "Loop":"f154e6482b45fd829b84a5aab903afd74a89be556e496786b0d9ef779a215ffb"]
+        for (suffix,hash) in hashes {
+            let data=try Data(contentsOf:BattleEngineProcess.sourceRoot.appendingPathComponent("GoldSilverTrainerVictory"+suffix+".wav"))
+            XCTAssertEqual(SHA256.hash(data:data).map{String(format:"%02x",$0)}.joined(),hash)
+        }
+    }
     func testGoldSilverWildBattlePreservesSourceIntroAndLoopFrames() throws {
         let directory=BattleEngineProcess.sourceRoot
         let track=try BattleMusicTrack(directory:directory)
         XCTAssertEqual(track.intro.frameLength,1_038_645)
-        XCTAssertEqual(track.loop.frameLength,1_612_668)
+        XCTAssertEqual(try XCTUnwrap(track.loop).frameLength,1_612_668)
         XCTAssertEqual(track.intro.format.sampleRate,44_100)
         XCTAssertEqual(track.intro.format.channelCount,2)
-        XCTAssertEqual(track.intro.format,track.loop.format)
+        XCTAssertEqual(track.intro.format,try XCTUnwrap(track.loop).format)
         let expected = ["GoldSilverWildBattleIntro.wav":"3bbfb18ee4b5c0cc35db197b1c5449f3de2fa1dcd410ac61e04c8a2b24311fb7",
                         "GoldSilverWildBattleLoop.wav":"359e8c720f145879e7c472d13de1d8f40bc4e83052cfca3c852c3ecd44979f09"]
         for (name,hash) in expected {
@@ -912,7 +994,13 @@ final class BattleTests: XCTestCase {
         }
     }
     func testWildBattleSchedulingSkipsIntroOnEverySubsequentLoop() throws {
-        let track=try BattleMusicTrack(directory:BattleEngineProcess.sourceRoot)
+        try assertMusicLoop(cue:.battle)
+    }
+    func testTrainerVictorySchedulingSkipsIntroOnEverySubsequentLoop() throws {
+        try assertMusicLoop(cue:.trainerVictory)
+    }
+    private func assertMusicLoop(cue:BattleMusicCue) throws {
+        let track=try BattleMusicTrack(directory:BattleEngineProcess.sourceRoot,cue:cue)
         let engine=AVAudioEngine(),node=AVAudioPlayerNode()
         engine.attach(node);engine.connect(node,to:engine.mainMixerNode,format:track.intro.format)
         let block: AVAudioFrameCount=4096
@@ -921,7 +1009,7 @@ final class BattleTests: XCTestCase {
         try engine.start();node.play()
         defer { node.stop();engine.stop() }
         let buffer=try XCTUnwrap(AVAudioPCMBuffer(pcmFormat:track.intro.format,frameCapacity:block))
-        let intro=Int(track.intro.frameLength),loop=Int(track.loop.frameLength)
+        let intro=Int(track.intro.frameLength),loop=Int(try XCTUnwrap(track.loop).frameLength)
         var rendered=0, error: Float=0, count=0
         while rendered < intro + loop + 8192 {
             let status=try engine.renderOffline(block,to:buffer)
@@ -931,7 +1019,7 @@ final class BattleTests: XCTestCase {
                 let frame=rendered+i
                 // Check both joins and a later part of the repeated loop.
                 guard (intro-128..<intro+128).contains(frame) || (intro+loop-128..<intro+loop+8192).contains(frame) else { continue }
-                let source=frame < intro ? track.intro : track.loop
+                let source=frame < intro ? track.intro : try XCTUnwrap(track.loop)
                 let index=frame < intro ? frame : (frame-intro)%loop
                 let actual=buffer.floatChannelData![0][i],expected=source.floatChannelData![0][index]
                 error=max(error,abs(actual-expected));count+=1

@@ -15,6 +15,29 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Physical sizes and transformations need semantic data, not only image swaps
+
+- Battle sprites used original atlas bounds, while collection species information
+  displayed PokéAPI decimetres. Earlier tests protected atlas pixel ratios, not
+  physical size ordering. Use a separate offline PokéAPI height catalog covering
+  all 649 species and 64 permitted Mega forms. Compress height to a common display
+  extent, preserve atlas/facing proportions, and use the same extent for native
+  GIFs, source-player atlases, entries and moves. Keep one roster/form camera.
+- Mega logs previously used generic text transitions. Adding animation only at
+  `-mega` is insufficient: the real engine first captures `detailschange` with the
+  new form. Applying that precursor changes the native sprite and previous-actor
+  snapshot before transformation starts. Defer only adjacent same-individual
+  detailschange/-mega pairs; unrelated form changes keep their normal processing.
+- Real engine tests assert deferred IDs, the dedicated Mega phase and localized
+  messages in both formats. The native queue includes the precursor and requires
+  old/new sprite transition, continued GIF cadence and next-scene waiting.
+  Disabling precursor deferral produced 32 real-engine assertion failures; restored
+  before the final passing run. Source-region inspection confirms the deferral
+  insertion, physical extent calculation, previous-state Mega path and guarded
+  reveal execute. Original
+  particle/audio references, bounded sound cache, effects volume, layer separation
+  and transparent cleanup remain part of the shared original-player contract.
+
 ## Every distributable ZIP must carry its own release notes
 
 - Local Desktop archives were created by one-off ditto commands, and public
@@ -26,6 +49,10 @@ read_when:
   beside the unmodified signed app, store package metadata separately in Release
   Metadata.json, verify CRC and executable
   bytes, and atomically refuse existing output paths.
+- User policy updated 2026-10-27: include the existing release history in each ZIP,
+  but append entries and advance release numbers only when explicitly instructed.
+  Packaging, building, committing/pushing or requesting note inclusion alone does
+  not authorize history updates; package metadata remains separate from that history.
 - Tests cover missing/empty notes, invalid dates, empty entries, repeated sequence numbers, Unicode notes in a real archive,
   unchanged app bytes/permissions, refused overwrites, invalid output locations,
   archiver failure cleanup and the public-release integration. Historical notes

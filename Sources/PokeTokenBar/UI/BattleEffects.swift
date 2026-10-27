@@ -147,7 +147,20 @@ struct BattleEffectsLayer: View {
                         guard members.indices.contains(actor.position.slot) else{return isOpening ? actor:nil}
                         return PokeRogueActor(pokemon:members[actor.position.slot],position:actor.position,rect:actor.rect,pixelScale:actor.pixelScale)
                     }
-                    if event.phase == "entry" {
+                    if event.phase == "mega" {
+                        let actor=actors.first{$0.position==event.source}
+                        let prior=event.source.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
+                        let pokemon=prior.flatMap{$0.indices.contains(event.source.slot) ? $0[event.source.slot]:nil} ?? actor?.pokemon
+                        let old=actor.flatMap { actor in pokemon.map{PokeRogueActor(pokemon:$0,position:actor.position,rect:actor.rect,pixelScale:actor.pixelScale)} }
+                        var revealed=false
+                        let reveal={
+                            guard !revealed else{return};revealed=true
+                            if let scene=finalScene {onScene(scene);lastPresentedScene=scene}
+                        }
+                        _ = await originalPlayer.play(event,actors:eventActors,size:viewport,reducedMotion:reduceMotion,previousActor:old,beforeFinish:reveal)
+                        guard !Task.isCancelled else{return}
+                        reveal()
+                    } else if event.phase == "entry" {
                         let old:[PokeRogueActor]=isOpening ? []:batch.compactMap { member in
                             let position=member.event.source
                             let priorMembers=position.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
@@ -186,7 +199,7 @@ struct BattleEffectsLayer: View {
                         try await Task.sleep(for:.seconds(reduceMotion ? 1.4 : BattleEffectPlayback.animationDuration(event)))
                     }
                     active=nil;playback=nil;for member in batch { notices.finish(id:member.event.id) }
-                    if event.phase != "entry", let scene=item.scene, !isOpening { await present(scene) }
+                    if !["entry","mega"].contains(event.phase ?? ""), let scene=item.scene, !isOpening { await present(scene) }
                     try await Task.sleep(for:.seconds(BattleEffectPlayback.interEventPause))
                 }
                 catch { return }
@@ -205,6 +218,7 @@ struct BattleEffectsLayer: View {
     }
     static func presentationDuration(_ event: BattleVisualEvent, reducedMotion: Bool = false) -> Double {
         if event.phase == "entry" { return 5 }
+        if event.phase == "mega" { return 10 }
         if event.phase == "health" { return 0.9 }
         if event.phase == "weather-hit" { return 0.5 + BattleEffectPlayback.interEventPause }
         if event.phase == "state" { return 0.25 }

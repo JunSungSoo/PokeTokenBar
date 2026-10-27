@@ -30,7 +30,41 @@ import XCTest
         XCTAssertTrue(draft.apply("charizarditex",to:entry("0"),roster:roster))
         XCTAssertTrue(draft.apply("leftovers",to:entry("0"),roster:roster))
         XCTAssertNil(draft.owner(of:"charizarditex"))
-        XCTAssertTrue(BattleItemLoadout().items.isEmpty,"A new match does not reuse assignments")
+        XCTAssertTrue(BattleItemLoadout().items.isEmpty,"An uninitialized draft waits for roster defaults")
+    }
+    func testPerIndividualLastItemPersistsAndFirstAppearanceUsesNone() throws {
+        let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults)
+        let first=entry("first"),second=entry("another-owned-charizard")
+        var draft=BattleItemLoadout()
+        draft.restore(roster:[first,second],remembered:memory.items)
+        XCTAssertTrue(draft.items.isEmpty)
+        memory.recordApplied("charizarditex",to:first)
+        let restored=BattlePokemonItemStore(defaults:defaults)
+        draft.restore(roster:[first,second],remembered:restored.items)
+        XCTAssertEqual(draft.items,[first.id:"charizarditex"])
+        XCTAssertNil(restored.items[second.id],"Remember the owned individual, not its species")
+        restored.recordApplied("",to:first)
+        draft.restore(roster:[first],remembered:BattlePokemonItemStore(defaults:defaults).items)
+        XCTAssertTrue(draft.items.isEmpty,"Explicit None replaces the previous item")
+    }
+    func testSixDefaultsResolveDuplicatesInRegistrationOrderAndNeverErasePreferences() throws {
+        let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults)
+        let roster=zip(["z","a","y","b","x","c"],[6,9,3,94,143,181]).map{entry($0.0,$0.1)}
+        for (pokemon,item) in zip(roster,["lifeorb","lifeorb","leftovers","leftovers","sitrusberry",""]) {
+            memory.recordApplied(item,to:pokemon)
+        }
+        let original=memory.items
+        var draft=BattleItemLoadout()
+        draft.restore(roster:roster,remembered:memory.items)
+        XCTAssertEqual(draft.items,["z":"lifeorb","y":"leftovers","x":"sitrusberry"])
+        draft.restore(roster:roster.reversed(),remembered:memory.items)
+        XCTAssertEqual(draft.items,["a":"lifeorb","b":"leftovers","x":"sitrusberry"])
+        draft.restore(roster:Array(roster.dropFirst()),remembered:memory.items)
+        XCTAssertEqual(draft.items["a"],"lifeorb","Removing the first holder frees the remembered item")
+        XCTAssertEqual(BattlePokemonItemStore(defaults:defaults).items,original)
+        memory.recordApplied("",to:roster[0])
+        draft.restore(roster:roster,remembered:memory.items)
+        XCTAssertNil(draft.items["z"]);XCTAssertEqual(draft.items["a"],"lifeorb")
     }
     func testRecentApplicationsPersistAndUnusedItemsSortByLocalizedName() throws {
         let defaults=try storage(),usage=BattleItemUsageStore(defaults:defaults)

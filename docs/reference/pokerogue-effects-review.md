@@ -1,5 +1,21 @@
 # PokéRogue move-effect feasibility review
 
+Production update (2026-10-27): battle sprite extent now uses the collection's
+PokéAPI height source: `90 * metres^0.3` before the shared roster/form camera.
+Original atlas bounds retain proportions and front/back differences, rather than
+using metres as the vertical pixel height of long or horizontal Pokémon. The
+height importer covers all 649 species and all 64 permitted Mega forms, storing
+CSV hashes and PokéAPI IDs independently from the original atlas metadata.
+
+Mega presentation adapts pinned FormChangePhase and Animation spiral/arc/circle/
+spray equations into battle coordinates. It uses original evo_sparkle pixels and
+charge/beam/sparkle/shine audio, charge/cycle/reveal phases at 2× speed, then the form cry at its original pitch.
+The queue waits for original-pitch sound tails as well as the visual completion. The modal evolution video, fanfare/BGM replacement and
+out-of-battle confirmation UI are intentionally excluded from this battle adapter.
+Native GIFs keep advancing; effects volume/live mute and the existing arena/notice
+layers remain in force. The queue defers Showdown's preceding detailschange,
+commits the new form at completed reveal, and waits before the next action.
+
 Production update (2026-10-21): all real battles now use the complete original PokéRogue
 player, timelines and arena at the original 1× rate. The effect-only/native/Showmotion approaches
 described below are historical comparisons. See [current playback](local-battles.md#production-pokérogue-provider-2026-10-20)
