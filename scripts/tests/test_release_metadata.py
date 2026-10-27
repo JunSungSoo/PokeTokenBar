@@ -120,7 +120,7 @@ class ReleaseMetadataTests(unittest.TestCase):
         # network, app build, signing, or installation commands are reachable.
         scripts = self.root / "scripts"
         scripts.mkdir()
-        for name in ("release.sh", "release-metadata.py"):
+        for name in ("release.sh", "release-metadata.py", "package-zip.py"):
             (scripts / name).write_text((ROOT / "scripts" / name).read_text())
         (scripts / "build-app.sh").write_text('VERSION="2.5.3"\n')
         marker = self.root / "test-gate-reached"
@@ -140,6 +140,13 @@ class ReleaseMetadataTests(unittest.TestCase):
         self.assertIn("PTB_NOTES_FILE", missing.stderr)
         self.assertFalse(marker.exists())
         env.update(PTB_NOTES_FILE=str(self.notes), PTB_CONTRIBUTORS_FILE=str(self.roster))
+        missing_zip = subprocess.run(command, env=env, capture_output=True, text=True)
+        self.assertNotEqual(missing_zip.returncode, 0)
+        self.assertIn("PTB_ZIP_NOTES_FILE", missing_zip.stderr)
+        self.assertFalse(marker.exists())
+        zip_notes = self.root / "zip-notes.txt"
+        zip_notes.write_text("2026-10-26 (1차 배포)\n\n- 공개 ZIP 배포\n")
+        env["PTB_ZIP_NOTES_FILE"] = str(zip_notes)
         valid = subprocess.run(command, env=env, capture_output=True, text=True)
         self.assertNotEqual(valid.returncode, 0, "Fixture intentionally stops at test-gate")
         self.assertTrue(marker.exists())

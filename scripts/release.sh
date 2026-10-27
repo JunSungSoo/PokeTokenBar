@@ -3,7 +3,7 @@
 # release.sh — 버전 배포 자동화 + 문서(README/웹페이지/cask) 일관성 검토.
 #
 # 사용:
-#   PTB_NOTES_FILE=/tmp/notes.md PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt ./scripts/release.sh 2.1.1
+#   PTB_NOTES_FILE=/tmp/notes.md PTB_ZIP_NOTES_FILE=/tmp/notes.txt PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt ./scripts/release.sh 2.1.1
 #   ./scripts/release.sh --check-only     # 문서 일관성 검토만(배포 안 함)
 #
 # 단계: 1)test-gate 2)문서 검토 3)VERSION 범프 4)build+zip 5)커밋·push
@@ -91,6 +91,8 @@ echo "=== PokeTokenBar 릴리스 $PREV → $VERSION ==="
 # Fail before tests, version changes, local installation, or publication.
 NOTES_FILE="${PTB_NOTES_FILE:-}"
 python3 scripts/release-metadata.py check-notes "$NOTES_FILE" "${PTB_CONTRIBUTORS_FILE:-}"
+ZIP_NOTES_FILE="${PTB_ZIP_NOTES_FILE:?ZIP notes TXT required: PTB_ZIP_NOTES_FILE}"
+python3 scripts/package-zip.py --notes "$ZIP_NOTES_FILE" --check-notes
 COMMIT_MESSAGE=$(python3 scripts/release-metadata.py commit-message "$VERSION" "${PTB_COAUTHORS_FILE:-}")
 
 echo "▶ 1/8 릴리스 전 테스트 게이트"
@@ -136,7 +138,7 @@ perl -pi -e "s/VERSION=\"[0-9.]+\"/VERSION=\"$VERSION\"/" scripts/build-app.sh
 echo "▶ 4/8 빌드 + zip (push 전 검증 — 실패해도 범프 미커밋이라 origin/main 무손상)"
 ./scripts/build-app.sh >/dev/null
 rm -f build/PokeTokenBar.zip
-ditto -c -k --keepParent build/PokeTokenBar.app build/PokeTokenBar.zip
+python3 scripts/package-zip.py --app build/PokeTokenBar.app --notes "$ZIP_NOTES_FILE" --output build/PokeTokenBar.zip
 BUILT=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" build/PokeTokenBar.app/Contents/Info.plist)
 [[ "$BUILT" == "$VERSION" ]] || { echo "✗ 빌드 버전 불일치: $BUILT (수동 복구: git checkout scripts/build-app.sh)"; exit 1; }
 # v2.5.4 는 arm64 단일 바이너리로 나가 Intel 에서 "bad CPU type" 으로 실행 불가였다(#358).

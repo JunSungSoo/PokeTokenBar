@@ -11,6 +11,29 @@ read_when:
 버전 결정 규칙과 트리거는 `CLAUDE.md` §릴리스에 있다. 이 문서는 그 다음의 *실행 세부*를 담는다.
 체크리스트 원본은 `RELEASE.md`.
 
+## 로컬 ZIP 배포
+
+ZIP 생성/갱신도 배포다. 완성된 UTF-8 TXT 노트를 날짜별 `docs/releases/zip/`에
+보관한다. 본문은 `YYYY-MM-DD (N차 배포)` 제목, 빈 줄, `- 변경사항` 목록만 사용한다.
+날짜마다 회차를 1부터 부여하고 같은 날짜 안에서는 높은 회차부터 내림차순으로 표시한다.
+다음 배포는 빈 줄로 구분한다. 날짜도 최신 날짜부터 내림차순으로 표시한다. 버전·검증·출처는
+노트 본문 대신 메타데이터에 보관한다. 과거 기록 복원은 실제 ZIP, 배포 완료 메시지,
+성공한 압축 명령, 커밋 등 출처와 불확실성을 구분한다.
+
+```bash
+PTB_NATIVE_ARCH_ONLY=1 PTB_SKIP_INSTALL=1 bash scripts/build-app.sh
+python3 scripts/package-zip.py --app build/PokeTokenBar.app \
+  --notes docs/releases/zip/YYYY-MM-DD.txt \
+  --output "$HOME/Desktop/PokeTokenBar-VERSION-arm64-YYYYMMDD.zip"
+```
+
+압축 최상위는 `PokeTokenBar.app`, `Release Notes.txt`, `Release Metadata.json`이다.
+패키징 시각, 버전, 소스 HEAD, 작업 트리 변경 여부, 실행 파일 해시는 JSON에만 저장한다.
+노트 부재, 잘못된 날짜/회차, 변경사항 없는 항목,
+기존 출력 덮어쓰기, ZIP 손상, 실행 파일 변경을 거부한다. 원본 `.app`은 수정하지 않는다.
+`release.sh`의 공개 ZIP도 같은 패키저를 사용한다. 로컬 ZIP 배포가 공개 채널 게시를
+의미하지는 않는다. 아래 절차는 GitHub/Homebrew 공개 버전 배포에 적용한다.
+
 ## 1. 문서·이미지 갱신 (매 릴리스 필수 — "할까요?" 묻지 말고 무조건 한다)
 
 `./scripts/release.sh --check-only` 로 경고를 확인한 뒤 아래를 모두 반영한다.
@@ -52,7 +75,7 @@ read_when:
 
 ```bash
 # 직전 릴리스 이후 변경을 요약해 노트 파일 작성
-PTB_NOTES_FILE=/tmp/ptb-notes.md PTB_CONTRIBUTORS_FILE=/tmp/ptb-contributors.txt ./scripts/release.sh <version>
+PTB_NOTES_FILE=/tmp/ptb-notes.md PTB_ZIP_NOTES_FILE=docs/releases/zip/YYYY-MM-DD.txt PTB_CONTRIBUTORS_FILE=/tmp/ptb-contributors.txt ./scripts/release.sh <version>
 ```
 
 스크립트가 노트·Contributors 검증 → test-gate → 문서검토 → 범프 → 빌드검증 → 커밋·push →

@@ -58,3 +58,10 @@ se/hit.wav. Original weather INDIRECT damage intentionally omits this feedback;
 the host explicitly enables normal-hit feedback for actual BW2 sandstorm/hail
 damage at the user's request, with no damage numbers/notices. The authored hit
 audio is unchanged; the six visibility states end at 500ms before HP interpolation.
+
+Battle arenas use 15 unchanged original images/arenas/*_bg.png assets from the
+assetRevision recorded in manifest.json, curated as three arenas per environmental
+group (woods, water, highlands, caves, settlements). Both peers derive the same
+cosmetic selection from their shared random match nonces using SHA-256; this
+does not change battle weather, terrain, statistics or engine RNG. Native Pokémon
+GIFs, floating animation and existing sprite stages remain unchanged.

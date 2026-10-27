@@ -21,10 +21,13 @@ build/
 *.certSigningRequest
 
 # Personal dev notes (kept locally, not published).
-# docs/reference/ is the exception: published agent/contributor reference docs.
+# docs/reference/ and reviewed ZIP release history are published exceptions.
 # (Must ignore docs/* rather than docs/ — git cannot re-include inside an excluded directory.)
 docs/*
 !docs/reference/
+!docs/releases/
+docs/releases/*
+!docs/releases/zip/
 
 # Agent worktrees / local state
 .claude/*

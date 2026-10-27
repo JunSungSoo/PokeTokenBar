@@ -191,3 +191,34 @@ blink/audio for that result. Both reference sources and the untouched sound are
 bundled with hashes/provenance. Immunity and Cloud Nine remain engine-controlled;
 only an actual damage log can start the feedback. Effects volume/live mute apply,
 and the background WebKit surface stays silent.
+
+## Random battle arenas
+
+`BattleArena` selects one of 15 original PokéRogue backgrounds per match: plains,
+forest, snowy forest; sea, beach, lake; mountain, desert, volcano; cave, ice cave,
+fairy cave; town, metropolis, dojo. Ruins and special locations are excluded.
+The SHA-256 digest of the shared random handshake match ID chooses a stable arena
+on both peers, independently of engine RNG. Reconnection, turns and switching
+preserve it. The next match's fresh nonces choose again; repeats are allowed.
+This is cosmetic and does not imply weather, terrain or stat changes.
+
+Regenerate the unmodified 320×180 backgrounds with
+`python3 scripts/prepare-pokerogue-arenas.py` after preparing the base player.
+The importer uses `manifest.json`'s pinned asset revision and records every
+source path and SHA-256 in that manifest, along with the five curated groups.
+`BattleArenaTests` verifies all 15 resources and their viewport coverage at both
+production sizes; `BattleTests` verifies the real handshake and engine lifecycle
+on both peers in singles and doubles. Native GIFs, floating and effect layers
+retain their existing behavior.
+
+Arena matrix QA: `BattleArenaVisualTests` mounts the production layer modifier
+outside every monitor and checks all 15 arenas × two formats × four representative
+moves (Close Combat, Thunder, Quick Attack, Surf) × both attacker perspectives
+(240 combinations). It checks native HUD/background/foreground/notice sibling
+order, original actor/particle depth, finite geometry, visible effects, completion
+and transparent cleanup. `PTB_ARENA_CAPTURE_DIR=/tmp/ptb-arena-audit` saves the
+machine-readable matrix and diagnostic composites. Those composites combine
+actual original WebGL surfaces at the same 750 ms timestamp, production arena and
+notice views, and explicitly labeled HUD probes; they are not full BattleView
+screenshots. Full production singles/doubles geometry, native front/back GIF
+cadence and bounded localized notice stacks retain their separate native tests.

@@ -61,6 +61,7 @@ final class BattleCoordinator {
     private(set) var decisionDeadline: Date?
     private(set) var manualCode: String?
     private(set) var mode: BattleMode = .singles
+    private(set) var arena: BattleArena = .plains
     let history: BattleHistoryStore
     private(set) var identity: BattleIdentity
     var onBattleWindow: (() -> Void)?
@@ -111,6 +112,7 @@ final class BattleCoordinator {
         identity = BattleIdentity(nickname: TradeIdentity.nickname(defaults: identityDefaults), code: identity.code, nonce: UUID().uuidString)
         sentSequence = 0; receivedSequence = 0
         frame = nil; presentation.reset(); latestFrames = []; lastDecision = ""; timerKey = ""; matchID = ""
+        arena = .plains
         pending = nil; pendingNonce = nil; commitments = [:]; reveals = [:]
         submitted = false; decisionDeadline = nil
         phase = .searching; peers = []; selectedPeer = nil; opponent = nil; error = nil
@@ -217,6 +219,7 @@ final class BattleCoordinator {
                 opponent = peer
                 localPlayer = (identity.code + identity.nonce) < (peer.code + peer.nonce) ? 0 : 1
                 matchID = [identity.nonce, peer.nonce].sorted().joined(separator: ":")
+                arena = BattleArena.forMatch(matchID)
                 selectedPeer = TradePeer(id: peer.nonce, nickname: peer.nickname, code: peer.code, discoveryGroup: mode.rawValue)
                 return
             }

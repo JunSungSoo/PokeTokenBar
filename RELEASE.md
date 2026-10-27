@@ -3,6 +3,24 @@
 버전 배포 시 **코드뿐 아니라 문서(README·웹페이지·cask)까지 일관되게** 갱신하기 위한 런북.
 기계적 단계는 `scripts/release.sh` 가 자동화하고, 내용 판단이 필요한 부분은 아래 체크리스트로 검토한다.
 
+## 로컬 ZIP 배포
+
+수정한 앱을 ZIP으로 제공하는 것도 배포다. 날짜별 TXT 노트를
+`docs/releases/zip/YYYY-MM-DD.txt`에 작성한 뒤 공통 패키저로 압축한다.
+앱과 같은 압축 최상위에 `Release Notes.txt`를 반드시 포함한다.
+
+```bash
+PTB_NATIVE_ARCH_ONLY=1 PTB_SKIP_INSTALL=1 bash scripts/build-app.sh
+python3 scripts/package-zip.py --app build/PokeTokenBar.app \
+  --notes docs/releases/zip/YYYY-MM-DD.txt \
+  --output "$HOME/Desktop/PokeTokenBar-VERSION-arm64-YYYYMMDD.zip"
+```
+
+본문은 `YYYY-MM-DD (N차 배포)`와 `- 변경사항` 목록만 작성한다. 같은 날짜 안의
+회차는 1부터 부여하고, 표시 순서는 높은 회차부터 내림차순이다(5차 → 4차 → 3차). 날짜도 최신 날짜부터 표시한다.
+검증·버전·해시는 ZIP의 `Release Metadata.json`에 분리한다.
+아래 공개 릴리스 절차는 GitHub/Homebrew 배포를 요청한 경우에만 추가 적용한다.
+
 ## 한 줄 배포
 
 ```bash
@@ -11,7 +29,7 @@ cp docs/reference/release-notes-template.md /tmp/notes.md
 # /tmp/contributors.txt: 포함된 PR에서 확인한 GitHub handle을 한 줄에 하나씩 작성한다.
 # 외부 기여자가 없는 릴리스만 빈 파일을 사용하며, 노트에도 없음을 명시한다.
 
-PTB_NOTES_FILE=/tmp/notes.md PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt ./scripts/release.sh 2.1.1
+PTB_NOTES_FILE=/tmp/notes.md PTB_ZIP_NOTES_FILE=docs/releases/zip/YYYY-MM-DD.txt PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt ./scripts/release.sh 2.1.1
 ```
 
 `scripts/release.sh <version>` 가 순서대로 수행:
@@ -56,7 +74,7 @@ PTB_NOTES_FILE=/tmp/notes.md PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt ./scrip
 전체 릴리스의 Contributors와 릴리스 준비 커밋의 공동작성자는 별도로 판정한다.
 
 ```bash
-PTB_NOTES_FILE=/tmp/notes.md PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt \
+PTB_NOTES_FILE=/tmp/notes.md PTB_ZIP_NOTES_FILE=docs/releases/zip/YYYY-MM-DD.txt PTB_CONTRIBUTORS_FILE=/tmp/contributors.txt \
   PTB_COAUTHORS_FILE=/tmp/coauthors.txt ./scripts/release.sh 2.1.1
 ```
 

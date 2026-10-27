@@ -224,8 +224,9 @@ struct PokeRogueActor:Sendable {
     func updateNSView(_ view:WKWebView,context:Context){}
 }
 @MainActor struct PokeRogueArena:View{
+    var arena:BattleArena = .plains
     var body:some View{
-        if let image=NSImage(contentsOf:PokeRogueOriginalCatalog.directory.appendingPathComponent("images/arenas/plains_bg.png")){
+        if let image=NSImage(contentsOf:PokeRogueOriginalCatalog.directory.appendingPathComponent(arena.backgroundPath)){
             Image(nsImage:image).resizable().interpolation(.none).scaledToFill()
         }
     }
@@ -234,10 +235,11 @@ struct PokeRogueActor:Sendable {
 /// Backgrounds below native HUD/sprites, original actors and particles above the HUD.
 @MainActor struct PokeRogueBattlefieldLayers:ViewModifier {
     let player:PokeRogueBattlePlayer
+    var arena:BattleArena = .plains
     func body(content:Content)->some View {
         content
             .background{PokeRogueBattleSurface(player:player,background:true).allowsHitTesting(false).accessibilityHidden(true).task{await player.start()}}
-            .background{GeometryReader{g in PokeRogueArena().frame(width:g.size.width,height:g.size.height).clipped()}}
+            .background{GeometryReader{g in PokeRogueArena(arena:arena).frame(width:g.size.width,height:g.size.height).clipped()}}
             .overlay{PokeRogueBattleSurface(player:player).allowsHitTesting(false).accessibilityHidden(true)}
     }
 }

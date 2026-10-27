@@ -145,7 +145,7 @@ struct BattleView: View {
         // An outer fixed-height frame only centers an oversized child; it does not constrain drawing.
         .fixedSize(horizontal:false,vertical:true)
         .frame(minHeight:battle.mode == .doubles ? 260:310)
-        .modifier(PokeRogueBattlefieldLayers(player:roguePlayer))
+        .modifier(PokeRogueBattlefieldLayers(player:roguePlayer,arena:battle.arena))
         .overlayPreferenceValue(BattleSpriteAnchorKey.self) { anchors in
             GeometryReader { geometry in
                 let latest = battle.frame ?? frame

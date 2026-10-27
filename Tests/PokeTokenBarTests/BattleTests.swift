@@ -193,6 +193,20 @@ final class BattleTests: XCTestCase {
         XCTAssertNil(battle.opponent);XCTAssertEqual(battle.error,"Battle mode mismatch")
         for language in AppLanguage.allCases {XCTAssertNotEqual(L(language).battleUserError(battle.error!),battle.error)}
     }
+    func testBothPeersKeepTheSameArenaThroughSinglesAndDoubles() async throws {
+        defer { cleanup() }
+        for mode in BattleMode.allCases {
+            let (a,b,_,_) = try await pair(mode:mode)
+            let sharedID = [a.identity.nonce,b.identity.nonce].sorted().joined(separator:":")
+            let arena = BattleArena.forMatch(sharedID)
+            XCTAssertEqual(a.arena,arena); XCTAssertEqual(b.arena,arena)
+            a.completePresentation(); b.completePresentation()
+            XCTAssertEqual(a.arena,arena); XCTAssertEqual(b.arena,arena)
+            a.surrender()
+            try await wait { b.phase == .ended }
+            XCTAssertEqual(a.arena,arena); XCTAssertEqual(b.arena,arena)
+        }
+    }
     private func team(_ prefix: String, mode: BattleMode) -> [BattlePokemon] {
         (0..<mode.teamSize).map { i in
             BattlePokemon(id: "\(prefix)\(i)", speciesID: [26,181,310,101,587,618][i], species: ["Raichu","Ampharos","Manectric","Electrode","Emolga","Stunfisk"][i], displayName: "Pikachu",

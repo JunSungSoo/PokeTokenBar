@@ -15,6 +15,22 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Every distributable ZIP must carry its own release notes
+
+- Local Desktop archives were created by one-off ditto commands, and public
+  release.sh only supplied notes to GitHub. Neither path put change history in the
+  downloadable ZIP. After files were renamed or overwritten, exact per-build
+  provenance could not be recovered from the app version or commit date alone.
+- Route both local ZIPs and release.sh through package-zip.py. Require completed
+  notes in the requested date/sequence/bullet format, include UTF-8 Release Notes.txt
+  beside the unmodified signed app, store package metadata separately in Release
+  Metadata.json, verify CRC and executable
+  bytes, and atomically refuse existing output paths.
+- Tests cover missing/empty notes, invalid dates, empty entries, repeated sequence numbers, Unicode notes in a real archive,
+  unchanged app bytes/permissions, refused overwrites, invalid output locations,
+  archiver failure cleanup and the public-release integration. Historical notes
+  must distinguish delivery evidence from inferred build dates and missing binaries.
+
 ## A fixed outer frame does not contain a larger battlefield's drawing
 
 - The battlefield clipped its natural-size contents before an outer 310/260-point

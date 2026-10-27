@@ -41,7 +41,26 @@ PR을 보류하지 않는다. 적절한 생성·첨부 대안을 시도한 뒤�
 Claude Code는 `.claude/skills/prepare-pr`의 symlink를 통해
 동일한 skill을 인식하고, Codex는 `.agents/skills/prepare-pr`를 사용한다.
 
-## 릴리스 (자연어 트리거)
+## ZIP 배포 (2026-10-26 사용자 지정)
+
+- 이 프로젝트에서 수정한 앱을 ZIP으로 만들거나 갱신하는 요청은 **ZIP 배포**로 취급한다.
+- ZIP 릴리스 노트는 한국어 UTF-8 TXT로 `YYYY-MM-DD (N차 배포)` 제목, 빈 줄,
+  `- 변경사항` 목록만 작성한다. 다음 배포는 빈 줄 뒤 같은 형식으로 이어 쓴다.
+  회차는 Asia/Seoul 기준 해당 날짜마다 1부터 부여하되, 노트 안에서는 높은 회차부터
+  내림차순(5차 → 4차 → 3차)으로 표시한다. 날짜도 최신 날짜부터 내림차순으로 표시한다. New/Fixed 등의 구분이나
+  버전·검증·설치 안내·해시를 노트 본문에 붙이지 않는다.
+- 날짜별 노트는 `docs/releases/zip/YYYY-MM-DD.txt`에 보관한다. 출처와 과거 정보의
+  불확실성은 `history.json`, 패키지 검증 정보는 ZIP의 `Release Metadata.json`에
+  분리한다. 모르는 과거 변경사항은 추정하지 않는다.
+- 압축은 반드시 `python3 scripts/package-zip.py --app build/PokeTokenBar.app
+  --notes <완성된 노트> --output <ZIP 경로>`로 한다. 앱과 같은 압축 최상위에
+  **Release Notes.txt**가 포함되어야 한다. 노트 없이 직접 ditto/zip으로 배포하지 않는다.
+- Desktop 배포 요청은 앱 빌드 → 검증 → TXT와 함께 ZIP → 압축 검증 순서로 수행한다.
+  로컬 ZIP은 현재 앱 버전을 유지하고 날짜·회차로 구분한다(버전 변경을 요청하면 그 지시 우선).
+- 로컬 ZIP 배포만으로 GitHub Release, Homebrew, gh-pages 공개·main 병합을 실행하지 않는다.
+  공개 버전 배포를 요청한 경우 아래 공개 릴리스 절차를 추가 적용한다.
+
+## 공개 버전 릴리스 (자연어 트리거)
 
 사용자가 **버전 배포를 자연어로 요청**하면 — 예: "배포해줘", "릴리스 올려줘", "패치 배포",
 "2.1.1 배포", "release", "다음 버전 내줘" — 한 줄 명령을 시키지 말고 직접 수행한다.
