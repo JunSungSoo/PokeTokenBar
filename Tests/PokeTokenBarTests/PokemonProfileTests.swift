@@ -1,3 +1,5 @@
+import AppKit
+import SwiftUI
 import XCTest
 @testable import PokeTokenBar
 
@@ -656,6 +658,49 @@ final class PokemonLoadoutTests: XCTestCase {
         XCTAssertNil(profile.hasCustomMoves)
     }
 
+    func testCollectionBattleItemPersistsPerIndividualAndClearsToMemoryFallback() async throws {
+        let folder=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
+        defer {try? FileManager.default.removeItem(at:folder)}
+        let file=folder.appendingPathComponent("state.json")
+        var state=CompanionState()
+        state.dex=[DexEntry(id:"owned",baseID:79,finalID:79,chainOrder:[79],rarity:.common,caughtAt:Date(),profile:PokemonProfile.generate(seed:7)),
+                   DexEntry(id:"released",baseID:79,finalID:79,chainOrder:[79],rarity:.common,caughtAt:.distantPast,profile:PokemonProfile.generate(seed:8),releasedAt:Date())]
+        try JSONEncoder().encode(state).write(to:file)
+        let store=CompanionStore(provider:ProfileLineProvider(),detailProvider:ProfileDetailProvider(),fileURL:file)
+        let profile=store.state.dex[0].profile
+        XCTAssertTrue(store.setPokemonBattleDefaultItem(entryID:"owned",itemID:"leftovers"))
+        XCTAssertFalse(store.setPokemonBattleDefaultItem(entryID:"owned",itemID:"charizarditex"))
+        XCTAssertFalse(store.setPokemonBattleDefaultItem(entryID:"released",itemID:"lifeorb"))
+        XCTAssertFalse(store.setPokemonBattleDefaultItem(entryID:"missing",itemID:"lifeorb"))
+        let restored=CompanionStore(provider:ProfileLineProvider(),detailProvider:ProfileDetailProvider(),fileURL:file)
+        XCTAssertEqual(restored.state.dex[0].battleDefaultItem,"leftovers")
+        XCTAssertNil(restored.state.dex[1].battleDefaultItem)
+        XCTAssertEqual(restored.state.dex[0].profile,profile)
+        var loadout=BattleItemLoadout()
+        loadout.restore(roster:[restored.state.dex[0]],remembered:["owned":"lifeorb"])
+        XCTAssertEqual(loadout.items["owned"],"leftovers")
+        await restored.loadPokemonDetails(speciesID:79)
+        _ = NSApplication.shared
+        restored.setLanguage(.ko)
+        XCTAssertEqual(restored.pokemonIndividuals(speciesID:79).first?.id,"owned")
+        let species=try XCTUnwrap(restored.dexSpecies.first{$0.id==79})
+        let host=NSHostingController(rootView:PokemonDetailView(store:restored,species:species,onBack:{}).frame(width:480,height:540).background(Color(nsColor:.windowBackgroundColor)).environment(\.colorScheme,.dark))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:480,height:540),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.appearance=NSAppearance(named:.darkAqua);host.view.appearance=window.appearance
+        window.isReleasedWhenClosed=false;window.contentViewController=host;window.orderFront(nil)
+        defer {window.orderOut(nil);window.contentViewController=nil}
+        try await Task.sleep(for:.milliseconds(500));host.view.layoutSubtreeIfNeeded()
+        XCTAssertEqual(host.view.fittingSize.width,480,accuracy:1)
+        let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
+        host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-collection-default-item-stats.png"))
+        XCTAssertTrue(restored.setPokemonBattleDefaultItem(entryID:"owned",itemID:""))
+        let cleared=try JSONDecoder().decode(CompanionState.self,from:Data(contentsOf:file))
+        XCTAssertNil(cleared.dex[0].battleDefaultItem)
+        loadout.restore(roster:[cleared.dex[0]],remembered:["owned":"lifeorb"])
+        XCTAssertEqual(loadout.items["owned"],"lifeorb")
+    }
     func testStoredLoadoutPersistsAndReleasedRecordsRejectEdits() async throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)

@@ -27,7 +27,16 @@ private final class PreviewLink: BattleLink, @unchecked Sendable {
 }
 private struct LoadoutPreviewDetails: PokemonDetailProviding {
     func pokemonDetails(speciesID: Int) async throws -> PokemonDetails {
-        PokemonDetails(speciesID: 79, name: "slowpoke", height: 12, weight: 360, baseExperience: 63,
+        if speciesID==6 {
+            return PokemonDetails(speciesID:6,name:"charizard",height:17,weight:905,baseExperience:240,
+                genderRate:1,types:["fire","flying"],
+                baseStats:["hp":78,"attack":84,"defense":78,"special-attack":109,"special-defense":85,"speed":100],
+                abilities:[.init(name:"blaze",slot:1,isHidden:false),.init(name:"solar-power",slot:3,isHidden:true)],
+                moves:["flamethrower","air-slash","dragon-claw","protect","fly","fire-blast"].map {
+                    .init(name:$0,learnMethods:[.init(method:"machine",level:0)])
+                })
+        }
+        return PokemonDetails(speciesID: 79, name: "slowpoke", height: 12, weight: 360, baseExperience: 63,
             genderRate: 4, types: ["water", "psychic"],
             baseStats: ["hp":90,"attack":65,"defense":65,"special-attack":40,"special-defense":40,"speed":15],
             abilities: [.init(name:"oblivious",slot:1,isHidden:false),.init(name:"own-tempo",slot:2,isHidden:false),.init(name:"regenerator",slot:3,isHidden:true)],
@@ -313,17 +322,20 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     let file = directory.appendingPathComponent("profile.json")
                     var state = CompanionState()
                     state.language = .ko
+                    let collectionBattle=CommandLine.arguments.contains("--collection-battle-preview")
+                    let speciesID=collectionBattle ? 6:79
                     var profile = PokemonProfile.generate(seed: 7, instanceID: "preview-owned")
-                    profile.level = 37
-                    profile.enrich(with: try await LoadoutPreviewDetails().pokemonDetails(speciesID:79))
-                    state.dex = [DexEntry(id: "preview-owned", baseID: 79, finalID: 79, chainOrder: [79], rarity: .common,
-                        caughtAt: Date(), nature: .modest, profile: profile, names: [79:["ko":"야돈","en":"Slowpoke"]])]
+                    profile.level = collectionBattle ? 100:37
+                    profile.enrich(with: try await LoadoutPreviewDetails().pokemonDetails(speciesID:speciesID))
+                    state.dex = [DexEntry(id: "preview-owned", baseID:speciesID, finalID:speciesID, chainOrder:[speciesID], rarity: .common,
+                        caughtAt: Date(), nature: .modest, profile: profile, names:[speciesID:collectionBattle ? ["ko":"리자몽","en":"Charizard"]:["ko":"야돈","en":"Slowpoke"]])]
+                    if collectionBattle {state.dex[0].battleDefaultItem="charizarditex"}
                     try JSONEncoder().encode(state).write(to: file)
                     let store = CompanionStore(detailProvider: LoadoutPreviewDetails(), fileURL: file, defaults: defaults("loadout"))
-                    await store.loadPokemonDetails(speciesID: 79)
+                    await store.loadPokemonDetails(speciesID:speciesID)
                     let window = NSWindow(contentRect: NSRect(x:0,y:0,width:520,height:min(780,NSScreen.main!.visibleFrame.height-70)),
                         styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
-                    window.title = "PokeTokenBar · 컬렉션 기술·특성 편집 테스트"
+                    window.title = collectionBattle ? "PokeTokenBar · 컬렉션 기본 도구·메가진화 정보 테스트":"PokeTokenBar · 컬렉션 기술·특성 편집 테스트"
                     window.isReleasedWhenClosed = false
                     window.contentViewController = NSHostingController(rootView: PokemonDetailView(store: store, species: store.dexSpecies[0], onBack: {}).frame(width:520,height:min(780,NSScreen.main!.visibleFrame.height-70)))
                     comparisonWindow = window

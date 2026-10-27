@@ -7,11 +7,14 @@ struct BattleItemLoadout:Sendable {
     mutating func retain(_ roster:[String]) {items=items.filter{roster.contains($0.key)}}
     /// Restore in registration order, never dictionary or collection order.
     /// Conflicting defaults remain remembered, but only the first holder equips them.
-    mutating func restore(roster:[DexEntry],remembered:[String:String]) {
+    mutating func restore(roster:[DexEntry],remembered:[String:String],overrides:[String:String]=[:],useCollectionDefaults:Bool=true) {
         items=[:]
         let ids=roster.map(\.id)
         for entry in roster {
-            _ = apply(remembered[entry.id] ?? "",to:entry,roster:ids)
+            let preferred=useCollectionDefaults ? entry.battleDefaultItem.flatMap { id in
+                BattleHeldItems.choices(speciesID:entry.finalID,form:entry.form).contains(where:{$0.id==id}) ? id:nil
+            }:nil
+            _ = apply(overrides[entry.id] ?? preferred ?? remembered[entry.id] ?? "",to:entry,roster:ids)
         }
     }
     func owner(of itemID:String,excluding pokemonID:String?=nil)->String? {
@@ -95,4 +98,10 @@ extension L {
     var battleItemPreviewHint:String {t("도구를 선택해 설명을 확인한 뒤 적용을 누르세요.","Select an item to read its description, then press Apply.","道具を選んで説明を確認し、適用してください。","Selecciona un objeto, lee su descripción y pulsa Aplicar.","Choisis un objet, lis sa description puis applique-le.","Escolha um item, leia a descrição e pressione Aplicar.","Wähle ein Item, lies die Beschreibung und klicke Anwenden.","Выберите предмет, прочтите описание и нажмите «Применить».")}
     var battleItemEquipped:String {t("장착됨","Equipped","装備中","Equipado","Équipé","Equipado","Ausgerüstet","Экипирован")}
     var battleItemInUse:String {t("다른 포켓몬이 사용 중","Used by another Pokémon","他のポケモンが使用中","Lo usa otro Pokémon","Utilisé par un autre Pokémon","Usado por outro Pokémon","Von anderem Pokémon getragen","Использует другой покемон")}
+}
+
+extension L {
+    var collectionDefaultItem:String {t("기본 배틀 도구","Default battle item","バトルの既定の道具","Objeto de combate predeterminado","Objet de combat par défaut","Item de batalha padrão","Standard-Kampfitem","Предмет для боя по умолчанию")}
+    var collectionDefaultItemHint:String {t("컬렉션 도구를 우선 장착합니다. 없으면 최근 배틀 도구를 사용합니다.","Use the collection item first; otherwise use the last battle item.","コレクションの道具を優先し、未設定なら前回のバトルの道具を使います。","Se usa primero el objeto de la colección; si no hay, el del último combate.","L’objet de la collection est prioritaire, sinon celui du dernier combat est utilisé.","O item da coleção tem prioridade; caso não haja, usa o da última batalha.","Das Sammlungsitem hat Vorrang, sonst wird das zuletzt im Kampf verwendete Item genutzt.","Сначала используется предмет из коллекции, иначе — из последнего боя.")}
+    var pokemonStatGradeHint:String {t("개체값 등급: 1~15 (높을수록 우수)","IV grade: 1–15 (higher is better)","個体値の評価：1～15（高いほど優秀）","Grado de IV: 1–15 (más alto es mejor)","Note d’IV : 1–15 (plus élevée = meilleure)","Grau de IV: 1–15 (maior é melhor)","DV-Bewertung: 1–15 (höher ist besser)","Оценка IV: 1–15 (выше — лучше)")}
 }

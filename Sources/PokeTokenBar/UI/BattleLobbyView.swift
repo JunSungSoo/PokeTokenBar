@@ -7,6 +7,7 @@ struct BattleLobbyView: View {
     var tradeActive = false
     @State private var selectedIDs: [String] = []
     @State private var itemLoadout=BattleItemLoadout()
+    @State private var itemOverrides:[String:String]=[:]
     @State private var editingItem:DexEntry?
     @State private var lineupIDs: [String] = []
     @State private var selectingLineup = false
@@ -71,11 +72,15 @@ struct BattleLobbyView: View {
                     guard battle.registeredTeam.isEmpty,battle.phase == .connected,
                           let current=entries.first(where:{$0.id==entry.id}),itemLoadout.apply(id,to:current,roster:selectedIDs) else{return false}
                     BattlePokemonItemStore.shared.recordApplied(id,to:current)
+                    itemOverrides[entry.id]=id
                     restoreItems(selectedIDs)
                     BattleItemUsageStore.shared.recordApplied(id);editingItem=nil;return true
                 },onCancel:{editingItem=nil}).id(entry.id)
         }
         .onChange(of:selectedIDs) { _,ids in restoreItems(ids);if let editingItem,!ids.contains(editingItem.id){self.editingItem=nil} }
+        .onChange(of:entries.map(\.battleDefaultItem)) { _,_ in
+            if battle.registeredTeam.isEmpty {restoreItems(selectedIDs)}
+        }
         .onChange(of:battle.registeredTeam.isEmpty) { _,empty in if !empty{editingItem=nil} }
         .onChange(of:battle.opponent?.code) { _,code in if code==nil{resetSelection()} }
         .onChange(of: battle.mode) { _, _ in resetSelection() }
@@ -227,9 +232,11 @@ struct BattleLobbyView: View {
     private func restoreItems(_ ids:[String]) {
         let remembered=battle.registeredTeam.isEmpty ? BattlePokemonItemStore.shared.items:
             Dictionary(uniqueKeysWithValues:battle.registeredTeam.map{($0.id,$0.item ?? "")})
-        itemLoadout.restore(roster:ids.compactMap{id in entries.first{$0.id==id}},remembered:remembered)
+        itemOverrides=itemOverrides.filter{ids.contains($0.key)}
+        itemLoadout.restore(roster:ids.compactMap{id in entries.first{$0.id==id}},remembered:remembered,
+            overrides:battle.registeredTeam.isEmpty ? itemOverrides:[:],useCollectionDefaults:battle.registeredTeam.isEmpty)
     }
-    private func resetSelection() { selectedIDs = []; lineupIDs = []; selectingLineup = false;itemLoadout=BattleItemLoadout();editingItem=nil }
+    private func resetSelection() { selectedIDs = []; lineupIDs = []; selectingLineup = false;itemLoadout=BattleItemLoadout();itemOverrides=[:];editingItem=nil }
     private var history: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {

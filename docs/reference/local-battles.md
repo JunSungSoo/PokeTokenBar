@@ -13,13 +13,20 @@ Battle appears immediately after Trade. Two Macs use the trade connection infras
 
 `BattleEngine/engine.cjs` wraps pinned Pokémon Showdown 0.11.11 with generation-V BW2 mechanics. `BattleTeamBuilder` freezes the current level, all six computed values, IVs, nature and existing moves. There are no EVs, level normalization, PP Ups, rewards or permanent HP/status changes. Duplicate individuals and duplicate species within one team are rejected. Different forms share the same National Pokédex species number; each opposing team may independently use the same species. The picker disables other individuals of a selected species, and readiness and the canonical engine roster validate the rule again. A preflight helper validates the roster before readiness.
 
-Held-item defaults remember the last explicit Apply choice per owned collection
-entry, independently of species, global item recency and battle consumption.
-First appearances use None; explicit None is remembered too. Resolve the six-member
-roster in selection order: the first compatible holder gets a duplicate item,
-later holders get None. Reordering/removing a holder re-resolves defaults without
-overwriting remembered preferences. Preview/Cancel never writes them, and a locked
-registered team retains its frozen assignments.
+Collection individuals can save a preferred battle item in the same profile save file.
+When assembling the six-member roster, use the collection preference first, then the last
+explicit battle Apply choice for that individual, then None. Clearing a collection preference
+re-enables the recent-item fallback. Incompatible imported preferences also fall back.
+A manual item choice (including None) overrides these defaults for the current registration.
+Resolve duplicate items in registration order: the first holder equips it and later holders
+use None, without erasing either preference. The locked registered roster remains unchanged
+when collection preferences change. Released and currently raised individuals cannot set a
+collection battle item. Item selection retains categories, descriptions, localization and
+recency ordering.
+
+The collection's individual stat rows show an IV grade as `★(1)` through `★(15)`.
+The 32 IV values use fifteen bands (`floor(IV * 15 / 32) + 1`), with 0 at grade 1 and
+31 at grade 15. These labels do not change IVs or computed battle stats.
 
 Pokémon whose type depends on a held item cannot participate. In generation V this excludes Arceus in every form, including Normal. The picker disables these individuals with an explanation; both native preflight and the host engine reject them as well. Weather-driven form changes remain legal and sprites follow the current battle form.
 
@@ -485,3 +492,7 @@ After the final animation and HP presentation complete, a local win switches fro
 Completed results have a localized **Quit / 종료** button in the bottom footer. It calls the main window's `performClose`, sharing the title-bar X delegate path: stop music, hide auxiliary windows, and close without changing the saved result. Late presentation callbacks cannot restart music after closing. Active-battle X still asks for surrender confirmation.
 
 For a repeatable result/audio test, build the standalone preview and launch `PTBBattlePreview --result-audio-preview`. Its helper window opens real local win/loss outcomes via the in-memory opponent surrender path, one result window at a time. Use the result footer or X to test closing, and reopen either result to hear it again. Preview histories/profiles are isolated from the user's collection.
+
+### Pokédex Mega Evolution reference
+
+Species with supported Mega Stones show **View Mega Evolution info** on their collection/Pokédex detail page. The sheet uses the battle catalog's 64 Mega forms across 59 base species and bundled PokéRogue artwork, with the current normal/shiny appearance. Multiple forms (such as Charizard X/Y) have a selector. Names, types, required stones, abilities/descriptions and six base stats are localized; base-stat deltas compare against the regular species metadata when available. This is read-only reference information and never adds a collectible form, changes an owned individual, or equips a stone.

@@ -549,6 +549,8 @@ struct DexEntry: Codable, Sendable, Identifiable {
     var form: PokemonForm?
     /// The individual profile at graduation/release. Nil only for pre-profile saves until migration.
     var profile: PokemonProfile?
+    /// Preferred held item for this owned individual. Nil falls back to battle item memory.
+    var battleDefaultItem: String?
     /// 진화 체인 각 종의 다국어 이름(speciesID → langCode → name). 졸업 시 로드된 라인에서 저장 →
     /// 도감의 단계별 스프라이트 밑 이름 표시가 네트워크 없이 즉시 + 언어 전환 대응. 구버전 저장분엔
     /// 없어(nil) 뷰가 line fetch 로 조회 후 백필한다.
@@ -601,6 +603,7 @@ struct DexEntry: Codable, Sendable, Identifiable {
         nature = try c.decodeIfPresent(PokemonNature.self, forKey: .nature)
         // 프로필만 손상되면 개체 기록은 보존하고 프로필을 다시 생성한다.
         profile = (try? c.decodeIfPresent(PokemonProfile.self, forKey: .profile)) ?? nil
+        battleDefaultItem = try? c.decodeIfPresent(String.self, forKey: .battleDefaultItem)
         // try? — 구버전(최종체 단일 [String:String]) 형식이 남아 있어도 종별 맵 디코딩 실패 시 nil 로
         // 강등(항목 전체 로드는 유지). 뷰가 line 조회로 백필한다.
         names = (try? c.decodeIfPresent([Int: [String: String]].self, forKey: .names)) ?? nil

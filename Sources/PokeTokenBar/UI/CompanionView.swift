@@ -1575,6 +1575,8 @@ struct PokemonDetailView: View {
     let onBack: () -> Void
     private let spriteStore: SpriteStore
     @State private var selectedInstanceID = ""
+    @State private var editingDefaultItem:DexEntry?
+    @State private var showingMegaInfo=false
     @State private var selectedForm: PokemonForm?
     @State private var selectedShiny: Bool?
 
@@ -1629,6 +1631,10 @@ struct PokemonDetailView: View {
                     if PokemonForm.hasForms(speciesID: species.id) { formPicker }
                     if displayedSpecies.hasNormal && displayedSpecies.isShiny { appearancePicker }
                     identityHeader
+                    if !BattleHeldItems.megaStones(speciesID:species.id).isEmpty {
+                        Button(store.l.pokemonMegaInfo) {showingMegaInfo=true}
+                            .accessibilityIdentifier("pokemon-show-mega-info")
+                    }
                     if individuals.count > 1 { individualPicker }
                     if individuals.isEmpty {
                         Text(store.l.dexAppearancePreview).font(.callout).foregroundStyle(.secondary)
@@ -1660,6 +1666,19 @@ struct PokemonDetailView: View {
             if selectedForm == nil { selectedForm = displayedSpecies.form }
             if selectedInstanceID.isEmpty { selectedInstanceID = individuals.first?.id ?? "" }
             await store.loadPokemonDetails(speciesID: species.id)
+        }
+        .sheet(item:$editingDefaultItem) { entry in
+            BattleItemPicker(pokemon:entry,current:entry.battleDefaultItem ?? "",assignments:[:],language:store.language,collectionDefault:true,
+                onApply:{ id in
+                    guard store.setPokemonBattleDefaultItem(entryID:entry.id,itemID:id) else{return false}
+                    BattleItemUsageStore.shared.recordApplied(id)
+                    editingDefaultItem=nil
+                    return true
+                },onCancel:{editingDefaultItem=nil})
+        }
+        .sheet(isPresented:$showingMegaInfo) {
+            PokemonMegaInfoView(speciesID:species.id,language:store.language,shiny:displayedShiny,
+                baseStats:store.pokemonDetailsByID[species.id]?.baseStats ?? [:],onClose:{showingMegaInfo=false})
         }
     }
 
@@ -1814,6 +1833,21 @@ struct PokemonDetailView: View {
                     Text("—").font(.callout.weight(.semibold))
                 }
             }
+            if !entry.isReleased && !store.isActiveDexEntry(entry) {
+                VStack(alignment:.leading,spacing:4) {
+                    Text(store.l.collectionDefaultItem).font(.system(size:11)).foregroundStyle(.secondary)
+                    Button {
+                        editingDefaultItem=entry
+                    } label: {
+                        HStack {
+                            Text(entry.battleDefaultItem.flatMap{BattleHeldItems.item($0)?.name(store.language)} ?? store.l.battleNoItem)
+                            Spacer()
+                            Image(systemName:"chevron.down")
+                        }
+                    }.accessibilityIdentifier("collection-default-battle-item")
+                    Text(store.l.collectionDefaultItemHint).font(.caption).foregroundStyle(.secondary)
+                }
+            }
             statsSection(PokemonStatCalculator.stats(details: details, profile: profile, nature: entry.nature))
             detailTitle(store.l.activeMoves)
             if entry.isReleased {
@@ -1873,7 +1907,11 @@ struct PokemonDetailView: View {
             Text(store.l.statLabel(name)).frame(width: 74, alignment: .leading)
             ProgressView(value: Double(value), total: Double(scaleMaximum)).tint(Color.accentColor)
             Text("\(value)").monospacedDigit().frame(width: 30, alignment: .trailing)
-            if let iv { Text("IV \(iv)").foregroundStyle(.secondary).frame(width: 38, alignment: .trailing) }
+            if let iv {
+                Text(PokemonStatGrade.label(iv:iv)).monospacedDigit().foregroundStyle(.secondary)
+                    .frame(width:52,alignment:.trailing).help(store.l.pokemonStatGradeHint)
+                    .accessibilityIdentifier("pokemon-stat-grade-"+name)
+            }
         }
         .font(.system(size: 12))
     }

@@ -47,6 +47,43 @@ import XCTest
         draft.restore(roster:[first],remembered:BattlePokemonItemStore(defaults:defaults).items)
         XCTAssertTrue(draft.items.isEmpty,"Explicit None replaces the previous item")
     }
+    func testCollectionDefaultsPrecedeMemoryAndManualSelectionOverridesThisMatch() {
+        var a=entry("a"),b=entry("b",9),c=entry("c",3)
+        a.battleDefaultItem="lifeorb";b.battleDefaultItem="lifeorb"
+        c.battleDefaultItem="charizarditex" // An imported incompatible preference falls back safely.
+        let memory=["a":"leftovers","b":"sitrusberry","c":"lumberry"]
+        var draft=BattleItemLoadout()
+        draft.restore(roster:[a,b,c],remembered:memory)
+        XCTAssertEqual(draft.items,["a":"lifeorb","c":"lumberry"])
+        draft.restore(roster:[b,a,c],remembered:memory)
+        XCTAssertEqual(draft.items,["b":"lifeorb","c":"lumberry"])
+        draft.restore(roster:[a,b,c],remembered:memory,overrides:["a":"leftovers","c":""])
+        XCTAssertEqual(draft.items,["a":"leftovers","b":"lifeorb"],"Manual None must also override defaults")
+        draft.restore(roster:[a,b,c],remembered:memory,useCollectionDefaults:false)
+        XCTAssertEqual(draft.items,memory,"Registered teams remain frozen when collection preferences change")
+        a.battleDefaultItem=nil
+        draft.restore(roster:[a],remembered:memory)
+        XCTAssertEqual(draft.items,["a":"leftovers"])
+        draft.restore(roster:[entry("new")],remembered:memory)
+        XCTAssertTrue(draft.items.isEmpty)
+    }
+    func testCollectionItemLegacyDecodingAndNumericStatGrades() throws {
+        var pokemon=entry("a");pokemon.battleDefaultItem="charizarditex"
+        let data=try JSONEncoder().encode(pokemon)
+        XCTAssertEqual(try JSONDecoder().decode(DexEntry.self,from:data).battleDefaultItem,"charizarditex")
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        json.removeValue(forKey:"battleDefaultItem")
+        XCTAssertNil(try JSONDecoder().decode(DexEntry.self,from:JSONSerialization.data(withJSONObject:json)).battleDefaultItem)
+        json["battleDefaultItem"]=["invalid":true]
+        XCTAssertEqual(try JSONDecoder().decode(DexEntry.self,from:JSONSerialization.data(withJSONObject:json)).id,"a")
+        let grades=(0...31).map{PokemonStatGrade.rank(iv:$0)}
+        XCTAssertEqual(Set(grades),Set(1...15))
+        XCTAssertEqual(grades,grades.sorted())
+        XCTAssertEqual(PokemonStatGrade.label(iv:0),"★(1)")
+        XCTAssertEqual(PokemonStatGrade.label(iv:31),"★(15)")
+        XCTAssertEqual(PokemonStatGrade.rank(iv:-1),1)
+        XCTAssertEqual(PokemonStatGrade.rank(iv:99),15)
+    }
     func testSixDefaultsResolveDuplicatesInRegistrationOrderAndNeverErasePreferences() throws {
         let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults)
         let roster=zip(["z","a","y","b","x","c"],[6,9,3,94,143,181]).map{entry($0.0,$0.1)}

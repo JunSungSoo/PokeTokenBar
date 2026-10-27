@@ -243,6 +243,12 @@ struct PokemonProfile: Codable, Sendable, Equatable {
     }
 }
 
+/// Fifteen equal-width display bands over the 32 possible IV values; battle math stays unchanged.
+enum PokemonStatGrade {
+    static func rank(iv:Int)->Int {min(31,max(0,iv))*15/32+1}
+    static func label(iv:Int)->String {"★(\(rank(iv:iv)))"}
+}
+
 struct PokemonComputedStat: Identifiable, Sendable, Equatable {
     var id: String { name }
     let name: String

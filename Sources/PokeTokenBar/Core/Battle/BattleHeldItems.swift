@@ -71,6 +71,9 @@ enum BattleHeldItems {
         guard let form else{return nil}
         return byForm[String(speciesID)+":"+form.rawValue]
     }
+    static func megaStones(speciesID:Int)->[BattleHeldItem] {
+        all.filter{$0.mega?.baseID==speciesID}.sorted{($0.mega?.form ?? "")<($1.mega?.form ?? "")}
+    }
 }
 
 extension L {
@@ -81,7 +84,7 @@ extension L {
     var battleHeldItemHint:String { t("배틀 중 소모된 도구는 다음 배틀에서 복구됩니다.","Items consumed in battle return for the next battle.","消費した道具は次のバトルで戻ります。","Los objetos consumidos vuelven para el próximo combate.","Les objets consommés reviennent au prochain combat.","Itens consumidos voltam na próxima batalha.","Verbrauchte Items sind im nächsten Kampf wieder verfügbar.","Израсходованные предметы возвращаются к следующему бою.") }
 }
 
-/// Form artwork is battle-only; no additional hatchable/collectible forms are introduced.
+/// Artwork shared by battles and read-only Pokédex information; no new collectible forms.
 enum BattleMegaSprites {
     struct Record:Decodable,Sendable {let file:String;let animated:Bool;let sha256:String}
     static var directory:URL {

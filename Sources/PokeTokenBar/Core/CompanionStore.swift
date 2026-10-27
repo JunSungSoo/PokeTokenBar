@@ -2146,6 +2146,16 @@ final class CompanionStore {
 
     // MARK: Pokémon combat profiles / details
 
+    @discardableResult
+    func setPokemonBattleDefaultItem(entryID:String,itemID:String)->Bool {
+        guard let index=state.dex.firstIndex(where:{$0.id==entryID && !$0.isReleased}) else{return false}
+        let entry=state.dex[index]
+        guard itemID.isEmpty || BattleHeldItems.choices(speciesID:entry.finalID,form:entry.form).contains(where:{$0.id==itemID}) else{return false}
+        state.dex[index].battleDefaultItem=itemID.isEmpty ? nil:itemID
+        save()
+        return true
+    }
+
     /// Exact current/final individuals for a Pokédex species. Earlier evolution stages remain
     /// species reference pages; the same evolved individual is not duplicated as a second creature.
     func pokemonIndividuals(speciesID: Int, form: PokemonForm? = nil) -> [DexEntry] {

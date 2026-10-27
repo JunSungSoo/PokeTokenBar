@@ -472,6 +472,30 @@
       "sha256": "c29de22a8ebb92c5c0c2fa96eef7ff7608a1a01fc34a2a412cc10f5b73eebbb7",
       "bytes": 97318313,
       "packagedAt": "2026-10-27T09:53:56+09:00"
+    },
+    {
+      "date": "2026-10-27",
+      "time": "17:17:05",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261027-collection-mega.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; ZIP verified after 47 app tests, 114 battle engine tests, arm64 build, code-signature and bundled-resource checks",
+      "turn": null,
+      "title": "Collection battle defaults, numeric IV grades and Mega Evolution information",
+      "commit": null,
+      "sourceBaseCommit": "5bacbcd9547ecb8786fd1ec054c5ee22f18bac89",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "컬렉션에서 포켓몬별 기본 배틀 도구를 선택·저장할 수 있도록 했습니다.",
+        "선발 시 컬렉션 기본 도구를 우선 장착하고, 미설정 시 최근 배틀 장착 도구를 사용하며 팀 내 중복 제한과 이번 배틀의 직접 선택을 유지했습니다.",
+        "컬렉션 스탯 우측의 개체값 등급을 ★(1)~★(15)로 표시하고 실제 능력치 계산은 유지했습니다.",
+        "메가진화가 있는 포켓몬의 상세화면에 메가진화 정보 보기 버튼을 추가하고 지원하는 59종·64개 형태를 연결했습니다.",
+        "메가진화체의 일반·이로치 이미지, 형태 선택, 타입·특성 설명·메가스톤·기본 능력치와 변화량을 설정된 언어로 확인할 수 있도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261027-collection-mega.zip",
+      "sha256": "93e1bbffca891f27be1005cf7b5523d35912b9b23cf6bfad7633e6df5036823c",
+      "bytes": 101496914,
+      "packagedAt": "2026-10-27T17:17:05+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending"

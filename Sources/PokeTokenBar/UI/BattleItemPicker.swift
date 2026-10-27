@@ -10,12 +10,14 @@ import SwiftUI
     let usage:BattleItemUsageStore
     let onApply:(String)->Bool
     let onCancel:()->Void
+    var collectionDefault=false
     @State private var pending:String
     @State private var category:BattleItemCategory = .all
     private var l:L {L(language)}
-    init(pokemon:DexEntry,current:String,assignments:[String:String],language:AppLanguage,usage:BattleItemUsageStore = .shared,onApply:@escaping(String)->Bool,onCancel:@escaping()->Void) {
+    init(pokemon:DexEntry,current:String,assignments:[String:String],language:AppLanguage,usage:BattleItemUsageStore = .shared,collectionDefault:Bool=false,onApply:@escaping(String)->Bool,onCancel:@escaping()->Void) {
         self.pokemon=pokemon;self.current=current;self.assignments=assignments;self.language=language;self.usage=usage;self.onApply=onApply;self.onCancel=onCancel
         _pending=State(initialValue:current)
+        self.collectionDefault=collectionDefault
     }
     private var inUse:Bool { !pending.isEmpty && assignments.contains{$0.key != pokemon.id && $0.value==pending} }
     private var choices:[PokemonLoadoutChoice] {
@@ -55,7 +57,7 @@ import SwiftUI
             }
             Divider()
             HStack {
-                Text(l.battleDuplicateItem).font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                Text(collectionDefault ? l.collectionDefaultItemHint:l.battleDuplicateItem).font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
                 Spacer()
                 Button(l.cancel,action:onCancel).keyboardShortcut(.cancelAction)
                 Button(l.battleApplyItem){_ = onApply(pending)}.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
