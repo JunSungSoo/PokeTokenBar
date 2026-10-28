@@ -23,7 +23,11 @@ struct BattleTextCatalog: Decodable, Sendable {
         let url = bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0 : nil }
             ?? Bundle.module.url(forResource:"catalog",withExtension:"json",subdirectory:"BattleText")!
         // A missing/incomplete resource is a build error, caught by catalog/packaging tests.
-        return try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
+        let base=try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
+        return Self(moves:base.moves.merging(PokemonFairyMoves.shared.moves){_,new in new},
+            species:base.species,aliases:base.aliases,abilities:base.abilities,
+            abilityDescriptions:base.abilityDescriptions,
+            types:base.types.merging(PokemonFairyMoves.shared.types){_,new in new})
     }()
     private static let speciesTypes: [String:[String]] = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/species-types.json")

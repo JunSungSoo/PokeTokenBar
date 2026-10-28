@@ -15,6 +15,21 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## New moves must be exercised through their actual emitted protocol
+
+- Adding original timelines and a move allowlist did not make Fairy Lock a global
+  field animation: unlike Misty Terrain, Showdown emits `-fieldactivate` for it.
+  The old field translator handled only `-fieldstart`. Static timeline audits
+  cannot catch protocol-to-presentation omissions, and prior field tests used
+  weather/Trick Room fixtures instead of the new move's emitted log.
+- Sweep field effect dispatch, localized log text, and temporary-notice filters
+  together. Accept `-fieldactivate` only through the existing recognized field-ID
+  gate. Preserve one animation by replacing its preceding move event.
+- Real native single/double executions for all fourteen Fairy moves verify
+  localized notices, original timeline lookup, charging, and global field dispatch.
+  The missing Fairy Lock branch caused four assertions to fail (phase and global
+  scope in both modes) before the fix. Keep this actual-protocol regression test.
+
 ## Physical sizes and transformations need semantic data, not only image swaps
 
 - Battle sprites used original atlas bounds, while collection species information

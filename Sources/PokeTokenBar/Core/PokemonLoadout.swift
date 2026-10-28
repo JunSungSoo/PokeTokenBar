@@ -15,7 +15,7 @@ enum PokemonLoadout {
     }
 
     static func moveOptions(details: PokemonDetails, level: Int) -> [PokemonKnownMove] {
-        details.moves.compactMap { move in
+        PokemonFairyMoves.mergedMoves(details:details).compactMap { move in
             let methods = move.learnMethods.filter { $0.method != "level-up" || $0.level <= level }
             guard !methods.isEmpty else { return nil }
             return PokemonKnownMove(name: move.name, learnedAtLevel: methods.map(\.level).min() ?? 0)

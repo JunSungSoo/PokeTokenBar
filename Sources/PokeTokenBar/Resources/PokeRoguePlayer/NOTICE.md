@@ -80,3 +80,15 @@ original-pitch sound/cry tails before advancing.
 The battle adapter omits the modal evolution video, BGM/fanfare replacement and
 confirmation UI. It holds the preceding detailschange scene until the Mega reveal
 finishes; cancellation never commits an old scene.
+
+## Generation-VI Fairy moves
+
+Fourteen Fairy moves plus Geomancy charging are bundled as complete source JSON timelines
+from the same pinned asset revision 009cac30c39d3615c7b2c320c3984af368871031. Their original
+GRAPHIC/USER/TARGET instructions, timed backgrounds and sound events remain intact.
+`manifest.json.fairyMoves` and `BattleText/gen6-fairy-source.json` record the source files
+and hashes. The loopback server serves authored M4A sounds as audio/mp4 alongside WAVs;
+all sounds follow the existing effects-volume control. Pokémon GIF/floating playback,
+original 1× effect timing, HP/notice ordering and foreground/background layers use the
+same production player. Misty Terrain and Fairy Lock are global field presentations;
+Fairy Lock's emitted `-fieldactivate` log is handled explicitly and is not double-played.

@@ -1936,11 +1936,12 @@ struct PokemonDetailView: View {
     }
 
     private func movesSection(_ details: PokemonDetails) -> some View {
-        LazyVStack(alignment: .leading, spacing: 6) {
-            detailTitle(store.l.completeMoveList(details.moves.count))
-            ForEach(details.moves) { move in
+        let moves=PokemonFairyMoves.mergedMoves(details:details)
+        return LazyVStack(alignment: .leading, spacing: 6) {
+            detailTitle(store.l.completeMoveList(moves.count))
+            ForEach(moves) { move in
                 HStack(alignment: .firstTextBaseline) {
-                    PokemonNameLabel(.move, move.name, language: store.language)
+                    Text(BattleTextCatalog.shared.moveName(move.name,language:store.language))
                     Spacer()
                     Text(move.learnMethods.map(store.l.moveMethod).uniqued().joined(separator: " · "))
                         .foregroundStyle(.secondary).multilineTextAlignment(.trailing)

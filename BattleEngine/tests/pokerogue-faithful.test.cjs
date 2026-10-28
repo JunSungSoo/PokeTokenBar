@@ -15,8 +15,8 @@ test('four complete PokéRogue timelines and pinned runtime retain their source 
 const production=path.resolve(__dirname,'../../Sources/PokeTokenBar/Resources/PokeRoguePlayer');
 test('every production move retains the complete original timeline and all offline dependencies',()=>{
  const m=JSON.parse(fs.readFileSync(path.join(production,'manifest.json')));
- assert.equal(Object.keys(m.entries).length,573);
- assert.equal(Object.keys(m.entries).filter(k=>!k.endsWith(':charge')).length,559);
+ assert.equal(Object.keys(m.entries).length,588);
+ assert.equal(Object.keys(m.entries).filter(k=>!k.endsWith(':charge')).length,573);
  for(const [name,hash]of Object.entries(m.sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(production,name))).digest('hex'),hash,name);
  assert.equal(Object.keys(m.statusEntries).length,8);
  let user=false,target=false;

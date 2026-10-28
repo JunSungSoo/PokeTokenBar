@@ -9,6 +9,24 @@ read_when:
 
 Battle appears immediately after Trade. Two Macs use the trade connection infrastructure with a separate `ptb-battle` service (Wi-Fi/LAN, not a promise of identical SSIDs). Match requests advertise and browse continuously without a search deadline. The list contains peers requesting a match; selecting one pauses both advertising and browsing while retaining the browser until its invitation completes. Incoming connections also pause discovery. Cancel clears the list and releases discovery; a new request starts a fresh generation so queued old callbacks cannot revive it. Manual TCP codes are available through an explicit Manual connection button, never an automatic ten-second fallback. Reconnecting active battles advertise as unavailable for new matches; their existing opponent can still rediscover them. Both players agree to the same mode and mark their teams ready; transport acceptance is not battle consent. Both modes register six owned stored individuals. Each registration exchanges a public preview containing only identity, species/form, level and shiny appearance. Once both players have registered, a single preparation view shows both six-member teams together. The player then selects and orders three for singles or four for doubles from their own roster. Only those selected members enter the engine and can switch in, including forced replacements; the unused registered Pokémon cannot prevent a loss. The first selected battle card shows LEAD at its upper left. Singles starts with #1 and doubles with #1/#2. Opponent slots show question marks only until registration arrives; then all six species/sprites are public. Final lineup selections and their order stay unmarked on the opponent’s preview. Moves, abilities, nature, IVs and numerical stats are excluded from the preview packet. Both players must submit final readiness before battle begins. Once registered, each six-member roster is immutable for that matching session. There is no edit/withdrawal button, repeat registration cannot replace the snapshot, and peer replacement/withdrawal packets are rejected. Mode changes are also disabled after either roster is registered. Canceling final readiness preserves both registered rosters; canceling matching or starting a new match clears them. Engine-start errors preserve the registration too. The simulator’s separate Team Preview is disabled because the app handles preparation, and it emits no roster log. During battle, engine frames expose only the opposing active Pokémon. Released and currently raised individuals are excluded.
 
+## Generation-VI Fairy move exception
+
+The engine accepts exactly the fourteen new generation-VI Fairy moves, using the pinned
+Showdown generation-VI move definitions. Other post-BW2 moves, including Fairy moves introduced
+in generation VII and later, remain rejected. The isolated dex overlays only Fairy interactions
+and retains existing BW2 type matchups and ordinary species typing; Mega forms retain their
+existing imported types. The wire revision adds `gen6-fairy-moves-v1` on both sides.
+A separate offline supplement now adds compatible collection choices for 222 species and
+all eight app languages. It preserves BW2 defaults and cached API details. Complete original
+PokéRogue effects for all fourteen moves plus Geomancy charging are bundled at the existing
+asset revision; effect volume, GIF cadence and original timing stay shared with other moves.
+Misty Terrain and Fairy Lock use one global field animation. Fairy Lock emits
+`-fieldactivate`, which the field translator and localized notices handle explicitly.
+The source audit and full learner data are in
+[the Fairy move review](gen6-fairy-moves-review.md) and
+[the learner CSV](gen6-fairy-move-learners.csv). PokéRogue currently differs from the engine's
+cartridge definition for Moonblast's secondary-effect chance (10% versus 30%).
+
 ## Mechanics and individual stats
 
 `BattleEngine/engine.cjs` wraps pinned Pokémon Showdown 0.11.11 with generation-V BW2 mechanics. `BattleTeamBuilder` freezes the current level, all six computed values, IVs, nature and existing moves. There are no EVs, level normalization, PP Ups, rewards or permanent HP/status changes. Duplicate individuals and duplicate species within one team are rejected. Different forms share the same National Pokédex species number; each opposing team may independently use the same species. The picker disables other individuals of a selected species, and readiness and the canonical engine roster validate the rule again. A preflight helper validates the roster before readiness.

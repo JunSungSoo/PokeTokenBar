@@ -12,7 +12,7 @@ test('all app moves resolve through canonical dex IDs including the Vice Grip al
   assert.equal(catalog.aliases[id],canonical,id);
   assert.ok(catalog.recipes[canonical],id);
  }
- assert.equal(new Set(Object.values(catalog.aliases)).size,559);
+ assert.equal(new Set(Object.values(catalog.aliases)).size,573);
  for(const id of ['moonblast','mysticalfire','flowertrick'])assert.ok(catalog.recipes[id].operations.length,id);
  assert.deepEqual(catalog.generationPriority,[5,9,8,7,6,4,3,2,1]);
 });
@@ -35,8 +35,8 @@ test('every exported timeline is finite and all packaged textures match their ha
  for(const name of ['lightning.png','icicle.png','bone.png','rocks.png','rock1.png','rock2.png'])assert.equal(hashes[name],undefined);
  assert.deepEqual(catalog.coverage.discardedOperations.map(x=>x.move).sort(),['matchagotcha','spinout']);
 });
-test('later-generation effect availability does not change BW2 legal moves',()=>{
- for(const move of ['moonblast','flowertrick']) {
+test('later-generation effects do not bypass the explicit Fairy move exception',()=>{
+ for(const move of ['mysticalfire','flowertrick']) {
   assert.ok(catalog.recipes[move]);
   const team=['Pikachu','Raichu','Pichu','Electabuzz','Emolga','Stunfisk'].map((species,i)=>({id:String(i),species,level:37,ability:'Static',
    nature:'Hardy',gender:'M',moves:[i===0?move:'thunderbolt'],

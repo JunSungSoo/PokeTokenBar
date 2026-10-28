@@ -19,8 +19,8 @@ final class BattleEffectCatalogTests: XCTestCase {
     }
     func testEveryCurrentMoveAndAliasHasAnOfflineEffectWithFiniteTimelines() throws {
         let catalog=BattleEffectCatalog.shared
-        XCTAssertEqual(catalog.aliases.count,560)
-        XCTAssertEqual(Set(catalog.aliases.values).count,559)
+        XCTAssertEqual(catalog.aliases.count,574)
+        XCTAssertEqual(Set(catalog.aliases.values).count,573)
         XCTAssertGreaterThan(catalog.recipes.count,559,"Later-generation matching effects must not be excluded")
         for key in BattleTextCatalog.shared.moves.keys {
             let recipe=try XCTUnwrap(catalog.recipe(for:key),key)

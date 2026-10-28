@@ -420,7 +420,7 @@ enum BattleLogText {
         case "-activate", "-block":
             return pokemon + " · " + l.battleDamageCause(value(1)) + " · " + l.battleEvent(parts[1]) + cause
         case "-weather": return l.battleWeather(value(0)) + cause
-        case "-fieldstart", "-fieldend":
+        case "-fieldstart", "-fieldactivate", "-fieldend":
             return l.battleFieldEffect(value(0)) + " · " + l.battleEvent(parts[1] == "-fieldend" ? "-end" : "-activate") + cause
         case "-sidestart", "-sideend":
             return sideName + l.battleFieldEffect(value(1)) + " · " + l.battleEvent(parts[1] == "-sideend" ? "-end" : "-activate") + cause

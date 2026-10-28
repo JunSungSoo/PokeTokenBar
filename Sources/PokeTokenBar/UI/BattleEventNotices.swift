@@ -68,7 +68,7 @@ struct BattlePresentationEvents {
                 let source=BattleEffectPosition(own:token.hasPrefix("p\(ownPlayer+1)"),slot:token.hasSuffix("b") ? 1:0)
                 return BattleVisualEvent(id:scene.id,move:"",type:"",category:"Status",source:source,targets:[],phase:"health")
             }
-            let visible = ["-item", "-enditem", "-mega", "switch", "drag", "replace", "faint", "cant", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
+            let visible = ["-item", "-enditem", "-mega", "switch", "drag", "replace", "faint", "cant", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldactivate", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
             if visible { messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer) }
             return BattleVisualEvent(id: scene.id, move: "", type: "", category: "Status",
                 source: BattleEffectPosition(own: true, slot: 0), targets: [], phase: visible ? "transition" : "state")

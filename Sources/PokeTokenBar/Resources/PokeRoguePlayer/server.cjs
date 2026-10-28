@@ -1,7 +1,7 @@
 // Read-only loopback asset server: WebGPU requires a trustworthy origin; no external binding.
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const root=__dirname,token=crypto.randomBytes(24).toString('hex');
-const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.wgsl':'text/plain','.wav':'audio/wav','.png':'image/png'};
+const mime={'.html':'text/html','.js':'text/javascript','.wasm':'application/wasm','.json':'application/json','.wgsl':'text/plain','.wav':'audio/wav','.m4a':'audio/mp4','.png':'image/png'};
 const server=http.createServer((req,res)=>{
  let requested;try{requested=decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname);}catch{res.writeHead(400).end();return;}
  if(req.method!=='GET'||!requested.startsWith('/'+token+'/')){res.writeHead(404).end();return;}

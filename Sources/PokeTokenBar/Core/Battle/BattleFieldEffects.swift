@@ -7,8 +7,8 @@ enum BattleFieldEffects {
     static let fields: Set<String> = ["trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport",
         "reflect", "lightscreen", "safeguard", "mist", "tailwind", "luckychant", "spikes", "stealthrock", "toxicspikes"]
 
-    static let megaFields:Set<String> = ["electricterrain"]
-    static let globalFields: Set<String> = ["electricterrain", "trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport"]
+    static let megaFields:Set<String> = ["electricterrain", "mistyterrain", "fairylock"]
+    static let globalFields: Set<String> = ["electricterrain", "mistyterrain", "fairylock", "trickroom", "gravity", "magicroom", "wonderroom", "mudsport", "watersport"]
     static func isGlobal(_ event: BattleVisualEvent) -> Bool {
         event.phase == "field" && (weather.values.contains(event.moveID ?? event.move) || globalFields.contains(event.moveID ?? event.move))
     }
@@ -26,8 +26,8 @@ enum BattleFieldEffects {
         if kind == "-weather" {
             guard let name = weather[BattleTextCatalog.key(parts[2])] else { return nil }
             key = name
-        } else if kind == "-fieldstart" || kind == "-sidestart" || kind == "-start" {
-            let argument = kind == "-fieldstart" ? 2 : 3
+        } else if kind == "-fieldstart" || kind == "-fieldactivate" || kind == "-sidestart" || kind == "-start" {
+            let argument = (kind == "-fieldstart" || kind == "-fieldactivate") ? 2 : 3
             guard parts.indices.contains(argument) else { return nil }
             let raw = parts[argument].components(separatedBy: ": ").last ?? ""
             let name = BattleTextCatalog.key(raw)

@@ -68,6 +68,25 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         return defaults
     }
     func team(_ prefix: String) -> [BattlePokemon] {
+        if CommandLine.arguments.contains("--fairy-preview") {
+            let members: [(Int,String,String,[String])] = prefix == "a" ? [
+                (282,"Gardevoir","Synchronize",["moonblast","dazzling-gleam","draining-kiss","misty-terrain"]),
+                (303,"Mawile","Hyper Cutter",["play-rough","fairy-wind","baby-doll-eyes","iron-head"]),
+                (547,"Whimsicott","Prankster",["moonblast","fairy-wind","dazzling-gleam","misty-terrain"]),
+                (579,"Reuniclus","Magic Guard",["light-of-ruin","psychic","recover","protect"]),
+                (26,"Raichu","Static",["thunderbolt"]),(9,"Blastoise","Torrent",["surf"])
+            ] : [
+                (235,"Smeargle","Own Tempo",["splash"]),(143,"Snorlax","Immunity",["splash"]),
+                (242,"Blissey","Natural Cure",["splash"]),(151,"Mew","Synchronize",["splash"]),
+                (9,"Blastoise","Torrent",["splash"]),(6,"Charizard","Blaze",["splash"])
+            ]
+            return members.enumerated().map { i,m in
+                BattlePokemon(id:prefix+String(i),speciesID:m.0,species:m.1,displayName:"",level:100,
+                    ability:m.2,nature:"hardy",gender:"F",shiny:false,form:nil,
+                    ivs:["hp":31,"atk":31,"def":31,"spa":31,"spd":31,"spe":31],
+                    stats:["hp":900,"atk":100,"def":300,"spa":100,"spd":300,"spe":100],moves:m.3)
+            }
+        }
         if CommandLine.arguments.contains("--mega-design-preview") {
             let members:[(Int,String,String,String)]=[
                 prefix=="a" ? (6,"Charizard","Blaze","charizarditex"):(248,"Tyranitar","Sand Stream","tyranitarite"),
@@ -456,8 +475,9 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                     }
                 }
                 let store=CompanionStore(fileURL:directory.appendingPathComponent("profile.json"),defaults:defaults("preview"));store.setLanguage(.ko)
-                let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
+                let window=BattleWindowController(battle:a,store:store,allowsAudio:!CommandLine.arguments.contains("--muted") && !CommandLine.arguments.contains("--narrow-preview") && !CommandLine.arguments.contains("--notices-demo"),audioDefaults:UserDefaults(suiteName:"dev.poketokenbar.battlepreview.audio")!);controller=window
                 window.show();window.window?.title="PokeTokenBar · 실제 배틀 테스트 · PokéRogue / \(a.mode == .doubles ? "더블" : "싱글")"
+                if CommandLine.arguments.contains("--fairy-preview") { window.window?.title="PokeTokenBar · 페어리 기술·원본 이펙트 · 싱글 · 음소거" }
                 if CommandLine.arguments.contains("--mega-design-preview") {window.window?.title=CommandLine.arguments.contains("--mega-effect-preview") ? "PokeTokenBar · 메가진화 연출·크기 테스트 · 싱글":"PokeTokenBar · PokéRogue 메가진화 디자인 · 싱글"}
                 if CommandLine.arguments.contains("--hp-preview") {
                     window.window?.title="PokeTokenBar · 타격 후 HP 감소 테스트 · 싱글 660px"
@@ -526,7 +546,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                             if CommandLine.arguments.contains("--mega-effect-preview"),let move=slot.moves.first(where:{$0.apiName=="protect" && !$0.disabled && $0.pp>0}) {
                                 return BattleAction(kind:"move",index:move.index,target:0,mega:slot.canMegaEvo==true ? true:nil)
                             }
-                            let quiet=CommandLine.arguments.contains("--rogue-battle") && frame.turn%3 != 0
+                            let quiet=CommandLine.arguments.contains("--fairy-preview") || (CommandLine.arguments.contains("--rogue-battle") && frame.turn%3 != 0)
                             guard let move=(quiet ? slot.moves.first(where:{$0.apiName == "splash"}) : slot.moves.first(where:{ !$0.disabled && $0.pp > 0 && $0.category != "Status" })) ?? slot.moves.first(where:{ !$0.disabled && $0.pp > 0 }) else { return nil }
                             return BattleAction(kind:"move",index:move.index,target:move.targetRequired ? (move.targets.first?.location ?? 0) : 0)
                         }

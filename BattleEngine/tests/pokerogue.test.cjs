@@ -4,7 +4,8 @@ const catalog=JSON.parse(fs.readFileSync(path.join(root,'catalog.json')));
 test('all current canonical moves have effect-only offline timelines and resource hashes',()=>{
  const base=JSON.parse(fs.readFileSync(path.join(root,'../BattleEffects/catalog.json')));
  assert.equal(new Set(Object.values(catalog.aliases)).size,559);
- for(const id of new Set(Object.values(base.aliases)))assert.ok(catalog.entries[id],id);
+ const original=JSON.parse(fs.readFileSync(path.join(root,'../PokeRoguePlayer/manifest.json')));
+ for(const id of new Set(Object.values(base.aliases)))assert.ok(catalog.entries[id]||original.entries[id],id);
  const hashes=JSON.parse(fs.readFileSync(path.join(root,'source-sha256.json')));
  for(const[file,hash]of Object.entries(hashes.bundled))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex'),hash,file);
  for(const[id,entry]of Object.entries(catalog.entries)){

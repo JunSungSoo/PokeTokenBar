@@ -1,8 +1,8 @@
 'use strict';
 const {Battle, Dex, Pokemon} = require('pokemon-showdown');
 const crypto = require('node:crypto');
-const {battleDex,heldItem,allowed:allowedItems}=require('./held-items.cjs');
-const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1';
+const {battleDex,heldItem,allowed:allowedItems,allowedFairyMoves}=require('./held-items.cjs');
+const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1';
 const keys = ['hp','atk','def','spa','spd','spe'];
 function validateTeam(team, count) {
   if (!Array.isArray(team) || team.length !== count) throw Error(`Select exactly ${count} Pokémon`);
@@ -32,8 +32,8 @@ function validateTeam(team, count) {
     }
     if (!Array.isArray(mon.moves) || mon.moves.length < 1 || mon.moves.length > 4 || new Set(mon.moves).size !== mon.moves.length) throw Error('Invalid moves');
     for (const name of mon.moves) {
-      const move = dex.moves.get(name);
-      if (!move.exists || move.gen > 5) throw Error(`Unsupported move: ${name}`);
+      const move = battleDex().moves.get(name);
+      if (!move.exists || (move.gen > 5 && !allowedFairyMoves.has(move.id))) throw Error(`Unsupported move: ${name}`);
     }
     if (!keys.every(k => Number.isInteger(mon.ivs?.[k]) && mon.ivs[k] >= 0 && mon.ivs[k] <= 31)) throw Error('Invalid IVs');
     const nature = dex.natures.get(mon.nature);

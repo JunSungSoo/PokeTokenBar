@@ -5,6 +5,7 @@ extension L {
     func battleFieldDescription(_ raw: String) -> String? {
         let key=BattleTextCatalog.key(raw.components(separatedBy:": ").last ?? raw)
         switch key {
+        case "mistyterrain", "fairylock": return BattleTextCatalog.shared.description(key,language:lang)
         case "electricterrain": return t(
             "땅에 있는 포켓몬의 전기 기술 강화 · 잠듦 방지.","Boosts grounded Pokémon’s Electric moves and prevents sleep.","地上のポケモンの電気技を強化し眠りを防ぐ。","Potencia ataques eléctricos de Pokémon en tierra e impide dormir.","Renforce les attaques Électrik des Pokémon au sol et empêche le sommeil.","Fortalece golpes Elétricos de Pokémon no chão e impede sono.","Stärkt Elektro-Attacken von Pokémon am Boden und verhindert Schlaf.","Усиливает электрические атаки стоящих на земле покемонов и предотвращает сон.")
         case "sunnyday", "sun": return t(

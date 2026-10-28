@@ -1262,6 +1262,9 @@ struct L {
         case "level-up": return detail.level > 0 ? "Lv. \(detail.level)" : t("시작", "Start", "基本", "Inicio", "Départ", "Inicial", "Start", "Старт")
         case "machine": return "TM"
         case "egg": return t("교배", "Egg", "タマゴ", "Huevo", "Œuf", "Ovo", "Ei", "Яйцо")
+        case "pokerogue-egg": return t("PokéRogue 알 기술", "PokéRogue egg move", "PokéRogueタマゴ技", "Movimiento de huevo PokéRogue", "Capacité Œuf PokéRogue", "Movimento de ovo PokéRogue", "PokéRogue-Ei-Attacke", "Яичный приём PokéRogue")
+        case "evolution": return t("진화", "Evolution", "進化", "Evolución", "Évolution", "Evolução", "Entwicklung", "Эволюция")
+        case "relearn": return t("기술 떠올리기", "Relearn", "思い出し", "Recordar", "Rappel", "Relembrar", "Erinnern", "Вспомнить")
         case "light-ball-egg": return t("전기구 교배", "Light Ball breeding", "でんきだま遺伝", "Crianza con Bola Luminosa", "Reproduction avec Balle Lumière", "Cruzamento com Bola de Luz", "Zucht mit Kugelblitz", "Разведение со Световым шаром")
         case "form-change": return t("폼 체인지", "Form change", "フォルムチェンジ", "Cambio de forma", "Changement de forme", "Mudança de forma", "Formwechsel", "Смена формы")
         case "tutor": return t("가르침", "Tutor", "教え", "Tutor", "Maître", "Tutor", "Tutor", "Наставник")
