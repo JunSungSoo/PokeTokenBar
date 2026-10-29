@@ -1678,7 +1678,7 @@ struct PokemonDetailView: View {
         }
         .sheet(isPresented:$showingMegaInfo) {
             PokemonMegaInfoView(speciesID:species.id,language:store.language,shiny:displayedShiny,
-                baseStats:store.pokemonDetailsByID[species.id]?.baseStats ?? [:],onClose:{showingMegaInfo=false})
+                baseStats:store.pokemonDetailsByID[species.id]?.baseStats ?? [:],profile:individual?.profile,nature:individual?.nature,onClose:{showingMegaInfo=false})
         }
     }
 
@@ -1852,7 +1852,7 @@ struct PokemonDetailView: View {
             detailTitle(store.l.activeMoves)
             if entry.isReleased {
                 ForEach(profile.moves) { move in
-                    Text(BattleTextCatalog.shared.moveName(move.name, language: store.language)).font(.callout)
+                    Text(BattleTextCatalog.shared.moveMenuTitle(move.name, language: store.language)).font(.callout)
                         .help(BattleTextCatalog.shared.moveTooltip(move.name, language: store.language))
                 }
             } else {
@@ -1863,7 +1863,7 @@ struct PokemonDetailView: View {
                 ForEach(0..<min(4, profile.moves.count + 1), id: \.self) { slot in
                     PokemonLoadoutPicker(
                         title: "\(slot + 1). " + (profile.moves.indices.contains(slot)
-                            ? BattleTextCatalog.shared.moveName(profile.moves[slot].name, language: store.language) : store.l.loadoutChooseMove),
+                            ? BattleTextCatalog.shared.moveMenuTitle(profile.moves[slot].name, language: store.language) : store.l.loadoutChooseMove),
                         tooltip: profile.moves.indices.contains(slot)
                             ? BattleTextCatalog.shared.moveTooltip(profile.moves[slot].name, language: store.language) : "",
                         choices: options.map { option in
@@ -1941,7 +1941,7 @@ struct PokemonDetailView: View {
             detailTitle(store.l.completeMoveList(moves.count))
             ForEach(moves) { move in
                 HStack(alignment: .firstTextBaseline) {
-                    Text(BattleTextCatalog.shared.moveName(move.name,language:store.language))
+                    Text(BattleTextCatalog.shared.moveMenuTitle(move.name,language:store.language))
                     Spacer()
                     Text(move.learnMethods.map(store.l.moveMethod).uniqued().joined(separator: " · "))
                         .foregroundStyle(.secondary).multilineTextAlignment(.trailing)

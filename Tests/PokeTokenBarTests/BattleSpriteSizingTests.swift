@@ -36,7 +36,19 @@ import XCTest
             XCTAssertGreaterThan(sizing.pixelScale,0)
         }
     }
-    func testNativeStageUsesOriginalSizesAndKeepsFeetAboveShadow() async throws {
+    func testGroundFootprintFollowsEachPokemonRatherThanTheLargestTeamMember() {
+        for mode in BattleMode.allCases {
+            let sizes=[25,321].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:$0,form:nil,back:true)}
+            let camera=BattleSpriteSizing.make(mode:mode,sizes:sizes)
+            let small=BattleSpriteGeometry.groundSize(spriteWidth:sizes[0].width*camera.pixelScale,stageWidth:camera.stageWidth)
+            let large=BattleSpriteGeometry.groundSize(spriteWidth:sizes[1].width*camera.pixelScale,stageWidth:camera.stageWidth)
+            XCTAssertGreaterThan(large.width,small.width*1.4)
+            XCTAssertLessThanOrEqual(large.width,camera.stageWidth)
+            XCTAssertLessThanOrEqual(large.height,BattleSpriteGeometry.shadowHeight)
+            XCTAssertEqual(BattleSpriteGeometry.feetAboveShadowCenter,0)
+        }
+    }
+    func testNativeStageUsesOriginalSizesAndKeepsFeetOnGround() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer{try? FileManager.default.removeItem(at:directory)}
         let original=directory.appendingPathComponent("back-25-a.gif")

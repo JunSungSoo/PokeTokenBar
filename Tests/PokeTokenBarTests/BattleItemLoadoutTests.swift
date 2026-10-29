@@ -77,12 +77,12 @@ import XCTest
         json["battleDefaultItem"]=["invalid":true]
         XCTAssertEqual(try JSONDecoder().decode(DexEntry.self,from:JSONSerialization.data(withJSONObject:json)).id,"a")
         let grades=(0...31).map{PokemonStatGrade.rank(iv:$0)}
-        XCTAssertEqual(Set(grades),Set(1...15))
+        XCTAssertEqual(Set(grades),Set(1...32))
         XCTAssertEqual(grades,grades.sorted())
         XCTAssertEqual(PokemonStatGrade.label(iv:0),"★(1)")
-        XCTAssertEqual(PokemonStatGrade.label(iv:31),"★(15)")
+        XCTAssertEqual(PokemonStatGrade.label(iv:31),"★(32)")
         XCTAssertEqual(PokemonStatGrade.rank(iv:-1),1)
-        XCTAssertEqual(PokemonStatGrade.rank(iv:99),15)
+        XCTAssertEqual(PokemonStatGrade.rank(iv:99),32)
     }
     func testSixDefaultsResolveDuplicatesInRegistrationOrderAndNeverErasePreferences() throws {
         let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults)

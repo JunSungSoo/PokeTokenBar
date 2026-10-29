@@ -243,9 +243,9 @@ struct PokemonProfile: Codable, Sendable, Equatable {
     }
 }
 
-/// Fifteen equal-width display bands over the 32 possible IV values; battle math stays unchanged.
+/// Show each IV value as a one-based rank (1–32); battle math stays unchanged.
 enum PokemonStatGrade {
-    static func rank(iv:Int)->Int {min(31,max(0,iv))*15/32+1}
+    static func rank(iv:Int)->Int {min(31,max(0,iv))+1}
     static func label(iv:Int)->String {"★(\(rank(iv:iv)))"}
 }
 
@@ -270,13 +270,18 @@ enum PokemonStatCalculator {
 
     static func stats(details: PokemonDetails, profile: PokemonProfile,
                       nature: PokemonNature?) -> [PokemonComputedStat] {
+        stats(baseStats:details.baseStats,speciesID:details.speciesID,profile:profile,nature:nature)
+    }
+
+    static func stats(baseStats:[String:Int], speciesID:Int, profile:PokemonProfile,
+                      nature:PokemonNature?) -> [PokemonComputedStat] {
         order.compactMap { name in
-            guard let base = details.baseStats[name] else { return nil }
+            guard let base = baseStats[name] else { return nil }
             let iv = profile.ivs[name]
             let level = profile.level
             let value: Int
             if name == "hp" {
-                value = details.speciesID == shedinjaSpeciesID ? 1 : ((2 * base + iv) * level) / 100 + level + 10
+                value = speciesID == shedinjaSpeciesID ? 1 : ((2 * base + iv) * level) / 100 + level + 10
             } else {
                 let neutral = ((2 * base + iv) * level) / 100 + 5
                 value = Int((Double(neutral) * (nature?.modifier(for: name) ?? 1)).rounded(.down))

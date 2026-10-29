@@ -3,9 +3,14 @@ import AppKit
 @MainActor
 enum BattleSpriteGeometry {
     static let shadowHeight: CGFloat = 22
-    static let feetAboveShadowCenter: CGFloat = 5
+    static let feetAboveShadowCenter: CGFloat = 0
     static var footInset: CGFloat { shadowHeight / 2 + feetAboveShadowCenter }
     static func imageBox(stageSize: CGFloat) -> CGFloat { stageSize + 5 - footInset }
+    /// The shared camera reserves space; each Pokémon gets its own ground footprint.
+    static func groundSize(spriteWidth:CGFloat,stageWidth:CGFloat)->CGSize {
+        let width=min(stageWidth,max(44,spriteWidth*0.95+14))
+        return CGSize(width:width,height:min(shadowHeight,max(12,width*0.18)))
+    }
 
     // Center the stance (the lower quarter of visible pixels), not a tail/wing's bounds.
     // One duration-weighted center for the entire animation preserves native pose movement.

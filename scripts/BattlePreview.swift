@@ -177,6 +177,20 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
             }
             return DexEntry(id: "preview-\(id)", baseID: id, finalID: id, chainOrder: [id], rarity: .common, caughtAt: Date(), profile: profile)
         }
+        if interactive,CommandLine.arguments.contains("--use-owned-roster") {
+            let original=try JSONDecoder().decode(CompanionState.self,from:Data(contentsOf:CompanionStore.defaultURL()))
+            state.dex=original.dex;state.language=original.language
+            if CommandLine.arguments.contains("--no-items") {
+                for index in state.dex.indices {state.dex[index].battleDefaultItem=nil}
+                UserDefaults.standard.removeObject(forKey:"battlePokemonHeldItems.v1")
+            }
+            let originalPreferences=UserDefaults(suiteName:"io.github.chattymin.poketokenbar")!
+            for key in ["battlePokemonHeldItems.v1","battleHeldItemUsage.v1"] {
+                if key == "battlePokemonHeldItems.v1",CommandLine.arguments.contains("--no-items") {continue}
+                if let value=originalPreferences.object(forKey:key) {UserDefaults.standard.set(value,forKey:key)}
+            }
+            print("Loaded owned collection into isolated duel copy: \(state.dex.filter{!$0.isReleased}.count) graduates")
+        }
         let file = directory.appendingPathComponent("lobby.json")
         try JSONEncoder().encode(state).write(to: file)
         let store = CompanionStore(fileURL: file, defaults: defaults("lobby"))
@@ -191,6 +205,7 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
         }
         let window = NSWindow(contentRect: NSRect(x:0,y:0,width:480,height:470), styleMask:[.titled,.closable,.miniaturizable], backing:.buffered, defer:false)
         window.title = interactive ? "PokeTokenBar · 플레이어 vs Codex · 매칭부터 배틀" : "PokeTokenBar · 매칭 요청 화면 테스트 · 샘플 상대"
+        if CommandLine.arguments.contains("--use-owned-roster") {window.title="PokeTokenBar · 실제 컬렉션 vs Codex · 싱글배틀"}
         window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(rootView: BattleLobbyView(store: store, battle: a).frame(width:480,height:470))
         comparisonWindow = window
@@ -205,11 +220,30 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                         self.enemy=peer
                         if peer.phase == .connected {
                             if peer.registeredTeam.isEmpty { peer.register(team:self.team("b")) }
-                            if peer.canSelectLineup,!peer.localReady {peer.ready(team:peer.registeredTeam)}
+                            if peer.canSelectLineup,!peer.localReady {
+                                if CommandLine.arguments.contains("--manual-codex") {
+                                    let command=duelDirectory.appendingPathComponent("lineup.json")
+                                    if let data=try? Data(contentsOf:command),let ids=try? JSONDecoder().decode([String].self,from:data),
+                                       ids.count==peer.mode.battleSize,Set(ids).count==ids.count,
+                                       ids.allSatisfy({id in peer.registeredTeam.contains{$0.id==id}}) {
+                                        let ordered=ids.compactMap{id in peer.registeredTeam.first{$0.id==id}}+peer.registeredTeam.filter{!ids.contains($0.id)}
+                                        try? FileManager.default.removeItem(at:command)
+                                        peer.ready(team:ordered)
+                                    }
+                                } else {peer.ready(team:peer.registeredTeam)}
+                            }
                         }
                         if peer.phase == .playing,!peer.submitted,let frame=peer.frame,!frame.waiting,!frame.ended {
                             if frame.preview {
                                 peer.choose(BattleDecision(decisionID:frame.decisionID,actions:[],order:Array(1...peer.mode.battleSize)))
+                            }else if CommandLine.arguments.contains("--manual-codex") {
+                                let command=duelDirectory.appendingPathComponent("command.json")
+                                if let data=try? Data(contentsOf:command) {
+                                    try? FileManager.default.removeItem(at:command)
+                                    if let decision=try? JSONDecoder().decode(BattleDecision.self,from:data),decision.decisionID==frame.decisionID {
+                                        peer.choose(decision)
+                                    }
+                                }
                             }else{
                                 var used=Set<Int>()
                                 let actions:[BattleAction]=frame.slots.compactMap { slot in
@@ -226,6 +260,13 @@ private final class PreviewDelegate: NSObject, NSApplicationDelegate {
                                 if actions.count==frame.slots.count{peer.choose(BattleDecision(decisionID:frame.decisionID,actions:actions,order:[]))}
                             }
                         }
+                    }
+                    if CommandLine.arguments.contains("--manual-codex"),let peer=self.enemy {
+                        var snapshot:[String:Any]=["phase":String(describing:peer.phase),"submitted":peer.submitted,"localReady":peer.localReady,"canSelectLineup":peer.canSelectLineup,"outcome":peer.outcome ?? "","error":peer.error ?? ""]
+                        if let frame=peer.frame {snapshot["frame"]=try? JSONSerialization.jsonObject(with:JSONEncoder().encode(frame))}
+                        snapshot["opponentRoster"]=try? JSONSerialization.jsonObject(with:JSONEncoder().encode(peer.opponentRoster))
+                        snapshot["team"]=try? JSONSerialization.jsonObject(with:JSONEncoder().encode(peer.registeredTeam))
+                        if let data=try? JSONSerialization.data(withJSONObject:snapshot) {try? data.write(to:duelDirectory.appendingPathComponent("state.json"),options:.atomic)}
                     }
                     try? await Task.sleep(for:.milliseconds(100))
                 }

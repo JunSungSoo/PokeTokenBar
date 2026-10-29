@@ -179,6 +179,7 @@ enum PokemonBalance {
 enum ItemKind: String, Codable, Sendable, CaseIterable {
     case rareCandy
     case mint
+    case redMaple
     case shinyCharm
 
     /// PokéAPI 아이템 스프라이트 파일명(.../sprites/items/{name}.png). nil = 스프라이트 없음(이모지 폴백만).
@@ -186,6 +187,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         switch self {
         case .rareCandy: return "rare-candy"
         case .mint: return nil   // PokéAPI 에 민트 스프라이트 없음(8세대 아이템) → 이모지 폴백
+        case .redMaple: return nil
         case .shinyCharm: return "shiny-charm"
         }
     }
@@ -194,6 +196,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         switch self {
         case .rareCandy: return "🍬"
         case .mint: return "🌿"
+        case .redMaple: return "🍁"
         case .shinyCharm: return "✨"
         }
     }
@@ -201,14 +204,14 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
     var shopPrice: Int? {
         switch self {
         case .rareCandy: return RareCandy.price
-        case .mint: return Mint.price
+        case .mint, .redMaple: return Mint.price
         case .shinyCharm: return ShinyCharm.price
         }
     }
     /// 보유형(패시브) 아이템 — 소비하지 않고 보유하는 동안 상시 효과. 1회 구매(재구매 불가), 가방엔 "적용 중" 표시.
     var isPassive: Bool {
         switch self {
-        case .rareCandy, .mint: return false
+        case .rareCandy, .mint, .redMaple: return false
         case .shinyCharm: return true
         }
     }

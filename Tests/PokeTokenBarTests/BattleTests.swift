@@ -1187,7 +1187,7 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(L(.ko).battleEffectiveness(0),"효과 없음 ×0")
         XCTAssertTrue(L(.ko).battleEffectiveness(4).contains("굉장"))
     }
-    func testSpriteFeetIgnoreTransparentPaddingAndStandFivePointsAboveShadowCenter() throws {
+    func testSpriteFeetIgnoreTransparentPaddingAndStandOnGroundCenter() throws {
         let bitmap = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:96,pixelsHigh:96,
             bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0))
         let pixels = try XCTUnwrap(bitmap.bitmapData)
@@ -1201,7 +1201,7 @@ final class BattleTests: XCTestCase {
         let cropped = BattleSpriteGeometry.cropped(image)
         XCTAssertEqual(cropped.size,NSSize(width:40,height:55))
         for size: CGFloat in [100,128] {
-            XCTAssertEqual(BattleSpriteGeometry.footInset - BattleSpriteGeometry.shadowHeight/2,5)
+            XCTAssertEqual(BattleSpriteGeometry.footInset - BattleSpriteGeometry.shadowHeight/2,0)
             let fitted = SpriteFit.size(for:cropped.size,box:BattleSpriteGeometry.imageBox(stageSize:size))
             XCTAssertEqual(fitted.width/fitted.height,40.0/55.0,accuracy:0.0001)
             XCTAssertEqual(fitted.height + BattleSpriteGeometry.footInset,size+5)
@@ -1231,7 +1231,7 @@ final class BattleTests: XCTestCase {
         storage.set(-0.5,forKey:BattleAudioSettings.volumeKey)
         XCTAssertEqual(BattleAudioSettings(defaults:storage).volume,0)
     }
-    func testNativeSpriteFeetStayFivePointsAboveShadowWithDifferentPadding() async throws {
+    func testNativeSpriteFeetContactGroundCenterWithDifferentPadding() async throws {
         defer { cleanup() }
         let pokemon = BattleCombatant(id:"sprite",speciesID:25,name:"Pikachu",level:37,shiny:false,
             active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
@@ -1281,7 +1281,7 @@ final class BattleTests: XCTestCase {
                 } }
                 let scale=CGFloat(rep.pixelsHigh)/view.view.bounds.height
                 let bottomInset=CGFloat(rep.pixelsHigh-lastPixel-1)/scale
-                XCTAssertEqual(bottomInset-BattleSpriteGeometry.shadowHeight/2,5,accuracy:1/scale)
+                XCTAssertEqual(bottomInset-BattleSpriteGeometry.shadowHeight/2,0,accuracy:1/scale)
                 XCTAssertEqual(moment/mass/scale,view.view.bounds.midX,accuracy:1,
                     "The stance must center over the shadow despite an asymmetric tail")
                 window.orderOut(nil)

@@ -17,7 +17,11 @@ final class PokemonLoadoutPickerTests: XCTestCase {
                 XCTAssertTrue(text.contains(l.battlePower + ": "), id)
                 let type = try XCTUnwrap(move.type)
                 XCTAssertEqual(catalog.moveMenuTitle(id, language: language),
-                    catalog.moveName(id, language: language) + " · " + catalog.typeName(type, language: language))
+                    catalog.moveName(id, language: language) + " · " + catalog.typeName(type, language: language) + " · " + l.battleCategory(try XCTUnwrap(move.category)))
+                let scope=try XCTUnwrap(BattleTextCatalog.moveTargets[id],id)
+                let target=l.battleMoveTarget(scope:scope,includesAllies:scope == "normal" || scope == "any")
+                XCTAssertNotEqual(target,"—",id)
+                XCTAssertTrue(text.contains(l.battleTarget + ": " + target),id)
                 XCTAssertNotNil(move.accuracy, id)
                 XCTAssertTrue(text.contains(l.battleBaseAccuracy + ": " + l.battleAccuracy(move.accuracy)), id)
             }

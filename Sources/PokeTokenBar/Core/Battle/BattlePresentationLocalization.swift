@@ -112,7 +112,10 @@ extension L {
 
 extension L {
     func battleMoveTarget(_ move: BattleMove) -> String {
-        switch move.targetScope {
+        battleMoveTarget(scope:move.targetScope,includesAllies:move.targets.contains(where: { $0.location < 0 }))
+    }
+    func battleMoveTarget(scope: String?, includesAllies: Bool = false) -> String {
+        switch scope {
         case "all":
             return t("모두", "Everyone", "全員", "Todos", "Tout le monde", "Todos", "Alle", "Все")
         case "allAdjacent":
@@ -136,7 +139,7 @@ extension L {
         case "scripted":
             return t("반격 대상 (자동)", "Counterattack target (automatic)", "反撃対象（自動）", "Objetivo del contraataque (automático)", "Cible de contre-attaque (automatique)", "Alvo do contra-ataque (automático)", "Konterziel (automatisch)", "Цель контратаки (автоматически)")
         case "normal", "any":
-            if move.targets.contains(where: { $0.location < 0 }) {
+            if includesAllies {
                 return t("상대 또는 아군 단일", "One opponent or ally", "相手か味方1体", "Un rival o aliado", "Un adversaire ou allié", "Um oponente ou aliado", "Ein Gegner oder Verbündeter", "Один противник или союзник")
             }
             return t("상대 단일", "One opponent", "相手1体", "Un rival", "Un adversaire", "Um oponente", "Ein Gegner", "Один противник")

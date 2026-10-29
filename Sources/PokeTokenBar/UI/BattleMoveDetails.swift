@@ -136,12 +136,17 @@ struct BattlePokemonStage: View {
     var spriteStore: SpriteStore = .shared
     var animated = true
     var body: some View {
+        let width=sizing?.stageWidth ?? (stageSize+20)
+        let rendered=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+        let footprint=BattleSpriteGeometry.groundSize(spriteWidth:rendered.width*(sizing?.pixelScale ?? BattleSpriteGeometry.imageBox(stageSize:stageSize)/max(rendered.width,rendered.height)),stageWidth:width)
         ZStack(alignment:.bottom) {
-            Ellipse().fill(Color(red:0.57,green:0.62,blue:0.40))
-                .frame(width:sizing?.stageWidth ?? (stageSize+20),height:BattleSpriteGeometry.shadowHeight)
-                .overlay(Ellipse().stroke(.white.opacity(0.35),lineWidth:3))
+            Ellipse().fill(LinearGradient(colors:[Color(red:0.39,green:0.26,blue:0.17),Color(red:0.18,green:0.12,blue:0.08)],startPoint:.top,endPoint:.bottom))
+                .overlay(Ellipse().fill(.black.opacity(0.24)).scaleEffect(x:0.72,y:0.48))
+                .overlay(Ellipse().stroke(.black.opacity(0.65),lineWidth:1))
+                .frame(width:footprint.width,height:footprint.height)
+                .padding(.bottom,BattleSpriteGeometry.footInset-footprint.height/2)
             BattlePokemonSprite(pokemon:pokemon,back:back,size:BattleSpriteGeometry.imageBox(stageSize:stageSize),pixelScale:sizing?.pixelScale,spriteStore:spriteStore,animated:animated)
                 .padding(.bottom,BattleSpriteGeometry.footInset).opacity(spriteOpacity)
-        }.frame(width:sizing?.stageWidth ?? (stageSize+20),height:sizing?.stageHeight ?? (stageSize+5),alignment:.bottom)
+        }.frame(width:width,height:sizing?.stageHeight ?? (stageSize+5),alignment:.bottom)
     }
 }

@@ -2,7 +2,7 @@
 const {Battle, Dex, Pokemon} = require('pokemon-showdown');
 const crypto = require('node:crypto');
 const {battleDex,heldItem,allowed:allowedItems,allowedFairyMoves}=require('./held-items.cjs');
-const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1';
+const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1';
 const keys = ['hp','atk','def','spa','spd','spe'];
 function validateTeam(team, count) {
   if (!Array.isArray(team) || team.length !== count) throw Error(`Select exactly ${count} Pokémon`);

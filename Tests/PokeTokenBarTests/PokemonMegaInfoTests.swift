@@ -40,7 +40,8 @@ import XCTest
         _ = NSApplication.shared
         for id in [6,80] {
             let base=id==6 ? ["hp":78,"attack":84,"defense":78,"special-attack":109,"special-defense":85,"speed":100]:["hp":95,"attack":75,"defense":110,"special-attack":100,"special-defense":80,"speed":30]
-            let view=PokemonMegaInfoView(speciesID:id,language:.ko,baseStats:base,onClose:{XCTFail("Rendering must not close or edit data")})
+            var profile=PokemonProfile.generate(seed:42);profile.level=100
+            let view=PokemonMegaInfoView(speciesID:id,language:.ko,baseStats:base,profile:id==6 ? profile:nil,nature:.adamant,onClose:{XCTFail("Rendering must not close or edit data")})
                 .background(Color(nsColor:.windowBackgroundColor)).environment(\.colorScheme,.dark)
             let host=NSHostingController(rootView:view)
             let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:440,height:590),styleMask:[.borderless],backing:.buffered,defer:false)
@@ -54,5 +55,23 @@ import XCTest
             try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-mega-info-\(id).png"))
             window.orderOut(nil);window.contentViewController=nil
         }
+    }
+    func testOwnedMegaPreviewUsesCurrentLevelIVsAndNatureInsteadOfBaseStatDeltas() throws {
+        let base=["hp":78,"attack":84,"defense":78,"special-attack":109,"special-defense":85,"speed":100]
+        var profile=PokemonProfile.generate(seed:42);profile.level=50
+        profile.ivs=PokemonIVs(hp:31,attack:31,defense:31,specialAttack:31,specialDefense:31,speed:31)
+        let view=PokemonMegaInfoView(speciesID:6,language:.ko,baseStats:base,profile:profile,nature:.adamant,onClose:{})
+        let mega=try XCTUnwrap(BattleHeldItems.item("charizarditex")?.mega)
+        let values=view.displayedStats(mega)
+        XCTAssertEqual(view.currentStats["attack"],114)
+        XCTAssertEqual(values["atk"],165)
+        XCTAssertEqual(values["atk"]! - view.currentStats["attack"]!,51)
+        XCTAssertNotEqual(values["atk"]! - view.currentStats["attack"]!,mega.stats["atk"]! - base["attack"]!)
+        XCTAssertEqual(values["spa"],135)
+        XCTAssertEqual(values["spa"]! - view.currentStats["special-attack"]!,19)
+        XCTAssertEqual(values["hp"],view.currentStats["hp"])
+        XCTAssertEqual(values["spe"],view.currentStats["speed"])
+        let unowned=PokemonMegaInfoView(speciesID:6,language:.ko,baseStats:base,onClose:{})
+        XCTAssertEqual(unowned.displayedStats(mega),mega.stats)
     }
 }

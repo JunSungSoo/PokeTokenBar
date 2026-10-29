@@ -1548,6 +1548,7 @@ struct L {
         switch kind {
         case .rareCandy: return t("이상한 사탕", "Rare Candy", "ふしぎなアメ", "Caramelo Raro", "Super Bonbon", "Doce Raro", "Sonderbonbon", "Редкая конфета")
         case .mint:      return t("민트", "Mint", "ミント", "Menta", "Menthe", "Menta", "Minze", "Мята")
+        case .redMaple: return t("붉은 단풍","Red Maple","赤いもみじ","Arce rojo","Érable rouge","Bordo vermelho","Rotes Ahornblatt","Красный клён")
         case .shinyCharm: return t("이로치 부적", "Shiny Charm", "ひかるおまもり", "Amuleto Iris", "Charme Chroma", "Amuleto Shiny", "Schillerpin", "Шайни-талисман")
         }
     }
@@ -1572,6 +1573,8 @@ struct L {
                      "Muda a natureza do seu Pokémon aleatoriamente.",
                      "Ändert das Wesen deines aktuellen Pokémon zufällig.",
                      "Случайно меняет характер покемона.")
+        case .redMaple:
+            return t("선택한 포켓몬의 종족값을 랜덤하게 변경해요.","Randomizes the selected Pokémon’s individual stats.","選んだポケモンの個体値をランダムに変更します。","Cambia al azar los valores individuales del Pokémon elegido.","Modifie aléatoirement les valeurs individuelles du Pokémon choisi.","Altera aleatoriamente os valores individuais do Pokémon escolhido.","Würfelt die individuellen Werte des gewählten Pokémon neu.","Случайно меняет индивидуальные значения выбранного покемона.")
         case .shinyCharm:
             return t("보유하면 이로치 포켓몬이 태어날 확률이 올라가요.",
                      "While owned, raises the chance of hatching a shiny.",
@@ -1585,6 +1588,10 @@ struct L {
     }
     /// 가방 사용 컨트롤의 효과 힌트 — 민트("성격 랜덤 변경", 사탕의 "+XP" 자리).
     var mintEffectHint: String { t("성격 랜덤 변경", "Random nature", "せいかくランダム変更", "Naturaleza aleatoria", "Nature aléatoire", "Natureza aleatória", "Zufälliges Wesen", "Случайный характер") }
+    var redMapleHint:String {t("각 스탯의 별을 1~32로 랜덤 재설정","Reroll each stat’s star from 1 to 32","各能力の星を1～32で再抽選","Sortea cada estrella entre 1 y 32","Relance chaque étoile de 1 à 32","Sorteia cada estrela de 1 a 32","Jeden Stern von 1 bis 32 neu würfeln","Случайные звёзды от 1 до 32")}
+    var redMapleChoose:String {t("졸업한 포켓몬을 선택해 주세요.","Choose a graduated Pokémon.","育成を完了したポケモンを選んでください。","Elige un Pokémon graduado.","Choisissez un Pokémon diplômé.","Escolha um Pokémon formado.","Wähle ein fertig aufgezogenes Pokémon.","Выберите выращенного покемона.")}
+    var redMapleEmpty:String {t("사용 가능한 졸업 포켓몬이 없어요.","No eligible graduated Pokémon.","対象の育成済みポケモンがいません。","No hay Pokémon graduados disponibles.","Aucun Pokémon diplômé disponible.","Nenhum Pokémon formado disponível.","Keine geeigneten fertig aufgezogenen Pokémon.","Нет подходящих выращенных покемонов.")}
+    var redMapleApplied:String {t("스탯의 별을 다시 설정했어요.","Stat stars have been rerolled.","能力の星を再抽選しました。","Se han sorteado las estrellas.","Les étoiles ont été relancées.","As estrelas foram sorteadas.","Die Sterne wurden neu gewürfelt.","Звёзды характеристик обновлены.")}
 
     // MARK: 상점 (재화 = 사용한 토큰)
     var shop: String { t("상점", "Shop", "ショップ", "Tienda", "Boutique", "Loja", "Laden", "Магазин") }

@@ -35,6 +35,12 @@ struct BattleTextCatalog: Decodable, Sendable {
             ?? Bundle.module.url(forResource:"species-types",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode([String:[String]].self,from:Data(contentsOf:url))
     }()
+    static let moveTargets: [String:String] = {
+        let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/move-targets.json")
+        let url=bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0:nil }
+            ?? Bundle.module.url(forResource:"move-targets",withExtension:"json",subdirectory:"BattleText")!
+        return try! JSONDecoder().decode([String:String].self,from:Data(contentsOf:url))
+    }()
     func pokemonTypes(_ id:Int,form:PokemonForm?)->[String] {
         let form=PokemonForm.resolved(speciesID:id,form:form)
         let key=String(id)+(form.map{":"+$0.rawValue} ?? "")
@@ -63,6 +69,7 @@ struct BattleTextCatalog: Decodable, Sendable {
     func moveMenuTitle(_ raw: String, language: AppLanguage) -> String {
         moveName(raw, language: language) + " · "
             + typeName(moves[Self.key(raw)]?.type ?? "", language: language)
+            + " · " + L(language).battleCategory(moves[Self.key(raw)]?.category ?? "")
     }
     func description(_ raw: String, language: AppLanguage) -> String {
         moves[Self.key(raw)]?.descriptions[language.rawValue] ?? L(language).battleDescriptionUnavailable
@@ -84,6 +91,8 @@ struct BattleTextCatalog: Decodable, Sendable {
             lines.append("\(typeName(type, language: language)) · \(l.battleCategory(category)) · \(l.battlePower): \(power > 0 ? String(power) : "—") · \(l.battlePP): \(pp)")
         }
         lines.append(l.battleBaseAccuracy + ": " + l.battleAccuracy(moves[Self.key(raw)]?.accuracy))
+        let scope=Self.moveTargets[Self.key(raw)]
+        lines.append(l.battleTarget + ": " + l.battleMoveTarget(scope:scope,includesAllies:scope == "normal" || scope == "any"))
         return lines.joined(separator: "\n")
     }
     func abilityTooltip(_ raw: String, language: AppLanguage) -> String {

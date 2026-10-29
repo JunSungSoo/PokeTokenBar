@@ -15,6 +15,43 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Ground contact shares one baseline across native GIFs and original effects
+
+- The earlier five-point hover and team-wide oval width implemented the previous
+  presentation rule. They made small Pokémon appear detached from an oversized
+  platform. Grounded placement now puts the cropped animation's lowest pose at
+  the oval centre; original moves, entries, outgoing actors and Mega transitions
+  consume the same `footInset`, so switching renderers does not move the baseline.
+- Keep the team-wide camera and physical-height size ratios, but size each ground
+  footprint to that Pokémon's facing/scale. Centre variable-height ovals on the
+  shared baseline. Brown gradients and a black contact shade replace the green
+  platform and white ring. Preserve duration-weighted stance centring and GIF crop
+  unions rather than anchoring each frame and cancelling the original motion.
+- Native raster tests now assert ground contact despite transparent padding and
+  asymmetric tails. Small/large footprints are compared in both formats; original
+  move/entry tests retain the shared physical scale and actor placement contract.
+
+## Stage-changing abilities may apply correctly without naming their cause
+
+- Showdown's Contrary and Simple modify `ChangeBoost` silently. Close Combat on Mega
+  Staraptor correctly raised Defense/Sp. Def, but its plain `-boost` lines carried no
+  ability source. The native notice extractor intentionally requires an ability cause,
+  so the change appeared in the stage panel without a temporary ability notice.
+- The previous full-ability initialization sweep covered availability, not each
+  handler's emitted protocol. Explicit-trigger tests for Intimidate/Moxie did not cover
+  silent stage modifiers. Sweep supported Gen I–V species and permitted Mega forms:
+  Contrary and Simple are the only supported `onChangeBoost` abilities.
+- In the isolated battle dex, delegate to the original handler unchanged and annotate
+  its actual emitted stage line with the ability cause at `AfterEachBoost`. This keeps
+  log/scene IDs unchanged. Suppressed handlers do not run; caps and Mist/TryBoost blocks
+  never reach this hook and therefore produce no false stat-change notice.
+  No simulator arithmetic, RNG, turn order or shared Showdown dependency is changed.
+- Actual single/double Mega Staraptor Close Combat, reversed increases/opposing drops,
+  Simple's doubled changes, stage limits, switch reset, Mist and Gastro Acid suppression
+  are regression cases. Pre-fix tests failed on public attribution while arithmetic
+  passed. Native engine frames verify stages and localized presentation in all eight
+  languages from both perspectives. Preserve both engine and presentation tests.
+
 ## New moves must be exercised through their actual emitted protocol
 
 - Adding original timelines and a move allowlist did not make Fairy Lock a global

@@ -26,6 +26,26 @@ function battleDex(){
    if(!parent.abilities.get(ability).exists||a.gen>5)d.dataCache.Abilities[a.id]=donor.data.Abilities[a.id];
   }
  }
+ // Preserve Showdown's arithmetic and annotate only the stage lines it actually emits.
+ // AfterEachBoost excludes capped changes and changes blocked by Mist/TryBoost.
+ for(const id of ['contrary','simple']){
+  const ability=parent.abilities.get(id),change=ability.onChangeBoost;
+  const changed=new WeakMap();
+  d.dataCache.Abilities[id]={...parent.data.Abilities[id],
+   onChangeBoost(boost,target,source,effect){
+    const before={...boost},result=change.call(this,boost,target,source,effect);
+    changed.set(target,new Set(Object.keys(boost).filter(stat=>boost[stat]!==before[stat])));
+    return result;
+   },
+   onAfterEachBoost(boost,target){
+    const index=this.log.length-1,line=this.log[index],parts=line?.split('|');
+    if(parts&&['-boost','-unboost'].includes(parts[1])&&parts[2]===target.toString()
+       &&Object.keys(boost).includes(parts[3])&&changed.get(target)?.has(parts[3])&&Number(parts[4])>0){
+     this.log[index]=line+'|[from] ability: '+ability.name;
+    }
+   }
+  };
+ }
  Dex.dexes[id]=d;return d;
 }
 function heldItem(raw,species){

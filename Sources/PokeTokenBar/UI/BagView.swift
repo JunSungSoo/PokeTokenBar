@@ -106,6 +106,7 @@ private struct ItemCard: View {
         switch kind {
         case .rareCandy: return store.canUseRareCandy
         case .mint:      return store.canUseMint
+        case .redMaple: return store.canUseRedMaple
         case .shinyCharm: return false   // 보유형 — 사용 개념 없음(상시 효과)
         }
     }
@@ -114,6 +115,7 @@ private struct ItemCard: View {
         switch kind {
         case .rareCandy: return "+\(TokenFormatter.compact(selectedCandyCount * RareCandy.xp)) XP"
         case .mint:      return l.mintEffectHint
+        case .redMaple: return l.redMapleHint
         case .shinyCharm: return l.shinyCharmEffectHint
         }
     }
@@ -121,13 +123,22 @@ private struct ItemCard: View {
         switch kind {
         case .rareCandy: _ = store.useRareCandy(count: selectedCandyCount)
         case .mint:      _ = store.useMint()
+        case .redMaple: RedMapleWindowController.shared.show(store:store)
         case .shinyCharm: break   // 보유형 — 사용 동작 없음
         }
     }
 
     @ViewBuilder
     private func useControls(_ l: L) -> some View {
-        if kind.isPassive {
+        if kind == .redMaple {
+            HStack {
+                Text(store.redMapleTargets.isEmpty ? l.redMapleEmpty:l.redMapleHint)
+                    .font(.caption2).foregroundStyle(.secondary)
+                Spacer()
+                Button(l.useItem) { RedMapleWindowController.shared.show(store:store) }
+                    .buttonStyle(.bordered).controlSize(.small).disabled(!canUse)
+            }
+        } else if kind.isPassive {
             // 보유형(이로치 부적) — 사용 버튼 대신 상시 효과 표시.
             HStack(spacing: 6) {
                 Image(systemName: "checkmark.seal.fill").font(.caption2).foregroundStyle(.green)

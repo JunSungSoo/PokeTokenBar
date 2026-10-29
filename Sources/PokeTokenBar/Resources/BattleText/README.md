@@ -53,3 +53,9 @@ The review cache contains `locales/<source-language>/move.json` and `pinned/<mov
 from the documented revisions. The checked-in learner CSV is the reviewed input. The same
 command imports complete original PokéRogue timelines, backgrounds and sounds using the
 existing application's asset revision. Normal builds and runtime selection are offline.
+
+`move-targets.json` supplies offline target scopes for every base and Fairy move entry.
+Collection tooltips reuse the battle target translations; menu titles show the localized
+type and Physical/Special/Status category. Outside a battle, a selectable single target
+includes an ally where the rules permit one. Regenerate scopes from the pinned engine with
+`BattleEngine/runtime/node scripts/prepare-move-targets.cjs` after catalog updates.

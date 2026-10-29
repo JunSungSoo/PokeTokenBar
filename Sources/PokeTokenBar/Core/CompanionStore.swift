@@ -1176,6 +1176,25 @@ final class CompanionStore {
         return new
     }
 
+    /// Dex entries are completed raising records; released records cannot receive consumables.
+    var redMapleTargets: [DexEntry] { state.dex.filter { !$0.isReleased && $0.profile != nil } }
+    var canUseRedMaple: Bool { itemCount(.redMaple) > 0 && !redMapleTargets.isEmpty }
+
+    /// Reroll only this individual's six IVs. Species bases and all other profile data stay intact.
+    @discardableResult
+    func useRedMaple(entryID: String) -> Bool {
+        guard itemCount(.redMaple) > 0,
+              let index=state.dex.firstIndex(where:{$0.id == entryID && !$0.isReleased}),
+              var profile=state.dex[index].profile else { return false }
+        profile.ivs=PokemonIVs(hp:Int(rng.next()%32),attack:Int(rng.next()%32),
+            defense:Int(rng.next()%32),specialAttack:Int(rng.next()%32),
+            specialDefense:Int(rng.next()%32),speed:Int(rng.next()%32))
+        state.dex[index].profile=profile
+        state.inventory[ItemKind.redMaple.rawValue]=itemCount(.redMaple)-1
+        save()
+        return true
+    }
+
     // MARK: 상점 (재화 = 사용한 토큰)
 
     /// 상점에서 쓸 수 있는 토큰(재화) = 실사용 누적 − 상점 지출 누적. 성장 미터(usedSinceInstall)는

@@ -496,6 +496,97 @@
       "sha256": "93e1bbffca891f27be1005cf7b5523d35912b9b23cf6bfad7633e6df5036823c",
       "bytes": 101496914,
       "packagedAt": "2026-10-27T17:17:05+09:00"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "10:58:10",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261028-red-maple.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; verified local arm64 build, code signature, source/resource byte equality, 2,497 original resource hashes and package CRC/executable/notes checks; 59 related app regression tests passed",
+      "turn": null,
+      "title": "Collection move details, direct IV grades and Red Maple consumable",
+      "commit": null,
+      "sourceBaseCommit": "066a3a0d82d4f21201e9637b2aadaca414c915cf",
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "컬렉션에서 기술에 마우스를 올리면 설명과 함께 대상 범위를 확인할 수 있도록 했습니다.",
+        "기술 이름의 속성 옆에 물리·특수·변화 분류를 설정된 언어로 표시했습니다.",
+        "컬렉션 스탯의 별 등급을 개체값 0~31에 대응하는 ★(1)~★(32)로 변경했습니다.",
+        "상점과 가방에 붉은 단풍 아이템을 추가하고 민트와 동일한 가격으로 구매할 수 있도록 했습니다.",
+        "붉은 단풍 사용 시 별도 창에서 놓아준 포켓몬을 제외한 졸업 포켓몬을 선택하도록 했습니다.",
+        "선택한 포켓몬의 여섯 개체값을 각각 무작위로 다시 설정하고 능력치와 배틀에 반영하며, 종족값·성격·기술·특성·레벨은 유지하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261028-red-maple.zip",
+      "sha256": "0f285c2484c1062ed5e73066ed1151b3819d3470157dbc1276401069904de406",
+      "bytes": 102146877,
+      "packagedAt": "2026-10-28T10:58:10+09:00"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "11:16:06",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261028-mega-stats.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; 16 Mega information/profile tests passed, including offscreen production UI renders and current-stat/IV/nature checks; arm64 build, code signature, bundled resource hashes and verified ZIP integrity/executable/notes",
+      "turn": null,
+      "title": "Mega Evolution stat preview based on current owned stats",
+      "commit": null,
+      "sourceBaseCommit": "066a3a0d82d4f21201e9637b2aadaca414c915cf",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "메가진화 정보의 능력치를 선택한 포켓몬의 현재 수치와 메가진화 후 수치로 나란히 표시하도록 했습니다.",
+        "스탯 증감량을 현재 레벨·개체값·성격을 반영한 실제 능력치 기준으로 계산하고 HP는 유지하도록 했습니다.",
+        "개체 정보가 없는 경우 기존 일반 형태와 메가진화 형태의 기본 능력치 비교를 유지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261028-mega-stats.zip",
+      "sha256": "92aef4672c77e925961395c4e0f9121fc682e611a91c93826a35884ebb3adeef",
+      "bytes": 102153072,
+      "packagedAt": "2026-10-28T11:16:06+09:00"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "12:42:34",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261028-ability-notices.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; 123 engine tests and 14 native tests passed, including actual single/double Contrary/Simple effects, stage caps, switch reset, suppression, Mist and all eight languages; verified arm64 build, code signature, matching native/engine revision, source/resource equality, 2,497 original resource hashes, packaged-engine smoke tests and ZIP integrity/executable/notes",
+      "turn": null,
+      "title": "Contrary and Simple notices attributed to actual stat changes",
+      "commit": null,
+      "sourceBaseCommit": "066a3a0d82d4f21201e9637b2aadaca414c915cf",
+      "artifactAvailable": true,
+      "releaseNumber": 3,
+      "changes": [
+        "심술꾸러기·단순으로 스탯 등급이 바뀌면 특성명과 대상 스탯의 증감량을 일시 알림으로 표시하도록 했습니다.",
+        "등급이 한계에 도달하거나 흰안개·위액 등의 효과로 변화가 차단되었을 때 잘못된 특성 변화 알림이 나오지 않도록 했습니다.",
+        "싱글·더블배틀의 양쪽 시점에서 설정된 언어로 알림을 표시하고 기존 능력치 계산과 턴 순서를 유지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261028-ability-notices.zip",
+      "sha256": "4304bcdc4fd9702de91bc335a162a9656bfed44375adc4a050d7a16d0d06caa6",
+      "bytes": 102153659,
+      "packagedAt": "2026-10-28T12:42:34+09:00"
+    },
+    {
+      "date": "2026-10-29",
+      "time": "15:18:21",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261029-ground.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; 69 native tests and 123 engine tests passed; verified arm64 build, code signature, 4,290 bundled files, 2,497 original resource hashes and ZIP integrity/executable/notes",
+      "turn": null,
+      "title": "Ground contact and individual battle ground footprints",
+      "commit": null,
+      "sourceBaseCommit": "066a3a0d82d4f21201e9637b2aadaca414c915cf",
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "배틀 포켓몬의 발끝을 타원형 지면의 중앙에 맞춰 땅 위에 서 있는 모습으로 조정했습니다.",
+        "타원형 지면을 검은색과 갈색 조합으로 변경하고 각 포켓몬의 크기에 맞춰 지면 크기를 조정했습니다.",
+        "싱글·더블배틀에서 종 정보에 따른 크기 비율과 기존 GIF·플로팅 애니메이션을 유지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261029-ground.zip",
+      "sha256": "4be83bf69b9c13ed80ca85740819d87ae963b17475c3f25e2df07da5606fd95d",
+      "bytes": 102154864,
+      "packagedAt": "2026-10-29T15:18:21+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending"
