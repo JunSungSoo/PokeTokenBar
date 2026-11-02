@@ -40,6 +40,16 @@ python3 scripts/package-zip.py --app build/PokeTokenBar.app \
 `release.sh`의 공개 ZIP도 같은 패키저를 사용한다. 로컬 ZIP 배포가 공개 채널 게시를
 의미하지는 않는다. 아래 절차는 GitHub/Homebrew 공개 버전 배포에 적용한다.
 
+### Drive 배포 버전
+
+Drive 업데이트는 날짜·회차가 아니라 앱의 `CFBundleShortVersionString`과 공유 ZIP 파일명의
+`MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.0.0이며 새 Drive 배포마다 앱 버전과 파일명
+버전을 함께 올린다. 빌드 스크립트가 앱 내부 버전을 기록하고 ZIP 메타데이터에도 같은 값이
+포함된다. 파일명에 인식 가능한 버전이 있으면 패키저는 앱 버전 불일치를 거부한다.
+`PokeTokenBar-3.0.1.zip` 또는 `PokeTokenBar-3.0.1-261102(1).zip` 형식을 사용한다.
+날짜·회차만 바꿔서는 업데이트 알림이 발생하지 않는다. 자동 배포 회차 기록은 사용하지 않는다.
+구현/검증 범위는 `docs/reference/drive-updates.md`를 참고한다.
+
 ## 1. 문서·이미지 갱신 (매 릴리스 필수 — "할까요?" 묻지 말고 무조건 한다)
 
 `./scripts/release.sh --check-only` 로 경고를 확인한 뒤 아래를 모두 반영한다.

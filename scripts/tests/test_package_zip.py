@@ -94,6 +94,23 @@ class PackageZipTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
         self.assertFalse(list(self.root.glob('.ptb-package-*')))
 
+    def test_filename_version_must_match_embedded_app_version(self):
+        info = plistlib.loads((self.app / 'Contents/Info.plist').read_bytes())
+        info['CFBundleShortVersionString'] = '3.0.0'
+        (self.app / 'Contents/Info.plist').write_bytes(plistlib.dumps(info))
+        wrong = self.root / 'PokeTokenBar-2.5.6-261102(1).zip'
+        with self.assertRaises(ValueError):
+            package.package_zip(self.app, self.notes, wrong)
+        self.assertFalse(wrong.exists())
+        right = self.root / 'PokeTokenBar-3.0.0-261102(1).zip'
+        result = package.package_zip(self.app, self.notes, right)
+        with zipfile.ZipFile(right) as archive:
+            packaged = plistlib.loads(archive.read('PokeTokenBar.app/Contents/Info.plist'))
+            metadata = json.loads(archive.read('Release Metadata.json'))
+            self.assertEqual(packaged['CFBundleShortVersionString'], '3.0.0')
+            self.assertEqual(metadata['version'], '3.0.0')
+        self.assertEqual(result['version'], '3.0.0')
+
     def test_public_release_uses_the_mandatory_notes_packager(self):
         script = (ROOT / 'scripts/release.sh').read_text()
         self.assertIn('scripts/package-zip.py --app build/PokeTokenBar.app --notes "$ZIP_NOTES_FILE"', script)

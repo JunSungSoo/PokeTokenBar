@@ -25,23 +25,9 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertFalse(UpdateChecker.isNewer("2.0", than: "2.0.0"))  // 동일
     }
 
-    // MARK: - Detached upgrade script wait loop (#175)
-
-    func testDetachedUpgradeScriptWaitsOnPidNotProcessName() {
-        let script = UpdateChecker.detachedUpgradeScript
-        XCTAssertFalse(
-            script.contains("pgrep -x"),
-            "pgrep -x matches any instance by name and always times out when a duplicate runs"
-        )
-        XCTAssertTrue(
-            script.contains("kill -0 \"$3\""),
-            "the wait loop must wait on the specific terminating PID via $3"
-        )
-    }
-
     // MARK: - Cooldown stamps only after a successful, validated check
 
-    private static let releaseURL = "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.5"
+    private static let releaseURL = DriveReleaseSource.shareURL.absoluteString
 
     @MainActor
     private func isolatedDefaults() -> UserDefaults {
@@ -50,7 +36,7 @@ final class UpdateCheckerTests: XCTestCase {
         return UserDefaults(suiteName: suite)!
     }
 
-    /// A failed GitHub lookup must not start the 30-minute cooldown: otherwise opening the
+    /// A failed Drive lookup must not start the 30-minute cooldown: otherwise opening the
     /// popover again stays silent until the timer expires, even though no release was seen.
     @MainActor
     func testFailedCheckDoesNotStartTheCooldown() async {
@@ -144,7 +130,7 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertNil(UpdateChecker.normalizedReleaseVersion("v1234567890.0.0"), "component would overflow comparisons")
     }
 
-    /// With no early stamp, overlapping popover opens would each hit GitHub. One fetch at a time.
+    /// With no early stamp, overlapping popover opens would each hit Drive. One fetch at a time.
     @MainActor
     func testOverlappingChecksShareOneFetch() async {
         var fetches = 0
@@ -174,7 +160,7 @@ final class UpdateCheckerTests: XCTestCase {
         defer { box.removePersistentDomain(forName: suite) }
         let checker = UpdateChecker(currentVersion: "2.5.3", defaults: box)
 
-        checker.consider(latest: "2.5.4", url: "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.4")
+        checker.consider(latest: "2.5.4", url: DriveReleaseSource.shareURL.absoluteString)
         XCTAssertEqual(checker.available?.version, "2.5.4")
         XCTAssertNil(checker.skipped)
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.4"))
@@ -183,18 +169,18 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertNil(checker.available, "the popover banner stays hidden")
         XCTAssertEqual(checker.skipped?.version, "2.5.4")
         XCTAssertEqual(checker.settingsNotice, .skipped("2.5.4"))
-        XCTAssertEqual(box.string(forKey: "skippedUpdateVersion"), "2.5.4")
+        XCTAssertEqual(box.string(forKey: UpdateChecker.skippedVersionKey), "2.5.4")
 
-        checker.consider(latest: "v2.5.4", url: "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.4")
+        checker.consider(latest: "v2.5.4", url: DriveReleaseSource.shareURL.absoluteString)
         XCTAssertNil(checker.available)
         XCTAssertEqual(checker.settingsNotice, .skipped("2.5.4"), "a skipped version is not the latest installed")
 
-        checker.consider(latest: "2.5.5", url: "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.5")
+        checker.consider(latest: "2.5.5", url: DriveReleaseSource.shareURL.absoluteString)
         XCTAssertEqual(checker.available?.version, "2.5.5")
         XCTAssertNil(checker.skipped)
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.5"))
 
-        checker.consider(latest: "2.5.3", url: "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.3")
+        checker.consider(latest: "2.5.3", url: DriveReleaseSource.shareURL.absoluteString)
         XCTAssertEqual(checker.settingsNotice, .current, "the installed release is the latest")
     }
 
@@ -204,7 +190,7 @@ final class UpdateCheckerTests: XCTestCase {
         let box = UserDefaults(suiteName: suite)!
         defer { box.removePersistentDomain(forName: suite) }
         let checker = UpdateChecker(currentVersion: "2.5.3", defaults: box)
-        let url = "https://github.com/chattymin/PokeTokenBar/releases/tag/v2.5.4"
+        let url = DriveReleaseSource.shareURL.absoluteString
         checker.consider(latest: "2.5.4", url: url)
         checker.skipCurrent()
 
@@ -213,14 +199,23 @@ final class UpdateCheckerTests: XCTestCase {
         checker.showSkippedAgain()
         XCTAssertEqual(checker.available?.version, "2.5.4")
         XCTAssertNil(checker.skipped)
-        XCTAssertNil(box.string(forKey: "skippedUpdateVersion"))
+        XCTAssertNil(box.string(forKey: UpdateChecker.skippedVersionKey))
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.4"))
     }
 
-    func testDetachedUpgradeScriptUsesPositionalParameters() {
-        let script = UpdateChecker.detachedUpgradeScript
-        XCTAssertTrue(script.contains("\"$1\" update"), "must execute brew via $1 positional arg")
-        XCTAssertTrue(script.contains("\"$1\" upgrade"), "must execute brew upgrade via $1 positional arg")
-        XCTAssertTrue(script.contains("open \"$2\""), "must open bundlePath via $2 positional arg")
+    @MainActor func testDriveVersionOfferClearsOnInstallAndButtonAlwaysOpensPinnedShare()async {
+        let defaults=isolatedDefaults();defaults.set("3.0.1",forKey:"skippedUpdateVersion")
+        var opened:[URL]=[]
+        let checker=UpdateChecker(currentVersion:"3.0.0",defaults:defaults,fetchLatest:{.init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString)},openDownload:{opened.append($0)})
+        await checker.check();XCTAssertEqual(checker.available?.version,"3.0.1","Old GitHub skip must not hide Drive updates")
+        checker.applyUpdate();XCTAssertEqual(opened,[DriveReleaseSource.shareURL]);XCTAssertFalse(checker.isUpdating)
+        let installed=UpdateChecker(currentVersion:"3.0.1",defaults:defaults,fetchLatest:{.init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString)})
+        await installed.check();XCTAssertNil(installed.available)
+        for other in ["2.5.6","3.0.0"]{checker.consider(latest:other,url:DriveReleaseSource.shareURL.absoluteString);XCTAssertNil(checker.available)}
     }
+    func testDriveDestinationMustBeTheSpecificSharedFile() {
+        XCTAssertTrue(UpdateChecker.isTrustedReleaseURL(DriveReleaseSource.shareURL.absoluteString))
+        for url in ["https://github.com/chattymin/PokeTokenBar/releases/latest","https://drive.google.com/file/d/other/view","https://drive.google.com.evil.test/file/d/1NYVOMV8fMqf-UGM-dIfKZ3wKV4PtITrN/view","http://drive.google.com/file/d/1NYVOMV8fMqf-UGM-dIfKZ3wKV4PtITrN/view"]{XCTAssertFalse(UpdateChecker.isTrustedReleaseURL(url))}
+    }
+
 }

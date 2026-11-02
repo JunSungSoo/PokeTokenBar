@@ -705,6 +705,32 @@
       "sha256": "d0607228082f4e39adf83b78308551ebd2b800c16159a540ad4bdad6fbd3c126",
       "bytes": 126241448,
       "packagedAt": "2026-11-02T16:02:05+09:00"
+    },
+    {
+      "date": "2026-11-02",
+      "time": "17:43:30",
+      "archive": "PokeTokenBar-3.0.0-261102(5).zip",
+      "version": "3.0.0",
+      "evidence": "Explicit user-requested fifth release notes, Desktop ZIP and commit/push; 22 native update/parser/production-Home tests including actual public Drive fetch, 8 packaging tests and 145 engine tests passed; suffix-anchor mutation failed then was restored; production Home notice rendered/OCR verified and button targets pinned Drive share; ARM64 app/helper strict signatures, 4356 resource matches, audio hashes, production test-mode exclusion and actual packaged-engine boosted CPU turn verified; package-zip.py validated ZIP integrity/notes/executable; archive filename, both app version fields and metadata equal 3.0.0.",
+      "turn": null,
+      "title": "Drive semantic-version updates and version 3.0.0",
+      "commit": null,
+      "sourceBaseCommit": "c17641d8d50ac84bcd591a47535422a4b20264f0",
+      "artifactAvailable": true,
+      "releaseNumber": 5,
+      "changes": [
+        "앱 버전을 3.0.0으로 변경하고 배포 앱·테스트 앱과 ZIP 메타데이터에 같은 버전이 반영되도록 했습니다.",
+        "기존 GitHub 최신 릴리스 조회와 Homebrew 자동 업데이트 경로를 제거하고 지정한 Google Drive 공유 파일을 업데이트 확인 대상으로 변경했습니다.",
+        "Drive ZIP 파일명의 숫자 버전을 설치된 앱 버전과 비교하여 더 높은 버전일 때만 안내하며, 날짜·배포 회차만 바뀌거나 같은 버전을 설치한 경우에는 알림을 표시하지 않도록 했습니다.",
+        "홈 탭 상단의 기존 업데이트 안내 영역을 재사용하고, 업데이트 버튼을 누르면 기본 브라우저에서 Drive 다운로드 링크가 열리도록 했습니다.",
+        "기존 원본 업데이트의 건너뛰기 설정과 Drive 업데이트 설정을 분리하여 이전 설정으로 새 배포 안내가 숨겨지지 않도록 했습니다.",
+        "앱 시작·홈 진입·설정에서 업데이트를 확인하고, 중복 조회와 불필요한 반복 요청을 제한하며 조회 실패·비정상 파일명은 업데이트로 잘못 안내하지 않도록 했습니다.",
+        "ZIP 파일명 버전과 앱 내부 버전이 다르면 압축을 중단하고, 앱 내부 버전과 배포 메타데이터의 일치를 검증하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.0-261102(5).zip",
+      "sha256": "c90147e6135eaa6538c2e68ee13e79dff58b9973afe97f6767b4fa5d905e153a",
+      "bytes": 126245860,
+      "packagedAt": "2026-11-02T17:43:30+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending"

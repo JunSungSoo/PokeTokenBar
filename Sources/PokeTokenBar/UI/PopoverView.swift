@@ -166,7 +166,7 @@ struct PopoverView: View {
     private var mainContent: some View {
         @Bindable var nav = nav
         return VStack(alignment: .leading, spacing: 12) {
-            updateBanner
+            if nav.tab == .home { updateBanner }
             Picker("", selection: $nav.tab) {
                 Text(l.home).tag(PopoverTab.home)
                 Text(l.shop).tag(PopoverTab.shop)
@@ -210,6 +210,7 @@ struct PopoverView: View {
             footer
         }
         .padding(PopoverMetrics.padding)
+        .task(id:nav.tab){if nav.tab == .home{await updater.check()}}
     }
 
     // MARK: 헤더 — 오늘 합계 + provider/토큰타입 분해

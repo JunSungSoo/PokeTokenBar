@@ -53,7 +53,13 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         try await render(history: false)
     }
 
-    private func render(history: Bool) async throws {
+    func testReusedUpdateNoticeIsHomeOnlyAndHiddenForInstalledVersion()async throws {
+        try await render(history:false,drive:true)
+        try await render(history:false,drive:true,tab:.shop)
+        try await render(history:false,drive:true,current:"3.0.1")
+    }
+
+    private func render(history: Bool,drive:Bool=false,tab:PopoverTab = .home,current:String="3.0.0") async throws {
         let suite = "QuietHome-\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
@@ -92,10 +98,13 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         XCTAssertEqual(store.todayTotalTokens, 0)
         XCTAssertEqual(store.monthTotalTokens, series.reduce(0) { $0 + $1.totalTokens })
 
-        let height = 604.0
+        let checker=UpdateChecker(currentVersion:current,defaults:defaults,fetchLatest:{drive ? .init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString):nil})
+        if drive {await checker.check()}
+        let navigation=PopoverNavigation();navigation.tab=tab
+        let height = drive ? 740.0:604.0
         let host = NSHostingView(rootView: PopoverView()
-            .environment(store).environment(companion).environment(UpdateChecker(defaults: defaults))
-            .environment(PopoverNavigation()).environment(\.colorScheme, .dark)
+            .environment(store).environment(companion).environment(checker)
+            .environment(navigation).environment(\.colorScheme, .dark)
             .environment(\.controlActiveState, .active)
             .frame(width: PopoverMetrics.width, height: height)
             .background(Color(nsColor: NSColor(calibratedWhite: 0.07, alpha: 1))))
@@ -127,6 +136,16 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         try VNImageRequestHandler(cgImage: XCTUnwrap(bitmap.cgImage)).perform([request])
         let text = request.results?.compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ") ?? ""
         let normalizedText = text.replacingOccurrences(of: " ", with: "")
+        if drive {
+            let shown=tab == .home && current=="3.0.0"
+            XCTAssertEqual(normalizedText.contains("3.0.1"),shown,"\(text)")
+            if shown {
+                XCTAssertTrue(normalizedText.contains("업데이트"))
+                try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-drive-version-notice.png"))
+            }
+            XCTAssertFalse(normalizedText.contains("2.5.6"),"The old original-version notice must not remain")
+            return
+        }
         let chartCaption = companion.l.dailyTrend.replacingOccurrences(of: " ", with: "")
         let chartVisible = (request.results ?? []).contains { observation in
             // CI ranks "일벌" before "일별" at the same confidence. Vision returns at most 10 candidates.

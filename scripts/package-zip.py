@@ -54,6 +54,9 @@ def package_zip(app, notes, output):
         raise ValueError("Output ZIP cannot be inside the app")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     version = info["CFBundleShortVersionString"]
+    named_version = re.match(r"^PokeTokenBar-([0-9]+\.[0-9]+\.[0-9]+)(?:-|\.zip$)", output.name)
+    if named_version and named_version[1] != version:
+        raise ValueError("ZIP filename version must match the app version")
     executable = app / "Contents/MacOS" / info["CFBundleExecutable"]
     executable_sha = hashlib.sha256(executable.read_bytes()).hexdigest()
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()

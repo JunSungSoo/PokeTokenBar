@@ -2737,3 +2737,26 @@ read_when:
   regression. After restoration both focused level tests pass; source-region inspection
   confirms the adoption and rejection branches. Full engine validation passes 145 tests,
   and the broader native session/level selection passes 14 tests.
+
+
+## Drive update detection must use the app version and a complete ZIP filename
+
+- The user replaced the date/round proposal with app-version updates starting at 3.0.0.
+  Reusing GitHub lookups or its skipped-version preference would show or suppress unrelated
+  upstream notices; running the former brew updater would update the wrong distribution.
+  The shared checker/banner now use only the pinned Drive source and open its download page.
+- Public Drive HTML and filenames are external inputs. Parse a complete expected ZIP basename,
+  reject non-ZIP suffixes/prereleases/login pages, bound HTML reads and compare numeric semantic
+  versions against the actual installed bundle version. Merely changing dates/rounds must not
+  notify. Equal/older versions clear offers, while failed fetches leave successful cooldown
+  unset and preserve an existing offer.
+- Regression renders the actual reused Home banner with 3.0.1 over 3.0.0, checks its absence
+  on other tabs and after installing 3.0.1, and verifies the button requests the exact pinned
+  browser URL. Removing the filename end anchor fails the non-ZIP suffix regression; restored
+  before final tests. The packager separately rejects mismatched archive/app version labels.
+
+- After restoring the suffix anchor, all 22 native tests (including the real public fetch)
+  pass. Production Home OCR verifies 3.0.1/current 3.0.0 and the Update button; same/newer
+  installs and other tabs hide the banner. Eight packaging tests pass, and a real signed
+  ARM64 3.0.0 app/temporary ZIP verifies embedded version and metadata equality. Engine
+  validation remains green at 145 tests; source/notes bytes are preserved by packaging.
