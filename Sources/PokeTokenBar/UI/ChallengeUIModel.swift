@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 @MainActor @Observable final class ChallengeActivity {static let shared=ChallengeActivity();var isOpen=false}
-enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace}
+enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace,allHeal,buff}
 enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championReward}
 
 @MainActor @Observable final class ChallengeUIModel {
@@ -97,7 +97,7 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
         catch {report(error)}
     }
     var canTestNextTrainer:Bool {
-        session.testControlsEnabled && !building && !effectsBusy && run.map{$0.encounterIndex+1<$0.encounterCount} == true
+        session.testControlsEnabled && run?.phase == .battling && !building && !effectsBusy && run.map{$0.encounterIndex+1<$0.encounterCount} == true
     }
     func nextTrainerForTesting() {
         guard canTestNextTrainer else{return}
@@ -147,25 +147,43 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
             try save.finishChampionShinyReward();newChallenge();return true
         } catch{report(error);return false}
     }
+    var rewardOptions:[ChallengeRewardKind] {
+        guard let run else{return []}
+        return (run.milestoneReward ? [.allHeal,.replace]:[.heal,.pp,.replace])+(run.rewardRoll==nil ? []:[.buff])
+    }
+    var buffSummary:String? {
+        guard ![ChallengeScreen.setup,.result,.championReward].contains(screen) else{return nil}
+        let buffs=screen == .battle ? (run?.checkpoint?.initialBuffs ?? run?.teamBuffs ?? []):(run?.teamBuffs ?? [])
+        guard !buffs.isEmpty else{return nil}
+        return buffs.map{store.l.challengeBuffRemaining($0.kind,$0.remaining)}.joined(separator:" · ")
+    }
+    var shopBalance:Int {run?.pointBalance ?? 0}
+    func canPurchase(_ item:ChallengeShopItem,targetID:String)->Bool {
+        !building && !effectsBusy && run?.canPurchase(item,targetID:targetID)==true
+    }
+    @discardableResult func purchase(_ item:ChallengeShopItem,targetID:String)->Bool {
+        guard canPurchase(item,targetID:targetID) else{return false}
+        building=true;problem=false;defer{building=false}
+        do{try session.purchase(item,targetID:targetID);return true}catch{report(error);return false}
+    }
     func selectReward(_ kind:ChallengeRewardKind){rewardKind=kind;rewardMove=0;configureRewardSelection()}
     func configureRewardSelection() {
         guard let run else{return}
+        if !rewardOptions.contains(rewardKind){rewardKind=rewardOptions.first ?? .heal}
         if !run.team.contains(where:{$0.id==rewardPokemonID}){rewardPokemonID=run.team[0].id}
         if rewardKind == .heal,let first=run.resources.first(where:{r in r.hp < (run.team.first{$0.id==r.id}?.stats["hp"] ?? 0)}) {rewardPokemonID=first.id}
         if rewardKind == .pp,let first=run.resources.first(where:{$0.moves.contains{$0.pp<$0.maxPP}}) {rewardPokemonID=first.id;rewardMove=first.moves.firstIndex(where:{$0.pp<$0.maxPP}) ?? 0}
         if !replacements.contains(where:{$0.id==incomingID}){incomingID=replacements.first?.id ?? ""}
     }
     var canApplyReward:Bool {
-        guard run?.phase == .reward,!building,let r=run?.resources.first(where:{$0.id==rewardPokemonID}) else{return false}
+        guard let run,run.phase == .reward,!building,rewardOptions.contains(rewardKind),let r=run.resources.first(where:{$0.id==rewardPokemonID}) else{return false}
         switch rewardKind {
-        case .heal:return r.hp < (run?.team.first{$0.id==r.id}?.stats["hp"] ?? 0)
-        case .pp:return r.moves.indices.contains(rewardMove) && r.moves[rewardMove].pp<r.moves[rewardMove].maxPP
+        case .heal:return r.hp < (run.team.first{$0.id==r.id}?.stats["hp"] ?? 0)
+        case .pp:return run.enhancedReward ? r.moves.contains{$0.pp<$0.maxPP}:(r.moves.indices.contains(rewardMove) && r.moves[rewardMove].pp<r.moves[rewardMove].maxPP)
         case .replace:return replacements.contains{$0.id==incomingID}
+        case .allHeal:return run.needsFullRecovery
+        case .buff:return run.rewardRoll != nil
         }
-    }
-    var noRewardAvailable:Bool {
-        guard let run,run.phase == .reward else{return false}
-        return replacements.isEmpty && run.resources.allSatisfy{r in r.hp==run.team.first{$0.id==r.id}?.stats["hp"] && r.moves.allSatisfy{$0.pp==$0.maxPP}}
     }
     func applyReward()async {
         guard canApplyReward else{return};problem=false;building=true;defer{building=false}
@@ -174,6 +192,10 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
             switch rewardKind {
             case .heal:try session.applyReward(.heal(outgoing))
             case .pp:try session.applyReward(.pp(outgoing,rewardMove))
+            case .allHeal:try session.applyReward(.allHeal)
+            case .buff:
+                guard let kind=run?.rewardRoll else{throw ChallengeFailure.invalidReward}
+                try session.applyReward(.buff(kind))
             case .replace:
                 let id=incomingID,runID=run?.id,index=run?.encounterIndex
                 let p=try await BattleTeamBuilder.buildIndividual(id:id,entries:replacements,language:store.language,provider:provider)
@@ -182,7 +204,6 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
             }
         } catch {report(error)}
     }
-    func skipReward(){do{try save.skipUnavailableReward(eligible:candidates)}catch{report(error)}}
     func report(_ error:Error){problem=true;AppLog.write("challenge operation failed: \(error)")}
 }
 

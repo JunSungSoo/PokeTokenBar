@@ -15,6 +15,47 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Shop migration arithmetic must follow validation, and debit must share the recovery commit
+
+- Legacy challenge saves lack a points field. Deriving `completedVictories * 100`
+  before validating the decoded count can overflow on an edited/malformed save.
+  Validate the existing bounded run first, derive missing fields, then atomically commit.
+  The same boundary caps imported max HP at the engine's supported 1...1000 before
+  percentage-heal addition. Huge counts/HP are rejected with original bytes preserved.
+- Publish debit and healed resource state only after one atomic run write. Regression
+  forces the actual file-write failure, checks neither value changes and retries. A
+  separate real zero-balance/partially-injured target tests the affordability predicate;
+  removing that predicate makes the test fail even though commit validation also rejects
+  a negative balance. Native cards must not misleadingly enable unaffordable purchases.
+- Sweep the mandatory reward and optional shop paths: points do not claim the reward,
+  no purchase is required for Next after a reward, repeat purchases are explicitly allowed,
+  terminal-state retries do not mint points, and fresh runs discard the old balance.
+
+## Team rewards need independent encounter lifetimes and a frozen replay snapshot
+
+- A team reward is not a mutation of the collection's owned stats or an ordinary move
+  boost. Multiplying imported stats would compound with stages incorrectly and could
+  survive the intended expiry; setting ordinary boosts once would lose it on switching.
+  Keep challenge instances separate, combine stages only during synchronous calculation,
+  and expose the same combined stage view in combatant frames.
+- Each instance expires on the one terminal-frame save transition. Snapshot the original
+  list with the encounter for replay; nonterminal frames, reopens and reward application
+  must not consume it. Persist random offers in that same victory commit, so rerendering
+  cannot reroll them. Migrating a legacy pending offer must write before publishing it.
+- Native trigger tests stack consecutive choices, reload mid-encounter, finish each
+  encounter exactly once, replace a member, revive/cure the whole team, keep consumed
+  items gone, and traverse every reward tier through the pre-Red reward. A real engine
+  session verifies the serialized payload and deterministic replay. Removing duration
+  decrement deliberately fails six assertions in the independent-expiry regression.
+- Sweep both Next paths: the standard phase guard and test-only encounter traversal.
+  The old QA reward-footer shortcut could bypass mandatory rewards. Remove it, reject
+  ended/reward-state test traversal, and leave no no-reward skip: the rolled buff remains
+  a valid choice even when HP/PP are full. UI-model regression verifies both paths stay
+  on the reward until application, across all 26 non-final victories.
+- Engine regressions compare actual damage/critical damage with normal stages, exercise
+  Contrary, Simple, Unaware, real turn ordering/Trick Room, switching and Mega changes,
+  and verify temporary combined boost views restore the underlying state afterward.
+
 ## Champion Close must follow the trophy presentation stage
 
 - The Champion footer originally rendered Close unconditionally; prior screenshot tests

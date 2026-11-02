@@ -2,7 +2,9 @@ import Foundation
 
 @MainActor
 final class BattleEngineProcess {
-    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1"
+    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1/challenge-rewards-v3"
+    nonisolated static let previousChallengeRevision=String(revision.dropLast("/challenge-rewards-v3".count))
+    nonisolated static let previousRewardRevision=previousChallengeRevision+"/challenge-rewards-v2"
     var onFrames: (([BattleFrame]) -> Void)?
     var onFailure: ((String) -> Void)?
     var onExit: ((String) -> Void)?
@@ -48,7 +50,7 @@ final class BattleEngineProcess {
         }.value
     }
 
-    func start(mode: BattleMode, teams: [[BattlePokemon]], profile:String?=nil, resources:[[ChallengePokemonState]?]?=nil, seed:[UInt16]?=nil, automaticOpponent:Bool=false) throws {
+    func start(mode: BattleMode, teams: [[BattlePokemon]], profile:String?=nil, resources:[[ChallengePokemonState]?]?=nil, challengeBoosts:[String:Int]?=nil, seed:[UInt16]?=nil, automaticOpponent:Bool=false) throws {
         stop()
         expectedStop = false
         let node = Self.runtimeURL
@@ -90,9 +92,9 @@ final class BattleEngineProcess {
                 }
             } catch { await self?.fail(error.localizedDescription) }
         }
-        try send(StartCommand(kind: "start", mode: mode, teams: teams,profile:profile,resources:resources,seed:seed,automaticOpponent:automaticOpponent,expectedPolicyRevision:automaticOpponent ? try ChallengeEncounterCatalog.policyRevision():nil))
+        try send(StartCommand(kind: "start", mode: mode, teams: teams,profile:profile,resources:resources,challengeBoosts:challengeBoosts,seed:seed,automaticOpponent:automaticOpponent,expectedPolicyRevision:automaticOpponent ? try ChallengeEncounterCatalog.policyRevision():nil))
     }
-    private struct StartCommand: Encodable { let kind: String; let mode: BattleMode; let teams: [[BattlePokemon]]; let profile:String?; let resources:[[ChallengePokemonState]?]?; let seed:[UInt16]?; let automaticOpponent:Bool; let expectedPolicyRevision:String? }
+    private struct StartCommand: Encodable { let kind: String; let mode: BattleMode; let teams: [[BattlePokemon]]; let profile:String?; let resources:[[ChallengePokemonState]?]?; let challengeBoosts:[String:Int]?; let seed:[UInt16]?; let automaticOpponent:Bool; let expectedPolicyRevision:String? }
     private struct ChoiceCommand: Encodable { let kind = "choose"; let player: Int; let decisionID: String; let actions: [BattleAction]; let order: [Int] }
     private struct SurrenderCommand: Encodable { let kind = "surrender"; let player: Int }
     private struct Reply: Decodable { let frames: [BattleFrame]?; let error: String? }

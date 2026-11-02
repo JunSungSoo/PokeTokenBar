@@ -62,14 +62,14 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
     func resume()throws {try launch(replay:true)}
     private func launch(replay:Bool)throws {
         guard let run=save.run,run.phase == .battling,let checkpoint=run.checkpoint,
-              checkpoint.engineRevision==BattleEngineProcess.revision,
+              (checkpoint.engineRevision==BattleEngineProcess.revision || checkpoint.engineRevision==BattleEngineProcess.previousRewardRevision || (checkpoint.engineRevision==BattleEngineProcess.previousChallengeRevision && (checkpoint.initialBuffs ?? []).isEmpty)),
               checkpoint.policyRevision == (try ChallengeEncounterCatalog.policyRevision()) else{throw ChallengeFailure.incompatibleVersion}
         stop();frame=nil;error=nil;submitted=false
         replayQueue=replay ? checkpoint.decisions + (checkpoint.pendingDecision.map{[$0]} ?? []):[]
         replaying=replay && !replayQueue.isEmpty
         let process=BattleEngineProcess();engine=process
         try process.start(mode:.singles,teams:[checkpoint.initialTeam,checkpoint.opponent],profile:"challenge",
-                          resources:[checkpoint.initialResources,nil],seed:checkpoint.seed,automaticOpponent:true)
+                          resources:[checkpoint.initialResources,nil],challengeBoosts:ChallengeTeamBuff.stages(checkpoint.initialBuffs ?? []),seed:checkpoint.seed,automaticOpponent:true)
         process.onFrames={ [weak self] frames in self?.receive(frames[0]) }
         process.onFailure={ [weak self] reason in
             guard let self else{return}
@@ -106,13 +106,17 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
         guard save.run?.phase == .reward,(frame==nil || frame?.ended==true),!presentation.pending else{throw ChallengeFailure.invalidReward}
         try save.apply(reward,eligible:eligible)
     }
+    func purchase(_ item:ChallengeShopItem,targetID:String)throws {
+        guard (frame==nil || frame?.ended==true),!presentation.pending else{throw ChallengeFailure.invalidReward}
+        try save.purchase(item,targetID:targetID)
+    }
     func winForTesting()throws {
         guard testControlsEnabled,engine != nil,!submitted,!replaying,
               frame?.ended==false,!presentation.pending else{throw ChallengeFailure.invalidState}
         try engine?.surrender(player:1)
     }
     func nextTrainerForTesting()throws {
-        guard testControlsEnabled,!submitted,!replaying,!presentation.pending else{throw ChallengeFailure.invalidState}
+        guard testControlsEnabled,!submitted,!replaying,frame?.ended==false,!presentation.pending else{throw ChallengeFailure.invalidState}
         try save.skipEncounterForTesting()
         stop();frame=nil
         try startEncounter()

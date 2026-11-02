@@ -13,6 +13,7 @@ struct BattleView: View {
     var showsResultClose=true
     var replayOpening=true
     var musicActive:Bool? = nil
+    var challengeBuffSummary:String? = nil
     var auxiliaryState: BattleAuxiliaryState? = nil
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
@@ -125,6 +126,9 @@ struct BattleView: View {
                 Image(systemName: (musicActive ?? musicEnabled) ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }.help(l.battleMusic).accessibilityLabel(l.battleMusic)
             if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
+        }
+        if let challengeBuffSummary {
+            Text(challengeBuffSummary).font(.caption).foregroundStyle(.orange).accessibilityIdentifier("challenge-team-buffs")
         }
         if let onTestWin {
             HStack {

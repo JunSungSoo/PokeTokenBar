@@ -2,8 +2,9 @@
 const {Battle, Dex, Pokemon} = require('pokemon-showdown');
 const crypto = require('node:crypto');
 const {battleDex,heldItem,allowed:allowedItems,allowedFairyMoves}=require('./held-items.cjs');
-const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1';
+const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1/challenge-rewards-v3';
 const {validateResources,initializeResources,resourcesFor}=require('./challenge-state.cjs');
+const challengeBuffs=require('./challenge-buffs.cjs');
 const keys = ['hp','atk','def','spa','spd','spe'];
 function validateTeam(team, count, carried = false, npc = false) {
   if (!Array.isArray(team) || team.length !== count) throw Error(`Select exactly ${count} Pokémon`);
@@ -81,6 +82,8 @@ class OwnedBattle {
     // Unselected reserves cannot switch in, receive effects or prevent a loss.
     const battleSize = this.profile==='challenge'?6:mode === 'singles' ? 3 : 4;
     const sets = teams.map((t,i) => validateTeam(t, count, this.profile==='challenge'&&!!options.resources?.[i],this.profile==='challenge'&&i===1).slice(0, battleSize));
+    const rewardBoosts=challengeBuffs.validateBoosts(options.challengeBoosts,this.profile);
+    for(const set of sets[0])set.ptbRewardBoosts=rewardBoosts;
     const states=[0,1].map(i=>validateResources(options.resources?.[i],sets[i],battleDex()));
     if(options.resources!=null&&(!Array.isArray(options.resources)||options.resources.length!==2))throw Error('Invalid resource sides');
     this.errors = [];
@@ -91,7 +94,18 @@ class OwnedBattle {
       id: 'ptbownedstats', name:'PokeTokenBar BW2 + Mega', mod:'ptbmegabw2', gameType:mode,
       ruleset:['Cancel Mod'],
       ...(this.profile==='challenge'?{onBattleStart(){initializeResources(this,states);}}:{}),
-      pokemon:{updateMaxHp(){
+      pokemon:{
+        getCappedBoost(boosts){
+          const result=Pokemon.prototype.getCappedBoost.call(this,boosts),total=challengeBuffs.combinedBoosts(this);
+          for(const key of Object.keys(result))result[key]=Math.max(-6,Math.min(6,total[key]+result[key]))-total[key];
+          return result;
+        },
+        getStat(...args){return challengeBuffs.withBoosts([this],()=>Pokemon.prototype.getStat.apply(this,args));},
+        calculateStat(stat,boost,modifier,statUser){
+          const extra=this.ptbRewardContext ? 0:(this.set.ptbRewardBoosts?.[stat]||0);
+          return Pokemon.prototype.calculateStat.call(this,stat,Math.max(-6,Math.min(6,boost+extra)),modifier,statUser);
+        },
+        updateMaxHp(){
         // Mega forms retain the owned individual's HP scale and current damage.
         if(this.species.isMega && this.set.ptbStats)return;
         return Pokemon.prototype.updateMaxHp.call(this);
@@ -112,6 +126,7 @@ class OwnedBattle {
       const text = Array.isArray(data) ? data.join('\n') : String(data);
       if (type === 'sideupdate' && text.includes('|error|')) this.errors.push(text);
     }});
+    challengeBuffs.install(this.battle);
     // Observe the actual initialized timer, including callbacks and successful restarts.
     // Weak keys expire with removed effects; no battle rules or durations are modified.
     this.fieldDurations = new WeakMap();
@@ -221,7 +236,7 @@ class OwnedBattle {
       level:p.level, shiny:!!appearance.set.shiny, form:currentForm(appearance), active:p.side.active.includes(p), fainted:p.fainted || p.hp === 0,
       hp:own ? p.hp : Math.ceil(p.hp / p.maxhp * 100), maxHP:own ? p.maxhp : 100,
       status:p.status || '', stats:own ? {hp:p.maxhp,...p.storedStats} : undefined,
-      boosts:own ? {...p.boosts} : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega};
+      boosts:own ? challengeBuffs.combinedBoosts(p) : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega};
     };
     // Only public battlefield conditions and their actual finite durations.
     const visibleSide = new Set(['reflect','lightscreen','safeguard','mist','tailwind','stealthrock','spikes','toxicspikes','luckychant','rainbow','swamp','seaoffire']);
@@ -331,7 +346,7 @@ if (require.main === module) {
       if (input.kind==='start') {
         if(input.automaticOpponent===true&&input.profile!=='challenge')throw Error('CPU requires challenge profile');
         if(input.expectedPolicyRevision&&require('./challenge-policy.cjs').loadPolicy().revision!==input.expectedPolicyRevision)throw Error('Challenge policy version changed');
-        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,automaticOpponent:input.automaticOpponent});
+        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,challengeBoosts:input.challengeBoosts,automaticOpponent:input.automaticOpponent});
         automaticOpponent=input.automaticOpponent===true;
       }
       else if (!engine) throw Error('Engine not started');

@@ -118,7 +118,7 @@ import XCTest
         try session.winForTesting();frame=try await wait(session,after:frame.decisionID)
         XCTAssertTrue(frame.ended);XCTAssertEqual(save.run?.phase,.cleared)
     }
-    func testTestNextTrainerCanLeaveUnclaimedVictoryReward()async throws {
+    func testTestNextTrainerCannotLeaveUnclaimedVictoryReward()async throws {
         let helper=ChallengeRunTests(),save=try helper.store(),session=try ChallengeBattleSession(save:save,catalog:ChallengeEncounterCatalog.load(),testControlsEnabled:true)
         defer{session.stop();try? FileManager.default.removeItem(at:save.url.deletingLastPathComponent())}
         try session.start(team:helper.team());let first=try await wait(session)
@@ -126,8 +126,64 @@ import XCTest
         _ = try await wait(session,after:first.decisionID);session.completePresentation()
         XCTAssertEqual(save.run?.phase,.reward)
         let carried=save.run?.resources
-        try session.nextTrainerForTesting();_ = try await wait(session)
+        XCTAssertThrowsError(try session.nextTrainerForTesting());XCTAssertEqual(save.run?.phase,.reward)
+        XCTAssertThrowsError(try session.startEncounter());XCTAssertEqual(save.run?.encounterIndex,0)
+        try session.applyReward(.buff(try XCTUnwrap(save.run?.rewardRoll)))
+        try session.startEncounter();_ = try await wait(session)
         XCTAssertEqual(save.run?.encounterIndex,1);XCTAssertEqual(save.run?.checkpoint?.initialResources,carried)
+    }
+    func testActualTeamBuffPayloadStackAndReplayPreserveThreeBattleDuration()async throws {
+        let helper=ChallengeRunTests(),temporary=try helper.store(),save=ChallengeRunStore(url:temporary.url,roll:{.attack})
+        let catalog=try ChallengeEncounterCatalog.load(),session=try ChallengeBattleSession(save:save,catalog:catalog,testControlsEnabled:true)
+        defer{session.stop()}
+        try session.start(team:helper.team());var f=try await wait(session)
+        session.completePresentation();try session.winForTesting();f=try await wait(session,after:f.decisionID);session.completePresentation()
+        try session.applyReward(.buff(.attack));try session.startEncounter();f=try await wait(session)
+        XCTAssertTrue(f.own.allSatisfy{$0.boosts?["atk"]==1 && $0.stats?["atk"]==120})
+        XCTAssertEqual(save.run?.teamBuffs?.map(\.remaining),[3])
+        let old=f.decisionID;try session.choose(action(f));f=try await wait(session,after:old)
+        let resources=f.resources,decision=f.decisionID
+        session.stop();try session.resume();f=try await wait(session)
+        XCTAssertEqual(f.decisionID,decision);XCTAssertEqual(f.resources,resources)
+        XCTAssertEqual(save.run?.teamBuffs?.map(\.remaining),[3]);XCTAssertEqual(f.own.first?.boosts?["atk"],1)
+        session.completePresentation();try session.winForTesting();f=try await wait(session,after:f.decisionID);session.completePresentation()
+        try session.applyReward(.buff(.attack));try session.startEncounter();f=try await wait(session)
+        XCTAssertTrue(f.own.allSatisfy{$0.boosts?["atk"]==2});XCTAssertEqual(save.run?.teamBuffs?.map(\.remaining),[2,3])
+        session.completePresentation();try session.winForTesting();f=try await wait(session,after:f.decisionID);session.completePresentation()
+        try session.applyReward(.allHeal);try session.startEncounter();f=try await wait(session)
+        XCTAssertTrue(f.own.allSatisfy{$0.boosts?["atk"]==2});XCTAssertEqual(save.run?.teamBuffs?.map(\.remaining),[1,2])
+    }
+    func testVersionTwoCombinedBuffCheckpointResumesWithoutExtendingLegacyDuration()async throws {
+        let helper=ChallengeRunTests(),save=try helper.store(),catalog=try ChallengeEncounterCatalog.load()
+        try save.start(team:helper.team(),catalogVersion:catalog.version)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        json["teamBuffs"]=[["id":"legacy","kind":"power","remaining":2]]
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let session=try ChallengeBattleSession(save:ChallengeRunStore(url:save.url),catalog:catalog)
+        try session.startEncounter();var f=try await wait(session)
+        try session.choose(action(f));f=try await wait(session,after:f.decisionID);session.stop()
+        json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        var checkpoint=try XCTUnwrap(json["checkpoint"] as? [String:Any]);checkpoint["engineRevision"]=BattleEngineProcess.previousRewardRevision;json["checkpoint"]=checkpoint
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let restored=try ChallengeBattleSession(save:ChallengeRunStore(url:save.url),catalog:catalog,testControlsEnabled:true);defer{restored.stop()}
+        try restored.resume();let replay=try await wait(restored)
+        XCTAssertEqual(replay.decisionID,f.decisionID);XCTAssertEqual(replay.resources,f.resources)
+        XCTAssertEqual(replay.own.first?.boosts?["atk"],1);XCTAssertEqual(replay.own.first?.boosts?["spa"],1)
+        XCTAssertEqual(restored.save.run?.teamBuffs?.map(\.remaining),[2])
+        restored.completePresentation();try restored.winForTesting();_ = try await wait(restored,after:replay.decisionID)
+        XCTAssertEqual(restored.save.run?.teamBuffs?.map(\.remaining),[1])
+        XCTAssertTrue(ChallengeBuffKind.allCases.contains(try XCTUnwrap(restored.save.run?.rewardRoll)))
+    }
+    func testPreviousEngineCheckpointWithoutBuffsStillResumesDeterministically()async throws {
+        let helper=ChallengeRunTests(),save=try helper.store(),catalog=try ChallengeEncounterCatalog.load()
+        let session=try ChallengeBattleSession(save:save,catalog:catalog);defer{session.stop()}
+        try session.start(team:helper.team());let f=try await wait(session);session.stop()
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        var checkpoint=try XCTUnwrap(json["checkpoint"] as? [String:Any]);checkpoint["engineRevision"]=BattleEngineProcess.previousChallengeRevision;checkpoint.removeValue(forKey:"initialBuffs");json["checkpoint"]=checkpoint
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let restored=try ChallengeBattleSession(save:ChallengeRunStore(url:save.url),catalog:catalog);defer{restored.stop()}
+        try restored.resume();let actual=try await wait(restored)
+        XCTAssertEqual(actual.decisionID,f.decisionID);XCTAssertEqual(actual.resources,f.resources)
     }
     func testSketchPersistsItsLearnedMoveAndReplaysFromTheOriginalTeam()async throws {
         let helper=ChallengeRunTests(),save=try helper.store()

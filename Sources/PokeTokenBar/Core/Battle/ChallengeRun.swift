@@ -1,6 +1,35 @@
 import Foundation
 import Observation
 
+enum ChallengeBuffKind:String,Codable,Sendable,CaseIterable {
+    case attack,specialAttack,speed,defense,specialDefense
+    /// Decode already-active rewards from the previous version without rerolling them.
+    case power
+    static let allCases:[Self]=[.attack,.specialAttack,.speed,.defense,.specialDefense]
+    var stages:[String:Int] {
+        switch self {
+        case .attack:["atk":1]
+        case .specialAttack:["spa":1]
+        case .speed:["spe":1]
+        case .defense:["def":1]
+        case .specialDefense:["spd":1]
+        case .power:["atk":1,"spa":1]
+        }
+    }
+}
+struct ChallengeTeamBuff:Codable,Sendable,Equatable,Identifiable {
+    let id:String
+    let kind:ChallengeBuffKind
+    var remaining:Int
+    static func stages(_ buffs:[Self])->[String:Int] {
+        buffs.filter{$0.remaining>0}.reduce(into:[:]){result,buff in
+            for (key,value) in buff.kind.stages{result[key,default:0]+=value}
+        }
+    }
+    static func afterBattle(_ buffs:[Self])->[Self] {
+        buffs.compactMap{buff in guard buff.remaining>1 else{return nil};var next=buff;next.remaining-=1;return next}
+    }
+}
 struct ChallengeMoveState: Codable, Sendable, Equatable {
     let id: String
     var pp: Int
@@ -32,6 +61,7 @@ struct ChallengeCheckpoint: Codable, Sendable {
     let seed: [UInt16]
     let engineRevision: String
     let policyRevision: String
+    var initialBuffs:[ChallengeTeamBuff]? = nil
     var decisions: [BattleDecision]=[]
     var pendingDecision: BattleDecision?
 }
@@ -41,6 +71,9 @@ struct ChallengeChampionReward:Codable,Sendable {
 }
 struct ChallengeRun: Codable, Sendable, Identifiable {
     var championReward:ChallengeChampionReward? = nil
+    var challengePoints:Int? = 0
+    var teamBuffs:[ChallengeTeamBuff]? = nil
+    var rewardRoll:ChallengeBuffKind? = nil
     var schemaVersion=1
     let id: String
     let catalogVersion: String
@@ -51,11 +84,16 @@ struct ChallengeRun: Codable, Sendable, Identifiable {
     var resources: [ChallengePokemonState]
     var retiredIDs: Set<String>=[]
     var checkpoint: ChallengeCheckpoint?
+    var milestoneReward:Bool {(encounterIndex+1).isMultiple(of:3)}
+    var enhancedReward:Bool {encounterIndex>=15}
+    var needsFullRecovery:Bool {resources.contains{r in r.hp < (team.first{$0.id==r.id}?.stats["hp"] ?? 0) || !r.status.isEmpty || r.moves.contains{$0.pp<$0.maxPP}}}
 }
 enum ChallengeReward {
     case heal(String)
     case pp(String,Int)
     case replace(String,BattlePokemon)
+    case allHeal
+    case buff(ChallengeBuffKind)
 }
 
 /// Mutations are committed to disk before becoming visible. An unreadable save is never overwritten.
@@ -64,13 +102,20 @@ enum ChallengeReward {
     private(set) var error: String?
     private var unreadable=false
     let url: URL
-    init(url: URL?=nil) {
+    private let roll:()->ChallengeBuffKind
+    init(url: URL?=nil,roll:@escaping ()->ChallengeBuffKind = {ChallengeBuffKind.allCases.randomElement()!}) {
+        self.roll=roll
         self.url=url ?? AppStatePaths.directory().appendingPathComponent("challenge-run-v1.json")
         guard FileManager.default.fileExists(atPath:self.url.path) else{return}
         do {
-            let saved=try JSONDecoder().decode(ChallengeRun.self,from:Data(contentsOf:self.url))
+            var saved=try JSONDecoder().decode(ChallengeRun.self,from:Data(contentsOf:self.url))
             guard saved.schemaVersion==1 else{throw ChallengeFailure.incompatibleVersion}
-            try Self.validate(saved);run=saved
+            try Self.validate(saved)
+            let missingPoints=saved.challengePoints==nil
+            let missingOffer=saved.phase == .reward && (saved.rewardRoll==nil || saved.rewardRoll == .power)
+            if missingPoints{saved.challengePoints=saved.completedVictories*100}
+            if missingOffer{saved.rewardRoll=roll()}
+            if missingPoints || missingOffer{try commit(saved)}else{run=saved}
         } catch {self.error=error.localizedDescription;unreadable=true}
     }
     private static func validate(_ run:ChallengeRun)throws {
@@ -79,12 +124,18 @@ enum ChallengeReward {
               run.resources.count==6,Set(run.resources.map(\.id))==Set(run.team.map(\.id)),
               run.retiredIDs.isDisjoint(with:run.team.map(\.id)) else{throw ChallengeFailure.invalidState}
         for pokemon in run.team {
-            guard let r=run.resources.first(where:{$0.id==pokemon.id}),let maxHP=pokemon.stats["hp"],
+            guard let r=run.resources.first(where:{$0.id==pokemon.id}),let maxHP=pokemon.stats["hp"],(1...1000).contains(maxHP),
                   r.hp>=0,r.hp<=maxHP,r.moves.count==pokemon.moves.count,
                   r.moves.allSatisfy({$0.maxPP>0 && $0.pp>=0 && $0.pp<=$0.maxPP}),
                   ["","brn","par","psn","tox","slp","frz"].contains(r.status) else{throw ChallengeFailure.invalidState}
             let fresh=try ChallengePokemonState.fresh(pokemon)
             guard zip(fresh.moves,r.moves).allSatisfy({$0.id==$1.id && $0.maxPP==$1.maxPP}) else{throw ChallengeFailure.invalidState}
+        }
+        guard run.pointBalance>=0,run.pointBalance<=run.encounterCount*100 else{throw ChallengeFailure.invalidState}
+        let buffs=run.teamBuffs ?? []
+        guard Set(buffs.map(\.id)).count==buffs.count,buffs.allSatisfy({(1...3).contains($0.remaining)}) else{throw ChallengeFailure.invalidState}
+        if let snapshot=run.checkpoint?.initialBuffs {
+            guard Set(snapshot.map(\.id)).count==snapshot.count,snapshot.allSatisfy({(1...3).contains($0.remaining)}) else{throw ChallengeFailure.invalidState}
         }
         if let reward=run.championReward {
             guard run.phase == .cleared,reward.recipientID != "",!reward.claimed || reward.recipientID != nil else{throw ChallengeFailure.invalidState}
@@ -111,7 +162,7 @@ enum ChallengeReward {
         guard var next=run,next.phase == .ready || next.phase == .intermission,
               next.resources.contains(where:{$0.hp>0}),opponent.count==6,seed.count==4 else{throw ChallengeFailure.invalidState}
         next.checkpoint=ChallengeCheckpoint(opponent:opponent,initialTeam:next.team,initialResources:next.resources,seed:seed,
-                                           engineRevision:BattleEngineProcess.revision,policyRevision:policyRevision)
+                                           engineRevision:BattleEngineProcess.revision,policyRevision:policyRevision,initialBuffs:next.teamBuffs)
         next.phase = .battling
         try commit(next)
     }
@@ -137,7 +188,10 @@ enum ChallengeReward {
         }
         if let decision {next.checkpoint?.decisions.append(decision);next.checkpoint?.pendingDecision=nil}
         if let winner {
+            if winner==0{next.challengePoints=next.pointBalance+100}
+            next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
             next.phase=winner==0 ? (next.encounterIndex==next.encounterCount-1 ? .cleared:.reward):.lost
+            next.rewardRoll=next.phase == .reward ? roll():nil
         }
         try commit(next)
     }
@@ -153,14 +207,30 @@ enum ChallengeReward {
         guard var next=run,next.phase == .reward else{throw ChallengeFailure.invalidReward}
         switch reward {
         case .heal(let id):
+            guard !next.milestoneReward else{throw ChallengeFailure.invalidReward}
             guard let index=next.resources.firstIndex(where:{$0.id==id}),let p=next.team.first(where:{$0.id==id}),let maxHP=p.stats["hp"],next.resources[index].hp<maxHP else{throw ChallengeFailure.invalidReward}
             let wasFainted=next.resources[index].hp==0
-            next.resources[index].hp=min(maxHP,next.resources[index].hp+max(1,Int(Double(maxHP)*0.35)))
+            next.resources[index].hp=min(maxHP,next.resources[index].hp+(next.enhancedReward ? maxHP:max(1,Int(Double(maxHP)*0.35))))
             if wasFainted {next.resources[index].status="";next.resources[index].sleepStart=nil;next.resources[index].sleepRemaining=nil}
         case .pp(let id,let move):
-            guard let index=next.resources.firstIndex(where:{$0.id==id}),next.resources[index].moves.indices.contains(move),
-                  next.resources[index].moves[move].pp<next.resources[index].moves[move].maxPP else{throw ChallengeFailure.invalidReward}
-            next.resources[index].moves[move].pp=min(next.resources[index].moves[move].maxPP,next.resources[index].moves[move].pp+3)
+            guard !next.milestoneReward,let index=next.resources.firstIndex(where:{$0.id==id}) else{throw ChallengeFailure.invalidReward}
+            if next.enhancedReward {
+                guard next.resources[index].moves.contains(where:{$0.pp<$0.maxPP}) else{throw ChallengeFailure.invalidReward}
+                for j in next.resources[index].moves.indices{next.resources[index].moves[j].pp=next.resources[index].moves[j].maxPP}
+            }else{
+                guard next.resources[index].moves.indices.contains(move),next.resources[index].moves[move].pp<next.resources[index].moves[move].maxPP else{throw ChallengeFailure.invalidReward}
+                next.resources[index].moves[move].pp=min(next.resources[index].moves[move].maxPP,next.resources[index].moves[move].pp+3)
+            }
+        case .allHeal:
+            guard next.milestoneReward,next.needsFullRecovery else{throw ChallengeFailure.invalidReward}
+            for i in next.resources.indices {
+                next.resources[i].hp=next.team.first{$0.id==next.resources[i].id}!.stats["hp"]!
+                next.resources[i].status="";next.resources[i].sleepStart=nil;next.resources[i].sleepRemaining=nil
+                for j in next.resources[i].moves.indices{next.resources[i].moves[j].pp=next.resources[i].moves[j].maxPP}
+            }
+        case .buff(let kind):
+            guard ChallengeBuffKind.allCases.contains(kind),next.rewardRoll==kind else{throw ChallengeFailure.invalidReward}
+            next.teamBuffs=(next.teamBuffs ?? [])+[ChallengeTeamBuff(id:UUID().uuidString,kind:kind,remaining:3)]
         case .replace(let id,var incoming):
             guard !next.retiredIDs.contains(incoming.id) else{throw ChallengeFailure.retiredMember}
             guard let index=next.team.firstIndex(where:{$0.id==id}),let resourceIndex=next.resources.firstIndex(where:{$0.id==id}),
@@ -173,14 +243,15 @@ enum ChallengeReward {
         next.phase = .intermission;next.checkpoint=nil
         try commit(next)
     }
-    func skipUnavailableReward(eligible:[DexEntry])throws {
-        guard var next=run,next.phase == .reward,
-              next.resources.allSatisfy({r in r.hp==next.team.first(where:{$0.id==r.id})?.stats["hp"] && r.moves.allSatisfy({$0.pp==$0.maxPP})}),
-              !BattleTeamBuilder.storedCandidates(eligible).contains(where:{e in
-                  !next.retiredIDs.contains(e.id) && !next.team.contains(where:{$0.id==e.id || $0.speciesID==e.finalID})
-              }) else{throw ChallengeFailure.invalidReward}
-        next.phase = .intermission;next.checkpoint=nil;try commit(next)
+    func purchase(_ item:ChallengeShopItem,targetID:String)throws {
+        guard var next=run,next.canPurchase(item,targetID:targetID),
+              let index=next.resources.firstIndex(where:{$0.id==targetID}),let maxHP=next.team.first(where:{$0.id==targetID})?.stats["hp"] else{throw ChallengeFailure.invalidReward}
+        next.challengePoints=next.pointBalance-item.price
+        item.apply(to:&next.resources[index],maxHP:maxHP)
+        try commit(next)
     }
+    /// A rolled team buff is always available, so no reward can be deferred or skipped.
+    func skipUnavailableReward(eligible:[DexEntry])throws {throw ChallengeFailure.invalidReward}
     func advance()throws {
         guard var next=run,next.phase == .intermission,next.encounterIndex+1<next.encounterCount else{throw ChallengeFailure.invalidState}
         next.encounterIndex+=1;next.phase = .ready
@@ -188,8 +259,9 @@ enum ChallengeReward {
     }
     /// QA-only encounter traversal; preserve the current resources and never mark a victory.
     func skipEncounterForTesting()throws {
-        guard var next=run,[.battling,.reward,.intermission].contains(next.phase),
+        guard var next=run,next.phase == .battling,
               next.encounterIndex+1<next.encounterCount else{throw ChallengeFailure.invalidState}
+        next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
         next.encounterIndex+=1;next.phase = .ready;next.checkpoint=nil
         try commit(next)
     }

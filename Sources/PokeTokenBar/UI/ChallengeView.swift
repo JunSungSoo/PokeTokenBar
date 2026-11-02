@@ -20,7 +20,7 @@ import SwiftUI
             if model.screen == .battle {
                 BattleView(battle:battle,store:model.store,onSurrender:onSurrender,onMusic:onMusic,onPlayMusic:onState,
                     audioSettings:audioSettings,allowsEffectsAudio:allowsAudio,trainerIntro:model.intro,showsResultClose:false,
-                    replayOpening:!model.resuming,musicActive:model.musicEnabled,auxiliaryState:auxiliary,
+                    replayOpening:!model.resuming,musicActive:model.musicEnabled,challengeBuffSummary:model.buffSummary,auxiliaryState:auxiliary,
                     onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onLayout:onLayout,
                     onTestWin:model.session.testControlsEnabled ? {do{try model.session.winForTesting()}catch{model.report(error)}}:nil,
                     onTestNextTrainer:model.session.testControlsEnabled ? {model.nextTrainerForTesting()}:nil,
@@ -31,6 +31,7 @@ import SwiftUI
                 ChallengeShinyRewardView(model:model,onClose:onClose)
             } else {
                 header
+                if let text=model.buffSummary{Text(text).font(.caption).foregroundStyle(.orange).padding(.horizontal,16).padding(.bottom,8)}
                 Divider()
                 if model.screen == .result,let run=model.run,run.phase == .cleared {
                     ChallengeChampionView(runID:run.id,team:run.team,language:model.store.language,onClose:onClose)
@@ -61,10 +62,6 @@ import SwiftUI
                         Button(l.challengeSaveExit,action:onClose).disabled(![ChallengePhase.reward,.intermission].contains(model.run?.phase ?? .ready) || model.building)
                             .accessibilityIdentifier("challenge-save-exit")
                         Spacer()
-                        if model.session.testControlsEnabled {
-                            Button(l.challengeTestNextTrainer){model.nextTrainerForTesting()}
-                                .disabled(!model.canTestNextTrainer).accessibilityIdentifier("challenge-test-next-trainer")
-                        }
                         Button(l.challengeNext){model.next()}.buttonStyle(.borderedProminent)
                             .disabled(model.run?.phase != .intermission || model.building).accessibilityIdentifier("challenge-next")
                     }
@@ -159,17 +156,19 @@ import SwiftUI
     private var reward:some View {
         VStack(alignment:.leading,spacing:16) {
             opponent
+            ChallengeShopView(model:model)
+            Divider()
             if model.run?.phase == .reward {
                 Text(l.challengeReward).font(.headline)
                 VStack(alignment:.leading,spacing:8) {
-                    ForEach(ChallengeRewardKind.allCases,id:\.self){kind in
+                    ForEach(model.rewardOptions,id:\.self){kind in
                         Button{model.selectReward(kind)}label:{Label(rewardTitle(kind),systemImage:model.rewardKind==kind ? "largecircle.fill.circle":"circle")}
                             .buttonStyle(.plain).accessibilityIdentifier("challenge-reward-\(kind.rawValue)")
                     }
                 }
                 if model.rewardKind == .replace {Text(l.challengeReplaceHint).font(.caption).foregroundStyle(.secondary);Text(l.challengeOutgoing).font(.headline)}
-                roster(selectable:true)
-                if model.rewardKind == .pp,let resource=model.run?.resources.first(where:{$0.id==model.rewardPokemonID}) {
+                roster(selectable:model.rewardKind != .allHeal && model.rewardKind != .buff)
+                if model.rewardKind == .pp,model.run?.enhancedReward != true,let resource=model.run?.resources.first(where:{$0.id==model.rewardPokemonID}) {
                     VStack(alignment:.leading,spacing:6) {
                         ForEach(Array(resource.moves.enumerated()),id:\.offset){index,move in
                             Button{model.rewardMove=index}label:{
@@ -199,7 +198,6 @@ import SwiftUI
                     Button(l.challengeApplyReward){Task{await model.applyReward()}}.buttonStyle(.borderedProminent)
                         .disabled(!model.canApplyReward).accessibilityIdentifier("challenge-apply-reward")
                     if model.building{ProgressView().controlSize(.small)}
-                    if model.noRewardAvailable{Button(l.challengeSkip){model.skipReward()}}
                 }
             } else {
                 Label(l.challengeRewardDone,systemImage:"checkmark.seal.fill").foregroundStyle(.green)
@@ -226,6 +224,7 @@ import SwiftUI
                         SpriteView(speciesID:pokemon.speciesID,size:48,shiny:pokemon.shiny,form:pokemon.form).frame(height:50)
                         Text(name(pokemon.speciesID)).font(.caption).lineLimit(1)
                         Text("HP \(resource?.hp ?? 0)/\(pokemon.stats["hp"] ?? 0)").font(.caption.monospacedDigit())
+                        if let resource{Text("PP \(resource.moves.reduce(0){$0+$1.pp})/\(resource.moves.reduce(0){$0+$1.maxPP})").font(.caption2.monospacedDigit())}
                         if let resource,!resource.status.isEmpty{Text(l.battleStatus(resource.status)).font(.caption2).foregroundStyle(.secondary)}
                     }.padding(8).frame(maxWidth:.infinity)
                         .background(selectable && model.rewardPokemonID==pokemon.id ? Color.accentColor.opacity(0.16):Color.secondary.opacity(0.07),in:RoundedRectangle(cornerRadius:8))
@@ -236,6 +235,12 @@ import SwiftUI
     }
     private func name(_ id:Int)->String{BattleTextCatalog.shared.speciesName(id,language:model.store.language)}
     private func rewardTitle(_ kind:ChallengeRewardKind)->String {
-        switch kind{case .heal:l.challengeHeal;case .pp:l.challengePP;case .replace:l.challengeReplace}
+        switch kind {
+        case .heal:model.run?.enhancedReward == true ? l.challengeHealFull:l.challengeHeal
+        case .pp:model.run?.enhancedReward == true ? l.challengePPFull:l.challengePP
+        case .replace:l.challengeReplace
+        case .allHeal:l.challengeAllHeal
+        case .buff:l.challengeBuffReward(model.run?.rewardRoll ?? .attack)+" · "+l.challengeBuffDuration
+        }
     }
 }

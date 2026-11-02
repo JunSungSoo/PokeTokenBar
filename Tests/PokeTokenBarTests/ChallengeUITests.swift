@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import XCTest
+import Vision
 @testable import PokeTokenBar
 
 private struct ChallengeUIProvider:PokeProviding,PokemonDetailProviding {
@@ -169,6 +170,117 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         try await Task.sleep(for:.seconds(4));try capture("battle")
         try await win(m);m.didFinishPresentation();m.configureRewardSelection()
         try await Task.sleep(for:.milliseconds(400));try capture("reward")
+    }
+    func testActualDefeatCannotResumeAfterReopenAndNewRunRestartsAtFirstGym()async throws {
+        let fixture=try fixture(testControls:true)
+        let save=ChallengeRunStore(url:fixture.save.url,roll:{.attack})
+        let opponent=fixture.session.catalog.encounters[0].team.map{p in
+            BattlePokemon(id:p.id,speciesID:p.speciesID,species:p.species,displayName:p.displayName,level:100,ability:p.ability,nature:p.nature,gender:p.gender,shiny:false,form:p.form,ivs:p.ivs,
+                stats:["hp":500,"atk":500,"def":500,"spa":500,"spd":500,"spe":1000],moves:["dragonrage"])
+        }
+        let catalog=ChallengeEncounterCatalog(version:"actual-loss-test",encounters:["brock","falkner","misty"].enumerated().map{.init(id:$0.element,index:$0.offset,nameKo:"Test",phase:"gym",team:opponent)})
+        let session=try ChallengeBattleSession(save:save,catalog:catalog,testControlsEnabled:true)
+        let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
+        m.isOpen=true;defer{m.close()}
+        let ids=(0..<6).map{"owned-\($0)"}
+        let owned=try await BattleTeamBuilder.build(ids:ids,entries:m.candidates,mode:.singles,language:.ko,provider:fixture.provider)
+        let weak=owned.map{p in
+            BattlePokemon(id:p.id,speciesID:p.speciesID,species:p.species,displayName:p.displayName,level:p.level,ability:p.ability,nature:p.nature,gender:p.gender,shiny:p.shiny,form:p.form,ivs:p.ivs,
+                stats:["hp":1,"atk":1,"def":1,"spa":1,"spd":1,"spe":1],moves:p.moves)
+        }
+        try session.start(team:weak);m.resume();var frame=try await wait(m)
+        session.completePresentation();try session.winForTesting();frame=try await wait(m,after:frame.decisionID);m.didFinishPresentation()
+        m.selectReward(.buff);await m.applyReward();m.next();frame=try await wait(m)
+        XCTAssertEqual(m.run?.encounterIndex,1);XCTAssertEqual(m.run?.teamBuffs?.first?.remaining,3)
+        m.intro.finish();session.completePresentation()
+        for _ in 0..<30 {
+            if frame.ended{break}
+            let slot=try XCTUnwrap(frame.slots.first)
+            let action:BattleAction
+            if slot.mustSwitch {
+                action=BattleAction(kind:"switch",index:try XCTUnwrap(frame.own.firstIndex{!$0.active && !$0.fainted})+1,target:0)
+            }else{
+                action=BattleAction(kind:"move",index:try XCTUnwrap(slot.moves.first{!$0.disabled && $0.pp>0}).index,target:0)
+            }
+            try session.choose(BattleDecision(decisionID:frame.decisionID,actions:[action],order:[]))
+            frame=try await wait(m,after:frame.decisionID);session.completePresentation()
+        }
+        XCTAssertTrue(frame.ended);XCTAssertEqual(frame.winner,1)
+        XCTAssertTrue(frame.own.allSatisfy(\.fainted));m.didFinishPresentation()
+        XCTAssertEqual(m.run?.phase,.lost);XCTAssertEqual(m.screen,.result)
+        let oldID=try XCTUnwrap(m.run?.id);m.close()
+        let restoredSession=try ChallengeBattleSession(save:ChallengeRunStore(url:save.url),catalog:catalog,testControlsEnabled:true)
+        let restored=ChallengeUIModel(store:fixture.store,session:restoredSession,provider:fixture.provider)
+        restored.isOpen=true;defer{restored.close()}
+        XCTAssertEqual(restored.screen,.result);XCTAssertNil(restored.buffSummary)
+        XCTAssertThrowsError(try restoredSession.resume());XCTAssertThrowsError(try restoredSession.startEncounter())
+        XCTAssertThrowsError(try restoredSession.nextTrainerForTesting());XCTAssertThrowsError(try restored.save.advance())
+        XCTAssertThrowsError(try restoredSession.applyReward(.buff(.attack)))
+        restored.newChallenge();XCTAssertEqual(restored.screen,.setup);XCTAssertTrue(restored.selectedIDs.isEmpty)
+        for id in ids{restored.select(id)};await restored.start();let fresh=try await wait(restored)
+        XCTAssertNotEqual(restored.run?.id,oldID);XCTAssertEqual(restored.run?.encounterIndex,0)
+        XCTAssertEqual(restored.encounter?.id,"brock");XCTAssertTrue((restored.run?.teamBuffs ?? []).isEmpty)
+        XCTAssertTrue(restored.run!.retiredIDs.isEmpty)
+        XCTAssertTrue(fresh.own.allSatisfy{$0.hp==$0.maxHP && $0.status.isEmpty})
+        XCTAssertTrue(fresh.resources!.allSatisfy{$0.moves.allSatisfy{$0.pp==$0.maxPP}})
+    }
+    func testShopCardsRenderAndPurchaseCannotBypassRequiredVictoryReward()async throws {
+        let m=try fixture();defer{m.close()}
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();_ = try await wait(m)
+        try await win(m);m.didFinishPresentation();m.configureRewardSelection()
+        XCTAssertEqual(m.shopBalance,100)
+        let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
+        controller.show(present:false);defer{controller.window?.close()}
+        try await Task.sleep(for:.milliseconds(200))
+        let view=try XCTUnwrap(controller.window?.contentView);view.layoutSubtreeIfNeeded()
+        let bitmap=try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in:view.bounds));view.cacheDisplay(in:view.bounds,to:bitmap)
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-challenge-shop.png"))
+        let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
+        try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
+        let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
+        for label in ["챌린지상점","완전회복","PP전체회복","20%","40%","100포인트","50포인트","10포인트","30포인트"]{XCTAssertTrue(text.contains(label),"Missing card text: \(label) in \(text)")}
+        XCTAssertTrue(m.canPurchase(.ppRecovery,targetID:"owned-0"))
+        XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"));XCTAssertEqual(m.shopBalance,50)
+        XCTAssertEqual(m.run?.phase,.reward);m.next();XCTAssertEqual(m.run?.encounterIndex,0)
+        m.selectReward(.buff);await m.applyReward();XCTAssertEqual(m.run?.phase,.intermission)
+        m.next();_ = try await wait(m);XCTAssertEqual(m.run?.encounterIndex,1)
+        XCTAssertEqual(m.shopBalance,50,"Skipping further purchases must not block Next")
+    }
+    func testRewardOptionsAndNextStayLockedUntilActualRewardApplication()async throws {
+        let fixture=try fixture(testControls:true),save=ChallengeRunStore(url:fixture.save.url,roll:{.attack})
+        let session=try ChallengeBattleSession(save:save,catalog:ChallengeEncounterCatalog.load(),testControlsEnabled:true)
+        let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
+        m.isOpen=true;defer{m.close()}
+        let team=try await BattleTeamBuilder.build(ids:(0..<6).map{"owned-\($0)"},entries:m.candidates,mode:.singles,language:.ko,provider:m.provider)
+        try save.start(team:team,catalogVersion:session.catalog.version)
+        for index in 0..<26 {
+            try save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
+            var resources=save.run!.resources
+            resources[0].hp=0;resources[1].hp=1;resources[1].status="psn"
+            for i in resources.indices{for j in resources[i].moves.indices{resources[i].moves[j].pp=0}}
+            try save.accept(resources:resources,decision:nil,winner:0)
+            m.configureRewardSelection()
+            XCTAssertEqual(m.screen,.reward);XCTAssertFalse(m.canTestNextTrainer)
+            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.buff]:[.heal,.pp,.replace,.buff])
+            m.next();m.nextTrainerForTesting();XCTAssertEqual(save.run?.encounterIndex,index)
+            XCTAssertEqual(save.run?.phase,.reward)
+            if index==2 {
+                m.selectReward(.allHeal);XCTAssertTrue(m.canApplyReward);await m.applyReward()
+                XCTAssertTrue(save.run!.resources.allSatisfy{$0.hp>0 && $0.status.isEmpty && $0.moves.allSatisfy{$0.pp==$0.maxPP}})
+            }else if index==15 {
+                m.selectReward(.pp);XCTAssertTrue(m.canApplyReward);await m.applyReward()
+                XCTAssertTrue(save.run!.resources.first!.moves.allSatisfy{$0.pp==$0.maxPP})
+                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==0})
+            }else{
+                m.selectReward(.buff);XCTAssertTrue(m.canApplyReward);await m.applyReward()
+            }
+            XCTAssertEqual(save.run?.phase,.intermission)
+            try save.advance()
+        }
+        try save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
+        try save.accept(resources:save.run!.resources,decision:nil,winner:0)
+        XCTAssertEqual(m.screen,.result);XCTAssertFalse((save.run?.teamBuffs ?? []).isEmpty)
+        XCTAssertNil(m.buffSummary,"No future-battle counter should remain on the Champion finale")
     }
     func testNextTrainerResetsIntroAndAppliesArenaAndBattleMusic()async throws {
         let fixture=try fixture(testControls:true)

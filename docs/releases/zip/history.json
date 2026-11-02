@@ -617,6 +617,37 @@
       "sha256": "61161b69cca48ce9ed8183fdb01893cd4d3fbbee6287e34654f0d076f3b013f1",
       "bytes": 126185567,
       "packagedAt": "2026-11-02T10:53:53+09:00"
+    },
+    {
+      "date": "2026-11-02",
+      "time": "14:25:56",
+      "archive": "PokeTokenBar-2.5.6-arm64-20261102-challenge-rewards.zip",
+      "version": "2.5.6",
+      "evidence": "Explicit user-requested release-note entry; 57 native tests plus focused shop/legacy validation (58 unique cases) passed; 143 engine tests passed; affordability mutation failed as expected and was restored; original shop UI rendered/OCR verified; ARM64 app/helper signatures, 4356 matching resource files, production test controls disabled, five stat boosts and owned-stat preservation through an actual packaged-engine CPU turn verified; ZIP integrity/notes/executable verified by package-zip.py",
+      "turn": null,
+      "title": "Challenge recovery rewards, stacking team boosts and optional points shop",
+      "commit": null,
+      "sourceBaseCommit": "8e2027f62ef0505fa3dec6cf02fbb7214fb76e2a",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "3승마다 선발 전원의 HP·PP 전체 회복·기절 부활·상태이상 해제, 선발 교체, 무작위 능력치 강화 중 하나를 선택하도록 보상을 개편했습니다.",
+        "16전 승리 후 사천왕 진입부터 일반 보상을 선택한 포켓몬 HP 최대 회복·부활, 기술 4개 PP 최대 회복, 선발 교체와 무작위 능력치 강화로 변경했습니다.",
+        "공격·특수공격·스피드·방어·특수방어 중 하나가 동일 확률로 등장하고 선발 팀 전체에 1단계를 강화하도록 했습니다.",
+        "능력치 강화는 다음 3전 동안 지속되며 중복된 효과의 남은 대전 수를 각각 저장·표시하고 독립적으로 만료되도록 했습니다.",
+        "능력치 보정을 실제 피해량·행동 순서·특성·급소·트릭룸·메가진화에 연결하고 기존 보유 능력치는 유지했습니다.",
+        "보상을 적용하기 전에는 다음 대전과 테스트 이동을 차단하고, 재실행 후에도 미수령 보상과 진행 중 효과를 복원하도록 했습니다.",
+        "패배·항복 후에는 이어하기를 차단하고 새로운 선발로 첫 관장부터 재시작하며 이전 진행도와 강화 효과를 초기화하도록 검증했습니다.",
+        "기존 보상·전투 저장을 새 규칙과 연동하고 27전 고정 상대의 포켓몬·특성·기술배치 보고서를 추가했습니다.",
+        "챌린지 승리마다 100포인트를 지급하고 현재 도전 전용 잔액을 저장하는 챌린지 상점을 추가했습니다.",
+        "보상 선택 영역 위에 완전 회복 100포인트, PP 전체 회복 50포인트, HP 20% 회복 10포인트, HP 40% 회복 30포인트 상품을 카드로 표시했습니다.",
+        "대상 한 마리를 선택해 즉시 회복하며 잔액 내에서 반복 구매할 수 있고, 구매 없이 승리 보상만 적용한 뒤 다음 대전으로 진행할 수 있도록 했습니다.",
+        "포인트 차감과 회복을 함께 저장하고 중복 승리 지급·잔액 초과 구매·저장 실패 시 잘못된 차감을 방지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-2.5.6-arm64-20261102-challenge-rewards.zip",
+      "sha256": "20f714195181adf716f559193a903f9ab1b89acc4a77af978276ccdb6648b0e9",
+      "bytes": 126230499,
+      "packagedAt": "2026-11-02T14:25:56+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending"

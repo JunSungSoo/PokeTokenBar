@@ -1,6 +1,25 @@
 import Foundation
 
 extension L {
+    var challengeAllHeal:String {t("전체 회복 · 선발 전원 HP·PP 최대, 부활·상태이상 해제","Full recovery · Team HP/PP, revive and cure","全回復・全員のHP・PP、復活と状態回復","Recuperación total · PS/PP, revivir y curar","Récupération complète · PV/PP, rappel et soin","Recuperação total · PS/PP, reviver e curar","Komplettheilung · Team-KP/AP, Wiederbelebung und Heilung","Полное восстановление команды · ОЗ/ОД, оживление и лечение")}
+    var challengeHealFull:String {t("선택한 포켓몬 HP 최대 회복 · 기절 시 부활","Restore selected Pokémon's full HP · Revive if fainted","選んだ1匹のHP全回復・ひんしも復活","Recuperar todos los PS de un Pokémon · Revivir","Tous les PV du Pokémon choisi · Rappel si K.O.","Restaurar todos os PS de um Pokémon · Reviver","Gewähltes Pokémon vollständig heilen · Wiederbeleben","Все ОЗ выбранного покемона · Оживить")}
+    var challengePPFull:String {t("선택한 포켓몬의 기술 4개 PP 최대 회복","Restore all move PP of one Pokémon","選んだ1匹の全技PPを全回復","Recuperar todos los PP de un Pokémon","Tous les PP du Pokémon choisi","Restaurar todos os PP de um Pokémon","Alle AP eines gewählten Pokémon auffüllen","Все ОД всех приёмов выбранного покемона")}
+    func challengeBuffReward(_ kind:ChallengeBuffKind)->String {
+        switch kind {
+        case .attack:return t("팀 전체 공격 +1","Team Attack +1","全員の攻撃 +1","Equipo: Ataque +1","Équipe : Attaque +1","Equipe: Ataque +1","Team: Angriff +1","Команда: Атака +1")
+        case .specialAttack:return t("팀 전체 특수공격 +1","Team Sp. Atk +1","全員の特攻 +1","Equipo: At. Esp. +1","Équipe : Atq. Spé. +1","Equipe: At. Esp. +1","Team: Sp.-Ang. +1","Команда: Сп. атака +1")
+        case .speed:return t("팀 전체 스피드 +1","Team Speed +1","全員の素早さ +1","Equipo: Velocidad +1","Équipe : Vitesse +1","Equipe: Velocidade +1","Team: Initiative +1","Команда: Скорость +1")
+        case .defense:return t("팀 전체 방어 +1","Team Defense +1","全員の防御 +1","Equipo: Defensa +1","Équipe : Défense +1","Equipe: Defesa +1","Team: Verteidigung +1","Команда: Защита +1")
+        case .specialDefense:return t("팀 전체 특수방어 +1","Team Sp. Def +1","全員の特防 +1","Equipo: Def. Esp. +1","Équipe : Déf. Spé. +1","Equipe: Def. Esp. +1","Team: Sp.-Vert. +1","Команда: Сп. защита +1")
+        case .power:return t("팀 전체 공격·특공 +1","Team Attack/Sp. Atk +1","全員の攻撃・特攻 +1","Equipo: Ataque/At. Esp. +1","Équipe : Attaque/Atq. Spé. +1","Equipe: Ataque/At. Esp. +1","Team: Angriff/Sp.-Ang. +1","Команда: Атака/Сп. атака +1")
+        }
+    }
+    func challengeBuffRemaining(_ kind:ChallengeBuffKind,_ count:Int)->String {
+        let suffix=t("남은 \(count)전","\(count) battles left","残り\(count)戦","\(count) combates restantes","Encore \(count) combats","Restam \(count) batalhas","Noch \(count) Kämpfe","Осталось боёв: \(count)")
+        return "\(challengeBuffReward(kind)) · \(suffix)"
+    }
+    var challengeBuffDuration:String {t("다음 3전 지속 · 중복 적용","Lasts 3 battles · Stacks","次の3戦・重複可","Dura 3 combates · Acumulable","Dure 3 combats · Cumulable","Dura 3 batalhas · Acumulável","Gilt 3 Kämpfe · Stapelbar","На 3 боя · Складывается")}
+
     var challengeSecondGeneration:String {t("2세대","Gen II","第2世代","2.ª generación","2e génération","2ª geração","2. Generation","2-е поколение")}
 
     var challengeTestNextTrainer:String {t("다음 트레이너 (테스트)","Next trainer (test)","次のトレーナー（テスト）","Siguiente entrenador (prueba)","Dresseur suivant (test)","Próximo treinador (teste)","Nächster Trainer (Test)","Следующий тренер (тест)")}

@@ -81,12 +81,13 @@ import XCTest
         let blocked=save.url.appendingPathComponent("child.json"),unwritable=ChallengeRunStore(url:blocked)
         XCTAssertThrowsError(try unwritable.start(team:team(),catalogVersion:"test"));XCTAssertNil(unwritable.run)
     }
-    func testUnavailableRewardsCanBeSkippedButDamageAndDuplicateInitialItemsCannot()throws {
+    func testEveryVictoryRequiresARewardAndDuplicateInitialItemsCannot()throws {
         let save=try store();var own=team();own[0].item="leftovers";own[1].item="leftovers"
         XCTAssertThrowsError(try save.start(team:own,catalogVersion:"test"))
         try save.start(team:team(),catalogVersion:"test",encounterCount:3)
         try victory(save)
-        try save.skipUnavailableReward(eligible:[]);XCTAssertEqual(save.run?.phase,.intermission)
+        XCTAssertThrowsError(try save.skipUnavailableReward(eligible:[]));XCTAssertThrowsError(try save.advance())
+        try save.apply(.buff(try XCTUnwrap(save.run?.rewardRoll)));XCTAssertEqual(save.run?.phase,.intermission)
         try save.advance();var damaged=try XCTUnwrap(save.run).resources;damaged[0].hp-=1
         try victory(save,resources:damaged)
         XCTAssertThrowsError(try save.skipUnavailableReward(eligible:[]))
