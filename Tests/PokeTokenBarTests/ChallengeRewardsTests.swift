@@ -44,19 +44,21 @@ import XCTest
         }
         XCTAssertEqual(save.run?.encounterIndex,26,"The final reward prepares Red, not a 28th encounter")
     }
-    func testEnhancedHealingRevivesFullyAndPPRecoversEverySlotOnlyOnChosenIndividual()throws {
+    func testEnhancedHealingRejectsFaintedAndPPRecoversEverySlotOnlyOnChosenIndividual()throws {
         for pp in [false,true] {
             let save=try make(.speed)
             for _ in 0..<15 {try win(save,damage:false);try save.apply(.buff(.speed));try save.advance()}
             try win(save)
             if pp {
-                try save.apply(.pp("a0",0))
-                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==$0.maxPP})
-                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==0})
+                XCTAssertThrowsError(try save.apply(.pp("a0",0)))
+                try save.apply(.pp("a1",0))
+                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==$0.maxPP})
+                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==0})
                 XCTAssertEqual(save.run?.resources[0].hp,0)
             }else{
-                try save.apply(.heal("a0"));XCTAssertEqual(save.run?.resources[0].hp,500)
-                XCTAssertEqual(save.run?.resources[1].hp,123)
+                XCTAssertThrowsError(try save.apply(.heal("a0")))
+                try save.apply(.heal("a1"));XCTAssertEqual(save.run?.resources[1].hp,500)
+                XCTAssertEqual(save.run?.resources[0].hp,0)
             }
         }
     }
@@ -77,7 +79,7 @@ import XCTest
         XCTAssertThrowsError(try resumed.accept(resources:resumed.run!.resources,decision:nil,winner:0))
         try resumed.apply(.allHeal);try resumed.advance()
         try win(resumed);XCTAssertEqual(resumed.run?.teamBuffs?.map(\.remaining),[1])
-        try resumed.apply(.heal("a0"));try resumed.advance()
+        try resumed.apply(.heal("a1"));try resumed.advance()
         XCTAssertEqual(ChallengeTeamBuff.stages(resumed.run?.teamBuffs ?? []),["atk":1])
         try win(resumed);XCTAssertEqual(resumed.run?.teamBuffs,[])
     }

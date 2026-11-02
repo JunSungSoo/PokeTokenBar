@@ -18,20 +18,21 @@ import XCTest
         try save.beginEncounter(opponent:team("b"),seed:[1,2,3,4],policyRevision:"test")
         try save.accept(resources:resources ?? XCTUnwrap(save.run).resources,decision:nil,winner:0)
     }
-    func testHealingRevivesAndPPRestoresExactlyOneMoveAcrossAtomicReloads()throws {
+    func testReviveAndPPRestoresExactlyOneMoveAcrossAtomicReloads()throws {
         let save=try store();try save.start(team:team(),catalogVersion:"test",encounterCount:3)
         var state=try XCTUnwrap(save.run).resources
         state[0].hp=0;state[1].hp=1;state[1].moves[0].pp=1;state[1].moves[1].pp=0
         try victory(save,resources:state)
-        try save.apply(.heal("a0"))
-        XCTAssertEqual(save.run?.resources[0].hp,175)
+        XCTAssertThrowsError(try save.apply(.heal("a0")))
+        try save.apply(.revive("a0"))
+        XCTAssertEqual(save.run?.resources[0].hp,250)
         XCTAssertEqual(save.run?.resources[1].hp,1)
         XCTAssertThrowsError(try save.apply(.heal("a1")),"One reward per encounter")
         let loaded=ChallengeRunStore(url:save.url);XCTAssertEqual(loaded.run?.phase,.intermission)
         try loaded.advance();try victory(loaded)
         try loaded.apply(.pp("a1",0))
         XCTAssertEqual(loaded.run?.resources[1].moves.map(\.pp),[4,0])
-        XCTAssertEqual(loaded.run?.resources[0].hp,175,"No automatic between-battle healing")
+        XCTAssertEqual(loaded.run?.resources[0].hp,250,"No automatic between-battle healing")
         XCTAssertEqual(ChallengeRunStore(url:save.url).run?.encounterIndex,1)
     }
     func testRewardCapsAndOneHPRevival()throws {
@@ -39,7 +40,7 @@ import XCTest
         let p=own[0];own[0]=BattlePokemon(id:p.id,speciesID:p.speciesID,species:p.species,displayName:p.displayName,level:p.level,ability:p.ability,nature:p.nature,gender:p.gender,shiny:p.shiny,form:p.form,ivs:p.ivs,stats:stats,moves:p.moves)
         try save.start(team:own,catalogVersion:"test",encounterCount:3)
         var r=try XCTUnwrap(save.run).resources;r[0].hp=0
-        try victory(save,resources:r);try save.apply(.heal("a0"));XCTAssertEqual(save.run?.resources[0].hp,1)
+        try victory(save,resources:r);try save.apply(.revive("a0"));XCTAssertEqual(save.run?.resources[0].hp,1)
         try save.advance();r=try XCTUnwrap(save.run).resources;r[1].moves[0].pp-=1
         try victory(save,resources:r);try save.apply(.pp("a1",0));XCTAssertEqual(save.run?.resources[1].moves[0].pp,15)
     }

@@ -202,7 +202,7 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
 - Focused final coverage selection: nine tests passed (`/tmp/ptb-five-rewards-focused.log`), including all five stat mappings/translations, three-battle expiry and old/new replay. LLVM regions were inspected (`/tmp/ptb-five-rewards-regions.txt`). Rebuilt the isolated QA app without resetting progress; the actual fourth-victory screen displays “팀 전체 방어 +1 · 다음 3전 지속 · 중복 적용”, with Apply requiring a valid choice and Next disabled until claim.
 
 
-### Optional challenge points shop
+### Initial optional challenge points shop (superseded by randomized stock below)
 
 - Every committed victory grants 100 challenge points, atomically with the result. Duplicate terminal frames cannot award twice. Balances belong to the current run and reset on a new challenge. Legacy saves receive 100 points per completed victory once; saved post-purchase balances are never recalculated/refunded on reopening.
 - Four cards above the mandatory victory choice offer one-member full HP/PP/status recovery and revival (100), all move PP (50), 20% max-HP recovery (10) and 40% max-HP recovery (30). HP recovery follows the existing revival behavior; partial healing preserves status on a surviving member. Items are not regenerated. Purchases are immediate, repeatable within balance and optional.
@@ -212,3 +212,44 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
 
 - Shop release validation: the complete 57-test selection passed (`/tmp/ptb-challenge-shop-native-final.log`); eight focused shop tests, including the additional malformed-legacy boundary test, passed (`/tmp/ptb-challenge-shop-verified.log`). Full-HP status-only and PP-only purchase eligibility were checked separately (`/tmp/ptb-shop-eligibility-final.log`). All 143 engine tests pass in release preparation. LLVM regions are in `/tmp/ptb-shop-regions.txt`.
 - Final ARM64 bundle checks passed: strict/deep signing, 4,356 matching source/resource files, both audio hashes, shop UI compiled in, test controls disabled, and all five boosts with owned stats unchanged through a real bundled-engine turn (`/tmp/ptb-rewards-shop-release-verification.json`). The pending November 2 second release includes both the reward changes and optional shop.
+
+
+### Randomized recovery shop and explicit revival rewards
+
+- Each non-final victory saves four distinct products sampled without replacement from eight: one-member full HP/PP/status recovery (100), all PP (50), HP 20% (10), HP 40% (30), status cure (40), Revive (30), living-team HP 30% (50), Max Revive (70). Reopening, purchasing and applying the mandatory reward preserve that victory's stock. The next actual victory replaces it; old pending saves receive one persisted initial stock.
+- Ordinary recovery cannot target a fainted member. Team 30% adds floor(maxHP × 0.30), minimum one HP, individually to living members only and caps at maximum; it does not restore PP, clear status or revive. Status cure only clears major status/sleep counters. Revive restores one fainted member to half maximum HP (floor, minimum one), Max Revive to full HP; both clear status without restoring PP.
+- Every non-final victory's mandatory list includes a fixed Revive choice, including three-win milestones. Ordinary HP/PP rewards require a living target. The three-win full-team reward retains full HP/PP/status recovery and revival. Purchases remain optional and repeatable; the mandatory single reward still blocks Next until applied. Five independent three-encounter stat rewards remain unchanged.
+- Save validation requires exactly four distinct stock entries. Corrupt saves are preserved. Purchase validation also checks offered membership, eligibility and balance before one atomic debit/recovery commit. Existing saved progress/points are retained.
+
+- Verification: 63 native challenge tests pass (`/tmp/ptb-random-shop-final.log`). The production window renders four new product cards and correct prices in `/tmp/ptb-random-challenge-shop.png`, with OCR assertions. Removing the living-HP eligibility guard fails 12 assertions (`/tmp/ptb-random-shop-mutation.log`); after restoring it, all 11 shop tests pass (`/tmp/ptb-random-shop-restored.log`). Source-region inspection (`/tmp/ptb-random-shop-regions.txt`) confirms status cure, both revivals, team-only HP healing, migration and stock validation execute. The exhaustive-switch revive fallback is intentionally unreachable because those cases return before the living-only guard. No release history, ZIP or Git publication was requested for this change.
+
+
+### Audit: collection edits do not refresh a started team's loadout
+
+- Registration copies the six `BattlePokemon` value objects into the run save. Launch and
+  replay use `checkpoint.initialTeam`; subsequent encounters take `run.team`. The battle HUD
+  reads simulator frames. None of these paths rebuilds existing members from the collection.
+- Added an integration regression that starts through the UI model, edits Charizard's move
+  (Return → Protect), ability (Blaze → Solar Power) and default item using the same persisted
+  APIs used by Collection/Pokédex, then reconciles UI selection. The test verifies the saved
+  collection really changed, while the full registered team and current frame did not.
+- The regression closes/reopens the run, resumes its real engine, wins using the frozen move,
+  claims a reward and starts the next encounter. Checkpoints, ability, move slots, item and
+  carried PP still match the registered snapshot. A provider that rejects existing members
+  prevents silently rebuilding them during resume or advance.
+- No collection-to-run leak was found, so no runtime behavior change or additional guard was
+  necessary. An inline comment records the snapshot contract. Existing explicit replacement
+  rewards and battle-earned Sketch persistence remain supported. All three focused native
+  regressions pass (`/tmp/ptb-challenge-frozen-verified.log`).
+
+
+### November 2 third ZIP release
+
+- The user approved the exact third-release note before packaging; the first and second
+  records remain unchanged. All 64 native challenge tests and all 143 engine tests pass.
+- The ARM64 2.5.6 release bundle passes strict/deep signature verification, 4,356 resource
+  hash comparisons, champion-track hashes, test-mode exclusion and a real packaged-engine
+  turn with all five stat boosts while owned stats remain unchanged.
+- Archive: `PokeTokenBar-2.5.6-arm64-20261102-challenge-shop-random.zip`; packaged `2026-11-02T14:49:20+09:00`;
+  SHA-256 `24d585dc03d168d5200e9b0116cc041d5622f0ca4d31c281ae42f2e192cac8bc`. The ZIP contains the complete descending release history,
+  app and release metadata; integrity, note bytes and packaged executable are verified.

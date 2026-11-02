@@ -45,8 +45,9 @@ import XCTest
         }
         XCTAssertTrue(f.ended);XCTAssertEqual(f.winner,0);XCTAssertEqual(save.run?.phase,.reward)
         session.completePresentation()
-        let before=try XCTUnwrap(save.run).resources[0].moves[0].pp
-        try session.applyReward(.pp("a0",0));XCTAssertEqual(save.run?.resources[0].moves[0].pp,min(15,before+3))
+        let target=try XCTUnwrap(save.run?.resources.firstIndex{$0.hp>0 && $0.moves[0].pp<$0.moves[0].maxPP})
+        let resource=save.run!.resources[target],before=resource.moves[0].pp
+        try session.applyReward(.pp(resource.id,0));XCTAssertEqual(save.run?.resources[target].moves[0].pp,min(resource.moves[0].maxPP,before+3))
         let carried=try XCTUnwrap(save.run).resources
         try session.startEncounter();let next=try await wait(session,after:f.decisionID)
         XCTAssertEqual(save.run?.encounterIndex,1)

@@ -2636,3 +2636,22 @@ read_when:
   1× elapsed timing, GIF cadence, spread tracks and failure recovery pass. Real battle HP,
   forced replacement/final knockout and singles/doubles height checks also pass. llvm-cov
   region inspection confirms both WebView branches and both mounted surfaces execute.
+
+
+## Recovery eligibility must distinguish ordinary healing from revival
+
+- The earlier shop intentionally allowed ordinary HP recovery to revive and PP recovery to
+  target fainted members. The new randomized-shop rule separates them. Prior tests encoded
+  the old rule, so retaining those success assertions would conceal an incomplete transition.
+  Fainted saved resources are reachable after real victories; the engine integration fixture
+  itself finishes with its first member fainted, requiring a living PP-recovery target.
+- Sweep covered store rewards, shared shop eligibility/application, UI default targeting,
+  disabled roster buttons, all eight translated descriptions and three-win full recovery.
+  Ordinary HP/PP/status items reject fainted targets. Explicit revival alone restores a fainted
+  individual; milestone full-team recovery remains the intended revival exception.
+- The new four-product selection is part of the atomic victory save, not a UI random draw.
+  Regression tests check persistence after purchasing/reopening, refresh only on a new win,
+  legacy migration once, unavailable-product rejection, and corrupt stock preservation.
+- All 63 native challenge tests pass, including real engine carryover and native-view OCR of
+  the new four-card stock. Removing the ordinary-item living-HP guard causes 12 assertions
+  to fail in the exact fainted-target regression; the mutation is restored before final checks.

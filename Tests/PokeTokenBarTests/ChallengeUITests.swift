@@ -13,7 +13,7 @@ private struct ChallengeUIProvider:PokeProviding,PokemonDetailProviding {
         let p=Self.species[speciesID]!
         return PokemonDetails(speciesID:speciesID,name:p.0,height:10,weight:100,baseExperience:100,genderRate:1,types:["normal"],
             baseStats:Dictionary(uniqueKeysWithValues:PokemonStatCalculator.order.map{($0,100)}),
-            abilities:[.init(name:p.1,slot:1,isHidden:false)],moves:[.init(name:"return",learnMethods:[.init(method:"machine",level:0)])])
+            abilities:[.init(name:p.1,slot:1,isHidden:false)],moves:[.init(name:"return",learnMethods:[.init(method:"machine",level:0)]),.init(name:"protect",learnMethods:[.init(method:"machine",level:0)])])
     }
 }
 
@@ -25,7 +25,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
 }
 
 @MainActor final class ChallengeUITests:XCTestCase {
-    private func fixture(testControls:Bool=false,rewardFixtures:Bool=false)throws->ChallengeUIModel {
+    private func fixture(testControls:Bool=false,rewardFixtures:Bool=false,stock:[ChallengeShopItem]=Array(ChallengeShopItem.allCases.prefix(4)))throws->ChallengeUIModel {
         let dir=FileManager.default.temporaryDirectory.appendingPathComponent("challenge-ui-\(UUID())")
         try FileManager.default.createDirectory(at:dir,withIntermediateDirectories:true)
         let suite="ChallengeUI.\(UUID())",defaults=try XCTUnwrap(UserDefaults(suiteName:suite))
@@ -50,7 +50,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
                 stats:["hp":1,"atk":1,"def":1,"spa":1,"spd":1,"spe":1],moves:["splash"])
         }
         let catalog=ChallengeEncounterCatalog(version:"ui-test",encounters:[.init(id:"brock",index:0,nameKo:"웅",phase:"gym",team:weak),.init(id:"falkner",index:1,nameKo:"비상",phase:"gym",team:weak)])
-        let session=try ChallengeBattleSession(save:ChallengeRunStore(url:dir.appendingPathComponent("run.json")),catalog:catalog,testControlsEnabled:testControls)
+        let session=try ChallengeBattleSession(save:ChallengeRunStore(url:dir.appendingPathComponent("run.json"),shopRoll:{stock}),catalog:catalog,testControlsEnabled:testControls)
         let model=ChallengeUIModel(store:store,session:session,provider:ChallengeUIProvider(),itemMemory:BattlePokemonItemStore(defaults:defaults),itemUsage:BattleItemUsageStore(defaults:defaults))
         model.isOpen=true;addTeardownBlock{Task{@MainActor in model.close()}}
         return model
@@ -96,6 +96,56 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         m.isOpen=true;m.next();let next=try await wait(m)
         XCTAssertEqual(m.run?.encounterIndex,1);XCTAssertEqual(next.resources,carried);XCTAssertTrue(m.intro.active)
     }
+    func testCollectionLoadoutEditsCannotChangeStartedChallengeAfterResumeOrNextEncounter()async throws {
+        let m=try fixture();defer{m.close()}
+        for i in 0..<6{m.select("owned-\(i)")}
+        await m.start();let opening=try await wait(m)
+        let registered=try XCTUnwrap(m.run?.team),checkpoint=try XCTUnwrap(m.run?.checkpoint)
+        XCTAssertEqual(BattleTextCatalog.key(registered[0].ability),"blaze")
+        XCTAssertEqual(registered[0].moves,["return"])
+
+        // Exercise the same persisted edit APIs used by Collection and Pokédex details.
+        await m.store.loadPokemonDetails(speciesID:6)
+        XCTAssertTrue(m.store.setPokemonMove(entryID:"owned-0",slot:0,name:"protect"))
+        XCTAssertTrue(m.store.setPokemonAbility(entryID:"owned-0",name:"Solar Power"))
+        XCTAssertTrue(m.store.setPokemonBattleDefaultItem(entryID:"owned-0",itemID:"lifeorb"))
+        let edited=try XCTUnwrap(m.store.state.dex.first{$0.id=="owned-0"})
+        XCTAssertEqual(edited.profile?.moves.map(\.name),["protect"])
+        XCTAssertEqual(edited.profile?.abilityName,"Solar Power")
+        let disk=try JSONDecoder().decode(CompanionState.self,from:Data(contentsOf:m.save.url.deletingLastPathComponent().appendingPathComponent("collection.json")))
+        XCTAssertEqual(disk.dex.first{$0.id=="owned-0"}?.profile?.moves.map(\.name),["protect"])
+        m.reconcileSelection()
+        XCTAssertEqual(m.run?.team,registered)
+        XCTAssertEqual(m.run?.checkpoint?.initialTeam,checkpoint.initialTeam)
+        XCTAssertEqual(BattleTextCatalog.key(opening.own.first{$0.active}?.ability ?? ""),"blaze")
+        XCTAssertEqual(opening.slots.first?.moves.map{BattleTextCatalog.key($0.apiName ?? $0.name)},["return"])
+        m.close()
+
+        let loaded=ChallengeRunStore(url:m.save.url)
+        XCTAssertEqual(loaded.run?.team,registered)
+        let session=try ChallengeBattleSession(save:loaded,catalog:m.session.catalog)
+        // Existing team members must never need to rebuild from mutable collection data.
+        let resumed=ChallengeUIModel(store:m.store,session:session,provider:IncomingOnlyProvider())
+        resumed.isOpen=true;defer{resumed.close()}
+        resumed.resume();let replayed=try await wait(resumed)
+        XCTAssertEqual(replayed.decisionID,opening.decisionID)
+        XCTAssertEqual(session.save.run?.team,registered)
+        XCTAssertEqual(BattleTextCatalog.key(replayed.own.first{$0.active}?.ability ?? ""),"blaze")
+        XCTAssertEqual(replayed.slots.first?.moves.map{BattleTextCatalog.key($0.apiName ?? $0.name)},["return"])
+        try await win(resumed);resumed.didFinishPresentation()
+        let carried=try XCTUnwrap(resumed.run?.resources)
+        XCTAssertLessThan(carried[0].moves[0].pp,checkpoint.initialResources[0].moves[0].pp)
+        XCTAssertEqual(carried[0].moves[0].id,"return")
+        resumed.selectReward(.buff);await resumed.applyReward();XCTAssertFalse(resumed.problem)
+        resumed.next();let next=try await wait(resumed)
+        XCTAssertEqual(resumed.run?.encounterIndex,1)
+        XCTAssertEqual(resumed.run?.team,registered)
+        XCTAssertEqual(resumed.run?.checkpoint?.initialTeam,registered)
+        XCTAssertEqual(next.resources,carried)
+        XCTAssertEqual(BattleTextCatalog.key(next.own.first{$0.active}?.ability ?? ""),"blaze")
+        XCTAssertEqual(next.slots.first?.moves.map{BattleTextCatalog.key($0.apiName ?? $0.name)},["return"])
+        XCTAssertEqual(ChallengeRunStore(url:m.save.url).run?.team,registered)
+    }
     func testPendingRewardReopensWithoutBattleFrameAndReplacementBuildsOnlyNewMember()async throws {
         let m=try fixture();defer{m.close()}
         for i in 0..<6{m.select("owned-\(i)")};await m.start();try await win(m);m.didFinishPresentation();m.close()
@@ -118,10 +168,10 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         var resources=try XCTUnwrap(m.run?.resources);resources[0].hp=0
         try m.save.accept(resources:resources,decision:nil,winner:0)
         XCTAssertNil(m.session.frame);XCTAssertEqual(m.screen,.reward)
-        m.selectReward(.heal);XCTAssertTrue(m.canApplyReward)
+        m.selectReward(.revive);XCTAssertTrue(m.canApplyReward)
         await m.applyReward();XCTAssertFalse(m.problem)
-        XCTAssertEqual(m.run?.resources[0].hp,175);XCTAssertEqual(m.run?.phase,.intermission)
-        await m.applyReward();XCTAssertEqual(m.run?.resources[0].hp,175,"A reward is claimed only once")
+        XCTAssertEqual(m.run?.resources[0].hp,250);XCTAssertEqual(m.run?.phase,.intermission)
+        await m.applyReward();XCTAssertEqual(m.run?.resources[0].hp,250,"A reward is claimed only once")
     }
     func testSingleReplacementValidationDoesNotWeakenSixMemberTeamContract()async throws {
         let m=try fixture();defer{m.close()}
@@ -246,6 +296,29 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         m.next();_ = try await wait(m);XCTAssertEqual(m.run?.encounterIndex,1)
         XCTAssertEqual(m.shopBalance,50,"Skipping further purchases must not block Next")
     }
+    func testRandomNewProductCardsRenderAndFaintedRewardSelectionIsRestricted()async throws {
+        let m=try fixture(stock:[.statusCure,.revive,.teamHeal30,.maxRevive]);defer{m.close()}
+        let team=ChallengeRunTests().team()
+        try m.save.start(team:team,catalogVersion:m.session.catalog.version,encounterCount:2)
+        try m.save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
+        var resources=m.run!.resources;resources[0].hp=0;resources[1].hp=1
+        try m.save.accept(resources:resources,decision:nil,winner:0)
+        m.selectReward(.heal);XCTAssertEqual(m.rewardPokemonID,"a1")
+        m.rewardPokemonID="a0";XCTAssertFalse(m.canApplyReward)
+        m.selectReward(.revive);XCTAssertEqual(m.rewardPokemonID,"a0");XCTAssertTrue(m.canApplyReward)
+        m.rewardPokemonID="a1";XCTAssertFalse(m.canApplyReward)
+        let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
+        controller.show(present:false);defer{controller.window?.close()}
+        try await Task.sleep(for:.milliseconds(200))
+        let view=try XCTUnwrap(controller.window?.contentView);view.layoutSubtreeIfNeeded()
+        let bitmap=try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in:view.bounds));view.cacheDisplay(in:view.bounds,to:bitmap)
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-random-challenge-shop.png"))
+        let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
+        try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
+        let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
+        for label in ["상태이상회복","기력의조각","전체HP30%회복","기력의덩어리","40포인트","30포인트","50포인트","70포인트"]{XCTAssertTrue(text.contains(label),"Missing card: \(label) in \(text)")}
+        XCTAssertFalse(text.contains("20%회복"));XCTAssertFalse(text.contains("PP전체회복"))
+    }
     func testRewardOptionsAndNextStayLockedUntilActualRewardApplication()async throws {
         let fixture=try fixture(testControls:true),save=ChallengeRunStore(url:fixture.save.url,roll:{.attack})
         let session=try ChallengeBattleSession(save:save,catalog:ChallengeEncounterCatalog.load(),testControlsEnabled:true)
@@ -261,7 +334,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
             try save.accept(resources:resources,decision:nil,winner:0)
             m.configureRewardSelection()
             XCTAssertEqual(m.screen,.reward);XCTAssertFalse(m.canTestNextTrainer)
-            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.buff]:[.heal,.pp,.replace,.buff])
+            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.revive,.buff]:[.heal,.pp,.replace,.revive,.buff])
             m.next();m.nextTrainerForTesting();XCTAssertEqual(save.run?.encounterIndex,index)
             XCTAssertEqual(save.run?.phase,.reward)
             if index==2 {
@@ -269,8 +342,8 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
                 XCTAssertTrue(save.run!.resources.allSatisfy{$0.hp>0 && $0.status.isEmpty && $0.moves.allSatisfy{$0.pp==$0.maxPP}})
             }else if index==15 {
                 m.selectReward(.pp);XCTAssertTrue(m.canApplyReward);await m.applyReward()
-                XCTAssertTrue(save.run!.resources.first!.moves.allSatisfy{$0.pp==$0.maxPP})
-                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==0})
+                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==$0.maxPP})
+                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==0})
             }else{
                 m.selectReward(.buff);XCTAssertTrue(m.canApplyReward);await m.applyReward()
             }
