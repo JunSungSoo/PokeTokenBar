@@ -5,19 +5,42 @@ import XCTest
 @testable import PokeTokenBar
 
 @MainActor final class BattleArenaTests: XCTestCase {
-    func testCuratedPoolContainsThreePerGroupAndEveryChoiceIsReachable() {
-        XCTAssertEqual(BattleArena.allCases.count, 15)
-        XCTAssertEqual(Dictionary(grouping: BattleArena.allCases, by: \.group).mapValues(\.count),
-                       ["woods":3, "water":3, "highlands":3, "caves":3, "settlements":3])
-        XCTAssertEqual(BattleArena.forMatch(""), .plains)
-        let selections = (0..<1000).map { BattleArena.forMatch("match-\($0)") }
-        XCTAssertEqual(Set(selections), Set(BattleArena.allCases))
-        // Stable cross-process vectors guard order, salt and hash algorithm changes.
-        XCTAssertEqual(BattleArena.forMatch("match-0").rawValue, "plains")
-        XCTAssertEqual(BattleArena.forMatch("match-1").rawValue, "ice_cave")
-        XCTAssertTrue((0..<20).allSatisfy { _ in BattleArena.forMatch("match-0") == selections[0] })
+    func testEveryTypeUsesFixedOriginalArenaAndMixedTiesIgnoreTeamOrder() {
+        XCTAssertEqual(BattleArena.allCases.count,16)
+        XCTAssertEqual(Set(BattleArena.typeArenas.keys),Set(BattleArena.typeOrder))
+        for type in BattleArena.typeOrder {
+            XCTAssertEqual(BattleArena.forTypes([type]),BattleArena.typeArenas[type])
+            XCTAssertEqual(BattleArena.forTypes([type,type,"unknown"]),BattleArena.typeArenas[type])
+        }
+        XCTAssertEqual(BattleArena.forTypes([]),.plains)
+        XCTAssertEqual(BattleArena.forTypes(["unknown"]),.plains)
+        XCTAssertEqual(BattleArena.forTypes(["fire","flying","fire","water"]),.volcano)
+        XCTAssertEqual(BattleArena.forTypes(["water","fire"]),.volcano)
+        XCTAssertEqual(BattleArena.forTypes(["fire","water"]),.volcano)
+    }
+    func testAllChallengeArenasFollowFixedOpponentRostersIncludingDualTypes()throws {
+        let catalog=try ChallengeEncounterCatalog.load()
+        let arenas=Dictionary(uniqueKeysWithValues:catalog.encounters.map{($0.id,BattleArena.forOpponent($0.team.map(BattleRosterMember.init)))})
+        XCTAssertEqual(arenas["brock"],.mountain)
+        XCTAssertEqual(arenas["falkner"],.mountain)
+        XCTAssertEqual(arenas["misty"],.lake)
+        XCTAssertEqual(arenas["bugsy"],.forest)
+        XCTAssertEqual(arenas["blaine"],.volcano)
+        for encounter in catalog.encounters {
+            XCTAssertEqual(BattleArena.forOpponent(encounter.team.reversed().map(BattleRosterMember.init)),arenas[encounter.id])
+        }
     }
 
+    func testOnlyRedOverridesTypeArenaWithOriginalEternatusEndBackground()throws {
+        let encounters=try ChallengeEncounterCatalog.load().encounters
+        for e in encounters {
+            let roster=e.team.map(BattleRosterMember.init)
+            XCTAssertEqual(BattleArena.forChallenge(encounterID:e.id,roster:roster),e.id=="red" ? .end:BattleArena.forOpponent(roster))
+        }
+        XCTAssertFalse(BattleArena.typeArenas.values.contains(.end))
+        XCTAssertEqual(BattleArena.forChallenge(encounterID:"red",roster:[]),.end)
+        XCTAssertEqual(BattleArena.end.backgroundPath,"images/arenas/end_bg.png")
+    }
     func testBundledOriginalsMatchManifestAndCoverBothBattleSizes() throws {
         let directory = PokeRogueOriginalCatalog.directory
         let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: directory.appendingPathComponent("manifest.json"))) as? [String:Any])

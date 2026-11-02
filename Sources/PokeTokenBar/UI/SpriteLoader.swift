@@ -22,7 +22,7 @@ actor SpriteStore {
     /// 기본 폼은 구캐시 키 그대로 유지. 다른 폼은 폼·이로치·애니메이션을 모두 구분한다.
     static func cacheKey(speciesID: Int, animated: Bool, shiny: Bool, form: PokemonForm? = nil, back: Bool = false) -> String {
         let stem="\(back ? "back-" : "")\(PokemonForm.assetName(speciesID: speciesID, form: form))-\(shiny ? "sh" : "")\(animated ? "a" : "s")"
-        guard let mega=BattleMegaSprites.record(speciesID:speciesID,form:form,back:back,shiny:shiny) else{return stem}
+        guard let mega=BattleOriginalSprites.asset(speciesID:speciesID,form:form,back:back,shiny:shiny)?.record else{return stem}
         // Form names alone cannot invalidate an older provider's decoded GIF or disk cache.
         return stem+"-rogue-"+String(mega.sha256.prefix(12))
     }
@@ -40,10 +40,11 @@ actor SpriteStore {
     }
 
     func data(speciesID: Int, animated: Bool, shiny: Bool = false, form: PokemonForm? = nil, back: Bool = false) async -> Data? {
-        if let mega=BattleMegaSprites.record(speciesID:speciesID,form:form,back:back,shiny:shiny) {
+        if let asset=BattleOriginalSprites.asset(speciesID:speciesID,form:form,back:back,shiny:shiny) {
+            let mega=asset.record
             guard !animated || mega.animated else{return nil}
             let key=Self.cacheKey(speciesID:speciesID,animated:animated,shiny:shiny,form:form,back:back)
-            guard let data=try? Data(contentsOf:BattleMegaSprites.directory.appendingPathComponent(mega.file)) else{return nil}
+            guard let data=try? Data(contentsOf:asset.directory.appendingPathComponent(mega.file)) else{return nil}
             try? data.write(to:directory.appendingPathComponent(key+(animated ? ".gif":".png")),options:.atomic)
             return data
         }

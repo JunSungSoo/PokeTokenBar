@@ -2,18 +2,24 @@ import SwiftUI
 
 @MainActor
 struct BattleView: View {
-    let battle: BattleCoordinator
+    let battle: any BattleSessionPresentation
     let store: CompanionStore
     var onSurrender: () -> Void
     var onMusic: () -> Void
     var onPlayMusic: () -> Void
     var audioSettings: BattleAudioSettings? = nil
     var allowsEffectsAudio = true
+    var trainerIntro:ChallengeTrainerIntro? = nil
+    var showsResultClose=true
+    var replayOpening=true
+    var musicActive:Bool? = nil
     var auxiliaryState: BattleAuxiliaryState? = nil
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
     var onClose: () -> Void = {}
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
+    var onTestWin:(()->Void)? = nil
+    var onPlaybackBusy:(Bool)->Void = {_ in}
     @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth(for: .singles)
     @State private var choices: [Int: BattleAction] = [:]
     @State private var editingSlot = 0
@@ -60,7 +66,7 @@ struct BattleView: View {
                     }.padding(.horizontal, 12).padding(.top, 12)
                         .frame(maxWidth: .infinity, alignment: .top)
                     Divider().measureBattleContent("footer")
-                    if battle.outcome != nil && !battle.presentation.pending && !effectsBusy {
+                    if showsResultClose && battle.outcome != nil && !battle.presentation.pending && !effectsBusy {
                         HStack { Spacer(); Button(l.quit, action:onClose)
                             .accessibilityIdentifier("battle-close-result") }
                             .padding(.horizontal,18).padding(.vertical,8)
@@ -95,6 +101,7 @@ struct BattleView: View {
         .onChange(of: audioSettings?.effectsVolume, initial: true) { _, volume in
             roguePlayer.setEffectsVolume(allowsEffectsAudio ? (volume ?? 0) : 0)
         }
+        .onChange(of:effectsBusy,initial:true){_,busy in onPlaybackBusy(busy)}
         .onAppear { battle.completePresentation() }
         .onDisappear{roguePlayer.stop()}
         .onChange(of:battle.frame == nil){_,empty in if empty{roguePlayer.stop()}}
@@ -106,16 +113,21 @@ struct BattleView: View {
             Image(systemName: "bolt.shield.fill").font(.title2).foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 3) {
                 Text("\(battle.identity.nickname)  ×  \(battle.opponent?.nickname ?? "…")").font(.headline)
-                Text(l.battleRules).font(.caption).foregroundStyle(.secondary)
+                Text(battle.isChallenge ? l.challengeRules:l.battleRules).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(battle.mode == .singles ? l.battleSingles : l.battleDoubles).font(.callout)
+            Text(battle.isChallenge ? l.challengeMode:(battle.mode == .singles ? l.battleSingles:l.battleDoubles)).font(.callout)
             if let deadline = battle.decisionDeadline { Text(timerInterval: Date()...max(Date(), deadline), countsDown: true).font(.caption.monospacedDigit()).frame(width: 45) }
             if let frame = battle.presentation.frame ?? battle.frame { Text("\(frame.turn)").font(.title2.monospacedDigit()).accessibilityLabel(l.battleTurn(frame.turn)) }
-            Button { musicEnabled.toggle(); onMusic() } label: {
-                Image(systemName: musicEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+            Button { if musicActive == nil {musicEnabled.toggle()}; onMusic() } label: {
+                Image(systemName: (musicActive ?? musicEnabled) ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }.help(l.battleMusic).accessibilityLabel(l.battleMusic)
             if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
+        }
+        if let onTestWin {
+            HStack {Spacer();Button(l.challengeTestWin,action:onTestWin)
+                .disabled(effectsBusy || battle.submitted || battle.presentation.pending || battle.frame?.ended != false)
+                .accessibilityIdentifier("challenge-test-win")}
         }
         if let auxiliaryState, !auxiliaryState.fieldVisible || !auxiliaryState.statsVisible {
             HStack {
@@ -137,7 +149,7 @@ struct BattleView: View {
             VStack {
                 HStack(spacing: 14) {
                     Spacer(minLength: 0)
-                    ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot) }
+                    ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot).opacity(trainerIntro?.active == true ? 0:1) }
                 }
                 Spacer(minLength: 8)
                 HStack(spacing: 14) {
@@ -152,14 +164,23 @@ struct BattleView: View {
         .fixedSize(horizontal:false,vertical:true)
         .frame(minHeight:battle.mode == .doubles ? 260:310)
         .modifier(PokeRogueBattlefieldLayers(player:roguePlayer,arena:battle.arena))
+        .overlay(alignment:.topTrailing) {
+            if let trainerIntro,trainerIntro.active {
+                ChallengeTrainerSprite(key:trainerIntro.key).frame(width:140,height:170)
+                    .offset(x:trainerIntro.exiting ? 230:0).opacity(trainerIntro.exiting ? 0:1)
+                    .padding(.trailing,32).padding(.top,30).allowsHitTesting(false)
+            }
+        }
         .overlayPreferenceValue(BattleSpriteAnchorKey.self) { anchors in
             GeometryReader { geometry in
                 let latest = battle.frame ?? frame
                 let presentation = BattlePresentationEvents(frame: latest, language: store.language, ownPlayer: battle.isHost ? 0 : 1)
-                BattleEffectsLayer(events:presentation.events,rects:anchors.mapValues { geometry[$0] },busy:$effectsBusy,playback:$effectPlayback,messages:presentation.messages,presentOpeningAbilities:latest.turn <= 1,
+                BattleEffectsLayer(events:presentation.events,rects:anchors.mapValues { geometry[$0] },busy:$effectsBusy,playback:$effectPlayback,messages:trainerIntro?.openingMessages(events:presentation.events,messages:presentation.messages,language:store.language,enabled:replayOpening && latest.turn<=1) ?? presentation.messages,presentOpeningAbilities:replayOpening && latest.turn <= 1,
                     scenes:Dictionary(uniqueKeysWithValues:(latest.scenes ?? []).map { ($0.id,$0) }),
                     onScene:{ battle.presentation.apply($0) },onFinished:{ battle.completePresentation() },onAnimatedScene:{ await battle.presentation.animate($0) },originalPlayer:roguePlayer,
-                    actors:renderActors(frame,rects:anchors.mapValues{geometry[$0]}),viewport:geometry.size)
+                    actors:renderActors(frame,rects:anchors.mapValues{geometry[$0]}),viewport:geometry.size,
+                    beforeEvent:{event in await trainerIntro?.before(event)},
+                    hideActor:{position in trainerIntro?.active == true && !position.own},completionToken:latest.decisionID)
             }.allowsHitTesting(false)
         }.clipShape(RoundedRectangle(cornerRadius:8))
     }
@@ -221,7 +242,7 @@ struct BattleView: View {
     }
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.isPlaying || roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:spriteSizing)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:spriteSizing)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 

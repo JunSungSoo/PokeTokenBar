@@ -20,7 +20,7 @@ struct BattlePokemon: Codable, Sendable, Identifiable, Equatable {
     let form: PokemonForm?
     let ivs: [String: Int]
     let stats: [String: Int]
-    let moves: [String]
+    var moves: [String]
     var item: String? = nil
 }
 
@@ -179,6 +179,7 @@ struct BattleFrame: Codable, Sendable {
     var scenes: [BattleScene]? = nil
     let ended: Bool
     let winner: Int?
+    var resources: [ChallengePokemonState]? = nil
 }
 struct BattleAction: Codable, Sendable, Hashable {
     let kind: String
@@ -247,10 +248,20 @@ enum BattleTeamBuilder {
     }
 
     @MainActor
-    static func build(ids: [String], entries: [DexEntry], mode: BattleMode,
+    static func build(ids:[String],entries:[DexEntry],mode:BattleMode,language:AppLanguage,
+                      provider:any PokemonDetailProviding=PokeAPIClient.shared,heldItems:[String:String]=[:])async throws->[BattlePokemon] {
+        try await buildValidated(ids:ids,entries:entries,mode:mode,language:language,provider:provider,heldItems:heldItems,memberOnly:false)
+    }
+    @MainActor
+    static func buildIndividual(id:String,entries:[DexEntry],language:AppLanguage,
+                                provider:any PokemonDetailProviding=PokeAPIClient.shared)async throws->BattlePokemon {
+        try await buildValidated(ids:[id],entries:entries,mode:.singles,language:language,provider:provider,memberOnly:true)[0]
+    }
+    @MainActor
+    private static func buildValidated(ids: [String], entries: [DexEntry], mode: BattleMode,
                       language: AppLanguage, provider: any PokemonDetailProviding = PokeAPIClient.shared,
-                      heldItems:[String:String]=[:]) async throws -> [BattlePokemon] {
-        guard ids.count == mode.teamSize, Set(ids).count == ids.count else {
+                      heldItems:[String:String]=[:],memberOnly:Bool) async throws -> [BattlePokemon] {
+        guard ids.count == (memberOnly ? 1:mode.teamSize), Set(ids).count == ids.count else {
             throw BattleFailure.invalidTeam("Select exactly \(mode.teamSize) different individuals.")
         }
         var speciesIDs = Set<Int>()
@@ -298,7 +309,7 @@ enum BattleTeamBuilder {
                 shiny: entry.isShiny, form: resolved, ivs: ivs, stats: stats, moves: profile.moves.map(\.name),item:heldItems[entry.id]))
         }
         guard !BattleHeldItems.hasDuplicates(team) else {throw BattleFailure.invalidTeam(L(language).battleDuplicateItem)}
-        let abilities = try await BattleEngineProcess.validate(mode: mode, team: team)
+        let abilities = try await BattleEngineProcess.validate(mode: mode, team: team,memberOnly:memberOnly)
         guard abilities.count == team.count else { throw BattleFailure.invalidMessage }
         for index in team.indices { team[index].ability = abilities[index] }
         return team

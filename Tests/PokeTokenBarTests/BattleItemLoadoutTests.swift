@@ -20,7 +20,8 @@ import XCTest
         XCTAssertEqual(draft.owner(of:"charizarditex"),"0")
         XCTAssertNil(draft.owner(of:"charizarditex",excluding:"0"));XCTAssertNil(draft.owner(of:""))
         XCTAssertFalse(draft.apply("blastoisinite",to:entry("1"),roster:roster))
-        XCTAssertFalse(draft.apply("fairyfeather",to:entry("1"),roster:roster))
+        XCTAssertTrue(draft.apply("fairyfeather",to:entry("1"),roster:roster))
+        XCTAssertFalse(draft.apply("fairyfeather",to:entry("2"),roster:roster))
         XCTAssertFalse(draft.apply("lifeorb",to:entry("missing"),roster:roster))
         XCTAssertFalse(draft.apply("lifeorb",to:entry("1",released:true),roster:roster))
         XCTAssertTrue(draft.apply("charizarditey",to:entry("1"),roster:roster))
@@ -31,6 +32,21 @@ import XCTest
         XCTAssertTrue(draft.apply("leftovers",to:entry("0"),roster:roster))
         XCTAssertNil(draft.owner(of:"charizarditex"))
         XCTAssertTrue(BattleItemLoadout().items.isEmpty,"An uninitialized draft waits for roster defaults")
+    }
+    func testFairyFeatherIsLocalizedSelectableAndRemembered() throws {
+        let item=try XCTUnwrap(BattleHeldItems.item("fairyfeather"))
+        XCTAssertTrue(BattleItemCategory.type.includes(item))
+        XCTAssertEqual(item.name(.ko),"요정의깃털")
+        XCTAssertEqual(item.descriptions["ko"],"페어리 기술의 위력 1.2배.")
+        for language in AppLanguage.allCases {
+            XCTAssertFalse(item.name(language).isEmpty)
+            XCTAssertFalse(try XCTUnwrap(item.descriptions[language.rawValue]).isEmpty)
+        }
+        let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults),pokemon=entry("fairy")
+        memory.recordApplied(item.id,to:pokemon)
+        var draft=BattleItemLoadout()
+        draft.restore(roster:[pokemon],remembered:BattlePokemonItemStore(defaults:defaults).items)
+        XCTAssertEqual(draft.items[pokemon.id],item.id)
     }
     func testPerIndividualLastItemPersistsAndFirstAppearanceUsesNone() throws {
         let defaults=try storage(),memory=BattlePokemonItemStore(defaults:defaults)
@@ -166,7 +182,7 @@ import XCTest
     }
     func testCategoriesPartitionCatalogAndKeepSpeciesBindingAndRecentOrder() throws {
         XCTAssertEqual(BattleItemCategory.allCases.map{$0.title(.ko)},["전체","메가스톤","회복","공격강화","타입강화","생존","행동순서","열매"])
-        let counts:[BattleItemCategory:Int]=[.all:100,.mega:64,.recovery:3,.power:6,.type:17,.defense:5,.order:3,.berries:2]
+        let counts:[BattleItemCategory:Int]=[.all:101,.mega:64,.recovery:3,.power:6,.type:18,.defense:5,.order:3,.berries:2]
         for group in BattleItemCategory.allCases {
             XCTAssertEqual(BattleHeldItems.all.filter{group.includes($0)}.count,counts[group])
             for language in AppLanguage.allCases {XCTAssertFalse(group.title(language).isEmpty)}

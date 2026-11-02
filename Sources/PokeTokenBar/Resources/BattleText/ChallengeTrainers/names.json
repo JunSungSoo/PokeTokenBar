@@ -1,0 +1,242 @@
+{
+  "brock": {
+    "ko": "웅",
+    "en": "Brock",
+    "ja": "タケシ",
+    "es": "Brock",
+    "fr": "Pierre",
+    "pt": "Brock",
+    "de": "Rocko",
+    "ru": "Брок"
+  },
+  "falkner": {
+    "ko": "비상",
+    "en": "Falkner",
+    "ja": "ハヤト",
+    "es": "Pegaso",
+    "fr": "Albert",
+    "pt": "Falkner",
+    "de": "Falk",
+    "ru": "Фалкнер"
+  },
+  "misty": {
+    "ko": "이슬",
+    "en": "Misty",
+    "ja": "カスミ",
+    "es": "Misty",
+    "fr": "Ondine",
+    "pt": "Misty",
+    "de": "Misty",
+    "ru": "Мисти"
+  },
+  "bugsy": {
+    "ko": "호일",
+    "en": "Bugsy",
+    "ja": "ツクシ",
+    "es": "Antón",
+    "fr": "Hector",
+    "pt": "Bugsy",
+    "de": "Kai",
+    "ru": "Багси"
+  },
+  "lt_surge": {
+    "ko": "마티스",
+    "en": "Lt. Surge",
+    "ja": "マチス",
+    "es": "Teniente Surge",
+    "fr": "Major Bob",
+    "pt": "Ten. Surge",
+    "de": "Major Bob",
+    "ru": "Лейт. Сёрж"
+  },
+  "whitney": {
+    "ko": "꼭두",
+    "en": "Whitney",
+    "ja": "アカネ",
+    "es": "Blanca",
+    "fr": "Blanche",
+    "pt": "Whitney",
+    "de": "Bianka",
+    "ru": "Уитни"
+  },
+  "erika": {
+    "ko": "민화",
+    "en": "Erika",
+    "ja": "エリカ",
+    "es": "Erika",
+    "fr": "Erika",
+    "pt": "Érica",
+    "de": "Erika",
+    "ru": "Эрика"
+  },
+  "morty": {
+    "ko": "유빈",
+    "en": "Morty",
+    "ja": "マツバ",
+    "es": "Morti",
+    "fr": "Mortimer",
+    "pt": "Morty",
+    "de": "Jens",
+    "ru": "Морти"
+  },
+  "koga": {
+    "ko": "독수",
+    "en": "Koga",
+    "ja": "キョウ",
+    "es": "Koga",
+    "fr": "Koga",
+    "pt": "Koga",
+    "de": "Koga",
+    "ru": "Кога"
+  },
+  "chuck": {
+    "ko": "사도",
+    "en": "Chuck",
+    "ja": "シジマ",
+    "es": "Aníbal",
+    "fr": "Chuck",
+    "pt": "Chuck",
+    "de": "Hartwig",
+    "ru": "Чак"
+  },
+  "sabrina": {
+    "ko": "초련",
+    "en": "Sabrina",
+    "ja": "ナツメ",
+    "es": "Sabrina",
+    "fr": "Morgane",
+    "pt": "Sabrina",
+    "de": "Sabrina",
+    "ru": "Сабрина"
+  },
+  "jasmine": {
+    "ko": "규리",
+    "en": "Jasmine",
+    "ja": "ミカン",
+    "es": "Yasmina",
+    "fr": "Jasmine",
+    "pt": "Jasmine",
+    "de": "Jasmin",
+    "ru": "Жасмин"
+  },
+  "blaine": {
+    "ko": "강연",
+    "en": "Blaine",
+    "ja": "カツラ",
+    "es": "Blaine",
+    "fr": "Auguste",
+    "pt": "Blaine",
+    "de": "Pyro",
+    "ru": "Блэйн"
+  },
+  "pryce": {
+    "ko": "류옹",
+    "en": "Pryce",
+    "ja": "ヤナギ",
+    "es": "Fredo",
+    "fr": "Frédo",
+    "pt": "Pryce",
+    "de": "Norbert",
+    "ru": "Прайс"
+  },
+  "giovanni": {
+    "ko": "비주기",
+    "en": "Giovanni",
+    "ja": "サカキ",
+    "es": "Giovanni",
+    "fr": "Giovanni",
+    "pt": "Giovanni",
+    "de": "Giovanni",
+    "ru": "Джованни"
+  },
+  "clair": {
+    "ko": "이향",
+    "en": "Clair",
+    "ja": "イブキ",
+    "es": "Débora",
+    "fr": "Sandra",
+    "pt": "Clair",
+    "de": "Sandra",
+    "ru": "Клэр"
+  },
+  "lorelei": {
+    "ko": "칸나",
+    "en": "Lorelei",
+    "ja": "カンナ",
+    "es": "Lorelei",
+    "fr": "Olga",
+    "pt": "Lorelei",
+    "de": "Lorelei",
+    "ru": "Лорелай"
+  },
+  "bruno": {
+    "ko": "시바",
+    "en": "Bruno",
+    "ja": "シバ",
+    "es": "Bruno",
+    "fr": "Aldo",
+    "pt": "Bruno",
+    "de": "Bruno",
+    "ru": "Бруно"
+  },
+  "agatha": {
+    "ko": "국화",
+    "en": "Agatha",
+    "ja": "キクコ",
+    "es": "Agatha",
+    "fr": "Agatha",
+    "pt": "Agatha",
+    "de": "Agathe",
+    "ru": "Агата"
+  },
+  "lance": {
+    "ko": "목호",
+    "en": "Lance",
+    "ja": "ワタル",
+    "es": "Lance",
+    "fr": "Peter",
+    "pt": "Lance",
+    "de": "Siegfried",
+    "ru": "Лэнс"
+  },
+  "will": {
+    "ko": "일목",
+    "en": "Will",
+    "ja": "イツキ",
+    "es": "Mento",
+    "fr": "Clément",
+    "pt": "Will",
+    "de": "Willi",
+    "ru": "Уилл"
+  },
+  "karen": {
+    "ko": "카렌",
+    "en": "Karen",
+    "ja": "カリン",
+    "es": "Karen",
+    "fr": "Marion",
+    "pt": "Karen",
+    "de": "Melanie",
+    "ru": "Карен"
+  },
+  "blue": {
+    "ko": "그린",
+    "en": "Blue",
+    "ja": "グリーン",
+    "es": "Azul",
+    "fr": "Blue",
+    "pt": "Blue",
+    "de": "Blau",
+    "ru": "Блю"
+  },
+  "red": {
+    "ko": "레드",
+    "en": "Red",
+    "ja": "レッド",
+    "es": "Rojo",
+    "fr": "Red",
+    "pt": "Red",
+    "de": "Rot",
+    "ru": "Рэд"
+  }
+}

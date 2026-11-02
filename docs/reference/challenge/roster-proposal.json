@@ -1,0 +1,2033 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-10-30",
+  "uniqueCharacters": 24,
+  "battles": 27,
+  "teamSlots": 162,
+  "uniqueSpecies": 108,
+  "proposals": [
+    {
+      "round": 1,
+      "id": "brock",
+      "name": "웅",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 74,
+          "species": "Geodude",
+          "nameKo": "꼬마돌"
+        },
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 76,
+          "species": "Golem",
+          "nameKo": "딱구리"
+        },
+        {
+          "speciesID": 139,
+          "species": "Omastar",
+          "nameKo": "암스타"
+        },
+        {
+          "speciesID": 141,
+          "species": "Kabutops",
+          "nameKo": "투구푸스"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 74,
+          "species": "Geodude",
+          "nameKo": "꼬마돌"
+        },
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        },
+        {
+          "speciesID": 76,
+          "species": "Golem",
+          "nameKo": "딱구리"
+        },
+        {
+          "speciesID": 139,
+          "species": "Omastar",
+          "nameKo": "암스타"
+        },
+        {
+          "speciesID": 141,
+          "species": "Kabutops",
+          "nameKo": "투구푸스"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 2,
+      "id": "falkner",
+      "name": "비상",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 16,
+          "species": "Pidgey",
+          "nameKo": "구구"
+        },
+        {
+          "speciesID": 17,
+          "species": "Pidgeotto",
+          "nameKo": "피죤"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 164,
+          "species": "Noctowl",
+          "nameKo": "야부엉"
+        },
+        {
+          "speciesID": 85,
+          "species": "Dodrio",
+          "nameKo": "두트리오"
+        },
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        },
+        {
+          "speciesID": 227,
+          "species": "Skarmory",
+          "nameKo": "무장조"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 16,
+          "species": "Pidgey",
+          "nameKo": "구구"
+        },
+        {
+          "speciesID": 17,
+          "species": "Pidgeotto",
+          "nameKo": "피죤"
+        },
+        {
+          "speciesID": 164,
+          "species": "Noctowl",
+          "nameKo": "야부엉"
+        },
+        {
+          "speciesID": 85,
+          "species": "Dodrio",
+          "nameKo": "두트리오"
+        },
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        },
+        {
+          "speciesID": 227,
+          "species": "Skarmory",
+          "nameKo": "무장조"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 3,
+      "id": "misty",
+      "name": "이슬",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 120,
+          "species": "Staryu",
+          "nameKo": "별가사리"
+        },
+        {
+          "speciesID": 121,
+          "species": "Starmie",
+          "nameKo": "아쿠스타"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 55,
+          "species": "Golduck",
+          "nameKo": "골덕"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        },
+        {
+          "speciesID": 134,
+          "species": "Vaporeon",
+          "nameKo": "샤미드"
+        },
+        {
+          "speciesID": 195,
+          "species": "Quagsire",
+          "nameKo": "누오"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 120,
+          "species": "Staryu",
+          "nameKo": "별가사리"
+        },
+        {
+          "speciesID": 121,
+          "species": "Starmie",
+          "nameKo": "아쿠스타"
+        },
+        {
+          "speciesID": 55,
+          "species": "Golduck",
+          "nameKo": "골덕"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        },
+        {
+          "speciesID": 134,
+          "species": "Vaporeon",
+          "nameKo": "샤미드"
+        },
+        {
+          "speciesID": 195,
+          "species": "Quagsire",
+          "nameKo": "누오"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 4,
+      "id": "bugsy",
+      "name": "호일",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 11,
+          "species": "Metapod",
+          "nameKo": "단데기"
+        },
+        {
+          "speciesID": 14,
+          "species": "Kakuna",
+          "nameKo": "딱충이"
+        },
+        {
+          "speciesID": 123,
+          "species": "Scyther",
+          "nameKo": "스라크"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 127,
+          "species": "Pinsir",
+          "nameKo": "쁘사이저"
+        },
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        },
+        {
+          "speciesID": 212,
+          "species": "Scizor",
+          "nameKo": "핫삼"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 11,
+          "species": "Metapod",
+          "nameKo": "단데기"
+        },
+        {
+          "speciesID": 14,
+          "species": "Kakuna",
+          "nameKo": "딱충이"
+        },
+        {
+          "speciesID": 123,
+          "species": "Scyther",
+          "nameKo": "스라크"
+        },
+        {
+          "speciesID": 127,
+          "species": "Pinsir",
+          "nameKo": "쁘사이저"
+        },
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        },
+        {
+          "speciesID": 212,
+          "species": "Scizor",
+          "nameKo": "핫삼"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 5,
+      "id": "ltsurge",
+      "name": "마티스",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 100,
+          "species": "Voltorb",
+          "nameKo": "찌리리공"
+        },
+        {
+          "speciesID": 25,
+          "species": "Pikachu",
+          "nameKo": "피카츄"
+        },
+        {
+          "speciesID": 26,
+          "species": "Raichu",
+          "nameKo": "라이츄"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 125,
+          "species": "Electabuzz",
+          "nameKo": "에레브"
+        },
+        {
+          "speciesID": 135,
+          "species": "Jolteon",
+          "nameKo": "쥬피썬더"
+        },
+        {
+          "speciesID": 181,
+          "species": "Ampharos",
+          "nameKo": "전룡"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 100,
+          "species": "Voltorb",
+          "nameKo": "찌리리공"
+        },
+        {
+          "speciesID": 25,
+          "species": "Pikachu",
+          "nameKo": "피카츄"
+        },
+        {
+          "speciesID": 26,
+          "species": "Raichu",
+          "nameKo": "라이츄"
+        },
+        {
+          "speciesID": 125,
+          "species": "Electabuzz",
+          "nameKo": "에레브"
+        },
+        {
+          "speciesID": 135,
+          "species": "Jolteon",
+          "nameKo": "쥬피썬더"
+        },
+        {
+          "speciesID": 181,
+          "species": "Ampharos",
+          "nameKo": "전룡"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 6,
+      "id": "whitney",
+      "name": "꼭두",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 35,
+          "species": "Clefairy",
+          "nameKo": "삐삐"
+        },
+        {
+          "speciesID": 241,
+          "species": "Miltank",
+          "nameKo": "밀탱크"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 36,
+          "species": "Clefable",
+          "nameKo": "픽시"
+        },
+        {
+          "speciesID": 40,
+          "species": "Wigglytuff",
+          "nameKo": "푸크린"
+        },
+        {
+          "speciesID": 115,
+          "species": "Kangaskhan",
+          "nameKo": "캥카"
+        },
+        {
+          "speciesID": 217,
+          "species": "Ursaring",
+          "nameKo": "링곰"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 35,
+          "species": "Clefairy",
+          "nameKo": "삐삐"
+        },
+        {
+          "speciesID": 241,
+          "species": "Miltank",
+          "nameKo": "밀탱크"
+        },
+        {
+          "speciesID": 36,
+          "species": "Clefable",
+          "nameKo": "픽시"
+        },
+        {
+          "speciesID": 40,
+          "species": "Wigglytuff",
+          "nameKo": "푸크린"
+        },
+        {
+          "speciesID": 115,
+          "species": "Kangaskhan",
+          "nameKo": "캥카"
+        },
+        {
+          "speciesID": 217,
+          "species": "Ursaring",
+          "nameKo": "링곰"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 7,
+      "id": "erika",
+      "name": "민화",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 71,
+          "species": "Victreebel",
+          "nameKo": "우츠보트"
+        },
+        {
+          "speciesID": 114,
+          "species": "Tangela",
+          "nameKo": "덩쿠리"
+        },
+        {
+          "speciesID": 45,
+          "species": "Vileplume",
+          "nameKo": "라플레시아"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 182,
+          "species": "Bellossom",
+          "nameKo": "아르코"
+        },
+        {
+          "speciesID": 189,
+          "species": "Jumpluff",
+          "nameKo": "솜솜코"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 71,
+          "species": "Victreebel",
+          "nameKo": "우츠보트"
+        },
+        {
+          "speciesID": 114,
+          "species": "Tangela",
+          "nameKo": "덩쿠리"
+        },
+        {
+          "speciesID": 45,
+          "species": "Vileplume",
+          "nameKo": "라플레시아"
+        },
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 182,
+          "species": "Bellossom",
+          "nameKo": "아르코"
+        },
+        {
+          "speciesID": 189,
+          "species": "Jumpluff",
+          "nameKo": "솜솜코"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 8,
+      "id": "morty",
+      "name": "유빈",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 92,
+          "species": "Gastly",
+          "nameKo": "고오스"
+        },
+        {
+          "speciesID": 93,
+          "species": "Haunter",
+          "nameKo": "고우스트"
+        },
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "nameKo": "무우마"
+        },
+        {
+          "speciesID": 356,
+          "species": "Dusclops",
+          "nameKo": "미라몽"
+        },
+        {
+          "speciesID": 609,
+          "species": "Chandelure",
+          "nameKo": "샹델라"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 92,
+          "species": "Gastly",
+          "nameKo": "고오스"
+        },
+        {
+          "speciesID": 93,
+          "species": "Haunter",
+          "nameKo": "고우스트"
+        },
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        },
+        {
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "nameKo": "무우마"
+        },
+        {
+          "speciesID": 356,
+          "species": "Dusclops",
+          "nameKo": "미라몽"
+        },
+        {
+          "speciesID": 609,
+          "species": "Chandelure",
+          "nameKo": "샹델라"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 9,
+      "id": "koga1",
+      "name": "독수",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 109,
+          "species": "Koffing",
+          "nameKo": "또가스"
+        },
+        {
+          "speciesID": 89,
+          "species": "Muk",
+          "nameKo": "질뻐기"
+        },
+        {
+          "speciesID": 110,
+          "species": "Weezing",
+          "nameKo": "또도가스"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 34,
+          "species": "Nidoking",
+          "nameKo": "니드킹"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 109,
+          "species": "Koffing",
+          "nameKo": "또가스"
+        },
+        {
+          "speciesID": 89,
+          "species": "Muk",
+          "nameKo": "질뻐기"
+        },
+        {
+          "speciesID": 110,
+          "species": "Weezing",
+          "nameKo": "또도가스"
+        },
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 34,
+          "species": "Nidoking",
+          "nameKo": "니드킹"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 10,
+      "id": "chuck",
+      "name": "사도",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 57,
+          "species": "Primeape",
+          "nameKo": "성원숭"
+        },
+        {
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "nameKo": "강챙이"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        },
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 57,
+          "species": "Primeape",
+          "nameKo": "성원숭"
+        },
+        {
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "nameKo": "강챙이"
+        },
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        },
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 11,
+      "id": "sabrina",
+      "name": "초련",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 64,
+          "species": "Kadabra",
+          "nameKo": "윤겔라"
+        },
+        {
+          "speciesID": 122,
+          "species": "Mr. Mime",
+          "nameKo": "마임맨"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 97,
+          "species": "Hypno",
+          "nameKo": "슬리퍼"
+        },
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 64,
+          "species": "Kadabra",
+          "nameKo": "윤겔라"
+        },
+        {
+          "speciesID": 122,
+          "species": "Mr. Mime",
+          "nameKo": "마임맨"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        },
+        {
+          "speciesID": 97,
+          "species": "Hypno",
+          "nameKo": "슬리퍼"
+        },
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 12,
+      "id": "jasmine",
+      "name": "규리",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 81,
+          "species": "Magnemite",
+          "nameKo": "코일"
+        },
+        {
+          "speciesID": 208,
+          "species": "Steelix",
+          "nameKo": "강철톤"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 82,
+          "species": "Magneton",
+          "nameKo": "레어코일"
+        },
+        {
+          "speciesID": 212,
+          "species": "Scizor",
+          "nameKo": "핫삼"
+        },
+        {
+          "speciesID": 227,
+          "species": "Skarmory",
+          "nameKo": "무장조"
+        },
+        {
+          "speciesID": 205,
+          "species": "Forretress",
+          "nameKo": "쏘콘"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 81,
+          "species": "Magnemite",
+          "nameKo": "코일"
+        },
+        {
+          "speciesID": 208,
+          "species": "Steelix",
+          "nameKo": "강철톤"
+        },
+        {
+          "speciesID": 82,
+          "species": "Magneton",
+          "nameKo": "레어코일"
+        },
+        {
+          "speciesID": 212,
+          "species": "Scizor",
+          "nameKo": "핫삼"
+        },
+        {
+          "speciesID": 227,
+          "species": "Skarmory",
+          "nameKo": "무장조"
+        },
+        {
+          "speciesID": 205,
+          "species": "Forretress",
+          "nameKo": "쏘콘"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 13,
+      "id": "blaine",
+      "name": "강연",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 58,
+          "species": "Growlithe",
+          "nameKo": "가디"
+        },
+        {
+          "speciesID": 77,
+          "species": "Ponyta",
+          "nameKo": "포니타"
+        },
+        {
+          "speciesID": 78,
+          "species": "Rapidash",
+          "nameKo": "날쌩마"
+        },
+        {
+          "speciesID": 59,
+          "species": "Arcanine",
+          "nameKo": "윈디"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 38,
+          "species": "Ninetales",
+          "nameKo": "나인테일"
+        },
+        {
+          "speciesID": 126,
+          "species": "Magmar",
+          "nameKo": "마그마"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 58,
+          "species": "Growlithe",
+          "nameKo": "가디"
+        },
+        {
+          "speciesID": 77,
+          "species": "Ponyta",
+          "nameKo": "포니타"
+        },
+        {
+          "speciesID": 78,
+          "species": "Rapidash",
+          "nameKo": "날쌩마"
+        },
+        {
+          "speciesID": 59,
+          "species": "Arcanine",
+          "nameKo": "윈디"
+        },
+        {
+          "speciesID": 38,
+          "species": "Ninetales",
+          "nameKo": "나인테일"
+        },
+        {
+          "speciesID": 126,
+          "species": "Magmar",
+          "nameKo": "마그마"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 14,
+      "id": "pryce",
+      "name": "류옹",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 86,
+          "species": "Seel",
+          "nameKo": "쥬쥬"
+        },
+        {
+          "speciesID": 87,
+          "species": "Dewgong",
+          "nameKo": "쥬레곤"
+        },
+        {
+          "speciesID": 221,
+          "species": "Piloswine",
+          "nameKo": "메꾸리"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        },
+        {
+          "speciesID": 215,
+          "species": "Sneasel",
+          "nameKo": "포푸니"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 86,
+          "species": "Seel",
+          "nameKo": "쥬쥬"
+        },
+        {
+          "speciesID": 87,
+          "species": "Dewgong",
+          "nameKo": "쥬레곤"
+        },
+        {
+          "speciesID": 221,
+          "species": "Piloswine",
+          "nameKo": "메꾸리"
+        },
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        },
+        {
+          "speciesID": 215,
+          "species": "Sneasel",
+          "nameKo": "포푸니"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 15,
+      "id": "giovanni",
+      "name": "비주기",
+      "phase": "관동 관장",
+      "original": [
+        {
+          "speciesID": 111,
+          "species": "Rhyhorn",
+          "nameKo": "뿔카노"
+        },
+        {
+          "speciesID": 51,
+          "species": "Dugtrio",
+          "nameKo": "닥트리오"
+        },
+        {
+          "speciesID": 31,
+          "species": "Nidoqueen",
+          "nameKo": "니드퀸"
+        },
+        {
+          "speciesID": 34,
+          "species": "Nidoking",
+          "nameKo": "니드킹"
+        },
+        {
+          "speciesID": 112,
+          "species": "Rhydon",
+          "nameKo": "코뿌리"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 232,
+          "species": "Donphan",
+          "nameKo": "코리갑"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 111,
+          "species": "Rhyhorn",
+          "nameKo": "뿔카노"
+        },
+        {
+          "speciesID": 51,
+          "species": "Dugtrio",
+          "nameKo": "닥트리오"
+        },
+        {
+          "speciesID": 31,
+          "species": "Nidoqueen",
+          "nameKo": "니드퀸"
+        },
+        {
+          "speciesID": 34,
+          "species": "Nidoking",
+          "nameKo": "니드킹"
+        },
+        {
+          "speciesID": 112,
+          "species": "Rhydon",
+          "nameKo": "코뿌리"
+        },
+        {
+          "speciesID": 232,
+          "species": "Donphan",
+          "nameKo": "코리갑"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 16,
+      "id": "clair",
+      "name": "이향",
+      "phase": "성도 관장",
+      "original": [
+        {
+          "speciesID": 148,
+          "species": "Dragonair",
+          "nameKo": "신뇽"
+        },
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        },
+        {
+          "speciesID": 373,
+          "species": "Salamence",
+          "nameKo": "보만다"
+        },
+        {
+          "speciesID": 330,
+          "species": "Flygon",
+          "nameKo": "플라이곤"
+        },
+        {
+          "speciesID": 612,
+          "species": "Haxorus",
+          "nameKo": "액스라이즈"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 148,
+          "species": "Dragonair",
+          "nameKo": "신뇽"
+        },
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        },
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        },
+        {
+          "speciesID": 373,
+          "species": "Salamence",
+          "nameKo": "보만다"
+        },
+        {
+          "speciesID": 330,
+          "species": "Flygon",
+          "nameKo": "플라이곤"
+        },
+        {
+          "speciesID": 612,
+          "species": "Haxorus",
+          "nameKo": "액스라이즈"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 17,
+      "id": "lorelei",
+      "name": "칸나",
+      "phase": "1세대 사천왕",
+      "original": [
+        {
+          "speciesID": 87,
+          "species": "Dewgong",
+          "nameKo": "쥬레곤"
+        },
+        {
+          "speciesID": 91,
+          "species": "Cloyster",
+          "nameKo": "파르셀"
+        },
+        {
+          "speciesID": 80,
+          "species": "Slowbro",
+          "nameKo": "야도란"
+        },
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 221,
+          "species": "Piloswine",
+          "nameKo": "메꾸리"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 87,
+          "species": "Dewgong",
+          "nameKo": "쥬레곤"
+        },
+        {
+          "speciesID": 91,
+          "species": "Cloyster",
+          "nameKo": "파르셀"
+        },
+        {
+          "speciesID": 80,
+          "species": "Slowbro",
+          "nameKo": "야도란"
+        },
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 131,
+          "species": "Lapras",
+          "nameKo": "라프라스"
+        },
+        {
+          "speciesID": 221,
+          "species": "Piloswine",
+          "nameKo": "메꾸리"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 18,
+      "id": "bruno1",
+      "name": "시바",
+      "phase": "1세대 사천왕",
+      "original": [
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "nameKo": "강챙이"
+        },
+        {
+          "speciesID": 57,
+          "species": "Primeape",
+          "nameKo": "성원숭"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        },
+        {
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "nameKo": "강챙이"
+        },
+        {
+          "speciesID": 57,
+          "species": "Primeape",
+          "nameKo": "성원숭"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 19,
+      "id": "agatha",
+      "name": "국화",
+      "phase": "1세대 사천왕",
+      "original": [
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        },
+        {
+          "speciesID": 42,
+          "species": "Golbat",
+          "nameKo": "골뱃"
+        },
+        {
+          "speciesID": 93,
+          "species": "Haunter",
+          "nameKo": "고우스트"
+        },
+        {
+          "speciesID": 24,
+          "species": "Arbok",
+          "nameKo": "아보크"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "nameKo": "무우마"
+        },
+        {
+          "speciesID": 442,
+          "species": "Spiritomb",
+          "nameKo": "화강돌"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        },
+        {
+          "speciesID": 42,
+          "species": "Golbat",
+          "nameKo": "골뱃"
+        },
+        {
+          "speciesID": 93,
+          "species": "Haunter",
+          "nameKo": "고우스트"
+        },
+        {
+          "speciesID": 24,
+          "species": "Arbok",
+          "nameKo": "아보크"
+        },
+        {
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "nameKo": "무우마"
+        },
+        {
+          "speciesID": 442,
+          "species": "Spiritomb",
+          "nameKo": "화강돌"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 20,
+      "id": "lance1",
+      "name": "목호",
+      "phase": "1세대 사천왕",
+      "original": [
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 148,
+          "species": "Dragonair",
+          "nameKo": "신뇽"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        },
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        },
+        {
+          "speciesID": 330,
+          "species": "Flygon",
+          "nameKo": "플라이곤"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 148,
+          "species": "Dragonair",
+          "nameKo": "신뇽"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        },
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        },
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        },
+        {
+          "speciesID": 330,
+          "species": "Flygon",
+          "nameKo": "플라이곤"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 21,
+      "id": "will",
+      "name": "일목",
+      "phase": "2세대 사천왕",
+      "original": [
+        {
+          "speciesID": 178,
+          "species": "Xatu",
+          "nameKo": "네이티오"
+        },
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 80,
+          "species": "Slowbro",
+          "nameKo": "야도란"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 178,
+          "species": "Xatu",
+          "nameKo": "네이티오"
+        },
+        {
+          "speciesID": 124,
+          "species": "Jynx",
+          "nameKo": "루주라"
+        },
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 80,
+          "species": "Slowbro",
+          "nameKo": "야도란"
+        },
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 22,
+      "id": "koga2",
+      "name": "독수",
+      "phase": "2세대 사천왕",
+      "original": [
+        {
+          "speciesID": 168,
+          "species": "Ariados",
+          "nameKo": "아리아도스"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 205,
+          "species": "Forretress",
+          "nameKo": "쏘콘"
+        },
+        {
+          "speciesID": 89,
+          "species": "Muk",
+          "nameKo": "질뻐기"
+        },
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 73,
+          "species": "Tentacruel",
+          "nameKo": "독파리"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 168,
+          "species": "Ariados",
+          "nameKo": "아리아도스"
+        },
+        {
+          "speciesID": 49,
+          "species": "Venomoth",
+          "nameKo": "도나리"
+        },
+        {
+          "speciesID": 205,
+          "species": "Forretress",
+          "nameKo": "쏘콘"
+        },
+        {
+          "speciesID": 89,
+          "species": "Muk",
+          "nameKo": "질뻐기"
+        },
+        {
+          "speciesID": 169,
+          "species": "Crobat",
+          "nameKo": "크로뱃"
+        },
+        {
+          "speciesID": 73,
+          "species": "Tentacruel",
+          "nameKo": "독파리"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 23,
+      "id": "bruno2",
+      "name": "시바",
+      "phase": "2세대 사천왕",
+      "original": [
+        {
+          "speciesID": 237,
+          "species": "Hitmontop",
+          "nameKo": "카포에라"
+        },
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 237,
+          "species": "Hitmontop",
+          "nameKo": "카포에라"
+        },
+        {
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "nameKo": "시라소몬"
+        },
+        {
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "nameKo": "홍수몬"
+        },
+        {
+          "speciesID": 95,
+          "species": "Onix",
+          "nameKo": "롱스톤"
+        },
+        {
+          "speciesID": 68,
+          "species": "Machamp",
+          "nameKo": "괴력몬"
+        },
+        {
+          "speciesID": 214,
+          "species": "Heracross",
+          "nameKo": "헤라크로스"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 24,
+      "id": "karen",
+      "name": "카렌",
+      "phase": "2세대 사천왕",
+      "original": [
+        {
+          "speciesID": 197,
+          "species": "Umbreon",
+          "nameKo": "블래키"
+        },
+        {
+          "speciesID": 45,
+          "species": "Vileplume",
+          "nameKo": "라플레시아"
+        },
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        },
+        {
+          "speciesID": 198,
+          "species": "Murkrow",
+          "nameKo": "니로우"
+        },
+        {
+          "speciesID": 229,
+          "species": "Houndoom",
+          "nameKo": "헬가"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 248,
+          "species": "Tyranitar",
+          "nameKo": "마기라스"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 197,
+          "species": "Umbreon",
+          "nameKo": "블래키"
+        },
+        {
+          "speciesID": 45,
+          "species": "Vileplume",
+          "nameKo": "라플레시아"
+        },
+        {
+          "speciesID": 94,
+          "species": "Gengar",
+          "nameKo": "팬텀"
+        },
+        {
+          "speciesID": 198,
+          "species": "Murkrow",
+          "nameKo": "니로우"
+        },
+        {
+          "speciesID": 229,
+          "species": "Houndoom",
+          "nameKo": "헬가"
+        },
+        {
+          "speciesID": 248,
+          "species": "Tyranitar",
+          "nameKo": "마기라스"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 25,
+      "id": "blue",
+      "name": "그린",
+      "phase": "최종 구간",
+      "original": [
+        {
+          "speciesID": 18,
+          "species": "Pidgeot",
+          "nameKo": "피죤투"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        },
+        {
+          "speciesID": 112,
+          "species": "Rhydon",
+          "nameKo": "코뿌리"
+        },
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 59,
+          "species": "Arcanine",
+          "nameKo": "윈디"
+        }
+      ],
+      "added": [],
+      "team": [
+        {
+          "speciesID": 18,
+          "species": "Pidgeot",
+          "nameKo": "피죤투"
+        },
+        {
+          "speciesID": 65,
+          "species": "Alakazam",
+          "nameKo": "후딘"
+        },
+        {
+          "speciesID": 112,
+          "species": "Rhydon",
+          "nameKo": "코뿌리"
+        },
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "nameKo": "나시"
+        },
+        {
+          "speciesID": 59,
+          "species": "Arcanine",
+          "nameKo": "윈디"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 26,
+      "id": "lance2",
+      "name": "목호",
+      "phase": "최종 구간",
+      "original": [
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        },
+        {
+          "speciesID": 6,
+          "species": "Charizard",
+          "nameKo": "리자몽"
+        }
+      ],
+      "added": [
+        {
+          "speciesID": 373,
+          "species": "Salamence",
+          "nameKo": "보만다"
+        },
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        }
+      ],
+      "team": [
+        {
+          "speciesID": 130,
+          "species": "Gyarados",
+          "nameKo": "갸라도스"
+        },
+        {
+          "speciesID": 149,
+          "species": "Dragonite",
+          "nameKo": "망나뇽"
+        },
+        {
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "nameKo": "프테라"
+        },
+        {
+          "speciesID": 6,
+          "species": "Charizard",
+          "nameKo": "리자몽"
+        },
+        {
+          "speciesID": 373,
+          "species": "Salamence",
+          "nameKo": "보만다"
+        },
+        {
+          "speciesID": 230,
+          "species": "Kingdra",
+          "nameKo": "킹드라"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    },
+    {
+      "round": 27,
+      "id": "red",
+      "name": "레드",
+      "phase": "최종 구간",
+      "original": [
+        {
+          "speciesID": 25,
+          "species": "Pikachu",
+          "nameKo": "피카츄"
+        },
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        },
+        {
+          "speciesID": 143,
+          "species": "Snorlax",
+          "nameKo": "잠만보"
+        },
+        {
+          "speciesID": 3,
+          "species": "Venusaur",
+          "nameKo": "이상해꽃"
+        },
+        {
+          "speciesID": 6,
+          "species": "Charizard",
+          "nameKo": "리자몽"
+        },
+        {
+          "speciesID": 9,
+          "species": "Blastoise",
+          "nameKo": "거북왕"
+        }
+      ],
+      "added": [],
+      "team": [
+        {
+          "speciesID": 25,
+          "species": "Pikachu",
+          "nameKo": "피카츄"
+        },
+        {
+          "speciesID": 196,
+          "species": "Espeon",
+          "nameKo": "에브이"
+        },
+        {
+          "speciesID": 143,
+          "species": "Snorlax",
+          "nameKo": "잠만보"
+        },
+        {
+          "speciesID": 3,
+          "species": "Venusaur",
+          "nameKo": "이상해꽃"
+        },
+        {
+          "speciesID": 6,
+          "species": "Charizard",
+          "nameKo": "리자몽"
+        },
+        {
+          "speciesID": 9,
+          "species": "Blastoise",
+          "nameKo": "거북왕"
+        }
+      ],
+      "level": 100,
+      "status": "proposal-not-runtime-constants",
+      "originalSpeciesDeduplicated": true
+    }
+  ]
+}

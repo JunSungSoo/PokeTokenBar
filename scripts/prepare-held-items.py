@@ -39,12 +39,15 @@ d('ironball','스피드가 절반이 되고 땅에 닿아 땅 기술을 받습�
 d('sitrusberry','HP가 절반 이하가 되면 최대 HP의 1/4을 회복합니다. 소모형.|At half HP or less, restores 1/4 max HP. Consumed.|HP半分以下で最大HPの1/4回復。消費。|Con la mitad de PS o menos recupera 1/4 de PS máximos. Se consume.|À la moitié des PV ou moins, restaure 1/4 des PV max. Consommée.|Com metade dos PS ou menos, recupera 1/4 dos PS máximos. Consumida.|Bei halben KP oder weniger: heilt 1/4 der maximalen KP. Verbraucht.|При половине ОЗ или меньше восстанавливает 1/4 максимальных ОЗ. Расходуется.')
 d('lumberry','상태이상 또는 혼란을 치료합니다. 소모형.|Cures a status condition or confusion. Consumed.|状態異常か混乱を回復。消費。|Cura un problema de estado o confusión. Se consume.|Soigne un statut ou la confusion. Consommée.|Cura um problema de estado ou confusão. Consumida.|Heilt ein Statusproblem oder Verwirrung. Verbraucht.|Снимает статусное состояние или замешательство. Расходуется.')
 d('toxicorb','매 턴 종료 시 상태이상이 없고 독에 걸릴 수 있으면 맹독 상태가 됩니다. 소모되지 않습니다.|At turn end, badly poisons the holder if it has no status and can be poisoned. Not consumed.|ターン終了時、状態異常がなく毒が有効なら猛毒になる。消費しない。|Al final del turno envenena gravemente al portador si no tiene otro estado y puede ser envenenado. No se consume.|En fin de tour, empoisonne gravement le porteur sans statut s’il peut être empoisonné. Non consommé.|No fim do turno, envenena gravemente o portador se ele não tiver outro estado e puder ser envenenado. Não é consumido.|Vergiftet den Träger am Rundenende schwer, wenn er keinen Status hat und vergiftet werden kann. Wird nicht verbraucht.|В конце хода сильно отравляет владельца, если у него нет другого статуса и он может быть отравлен. Не расходуется.')
-authored_names=dict(zip([r['id'] for r in records if not r.get('mega') and r['id']!='toxicorb'],zip(pt,ru)))
+authored_names=dict(zip([r['id'] for r in records if not r.get('mega') and r['id'] not in ['toxicorb','fairyfeather']],zip(pt,ru)))
 authored_names['toxicorb']=('Orbe Tóxico','Токсичная сфера')
-type_ids=['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel']
+authored_names['fairyfeather']=('Pena de Fada','Волшебное перо')
+type_ids=['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy']
 pokemon={key(r['identifier']):int(r['id']) for r in rows('pokemon')}
 for index,record in enumerate(records):
  n=names.get(api_items.get(record['id']),{}).copy();n['en']=record.pop('name')
+ if record['id']=='fairyfeather':
+  n.update(ko='요정의깃털',en='Fairy Feather',ja='ようせいのハネ',es='Pluma Feérica',fr='Plume Féerique',de='Feenfeder')
  if not record.get('mega'):
   p_name,r_name=authored_names[record['id']];n.update(pt=p_name,ru=r_name)
  else:
@@ -55,14 +58,14 @@ for index,record in enumerate(records):
   n={lang:n.get(lang) or base_names[lang]+' '+{'ko':'메가스톤','ja':'メガストーン','es':'megapiedra','fr':'méga-gemme','de':'Mega-Stein'}.get(lang,'Mega Stone') for lang in langs}
   record['descriptions']={lang:dict(zip(langs,['해당 포켓몬을 메가진화시킵니다. 한 배틀에 트레이너당 한 번.','Enables its Pokémon to Mega Evolve. Once per trainer per battle.','対応するポケモンをメガシンカ。1バトルで各トレーナー1回。','Permite megaevolucionar a su Pokémon. Una vez por entrenador y combate.','Permet la Méga-Évolution du Pokémon associé. Une fois par Dresseur et combat.','Permite a Mega Evolução do Pokémon correspondente. Uma vez por treinador e batalha.','Erlaubt die Mega-Entwicklung des passenden Pokémon. Einmal pro Trainer und Kampf.','Позволяет соответствующему покемону мегаэволюционировать. Один раз за бой на тренера.']))[lang] for lang in langs}
  record['names']=n
- if index<17:
-  typ=base['types'][type_ids[index]]
+ if record['group']=='type':
+  typ={'ko': '페어리', 'en': 'Fairy', 'ja': 'フェアリー', 'es': 'Hada', 'fr': 'Fée', 'pt': 'Fada', 'de': 'Fee', 'ru': 'Волшебный'} if record['id']=='fairyfeather' else base['types'][type_ids[index]]
   texts=['{t} 기술의 위력 1.2배.','{t} move power ×1.2.','{t}技の威力1.2倍。','Potencia de movimientos {t} ×1,2.','Puissance des capacités {t} ×1,2.','Poder dos golpes {t} ×1,2.','Stärke von {t}-Attacken ×1,2.','Сила приёмов типа «{t}» ×1,2.']
   record['descriptions']={lang:text.format(t=typ[lang]) for lang,text in zip(langs,texts)}
  elif not record.get('mega'):record['descriptions']=desc[record['id']]
  assert set(record['names'])>=set(langs),record['id']
  assert set(record['descriptions'])==set(langs)
-result={'items':records,'source':{'rules':'pokemon-showdown 0.11.11; BW2 + isolated Gen6/Gen9 Mega forms','champions':'https://www.serebii.net/pokemonchampions/items.shtml','csvSHA256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in source.glob('*.csv')}}}
+result={'items':records,'source':{'rules':'pokemon-showdown 0.11.11; BW2 + isolated Gen6/Gen9 Mega forms; Fairy Feather item exception','champions':'https://www.serebii.net/pokemonchampions/items.shtml','csvSHA256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in source.glob('*.csv')}}}
 text=json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n'
 for p in [root/'BattleEngine/held-items.json',root/'Sources/PokeTokenBar/Resources/BattleText/held-items.json']:p.write_text(text)
 print('Generated',len(records),'held items')

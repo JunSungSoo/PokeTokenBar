@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 final class BattleEngineProcess {
-    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1"
+    nonisolated static let revision = "ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1"
     var onFrames: (([BattleFrame]) -> Void)?
     var onFailure: ((String) -> Void)?
     var onExit: ((String) -> Void)?
@@ -23,11 +23,11 @@ final class BattleEngineProcess {
     }
     static var runtimeURL: URL { resourceDirectory.appendingPathComponent(resourceDirectory == sourceRoot ? "runtime/node" : "node") }
 
-    static func validate(mode: BattleMode, team: [BattlePokemon]) async throws -> [String] {
+    static func validate(mode: BattleMode, team: [BattlePokemon],memberOnly:Bool=false) async throws -> [String] {
         let node = runtimeURL, script = resourceDirectory.appendingPathComponent("engine.cjs")
         guard FileManager.default.isExecutableFile(atPath: node.path) else { throw BattleFailure.unavailableEngine }
         return try await Task.detached {
-            struct Validation: Encodable { let kind = "validate"; let mode: BattleMode; let team: [BattlePokemon] }
+            struct Validation: Encodable { let kind:String; let mode: BattleMode; let team: [BattlePokemon] }
             struct Reply: Decodable { let validated: Bool?; let abilities: [String]?; let error: String? }
             let child = Process(), input = Pipe(), output = Pipe()
             child.executableURL = node; child.arguments = [script.path]
@@ -35,7 +35,7 @@ final class BattleEngineProcess {
             child.standardError = FileHandle.nullDevice
             child.environment = ["PATH": "/usr/bin:/bin", "LANG": "en_US.UTF-8"]
             try child.run()
-            var data = try JSONEncoder().encode(Validation(mode: mode, team: team)); data.append(10)
+            var data = try JSONEncoder().encode(Validation(kind:memberOnly ? "validateMember":"validate",mode: mode, team: team)); data.append(10)
             try input.fileHandleForWriting.write(contentsOf: data)
             try input.fileHandleForWriting.close()
             let response = output.fileHandleForReading.readDataToEndOfFile()
@@ -48,7 +48,7 @@ final class BattleEngineProcess {
         }.value
     }
 
-    func start(mode: BattleMode, teams: [[BattlePokemon]]) throws {
+    func start(mode: BattleMode, teams: [[BattlePokemon]], profile:String?=nil, resources:[[ChallengePokemonState]?]?=nil, seed:[UInt16]?=nil, automaticOpponent:Bool=false) throws {
         stop()
         expectedStop = false
         let node = Self.runtimeURL
@@ -90,9 +90,9 @@ final class BattleEngineProcess {
                 }
             } catch { await self?.fail(error.localizedDescription) }
         }
-        try send(StartCommand(kind: "start", mode: mode, teams: teams))
+        try send(StartCommand(kind: "start", mode: mode, teams: teams,profile:profile,resources:resources,seed:seed,automaticOpponent:automaticOpponent,expectedPolicyRevision:automaticOpponent ? try ChallengeEncounterCatalog.policyRevision():nil))
     }
-    private struct StartCommand: Encodable { let kind: String; let mode: BattleMode; let teams: [[BattlePokemon]] }
+    private struct StartCommand: Encodable { let kind: String; let mode: BattleMode; let teams: [[BattlePokemon]]; let profile:String?; let resources:[[ChallengePokemonState]?]?; let seed:[UInt16]?; let automaticOpponent:Bool; let expectedPolicyRevision:String? }
     private struct ChoiceCommand: Encodable { let kind = "choose"; let player: Int; let decisionID: String; let actions: [BattleAction]; let order: [Int] }
     private struct SurrenderCommand: Encodable { let kind = "surrender"; let player: Int }
     private struct Reply: Decodable { let frames: [BattleFrame]?; let error: String? }

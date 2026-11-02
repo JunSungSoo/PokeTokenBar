@@ -1,0 +1,980 @@
+{
+  "metrics": {
+    "trainDecisions": 5829,
+    "evaluationDecisions": 1138,
+    "trainGames": 159,
+    "evaluationGames": 32,
+    "trainLoss": 1.5047074239470428,
+    "evaluationLoss": 1.5455182207963138,
+    "trainActionAccuracy": 0.40521530279636303,
+    "evaluationActionAccuracy": 0.4094903339191564,
+    "uniformEvaluationAccuracy": 0.16380798951097722,
+    "method": "linear action ranking with masked conditional softmax and L2 regularization",
+    "seed": 0,
+    "epochs": 240,
+    "note": "Action agreement on incomplete public replay observations is not battle win rate or proof of expert strength."
+  },
+  "games": [
+    {
+      "id": "gen5ou-2702246474",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702246474",
+      "sha256": "e8cd8e8f809dae3f12156b2989653f56ae57f6ec070e93dc33c526cb2927ed8a"
+    },
+    {
+      "id": "gen5ou-2702258964",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702258964",
+      "sha256": "f47e4963e369832d69cb76575855a0908d1c2eb42408c22a4be7960588574cf3"
+    },
+    {
+      "id": "gen5ou-2702305725",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702305725",
+      "sha256": "e9e7ac03486446352ea351293ac4b0921d316ba8ee42d343ce79a905ce791627"
+    },
+    {
+      "id": "gen5ou-2702340776",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702340776",
+      "sha256": "af2322b73d5b9fb7330f33271ff3da3d8b3a126adacfd554482f2a4b7d19ef79"
+    },
+    {
+      "id": "gen5ou-2702349872",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702349872",
+      "sha256": "a2f8f45d1980701b5bf09b6a4e6237042728fc7c7677095a7d5d7e47d32686b6"
+    },
+    {
+      "id": "gen5ou-2702357356",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702357356",
+      "sha256": "f1c6a449fe281e3b924b422a0c0415bdceed28484beda98360c3b21dd02d586e"
+    },
+    {
+      "id": "gen5ou-2702377205",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702377205",
+      "sha256": "f50adb79c3377b7db27fe3abe778d8f765972f5de7a5be05be2d23638dac7d1c"
+    },
+    {
+      "id": "gen5ou-2702386668",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702386668",
+      "sha256": "dc00b074c7e77d0bbec946c256af2ac136a5668012f8ab2028c1b31791ea6548"
+    },
+    {
+      "id": "gen5ou-2702482464",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702482464",
+      "sha256": "a920833ad5d17d68fee82919cc436a1a6772e987957e67e2403cd1a013fb0adc"
+    },
+    {
+      "id": "gen5ou-2702510488",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702510488",
+      "sha256": "ba9bbbd407fbe41fba0227ebdd8bfe650eb6bafcb593183d559d532c19ae1f82"
+    },
+    {
+      "id": "gen5ou-2702525617",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702525617",
+      "sha256": "544aee1eae6d5e0c90a9187e9987813ade4dd4a68bece1c91cb0f77d66696c99"
+    },
+    {
+      "id": "gen5ou-2702532363",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702532363",
+      "sha256": "4b73804a1f065839e5655d43bbf838d8d2580cf7c07e281bfdec98cf2bc0644c"
+    },
+    {
+      "id": "gen5ou-2702541878",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702541878",
+      "sha256": "70e4a571a0df17fdd3e4c8525a7178624e97a0adb1a4c40a7fcfd40e8d51465a"
+    },
+    {
+      "id": "gen5ou-2702547291",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702547291",
+      "sha256": "18889b99fb7f25e462fd00048c518bf2a92cdb429c1f5d0c80d38a7bf78145ed"
+    },
+    {
+      "id": "gen5ou-2702563573",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702563573",
+      "sha256": "48c2650df60439d0fa63352e954d4fb3e90c3111f4da0aac77f5f443d68d66d6"
+    },
+    {
+      "id": "gen5ou-2702573597",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702573597",
+      "sha256": "f490593355b5b9343c185502147be01518c3895db63b2a97105bcc14937704fe"
+    },
+    {
+      "id": "gen5ou-2702577372",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702577372",
+      "sha256": "3b93f6c1cd401bb128d44a7ced454e45be70b8c80d6b3aed42760bd61b2532d3"
+    },
+    {
+      "id": "gen5ou-2702585219",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702585219",
+      "sha256": "41bac9982472c68ccf779595102c494649851b4f94e9c581251ca1572d9bd1e5"
+    },
+    {
+      "id": "gen5ou-2702587644",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702587644",
+      "sha256": "08ff35ef60ed6e1dab94cd6d89d5e9a02f7e5d9343d473fea9b2ec474c84b95b"
+    },
+    {
+      "id": "gen5ou-2702591722",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702591722",
+      "sha256": "1737d7d26aaee1b3d8121a72ec59aa9cd99da84958753ff62a248c65f0205d29"
+    },
+    {
+      "id": "gen5ou-2702594078",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702594078",
+      "sha256": "d60c481cfc7b415986385d606d95a7304997c3d8961ace20bd18589a8dc2c9f1"
+    },
+    {
+      "id": "gen5ou-2702602469",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702602469",
+      "sha256": "14b3ac3caab62a9f8b51fac2f59f32213a8f008f3cbb8c883bab270c2d5db345"
+    },
+    {
+      "id": "gen5ou-2702658160",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702658160",
+      "sha256": "5c8977220c8a97659be237fa7d6aeed78819b3ebd37c34f6a175dcdfef58b35d"
+    },
+    {
+      "id": "gen5ou-2702714716",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702714716",
+      "sha256": "f9f97f07f0f5d4d083e28d6cc6622eac06968adb21ab65a5965701e20041ec1a"
+    },
+    {
+      "id": "gen5ou-2702842744",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702842744",
+      "sha256": "14d7b11153438e5980eca3dce94d059cdccfef86b7e11863dcd19bdbba72a712"
+    },
+    {
+      "id": "gen5ou-2702878121",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702878121",
+      "sha256": "1a12d461a570dda3ea96e6f5c98385ab5175b4eb710f0987c224abaaeba09ad9"
+    },
+    {
+      "id": "gen5ou-2702982216",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2702982216",
+      "sha256": "2d50259abd6617572ef03057f1709bd17f3d333b8dfbfbe120cf0b62ea822513"
+    },
+    {
+      "id": "gen5ou-2703010062",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703010062",
+      "sha256": "13d2ca01cf43424039e63e0689f3d8e8f82e570bb0f85eededa5934938df8458"
+    },
+    {
+      "id": "gen5ou-2703035834",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703035834",
+      "sha256": "20bfa104f83a5a6e0afb4f026aa80d7805b0725530ff0431df0ed77018bdb785"
+    },
+    {
+      "id": "gen5ou-2703039250",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703039250",
+      "sha256": "37e0c3f65b5d17d5ee67cb98a67e5b675e2d0cdd66db182828621a0e7cac510b"
+    },
+    {
+      "id": "gen5ou-2703041231",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703041231",
+      "sha256": "0614c72186f5fa8e84be47efca7054caee444be6783f7367c90c9a7bec42676e"
+    },
+    {
+      "id": "gen5ou-2703041462",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703041462",
+      "sha256": "b4169f0492154ef748d8332954b16300e98f56a3c352393644792f99ba25bd6a"
+    },
+    {
+      "id": "gen5ou-2703060327",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703060327",
+      "sha256": "6e6d0fa2b5c96a5bed82935be96c5f81d51cbdebd33a967b8f5b9e3539410556"
+    },
+    {
+      "id": "gen5ou-2703087566",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703087566",
+      "sha256": "5e5b3c37943fbb1e5a69498cc50f13f44427cf9784c7e580100c79c5051a93b3"
+    },
+    {
+      "id": "gen5ou-2703106113",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703106113",
+      "sha256": "049a36596b52978c844db941e89fac3dd5a7753162eb7376a420fea20f6f0468"
+    },
+    {
+      "id": "gen5ou-2703109242",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703109242",
+      "sha256": "f675fb1a48a94b838026e965ff46411f69ff5480c1fdc8b9bd8ca3f8a0182710"
+    },
+    {
+      "id": "gen5ou-2703112253",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703112253",
+      "sha256": "a7613f3f50a91d0b07d4c4ee159f01e5d8573a9502215383dffe6a66351158bc"
+    },
+    {
+      "id": "gen5ou-2703124448",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703124448",
+      "sha256": "caac7018db2559bd74dda0e6234ccd08c749432cc9a6154daf9ef2bfcd3590e3"
+    },
+    {
+      "id": "gen5ou-2703133449",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703133449",
+      "sha256": "019735c28b82defaea1cdcf8b76d0d746d91da589594ddc70c2fbea1f10a041d"
+    },
+    {
+      "id": "gen5ou-2703138610",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703138610",
+      "sha256": "a46892d008490df3ecfa361763282dbf524593cf255c676f0b913c575c48bb7f"
+    },
+    {
+      "id": "gen5ou-2703141239",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703141239",
+      "sha256": "804752d1129d9e665883b3f307c27444350f51ef5896e49968437382be8a2fd1"
+    },
+    {
+      "id": "gen5ou-2703146001",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703146001",
+      "sha256": "07701a4a6486e1a325efb44686d564ab059e938fd7dabc056e28f16ec9ba86d8"
+    },
+    {
+      "id": "gen5ou-2703146977",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703146977",
+      "sha256": "6bc7a5ece5d3f3c94d59a4f1dac5937ac0e8772cb3097b4ddab49ed3da488095"
+    },
+    {
+      "id": "gen5ou-2703149943",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703149943",
+      "sha256": "11f9665de117b7f7a7a2da6dcfcd1265a0750e673839dd39b5a13e4c6192ff8c"
+    },
+    {
+      "id": "gen5ou-2703152825",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703152825",
+      "sha256": "f7c5c9cf3aced20fa40ec92e46566ce8c45f89055cb132aa6a678ca7ddb93744"
+    },
+    {
+      "id": "gen5ou-2703169003",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703169003",
+      "sha256": "d8f2219ea4a43c971525fc2f74c0ccc5458db18a9f4f1c319751d68f3aeb44aa"
+    },
+    {
+      "id": "gen5ou-2703181378",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703181378",
+      "sha256": "97c46b936914d44c93ad338f1cf7995e95c478b6c6a9676d41d559e9a9b39afa"
+    },
+    {
+      "id": "gen5ou-2703216636",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703216636",
+      "sha256": "bf1116339de1e6754a9d7a3c4d5ebffe9cedf0f0148b438000dbd7f9c18a2e67"
+    },
+    {
+      "id": "gen5ou-2703228634",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703228634",
+      "sha256": "494c156c8474f68b3cdc19bbc53eba5ca9650339e566524c47649d5c9a9f31c1"
+    },
+    {
+      "id": "gen5ou-2703261350",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703261350",
+      "sha256": "ad65f473207c7f599410366af685b47902d87b997eb8003e2ca4708e04129717"
+    },
+    {
+      "id": "gen5ou-2703268793",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703268793",
+      "sha256": "6fc135cac06f75bc8a39ba0c281087b402482c0c9be6ab13fdd6bff53a759d60"
+    },
+    {
+      "id": "gen5ou-2703408239",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703408239",
+      "sha256": "f3636b152b4af36b5ca1a0280c676463ef0923185e04e3b72edf55f90b2faab4"
+    },
+    {
+      "id": "gen5ou-2703421410",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703421410",
+      "sha256": "f515fac1594b36cb863eb82a8643f8e87fb93c80e7130ff127e8234f2d388058"
+    },
+    {
+      "id": "gen5ou-2703489047",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703489047",
+      "sha256": "f757f6dcd464e4d4bad79ef5af7245373261b66fc2cb6238aac17eeef801612a"
+    },
+    {
+      "id": "gen5ou-2703508911",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703508911",
+      "sha256": "5b0f408d7367467a09edefe751878041aabe115372774bafb66b299fcb457658"
+    },
+    {
+      "id": "gen5ou-2703516418",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703516418",
+      "sha256": "9e6df4bbe73e66b4cd725cfed74cac725c88c71d42a29e0d683f2b8dd0e25efb"
+    },
+    {
+      "id": "gen5ou-2703518526",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703518526",
+      "sha256": "92797666d8cdc685fa4891ada39df55a6aa03ec49d967ffbb273215029cd7d52"
+    },
+    {
+      "id": "gen5ou-2703523303",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703523303",
+      "sha256": "748cea17b1071076ff0fe2238f84c2fc90fe08009f5b262f1fd7eac6d934c03f"
+    },
+    {
+      "id": "gen5ou-2703533769",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703533769",
+      "sha256": "9923229cfd0b54d7d7918a0c299a10a579d92e9244e4cb8e84a7cd21c3138552"
+    },
+    {
+      "id": "gen5ou-2703551817",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703551817",
+      "sha256": "d21dde4917b67f45eea7b47b25a761333d3269752bd7d3f2389906e56daf45ee"
+    },
+    {
+      "id": "gen5ou-2703554331",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703554331",
+      "sha256": "6ce756315052ec84796026070b4ada680780a6984b3382b750b34e884ad4d98a"
+    },
+    {
+      "id": "gen5ou-2703560205",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703560205",
+      "sha256": "f690bc442e941414824a45152e7c0ca82d4f14ff921b54ee67ca379eb2e107ec"
+    },
+    {
+      "id": "gen5ou-2703571030",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703571030",
+      "sha256": "2d89bc862de87c0f33326971142c5fad326f2e30648623f94726e3d81783499a"
+    },
+    {
+      "id": "gen5ou-2703574696",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703574696",
+      "sha256": "ccd9270d5ebdcca68681a773384f8ded350cc963233738a5b56f876f63f0c1fb"
+    },
+    {
+      "id": "gen5ou-2703575806",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703575806",
+      "sha256": "93dc85d7e5a78ecf895b25e140e9f851200bf156b832662e82aefdc56a66a10c"
+    },
+    {
+      "id": "gen5ou-2703601923",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703601923",
+      "sha256": "96a744307c63d408027308e4e73faa8a831bb9cb3b8ee415dd278570871bed3c"
+    },
+    {
+      "id": "gen5ou-2703611138",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703611138",
+      "sha256": "1bcd8f5523d824d708a1cac07e219a565d64580cd877011264e2440f6cbc69fd"
+    },
+    {
+      "id": "gen5ou-2703703393",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703703393",
+      "sha256": "9892394869c6eee09561a2dd0c6a595794d47996cf89728cd867231deaae7819"
+    },
+    {
+      "id": "gen5ou-2703703848",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703703848",
+      "sha256": "0970e3df142feaa1c0360e7336d28879a9eed0ffeb86f323d0b1c8810535be88"
+    },
+    {
+      "id": "gen5ou-2703765131",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703765131",
+      "sha256": "d44298b8526fc5d4f1198ac3eebd72e67c3f9e4c3d745427ccd41365dcfd45be"
+    },
+    {
+      "id": "gen5ou-2703772341",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703772341",
+      "sha256": "98d73a05e4107259755078ba91eb9b870b39e8d6aed4f95008f9c490aaa700a2"
+    },
+    {
+      "id": "gen5ou-2703838324",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2703838324",
+      "sha256": "0e181323aeb9db116c67ee2f647430d9945d9af99e971cdb5182fa15ae004514"
+    },
+    {
+      "id": "gen5ou-2704024425",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704024425",
+      "sha256": "72d64cbce37dc89cc7506e37a87e1b81b877a9a73d98c24e750202f4769f2c6a"
+    },
+    {
+      "id": "gen5ou-2704101812",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704101812",
+      "sha256": "24ec122ba3e36ea0885ae369c2c64a4369f6751b82a2ab13a39d0b17249cbf64"
+    },
+    {
+      "id": "gen5ou-2704103850",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704103850",
+      "sha256": "ee201083c3cd686cf0458668895718ab1e5c78bd466549eca9312165f0002b6c"
+    },
+    {
+      "id": "gen5ou-2704107785",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704107785",
+      "sha256": "88fd45b1a2f0083eace7397603602487aa80fececd38132186807a7c153cd945"
+    },
+    {
+      "id": "gen5ou-2704123255",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704123255",
+      "sha256": "9f989bf4fc0a6bf7a79c340c3f0d60a70fe6963999223cfaf2e592e09756c6b9"
+    },
+    {
+      "id": "gen5ou-2704186752",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704186752",
+      "sha256": "653a7e3f7cb2aa0ef280dac7b1aa1d9d410320a9a2f14d830505a7cdcc872b0a"
+    },
+    {
+      "id": "gen5ou-2704190174",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704190174",
+      "sha256": "4c502a48d4c17f966e9b66381e0c60539881e652d1f52c8087ade25c5b95c519"
+    },
+    {
+      "id": "gen5ou-2704207670",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704207670",
+      "sha256": "67b1c6bedde8a553a2f00287745e22e5aea1602c97f9d8e859eb66bb311375d2"
+    },
+    {
+      "id": "gen5ou-2704341513",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704341513",
+      "sha256": "5f2d09b0b9313259dd620838afd73d76dffa940800f5a40de220c6c28da53edc"
+    },
+    {
+      "id": "gen5ou-2704396495",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704396495",
+      "sha256": "7268f316161e9636934b6825593f9f71c6a8c7dc729018f9801f21f7c3a011c9"
+    },
+    {
+      "id": "gen5ou-2704408393",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704408393",
+      "sha256": "fb40b64d0f3a2829010315eee5869f8efd5c01c51284fb0856445ab7867061ad"
+    },
+    {
+      "id": "gen5ou-2704502844",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704502844",
+      "sha256": "8c5087d153540590157a092c65f34888241113fee870e0ea8ed8a8752c6ac617"
+    },
+    {
+      "id": "gen5ou-2704540398",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704540398",
+      "sha256": "004076dfc14a7d08708a826d2417ce016771003878e1f7c435b6bf8a603a56a6"
+    },
+    {
+      "id": "gen5ou-2704559385",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704559385",
+      "sha256": "3c224678d00f8b168e26522edd49a050e6556d0821c7626abce39261b2556e24"
+    },
+    {
+      "id": "gen5ou-2704599144",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704599144",
+      "sha256": "dd4cfa29c60baa4e205cd94215c37e9dc0daf660a70df9a5077d53b3e269a53f"
+    },
+    {
+      "id": "gen5ou-2704607354",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704607354",
+      "sha256": "ed302f82ab1024379ad36ae7d36401e66ac5c3aa18ad01d253d3d1b78958d54f"
+    },
+    {
+      "id": "gen5ou-2704642266",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704642266",
+      "sha256": "4d14aec792df47b863ee24a21a09611542db05b499ccbc9f55d55f173eb8715d"
+    },
+    {
+      "id": "gen5ou-2704674717",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704674717",
+      "sha256": "c7362372122ecce8e31f20402845545de4ae7a8761dec7199a2ee8d01e1c5152"
+    },
+    {
+      "id": "gen5ou-2704692976",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704692976",
+      "sha256": "d5893dddb61d50fe6807b5fa67c46db68e417777052956f4443ac02af1dbefa6"
+    },
+    {
+      "id": "gen5ou-2704761740",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704761740",
+      "sha256": "6b0ec330c0980a68ee330229d4ab21a624911de55c455c988622e10d1d4c5998"
+    },
+    {
+      "id": "gen5ou-2704762993",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704762993",
+      "sha256": "5ae47a4fe8fd5999836e493f8af50405ea70e743819cf58ce6fc36b35f9a1d37"
+    },
+    {
+      "id": "gen5ou-2704779347",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704779347",
+      "sha256": "6972bf2e8e2e6a556595305912a8d9b5050508b9d4610f6cc4adc71a9314bdcd"
+    },
+    {
+      "id": "gen5ou-2704784971",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704784971",
+      "sha256": "88e8987850793f203f035148d96a9be899626f64bc5b1adacef5795507474f27"
+    },
+    {
+      "id": "gen5ou-2704788400",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704788400",
+      "sha256": "c238048588c418de466683a4cdacfd5212008359ea3da9a9ce227c53aa119540"
+    },
+    {
+      "id": "gen5ou-2704836600",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704836600",
+      "sha256": "89e50286ce7fbd6d4f6b7bea5ad0b659a59af2b9b9296ed3d3f0bc69e5cbf827"
+    },
+    {
+      "id": "gen5ou-2704892089",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704892089",
+      "sha256": "5e05fa63c3501079fc301a87d3afeb872d38f6c206d2093f93299398ff1c06a0"
+    },
+    {
+      "id": "gen5ou-2704913997",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704913997",
+      "sha256": "0e025a77927b4482efd48c1d477af2542dc0cab809ddefc9c42fb908d12f4ccd"
+    },
+    {
+      "id": "gen5ou-2704921781",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704921781",
+      "sha256": "5413acfe7b55c1e4dbc81bb4ef88e7f15aaf3cec45f54a7eb30d2e8dd96269c4"
+    },
+    {
+      "id": "gen5ou-2704951376",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704951376",
+      "sha256": "053bc79ec98e72637a3fe41d6dd7fcff00bbb00442622929c9e445cdf33a0d95"
+    },
+    {
+      "id": "gen5ou-2704959015",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2704959015",
+      "sha256": "779aa36ea7225ecb22181055effd98dff57b768034c9178180a547585d866085"
+    },
+    {
+      "id": "gen5ou-2705080729",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705080729",
+      "sha256": "881fcde07c13f952dd52060b11fe577d551fd0d2b1e4ca94f6503c348138ca97"
+    },
+    {
+      "id": "gen5ou-2705085285",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705085285",
+      "sha256": "17e9fc4c4e1dc69ca802344182295bf4353613b6d8dc86f57aadebcec683dae5"
+    },
+    {
+      "id": "gen5ou-2705094939",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705094939",
+      "sha256": "bcdfd6c5e593cddf1126a6122dc6f0c8f699c190099784a89a0d8bbb18f517d7"
+    },
+    {
+      "id": "gen5ou-2705101678",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705101678",
+      "sha256": "27cb3f5bd3d81e47bd38609b0486bfd15aa1d462c96ea693da85965bacbe41ea"
+    },
+    {
+      "id": "gen5ou-2705121183",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705121183",
+      "sha256": "421a89c32f29863038fb386961087d5eaab8ab9c4caf8a78bb9f0e627b0256d3"
+    },
+    {
+      "id": "gen5ou-2705123244",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705123244",
+      "sha256": "cd260a02c501da02a5282833a95e5dce3faa64d76d1cc1c1d5704bfd917dfe8b"
+    },
+    {
+      "id": "gen5ou-2705125604",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705125604",
+      "sha256": "92a7b53e9d7d9a61a7e2e9c05e230bd5225a34f0b141acb4da6447d09a27081f"
+    },
+    {
+      "id": "gen5ou-2705136750",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705136750",
+      "sha256": "4600760743081139f875f32f8cb571945d2ad8f0f9fd63271eff5bdca87170f3"
+    },
+    {
+      "id": "gen5ou-2705174477",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705174477",
+      "sha256": "82b52241eb02750fa0e7a077c0c7e0fd978d91ebc4fb2f3ad5fcc8128c642e36"
+    },
+    {
+      "id": "gen5ou-2705177567",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705177567",
+      "sha256": "7820a6ddee377a501e161a7aad1f3359a6a0eb413eab04f4624361ef5d923e8f"
+    },
+    {
+      "id": "gen5ou-2705221347",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705221347",
+      "sha256": "3106248a87d2383f53d33768aeb972b28d5292fe569de5807cf92a796d299976"
+    },
+    {
+      "id": "gen5ou-2705223077",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705223077",
+      "sha256": "e197302bf3ab59cc60b25729d467813b05f22ac03b74efe3632a91481c43ccf6"
+    },
+    {
+      "id": "gen5ou-2705223219",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705223219",
+      "sha256": "b9da90117c2500bd436eeec30bfed2b6a33fb624699e9b6cafb49fca7e7186db"
+    },
+    {
+      "id": "gen5ou-2705328689",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705328689",
+      "sha256": "df72d8870f31679e499044600d91164cccfb060f214c68aaab0b32260bb9096b"
+    },
+    {
+      "id": "gen5ou-2705353264",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705353264",
+      "sha256": "40b4b8ed442304b1dbcb2f46fa133df1f2c1e5b91da81f4fd6fd95b29cd549e3"
+    },
+    {
+      "id": "gen5ou-2705354230",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705354230",
+      "sha256": "96b6e9a7e4d3573387da8da55f2e23ac1b90080b4a76652f88eab2f063840951"
+    },
+    {
+      "id": "gen5ou-2705355637",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705355637",
+      "sha256": "595bcf9381f21ed9c2513ad3b21d71bf0ee0594e8e244dec660b2c1ef640acc9"
+    },
+    {
+      "id": "gen5ou-2705357941",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705357941",
+      "sha256": "fec16357f2bf14bde4c0fe59cd2f5ab616e086ec20410f1e2b18f02b0359dd6e"
+    },
+    {
+      "id": "gen5ou-2705405047",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705405047",
+      "sha256": "64c90c4e345a961a32682557d1da0beb756f6a7e9caaf26f48ae63504c39fe78"
+    },
+    {
+      "id": "gen5ou-2705411823",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705411823",
+      "sha256": "22670ce58516787758a32b7338d00085a23ee598792f6c7997c0d72e83c228b1"
+    },
+    {
+      "id": "gen5ou-2705435298",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705435298",
+      "sha256": "88cd8d3e0beaaeeeee7033952cbaedcd89dfa3a645be91a6fb00da3289dd8a84"
+    },
+    {
+      "id": "gen5ou-2705439213",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705439213",
+      "sha256": "210647e51b960da8ef9147f96b569a8c363982c576fbfe38ba52f68110a5f8a6"
+    },
+    {
+      "id": "gen5ou-2705440545",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705440545",
+      "sha256": "6960501176e8783da25352290c415008d8f6675797bda426b071379e8741c1f1"
+    },
+    {
+      "id": "gen5ou-2705441605",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705441605",
+      "sha256": "e10eadef44fd9c41e108ff0b71362517ddfafa7786ac6ec0e7019bd045d03226"
+    },
+    {
+      "id": "gen5ou-2705444350",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705444350",
+      "sha256": "22cbcb786f48b870d3def7ee7b00d50189305f90c1256a7afb5006e5d3c19e69"
+    },
+    {
+      "id": "gen5ou-2705451078",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705451078",
+      "sha256": "bbeef23cde433048c81bda4f97afcf1addd83ce4fe510ef01c29082caea9e7c5"
+    },
+    {
+      "id": "gen5ou-2705453115",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705453115",
+      "sha256": "8437ef94c3d6827ee42d0bb576e4fc10e77ca87546d3d9c4b83dbeb34b04d254"
+    },
+    {
+      "id": "gen5ou-2705455918",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705455918",
+      "sha256": "35e11363d660ee068c5a121ebdcd5b067b341bd5bbe6f21798b59462170d1b51"
+    },
+    {
+      "id": "gen5ou-2705461229",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705461229",
+      "sha256": "f63ca0cf1fab46280bea672b44bbfa9d7939df56b05f0dcfa6eb79492b4b79ea"
+    },
+    {
+      "id": "gen5ou-2705477468",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705477468",
+      "sha256": "9ab72e8080f1d71b56367b2ea08910e11da7bf0bb835243d1621a1968cffd0a1"
+    },
+    {
+      "id": "gen5ou-2705478402",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705478402",
+      "sha256": "f7c7e62be5036893dcdea3f7ebdd7018185fae7304f7366c6872e45d14e4c828"
+    },
+    {
+      "id": "gen5ou-2705481203",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705481203",
+      "sha256": "bd82986332f4052ac288328f4cb862661e945112415c5f49ca0ae9053761d696"
+    },
+    {
+      "id": "gen5ou-2705499262",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705499262",
+      "sha256": "074de00a89b3e09e0417df2bd093d81faddc62a08903b0127a8620f7058a6d1f"
+    },
+    {
+      "id": "gen5ou-2705680434",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705680434",
+      "sha256": "38929a258c7cf44ac5e4f43862d37759c43d0962c073c4f5aa62506b2e613ff1"
+    },
+    {
+      "id": "gen5ou-2705697974",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705697974",
+      "sha256": "67e0a4c19526d2f851d92ed76170d8b32cc110ed642fb3023ba9dd5cf7f40b2f"
+    },
+    {
+      "id": "gen5ou-2705856571",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705856571",
+      "sha256": "68ea09643f775f576abeb6be13a798f634b7466fce0aab7ac7eb302d1cd30b89"
+    },
+    {
+      "id": "gen5ou-2705859020",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705859020",
+      "sha256": "1a676bf35513f6de8f40e3dd28882b1c33d7491ee1ff6f1c8e9eeef873ec6353"
+    },
+    {
+      "id": "gen5ou-2705863914",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705863914",
+      "sha256": "b3c2d3bf9c24399100ad92f433d9039e8daae4d84b1a415deec5df071e1c4cb4"
+    },
+    {
+      "id": "gen5ou-2705903071",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705903071",
+      "sha256": "3b520b3126e64514d264a6cd73225fab9533f5a5e57cc3a7e85e811c9eea5fe2"
+    },
+    {
+      "id": "gen5ou-2705924919",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705924919",
+      "sha256": "2815cbb9690c954c84fc66c054c1bd5ce2e6583cf9b74a60942e3a024cbd7b0e"
+    },
+    {
+      "id": "gen5ou-2705930041",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705930041",
+      "sha256": "1ac351d169f3b79ecc590410ed78c3e58da529b0ba26804c6040dfe9711aa1c4"
+    },
+    {
+      "id": "gen5ou-2705932518",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705932518",
+      "sha256": "84f8a5aac9436cb52c676b18b901cba5f0e09b017a3ff675259704bc054ce407"
+    },
+    {
+      "id": "gen5ou-2705963057",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705963057",
+      "sha256": "8d974073e545730c8f069a04b031c89900f851e76aeca4f498bde45b848a76f5"
+    },
+    {
+      "id": "gen5ou-2705977988",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705977988",
+      "sha256": "c571ed7603c42c9a5843cc7076a63f11f8017de37ff923bd134c4755329bf831"
+    },
+    {
+      "id": "gen5ou-2705988722",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2705988722",
+      "sha256": "1e85b95ce38959d8e809dd3073b446a7b9c7bd240d70acc18aae168a96772760"
+    },
+    {
+      "id": "gen5ou-2706004756",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706004756",
+      "sha256": "42ef754e860af6f4380b6e0be58295772289c2ce2756868bae389784d65c2275"
+    },
+    {
+      "id": "gen5ou-2706005937",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706005937",
+      "sha256": "5e4709f09c8602cc9379d5cc6d9c54bbb7b98201d7d779de1285a97ae5217c52"
+    },
+    {
+      "id": "gen5ou-2706025724",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706025724",
+      "sha256": "611914c52c0c3a453634679fd598681b6272d7fde3d52c27d4b05965b706af7d"
+    },
+    {
+      "id": "gen5ou-2706028107",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706028107",
+      "sha256": "6739f6bf954922ef351b6ccf46c669f6c3cec30b771682e432cd484c74da82a3"
+    },
+    {
+      "id": "gen5ou-2706055016",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706055016",
+      "sha256": "4733f8e6f0032416a9ec38c10c35ea9480e8c7c03c9d9a7f8a45000afff6dcd0"
+    },
+    {
+      "id": "gen5ou-2706069805",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706069805",
+      "sha256": "859b7451f3ad5700bba4404a6b6c000c1975bcc5ed9e66358233706b24f6c32a"
+    },
+    {
+      "id": "gen5ou-2706070477",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706070477",
+      "sha256": "1eeec0b60a991e454e91d8b3bfa095d23e04cfaa0563dc03c33ded53a99029de"
+    },
+    {
+      "id": "gen5ou-2706071584",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706071584",
+      "sha256": "18c2d109799b7689bc6095ab1c5252c99213e03b1c6d00d683be9cc97b3f431f"
+    },
+    {
+      "id": "gen5ou-2706077899",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706077899",
+      "sha256": "659fc7c799e4b089dba1d6e2ac147f04e522f7e2194c8938f888950481aa1808"
+    },
+    {
+      "id": "gen5ou-2706079470",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706079470",
+      "sha256": "466c0b96b925bb1eafdd6656b97d8d802e4731c6bcea4708c2c0cdd7b2ca164b"
+    },
+    {
+      "id": "gen5ou-2706082833",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706082833",
+      "sha256": "2e92cff38aef6739788770d48817fc55abf3b9950d3d16cb57c8f703cd6d1c4c"
+    },
+    {
+      "id": "gen5ou-2706084110",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706084110",
+      "sha256": "44de25fb8d42f524f99231e1fe073ca008468ee0762d92ad629bb1b93ce503e2"
+    },
+    {
+      "id": "gen5ou-2706085464",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706085464",
+      "sha256": "a3ed33d37b1d271d397da1544cd2cacb9347883d82306cb0a23b9d8802709f9b"
+    },
+    {
+      "id": "gen5ou-2706091077",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706091077",
+      "sha256": "ff8bda88f669b8d01231ce114dc5db49a284cb6e7c25112ad1df68afddc0098a"
+    },
+    {
+      "id": "gen5ou-2706093919",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706093919",
+      "sha256": "0343771f86622fcb19b4e507d774785c2c25fbc04b408c415dfaf44ac2e583b3"
+    },
+    {
+      "id": "gen5ou-2706109070",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706109070",
+      "sha256": "e92354e06f8057a3c4dbe802324848008d7f4924b93326be56b81d59e95004a3"
+    },
+    {
+      "id": "gen5ou-2706132525",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706132525",
+      "sha256": "a5e324ead1dcbbf870cae86fe0f690f272b5d1f6b60b5f4e6089f651323b0c5f"
+    },
+    {
+      "id": "gen5ou-2706220264",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706220264",
+      "sha256": "faba495d63aae5bc9b38ab85d8a9a1b9ca44f97d90180ff66775f3c95613b54a"
+    },
+    {
+      "id": "gen5ou-2706224632",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706224632",
+      "sha256": "090072a9966e0a83f1d22e1020008314720777a2656be445c9c91a410d1fe102"
+    },
+    {
+      "id": "gen5ou-2706238350",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706238350",
+      "sha256": "9105c22223edb358cc624256c13850d12a248b3ea0a6adb1ddc49f576522f540"
+    },
+    {
+      "id": "gen5ou-2706242568",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706242568",
+      "sha256": "aac88865cb6b810bba095d5f37449e2e9a4eb46ee4b7e88494dc89772febde41"
+    },
+    {
+      "id": "gen5ou-2706253185",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706253185",
+      "sha256": "64da45dc3f60f3497ca772325eee5c6e147e15829028a12e4bc17f973b141daf"
+    },
+    {
+      "id": "gen5ou-2706357975",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706357975",
+      "sha256": "f84bafb75ebf49c7b4f5f721dad0a8fe067900ab52674636d1443450362304bc"
+    },
+    {
+      "id": "gen5ou-2706376662",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706376662",
+      "sha256": "330172dca08af0217ec5a64edcbafa823755b40d9db1a1a0bfe786217c6ce02d"
+    },
+    {
+      "id": "gen5ou-2706380284",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706380284",
+      "sha256": "51b81e8dcad5a6398de56a97ec84b230f003c30b4620d0539480c580099e3cd4"
+    },
+    {
+      "id": "gen5ou-2706384667",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706384667",
+      "sha256": "5801bb226a754975561ac42f315d8d0d9cfcc3dc55582cc59397951e725d9f13"
+    },
+    {
+      "id": "gen5ou-2706388720",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706388720",
+      "sha256": "7dcf20379fa6aedaab65d5ae68af2ca22bb86686c86ded68be5c8d8049e783b3"
+    },
+    {
+      "id": "gen5ou-2706396297",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706396297",
+      "sha256": "7e7ff9c93d56f4effe1f85b1e8450291f4d42779b6f6f382007e2683a7e221da"
+    },
+    {
+      "id": "gen5ou-2706470843",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706470843",
+      "sha256": "6c451f948942fe6f99ff32d36a54da9c2c2eee7bc9b37b8c33809e2f08a10f20"
+    },
+    {
+      "id": "gen5ou-2706509832",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706509832",
+      "sha256": "40f868fd14d65be799ba57fedf40f1b93fd9f31f29003a09672d7569e471d41a"
+    },
+    {
+      "id": "gen5ou-2706522827",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706522827",
+      "sha256": "3fbf811ba2d537f9edfbcae3b605952f5b93ad9ad7dbc87c7a91cd8ce5c4ce08"
+    },
+    {
+      "id": "gen5ou-2706544061",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706544061",
+      "sha256": "eaf47d129b721bf3133897ce03c1be2cfcf5e2c9e4f5ef7e408f363750251b1f"
+    },
+    {
+      "id": "gen5ou-2706568197",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706568197",
+      "sha256": "1236e2a01d960420ebb4acc2321b5d995542c68525fbdbefb3955c632d7f339b"
+    },
+    {
+      "id": "gen5ou-2706573465",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706573465",
+      "sha256": "b185f2417dbd98e4f93991d25b484b081d2e7dbace0eb976857334947565c113"
+    },
+    {
+      "id": "gen5ou-2706581977",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706581977",
+      "sha256": "35436c4e6eb15095d710081e03b9858bb5043d35107f9fef850eba21e05aff2b"
+    },
+    {
+      "id": "gen5ou-2706582881",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706582881",
+      "sha256": "9c2eb66a74cb95b247de6548acdc41d24d884dfceedddf39b408bca646e4c771"
+    },
+    {
+      "id": "gen5ou-2706582963",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706582963",
+      "sha256": "59c3be9292d221b87ea61e761a4a0c8d7e80762e4953d29ee816de13116736f3"
+    },
+    {
+      "id": "gen5ou-2706586905",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706586905",
+      "sha256": "853f349237cd7791c64b29df295968297aedd3b987b3ac93a27054b8547ec34d"
+    },
+    {
+      "id": "gen5ou-2706589378",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706589378",
+      "sha256": "459847d3cb401f7c7e763ac226cb83721cd8b5c767ee3be83f7fef0913fa41ad"
+    },
+    {
+      "id": "gen5ou-2706596701",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706596701",
+      "sha256": "c6eb717624440621e54d2bc472f5ccd4259c457d093e52d02dd5f023c97f3eb7"
+    },
+    {
+      "id": "gen5ou-2706611555",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706611555",
+      "sha256": "0d33a1039a048b52631019901d4c0fde687cf9397c5e67c167edefb61149e9b7"
+    },
+    {
+      "id": "gen5ou-2706613845",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706613845",
+      "sha256": "aa4757161cffad16c31ff0a3430cdc0f226c2c4e88aa701190d7e0efe688e189"
+    },
+    {
+      "id": "gen5ou-2706614878",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706614878",
+      "sha256": "a58daf91b0d5265812af3d0c13eda53f0cb676f8c1295ffd94a33d11ecaab545"
+    },
+    {
+      "id": "gen5ou-2706623467",
+      "source": "https://replay.pokemonshowdown.com/gen5ou-2706623467",
+      "sha256": "437e73d0547acfcf4cd91a20af5acacf8206b978d6878c262a74741a0baa1c01"
+    }
+  ],
+  "limitations": [
+    "198 public BW OU replays requested; retained subset after format checks.",
+    "Own move candidates are limited to moves revealed during the replay; unseen opponent moves are never features.",
+    "Public HP is rounded; exact EVs, IVs, items and full move availability are not reconstructed.",
+    "Learned linear policy is a baseline; no expert-strength or campaign win-rate claim."
+  ]
+}

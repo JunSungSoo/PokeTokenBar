@@ -2,6 +2,18 @@ import AppKit
 import SwiftUI
 import AVFoundation
 
+/// SwiftUI may republish zero minimum sizes while the reused host is preparing a battle.
+/// Keep the viewport's existing width contract even during those intermediate layouts.
+@MainActor final class BattleViewportWindow: NSWindow {
+    var minimumBattleWidth:CGFloat=0 {
+        didSet {var size=super.minSize;size.width=minimumBattleWidth;super.minSize=size}
+    }
+    override var minSize:NSSize {
+        get {NSSize(width:max(minimumBattleWidth,super.minSize.width),height:super.minSize.height)}
+        set {super.minSize=NSSize(width:max(minimumBattleWidth,newValue.width),height:newValue.height)}
+    }
+}
+
 @MainActor
 final class BattleWindowController: NSObject, NSWindowDelegate {
     private let battle: BattleCoordinator
@@ -32,8 +44,9 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
     func show() {
         acceptsMusic = true
         if window == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 680),
+            let window = BattleViewportWindow(contentRect: NSRect(x: 0, y: 0, width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 680),
                                   styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            window.minimumBattleWidth=BattleWindowLayout.preferredWidth(for:battle.mode)
             window.title = "PokeTokenBar · " + store.l.battle
             window.minSize = NSSize(width: BattleWindowLayout.preferredWidth(for: battle.mode), height: 400)
             window.isReleasedWhenClosed = false
@@ -56,6 +69,7 @@ final class BattleWindowController: NSObject, NSWindowDelegate {
         if windowMode != battle.mode, let window {
             windowMode = battle.mode
             let width = BattleWindowLayout.preferredWidth(for: battle.mode)
+            (window as? BattleViewportWindow)?.minimumBattleWidth=width
             window.minSize.width = width
             window.setContentSize(NSSize(width: width, height: window.contentRect(forFrameRect: window.frame).height))
         }

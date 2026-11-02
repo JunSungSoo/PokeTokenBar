@@ -1,0 +1,7028 @@
+{
+  "version": "challenge-bw-v2-red-sun-max-ivs",
+  "level": 100,
+  "evPolicy": "zero",
+  "encounters": [
+    {
+      "id": "brock",
+      "index": 0,
+      "nameKo": "웅",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "brock-74",
+          "speciesID": 74,
+          "species": "Geodude",
+          "displayName": "Geodude",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 215,
+            "def": 236,
+            "spa": 86,
+            "spd": 96,
+            "spe": 76
+          },
+          "moves": [
+            "stealthrock",
+            "stoneedge",
+            "earthquake",
+            "firepunch"
+          ],
+          "item": "oranberry",
+          "evidence": {
+            "format": "lc",
+            "set": "Stealth Rock",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "brock-95",
+          "speciesID": 95,
+          "species": "Onix",
+          "displayName": "Onix",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 126,
+            "def": 356,
+            "spa": 86,
+            "spd": 126,
+            "spe": 193
+          },
+          "moves": [
+            "sunnyday",
+            "stealthrock",
+            "taunt",
+            "explosion"
+          ],
+          "item": "heatrock",
+          "evidence": {
+            "format": "zu",
+            "set": "Sun Lead",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "brock-76",
+          "speciesID": 76,
+          "species": "Golem",
+          "displayName": "Golem",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 281,
+            "def": 296,
+            "spa": 131,
+            "spd": 166,
+            "spe": 126
+          },
+          "moves": [
+            "stealthrock",
+            "earthquake",
+            "rockblast",
+            "explosion"
+          ],
+          "item": "custapberry",
+          "evidence": {
+            "format": "nu",
+            "set": "Custap Lead",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "brock-139",
+          "speciesID": 139,
+          "species": "Omastar",
+          "displayName": "Omastar",
+          "level": 100,
+          "ability": "Swift Swim",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 139,
+            "def": 286,
+            "spa": 291,
+            "spd": 176,
+            "spe": 146
+          },
+          "moves": [
+            "surf",
+            "icebeam",
+            "shellsmash",
+            "hiddenpower"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ubers",
+            "set": "Life Orb",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "brock-141",
+          "speciesID": 141,
+          "species": "Kabutops",
+          "displayName": "Kabutops",
+          "level": 100,
+          "ability": "Swift Swim",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 266,
+            "def": 246,
+            "spa": 149,
+            "spd": 176,
+            "spe": 215
+          },
+          "moves": [
+            "swordsdance",
+            "waterfall",
+            "stoneedge",
+            "aquajet"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Swords Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "brock-142",
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "displayName": "Aerodactyl",
+          "level": 100,
+          "ability": "Pressure",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 246,
+            "def": 166,
+            "spa": 140,
+            "spd": 186,
+            "spe": 325
+          },
+          "moves": [
+            "stealthrock",
+            "stoneedge",
+            "earthquake",
+            "taunt"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Stealth Rock",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "falkner",
+      "index": 1,
+      "nameKo": "비상",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "falkner-16",
+          "speciesID": 16,
+          "species": "Pidgey",
+          "displayName": "Pidgey",
+          "level": 100,
+          "ability": "Keen Eye",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 126,
+            "def": 116,
+            "spa": 95,
+            "spd": 106,
+            "spe": 162
+          },
+          "moves": [
+            "bravebird",
+            "return",
+            "roost",
+            "uturn"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": null,
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "falkner-17",
+          "speciesID": 17,
+          "species": "Pidgeotto",
+          "displayName": "Pidgeotto",
+          "level": 100,
+          "ability": "Keen Eye",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 267,
+            "atk": 156,
+            "def": 146,
+            "spa": 122,
+            "spd": 136,
+            "spe": 195
+          },
+          "moves": [
+            "bravebird",
+            "return",
+            "roost",
+            "uturn"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": null,
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "falkner-164",
+          "speciesID": 164,
+          "species": "Noctowl",
+          "displayName": "Noctowl",
+          "level": 100,
+          "ability": "Insomnia",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 341,
+            "atk": 122,
+            "def": 136,
+            "spa": 188,
+            "spd": 250,
+            "spe": 176
+          },
+          "moves": [
+            "roost",
+            "whirlwind",
+            "airslash",
+            "toxic"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2014-11-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "falkner-85",
+          "speciesID": 85,
+          "species": "Dodrio",
+          "displayName": "Dodrio",
+          "level": 100,
+          "ability": "Early Bird",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 256,
+            "def": 176,
+            "spa": 140,
+            "spd": 156,
+            "spe": 259
+          },
+          "moves": [
+            "bravebird",
+            "return",
+            "quickattack",
+            "pursuit"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "falkner-169",
+          "speciesID": 169,
+          "species": "Crobat",
+          "displayName": "Crobat",
+          "level": 100,
+          "ability": "Infiltrator",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 311,
+            "atk": 216,
+            "def": 196,
+            "spa": 158,
+            "spd": 196,
+            "spe": 325
+          },
+          "moves": [
+            "bravebird",
+            "uturn",
+            "crosspoison",
+            "roost"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "falkner-227",
+          "speciesID": 227,
+          "species": "Skarmory",
+          "displayName": "Skarmory",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 196,
+            "def": 347,
+            "spa": 104,
+            "spd": 176,
+            "spe": 176
+          },
+          "moves": [
+            "spikes",
+            "roost",
+            "whirlwind",
+            "bravebird"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "ubers",
+            "set": "Support",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "misty",
+      "index": 2,
+      "nameKo": "이슬",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "misty-120",
+          "speciesID": 120,
+          "species": "Staryu",
+          "displayName": "Staryu",
+          "level": 100,
+          "ability": "Natural Cure",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 201,
+            "atk": 113,
+            "def": 146,
+            "spa": 176,
+            "spd": 146,
+            "spe": 226
+          },
+          "moves": [
+            "scald",
+            "thunderbolt",
+            "rapidspin",
+            "recover"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "lc",
+            "set": "Bulky Rapid Spin",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "misty-121",
+          "speciesID": 121,
+          "species": "Starmie",
+          "displayName": "Starmie",
+          "level": 100,
+          "ability": "Analytic",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 167,
+            "def": 206,
+            "spa": 236,
+            "spd": 206,
+            "spe": 292
+          },
+          "moves": [
+            "rapidspin",
+            "hydropump",
+            "icebeam",
+            "thunderbolt"
+          ],
+          "item": "airballoon",
+          "evidence": {
+            "format": "ou",
+            "set": "Rapid Spin",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "misty-55",
+          "speciesID": 55,
+          "species": "Golduck",
+          "displayName": "Golduck",
+          "level": 100,
+          "ability": "Cloud Nine",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 180,
+            "def": 192,
+            "spa": 226,
+            "spd": 196,
+            "spe": 226
+          },
+          "moves": [
+            "substitute",
+            "calmmind",
+            "scald",
+            "icebeam"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "pu",
+            "set": "SubCM",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "misty-131",
+          "speciesID": 131,
+          "species": "Lapras",
+          "displayName": "Lapras",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 401,
+            "atk": 185,
+            "def": 196,
+            "spa": 226,
+            "spd": 226,
+            "spe": 156
+          },
+          "moves": [
+            "hydropump",
+            "thunderbolt",
+            "icebeam",
+            "substitute"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "nu",
+            "set": "Bulky Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "misty-134",
+          "speciesID": 134,
+          "species": "Vaporeon",
+          "displayName": "Vaporeon",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 401,
+            "atk": 148,
+            "def": 156,
+            "spa": 280,
+            "spd": 226,
+            "spe": 166
+          },
+          "moves": [
+            "hydropump",
+            "icebeam",
+            "hiddenpower",
+            "rest"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Offensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "misty-195",
+          "speciesID": 195,
+          "species": "Quagsire",
+          "displayName": "Quagsire",
+          "level": 100,
+          "ability": "Unaware",
+          "nature": "Relaxed",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 206,
+            "def": 226,
+            "spa": 166,
+            "spd": 166,
+            "spe": 95
+          },
+          "moves": [
+            "recover",
+            "scald",
+            "earthquake",
+            "encore"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ru",
+            "set": "Physically Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "bugsy",
+      "index": 3,
+      "nameKo": "호일",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "bugsy-11",
+          "speciesID": 11,
+          "species": "Metapod",
+          "displayName": "Metapod",
+          "level": 100,
+          "ability": "Shed Skin",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 76,
+            "def": 160,
+            "spa": 77,
+            "spd": 86,
+            "spe": 96
+          },
+          "moves": [
+            "bugbite",
+            "electroweb",
+            "irondefense",
+            "stringshot"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2026-09-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bugsy-14",
+          "speciesID": 14,
+          "species": "Kakuna",
+          "displayName": "Kakuna",
+          "level": 100,
+          "ability": "Shed Skin",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 231,
+            "atk": 86,
+            "def": 149,
+            "spa": 77,
+            "spd": 86,
+            "spe": 106
+          },
+          "moves": [
+            "bugbite",
+            "electroweb",
+            "irondefense",
+            "stringshot"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": null,
+            "manual": true,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "bugsy-123",
+          "speciesID": 123,
+          "species": "Scyther",
+          "displayName": "Scyther",
+          "level": 100,
+          "ability": "Technician",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 256,
+            "def": 196,
+            "spa": 131,
+            "spd": 196,
+            "spe": 270
+          },
+          "moves": [
+            "uturn",
+            "aerialace",
+            "brickbreak",
+            "quickattack"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bugsy-127",
+          "speciesID": 127,
+          "species": "Pinsir",
+          "displayName": "Pinsir",
+          "level": 100,
+          "ability": "Moxie",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 314,
+            "def": 236,
+            "spa": 131,
+            "spd": 176,
+            "spe": 206
+          },
+          "moves": [
+            "xscissor",
+            "earthquake",
+            "closecombat",
+            "stoneedge"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "ru",
+            "set": "Choice Scarf",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bugsy-214",
+          "speciesID": 214,
+          "species": "Heracross",
+          "displayName": "Heracross",
+          "level": 100,
+          "ability": "Guts",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 286,
+            "def": 186,
+            "spa": 104,
+            "spd": 226,
+            "spe": 226
+          },
+          "moves": [
+            "swordsdance",
+            "closecombat",
+            "megahorn",
+            "stoneedge"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "uu",
+            "set": "Swords Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "bugsy-212",
+          "speciesID": 212,
+          "species": "Scizor",
+          "displayName": "Scizor",
+          "level": 100,
+          "ability": "Technician",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 296,
+            "def": 236,
+            "spa": 131,
+            "spd": 196,
+            "spe": 182
+          },
+          "moves": [
+            "uturn",
+            "pursuit",
+            "superpower",
+            "bulletpunch"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ou",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "ltsurge",
+      "index": 4,
+      "nameKo": "마티스",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "ltsurge-100",
+          "speciesID": 100,
+          "species": "Voltorb",
+          "displayName": "Voltorb",
+          "level": 100,
+          "ability": "Static",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 85,
+            "def": 135,
+            "spa": 146,
+            "spd": 146,
+            "spe": 259
+          },
+          "moves": [
+            "thunderbolt",
+            "voltswitch",
+            "taunt",
+            "hiddenpower"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "ltsurge-25",
+          "speciesID": 25,
+          "species": "Pikachu",
+          "displayName": "Pikachu",
+          "level": 100,
+          "ability": "Lightning Rod",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 130,
+            "def": 95,
+            "spa": 136,
+            "spd": 116,
+            "spe": 237
+          },
+          "moves": [
+            "substitute",
+            "thunderbolt",
+            "hiddenpower",
+            "grassknot"
+          ],
+          "item": "lightball",
+          "evidence": {
+            "format": "nu",
+            "set": "Substitute",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "ltsurge-26",
+          "speciesID": 26,
+          "species": "Raichu",
+          "displayName": "Raichu",
+          "level": 100,
+          "ability": "Lightning Rod",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 193,
+            "def": 145,
+            "spa": 216,
+            "spd": 196,
+            "spe": 259
+          },
+          "moves": [
+            "thunderbolt",
+            "hiddenpower",
+            "focusblast",
+            "voltswitch"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "zu",
+            "set": "Choice Specs",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "ltsurge-125",
+          "speciesID": 125,
+          "species": "Electabuzz",
+          "displayName": "Electabuzz",
+          "level": 100,
+          "ability": "Vital Spirit",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 180,
+            "def": 149,
+            "spa": 226,
+            "spd": 206,
+            "spe": 270
+          },
+          "moves": [
+            "voltswitch",
+            "thunderbolt",
+            "focusblast",
+            "hiddenpower"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "Eviolite",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "ltsurge-135",
+          "speciesID": 135,
+          "species": "Jolteon",
+          "displayName": "Jolteon",
+          "level": 100,
+          "ability": "Volt Absorb",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 148,
+            "def": 155,
+            "spa": 256,
+            "spd": 226,
+            "spe": 325
+          },
+          "moves": [
+            "thunderbolt",
+            "shadowball",
+            "hiddenpower",
+            "voltswitch"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ou",
+            "set": "Choice Specs",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "ltsurge-181",
+          "speciesID": 181,
+          "species": "Ampharos",
+          "displayName": "Ampharos",
+          "level": 100,
+          "ability": "Static",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 166,
+            "def": 185,
+            "spa": 292,
+            "spd": 216,
+            "spe": 146
+          },
+          "moves": [
+            "thunderbolt",
+            "hiddenpower",
+            "voltswitch",
+            "healbell"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "nu",
+            "set": "Tank",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "whitney",
+      "index": 5,
+      "nameKo": "꼭두",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "whitney-35",
+          "speciesID": 35,
+          "species": "Clefairy",
+          "displayName": "Clefairy",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 113,
+            "def": 145,
+            "spa": 156,
+            "spd": 166,
+            "spe": 106
+          },
+          "moves": [
+            "calmmind",
+            "moonlight",
+            "icebeam",
+            "thunderbolt"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "whitney-241",
+          "speciesID": 241,
+          "species": "Miltank",
+          "displayName": "Miltank",
+          "level": 100,
+          "ability": "Scrappy",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 196,
+            "def": 246,
+            "spa": 104,
+            "spd": 193,
+            "spe": 236
+          },
+          "moves": [
+            "curse",
+            "bodyslam",
+            "milkdrink",
+            "healbell"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "nu",
+            "set": "Moodoo",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "whitney-36",
+          "speciesID": 36,
+          "species": "Clefable",
+          "displayName": "Clefable",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 158,
+            "def": 182,
+            "spa": 206,
+            "spd": 237,
+            "spe": 156
+          },
+          "moves": [
+            "thunderwave",
+            "knockoff",
+            "seismictoss",
+            "softboiled"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Support",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "whitney-40",
+          "speciesID": 40,
+          "species": "Wigglytuff",
+          "displayName": "Wigglytuff",
+          "level": 100,
+          "ability": "Frisk",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 421,
+            "atk": 176,
+            "def": 126,
+            "spa": 167,
+            "spd": 149,
+            "spe": 126
+          },
+          "moves": [
+            "stealthrock",
+            "wish",
+            "protect",
+            "doubleedge"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "nu",
+            "set": "Support",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "whitney-115",
+          "speciesID": 115,
+          "species": "Kangaskhan",
+          "displayName": "Kangaskhan",
+          "level": 100,
+          "ability": "Scrappy",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 351,
+            "atk": 248,
+            "def": 196,
+            "spa": 104,
+            "spd": 196,
+            "spe": 216
+          },
+          "moves": [
+            "doubleedge",
+            "earthquake",
+            "fakeout",
+            "suckerpunch"
+          ],
+          "item": "silkscarf",
+          "evidence": {
+            "format": "ru",
+            "set": "Physical Attacker",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "whitney-217",
+          "speciesID": 217,
+          "species": "Ursaring",
+          "displayName": "Ursaring",
+          "level": 100,
+          "ability": "Quick Feet",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 296,
+            "def": 186,
+            "spa": 167,
+            "spd": 186,
+            "spe": 160
+          },
+          "moves": [
+            "swordsdance",
+            "facade",
+            "closecombat",
+            "crunch"
+          ],
+          "item": "toxicorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Quick Feet",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "erika",
+      "index": 6,
+      "nameKo": "민화",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "erika-71",
+          "speciesID": 71,
+          "species": "Victreebel",
+          "displayName": "Victreebel",
+          "level": 100,
+          "ability": "Chlorophyll",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 221,
+            "def": 166,
+            "spa": 259,
+            "spd": 156,
+            "spe": 176
+          },
+          "moves": [
+            "solarbeam",
+            "weatherball",
+            "sludgebomb",
+            "sleeppowder"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "nu",
+            "set": "Sun Sweeper",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "erika-114",
+          "speciesID": 114,
+          "species": "Tangela",
+          "displayName": "Tangela",
+          "level": 100,
+          "ability": "Regenerator",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 30,
+            "spa": 31,
+            "spd": 30,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 131,
+            "def": 291,
+            "spa": 236,
+            "spd": 115,
+            "spe": 155
+          },
+          "moves": [
+            "gigadrain",
+            "leechseed",
+            "sleeppowder",
+            "hiddenpower"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "Tank",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "erika-45",
+          "speciesID": 45,
+          "species": "Vileplume",
+          "displayName": "Vileplume",
+          "level": 100,
+          "ability": "Effect Spore",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 176,
+            "def": 226,
+            "spa": 236,
+            "spd": 216,
+            "spe": 136
+          },
+          "moves": [
+            "aromatherapy",
+            "gigadrain",
+            "sludgebomb",
+            "moonlight"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "ru",
+            "set": "Support",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "erika-103",
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "displayName": "Exeggutor",
+          "level": 100,
+          "ability": "Harvest",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 202,
+            "def": 226,
+            "spa": 285,
+            "spd": 166,
+            "spe": 145
+          },
+          "moves": [
+            "leechseed",
+            "protect",
+            "substitute",
+            "hiddenpower"
+          ],
+          "item": "sitrusberry",
+          "evidence": {
+            "format": "uu",
+            "set": "SubSeed",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "erika-182",
+          "speciesID": 182,
+          "species": "Bellossom",
+          "displayName": "Bellossom",
+          "level": 100,
+          "ability": "Chlorophyll",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 176,
+            "def": 206,
+            "spa": 237,
+            "spd": 236,
+            "spe": 136
+          },
+          "moves": [
+            "sunnyday",
+            "solarbeam",
+            "sleeppowder",
+            "moonlight"
+          ],
+          "item": "heatrock",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "erika-189",
+          "speciesID": 189,
+          "species": "Jumpluff",
+          "displayName": "Jumpluff",
+          "level": 100,
+          "ability": "Chlorophyll",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 146,
+            "def": 176,
+            "spa": 131,
+            "spd": 206,
+            "spe": 281
+          },
+          "moves": [
+            "swordsdance",
+            "acrobatics",
+            "seedbomb",
+            "sleeppowder"
+          ],
+          "item": "flyinggem",
+          "evidence": {
+            "format": "nu",
+            "set": "Swords Dance",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "morty",
+      "index": 7,
+      "nameKo": "유빈",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "morty-92",
+          "speciesID": 92,
+          "species": "Gastly",
+          "displayName": "Gastly",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Hasty",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 30,
+            "spa": 30,
+            "spd": 30,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 201,
+            "atk": 106,
+            "def": 85,
+            "spa": 235,
+            "spd": 105,
+            "spe": 214
+          },
+          "moves": [
+            "shadowball",
+            "sludgebomb",
+            "hiddenpower",
+            "substitute"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "lc",
+            "set": "Life Orb",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "morty-93",
+          "speciesID": 93,
+          "species": "Haunter",
+          "displayName": "Haunter",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 231,
+            "atk": 122,
+            "def": 126,
+            "spa": 266,
+            "spd": 146,
+            "spe": 248
+          },
+          "moves": [
+            "substitute",
+            "disable",
+            "shadowball",
+            "sludgebomb"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "ru",
+            "set": "SubDisable",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "morty-94",
+          "speciesID": 94,
+          "species": "Gengar",
+          "displayName": "Gengar",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 148,
+            "def": 155,
+            "spa": 296,
+            "spd": 186,
+            "spe": 281
+          },
+          "moves": [
+            "shadowball",
+            "focusblast",
+            "willowisp",
+            "hiddenpower"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ou",
+            "set": "Offensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "morty-200",
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "displayName": "Misdreavus",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 140,
+            "def": 171,
+            "spa": 206,
+            "spd": 206,
+            "spe": 206
+          },
+          "moves": [
+            "willowisp",
+            "painsplit",
+            "shadowball",
+            "taunt"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "ru",
+            "set": "Support",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "morty-356",
+          "speciesID": 356,
+          "species": "Dusclops",
+          "displayName": "Dusclops",
+          "level": 100,
+          "ability": "Pressure",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 158,
+            "def": 325,
+            "spa": 156,
+            "spd": 296,
+            "spe": 86
+          },
+          "moves": [
+            "curse",
+            "nightshade",
+            "willowisp",
+            "rest"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Curse",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "morty-609",
+          "speciesID": 609,
+          "species": "Chandelure",
+          "displayName": "Chandelure",
+          "level": 100,
+          "ability": "Flame Body",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 130,
+            "def": 215,
+            "spa": 326,
+            "spd": 216,
+            "spe": 215
+          },
+          "moves": [
+            "flamethrower",
+            "shadowball",
+            "hiddenpower",
+            "trick"
+          ],
+          "item": "airballoon",
+          "evidence": {
+            "format": "ou",
+            "set": "Spinblocker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "koga1",
+      "index": 8,
+      "nameKo": "독수",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "koga1-109",
+          "speciesID": 109,
+          "species": "Koffing",
+          "displayName": "Koffing",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 149,
+            "def": 248,
+            "spa": 156,
+            "spd": 126,
+            "spe": 106
+          },
+          "moves": [
+            "willowisp",
+            "painsplit",
+            "sludgebomb",
+            "fireblast"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga1-89",
+          "speciesID": 89,
+          "species": "Muk",
+          "displayName": "Muk",
+          "level": 100,
+          "ability": "Poison Touch",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 351,
+            "atk": 270,
+            "def": 186,
+            "spa": 149,
+            "spd": 236,
+            "spe": 136
+          },
+          "moves": [
+            "poisonjab",
+            "shadowsneak",
+            "icepunch",
+            "curse"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "nu",
+            "set": "Touncher",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga1-110",
+          "speciesID": 110,
+          "species": "Weezing",
+          "displayName": "Weezing",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 194,
+            "def": 303,
+            "spa": 206,
+            "spd": 176,
+            "spe": 156
+          },
+          "moves": [
+            "willowisp",
+            "painsplit",
+            "fireblast",
+            "thunderbolt"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ru",
+            "set": "Physical Wall",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "koga1-169",
+          "speciesID": 169,
+          "species": "Crobat",
+          "displayName": "Crobat",
+          "level": 100,
+          "ability": "Infiltrator",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 311,
+            "atk": 216,
+            "def": 196,
+            "spa": 158,
+            "spd": 196,
+            "spe": 325
+          },
+          "moves": [
+            "bravebird",
+            "taunt",
+            "roost",
+            "uturn"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "uu",
+            "set": "Stallbreaker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "koga1-49",
+          "speciesID": 49,
+          "species": "Venomoth",
+          "displayName": "Venomoth",
+          "level": 100,
+          "ability": "Wonder Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 149,
+            "def": 156,
+            "spa": 216,
+            "spd": 186,
+            "spe": 237
+          },
+          "moves": [
+            "quiverdance",
+            "batonpass",
+            "sleeppowder",
+            "bugbuzz"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "QuiverPass",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "koga1-34",
+          "speciesID": 34,
+          "species": "Nidoking",
+          "displayName": "Nidoking",
+          "level": 100,
+          "ability": "Sheer Force",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 303,
+            "atk": 198,
+            "def": 190,
+            "spa": 226,
+            "spd": 186,
+            "spe": 206
+          },
+          "moves": [
+            "earthpower",
+            "sludgewave",
+            "icebeam",
+            "thunderbolt"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "chuck",
+      "index": 9,
+      "nameKo": "사도",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "chuck-57",
+          "speciesID": 57,
+          "species": "Primeape",
+          "displayName": "Primeape",
+          "level": 100,
+          "ability": "Vital Spirit",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 246,
+            "def": 156,
+            "spa": 140,
+            "spd": 176,
+            "spe": 248
+          },
+          "moves": [
+            "closecombat",
+            "uturn",
+            "icepunch",
+            "stoneedge"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "nu",
+            "set": "Choice Scarf",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "chuck-62",
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "displayName": "Poliwrath",
+          "level": 100,
+          "ability": "Water Absorb",
+          "nature": "Relaxed",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 206,
+            "def": 248,
+            "spa": 176,
+            "spd": 216,
+            "spe": 158
+          },
+          "moves": [
+            "rest",
+            "sleeptalk",
+            "scald",
+            "circlethrow"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ru",
+            "set": "Physically Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "chuck-106",
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "displayName": "Hitmonlee",
+          "level": 100,
+          "ability": "Unburden",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 303,
+            "def": 142,
+            "spa": 95,
+            "spd": 256,
+            "spe": 210
+          },
+          "moves": [
+            "endure",
+            "reversal",
+            "stoneedge",
+            "closecombat"
+          ],
+          "item": "liechiberry",
+          "evidence": {
+            "format": "uu",
+            "set": "Endure + Reversal Sweeper",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "chuck-107",
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "displayName": "Hitmonchan",
+          "level": 100,
+          "ability": "Iron Fist",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 270,
+            "def": 194,
+            "spa": 95,
+            "spd": 256,
+            "spe": 188
+          },
+          "moves": [
+            "drainpunch",
+            "machpunch",
+            "thunderpunch",
+            "icepunch"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Life Orb",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "chuck-68",
+          "speciesID": 68,
+          "species": "Machamp",
+          "displayName": "Machamp",
+          "level": 100,
+          "ability": "No Guard",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 325,
+            "def": 196,
+            "spa": 149,
+            "spd": 206,
+            "spe": 146
+          },
+          "moves": [
+            "bulkup",
+            "dynamicpunch",
+            "stoneedge",
+            "thunderpunch"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Bulk Up",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "chuck-214",
+          "speciesID": 214,
+          "species": "Heracross",
+          "displayName": "Heracross",
+          "level": 100,
+          "ability": "Moxie",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 286,
+            "def": 186,
+            "spa": 104,
+            "spd": 226,
+            "spe": 226
+          },
+          "moves": [
+            "closecombat",
+            "megahorn",
+            "stoneedge",
+            "earthquake"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "sabrina",
+      "index": 10,
+      "nameKo": "초련",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "sabrina-64",
+          "speciesID": 64,
+          "species": "Kadabra",
+          "displayName": "Kadabra",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 30,
+            "spd": 30,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 95,
+            "def": 96,
+            "spa": 275,
+            "spd": 175,
+            "spe": 270
+          },
+          "moves": [
+            "psychic",
+            "signalbeam",
+            "hiddenpower",
+            "encore"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "nu",
+            "set": "Special Attacker",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "sabrina-122",
+          "speciesID": 122,
+          "species": "Mr. Mime",
+          "displayName": "Mr. Mime",
+          "level": 100,
+          "ability": "Filter",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 221,
+            "atk": 113,
+            "def": 166,
+            "spa": 236,
+            "spd": 276,
+            "spe": 237
+          },
+          "moves": [
+            "batonpass",
+            "nastyplot",
+            "substitute",
+            "psychic"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "nu",
+            "set": "Baton Pass",
+            "source": "2014-11-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "sabrina-49",
+          "speciesID": 49,
+          "species": "Venomoth",
+          "displayName": "Venomoth",
+          "level": 100,
+          "ability": "Wonder Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 149,
+            "def": 156,
+            "spa": 216,
+            "spd": 186,
+            "spe": 237
+          },
+          "moves": [
+            "quiverdance",
+            "batonpass",
+            "sleeppowder",
+            "bugbuzz"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "uu",
+            "set": "QuiverPass",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "sabrina-65",
+          "speciesID": 65,
+          "species": "Alakazam",
+          "displayName": "Alakazam",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 251,
+            "atk": 121,
+            "def": 125,
+            "spa": 306,
+            "spd": 206,
+            "spe": 303
+          },
+          "moves": [
+            "psychic",
+            "hiddenpower",
+            "focusblast",
+            "signalbeam"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "sabrina-97",
+          "speciesID": 97,
+          "species": "Hypno",
+          "displayName": "Hypno",
+          "level": 100,
+          "ability": "Insomnia",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 311,
+            "atk": 163,
+            "def": 176,
+            "spa": 182,
+            "spd": 292,
+            "spe": 170
+          },
+          "moves": [
+            "wish",
+            "protect",
+            "thunderwave",
+            "seismictoss"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "nu",
+            "set": "Specially Defensive",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "sabrina-196",
+          "speciesID": 196,
+          "species": "Espeon",
+          "displayName": "Espeon",
+          "level": 100,
+          "ability": "Magic Bounce",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 149,
+            "def": 156,
+            "spa": 296,
+            "spd": 226,
+            "spe": 281
+          },
+          "moves": [
+            "reflect",
+            "lightscreen",
+            "psychic",
+            "grassknot"
+          ],
+          "item": "lightclay",
+          "evidence": {
+            "format": "ou",
+            "set": "Screens Setter",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "jasmine",
+      "index": 11,
+      "nameKo": "규리",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "jasmine-81",
+          "speciesID": 81,
+          "species": "Magnemite",
+          "displayName": "Magnemite",
+          "level": 100,
+          "ability": "Magnet Pull",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 191,
+            "atk": 94,
+            "def": 176,
+            "spa": 225,
+            "spd": 146,
+            "spe": 137
+          },
+          "moves": [
+            "voltswitch",
+            "thunderbolt",
+            "flashcannon",
+            "hiddenpower"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "lc",
+            "set": "Choice Scarf",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "jasmine-208",
+          "speciesID": 208,
+          "species": "Steelix",
+          "displayName": "Steelix",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Relaxed",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 206,
+            "def": 479,
+            "spa": 146,
+            "spd": 166,
+            "spe": 86
+          },
+          "moves": [
+            "stealthrock",
+            "earthquake",
+            "gyroball",
+            "roar"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ru",
+            "set": "Defensive",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "jasmine-82",
+          "speciesID": 82,
+          "species": "Magneton",
+          "displayName": "Magneton",
+          "level": 100,
+          "ability": "Magnet Pull",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 139,
+            "def": 226,
+            "spa": 275,
+            "spd": 176,
+            "spe": 192
+          },
+          "moves": [
+            "thunderbolt",
+            "voltswitch",
+            "hiddenpower",
+            "flashcannon"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "ru",
+            "set": "Choice Specs",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "jasmine-212",
+          "speciesID": 212,
+          "species": "Scizor",
+          "displayName": "Scizor",
+          "level": 100,
+          "ability": "Technician",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 325,
+            "def": 236,
+            "spa": 131,
+            "spd": 196,
+            "spe": 166
+          },
+          "moves": [
+            "bulletpunch",
+            "uturn",
+            "superpower",
+            "pursuit"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "ou",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "jasmine-227",
+          "speciesID": 227,
+          "species": "Skarmory",
+          "displayName": "Skarmory",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 196,
+            "def": 316,
+            "spa": 104,
+            "spd": 193,
+            "spe": 176
+          },
+          "moves": [
+            "roost",
+            "spikes",
+            "whirlwind",
+            "bravebird"
+          ],
+          "item": "rockyhelmet",
+          "evidence": {
+            "format": "ou",
+            "set": "Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "jasmine-205",
+          "speciesID": 205,
+          "species": "Forretress",
+          "displayName": "Forretress",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Relaxed",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 216,
+            "def": 347,
+            "spa": 156,
+            "spd": 156,
+            "spe": 104
+          },
+          "moves": [
+            "spikes",
+            "rapidspin",
+            "earthquake",
+            "gyroball"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Entry Hazard Control",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "blaine",
+      "index": 12,
+      "nameKo": "강연",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "blaine-58",
+          "speciesID": 58,
+          "species": "Growlithe",
+          "displayName": "Growlithe",
+          "level": 100,
+          "ability": "Intimidate",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 251,
+            "atk": 176,
+            "def": 138,
+            "spa": 158,
+            "spd": 136,
+            "spe": 156
+          },
+          "moves": [
+            "flareblitz",
+            "morningsun",
+            "willowisp",
+            "wildcharge"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blaine-77",
+          "speciesID": 77,
+          "species": "Ponyta",
+          "displayName": "Ponyta",
+          "level": 100,
+          "ability": "Flame Body",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 206,
+            "def": 146,
+            "spa": 149,
+            "spd": 166,
+            "spe": 237
+          },
+          "moves": [
+            "flareblitz",
+            "wildcharge",
+            "return",
+            "willowisp"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "lc",
+            "set": "Choice",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blaine-78",
+          "speciesID": 78,
+          "species": "Rapidash",
+          "displayName": "Rapidash",
+          "level": 100,
+          "ability": "Flash Fire",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 236,
+            "def": 176,
+            "spa": 176,
+            "spd": 196,
+            "spe": 270
+          },
+          "moves": [
+            "flareblitz",
+            "morningsun",
+            "wildcharge",
+            "drillrun"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "pu",
+            "set": "Physical Attacker",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blaine-59",
+          "speciesID": 59,
+          "species": "Arcanine",
+          "displayName": "Arcanine",
+          "level": 100,
+          "ability": "Flash Fire",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 281,
+            "def": 196,
+            "spa": 212,
+            "spd": 196,
+            "spe": 226
+          },
+          "moves": [
+            "flareblitz",
+            "extremespeed",
+            "wildcharge",
+            "closecombat"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "uu",
+            "set": "Offensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blaine-38",
+          "speciesID": 38,
+          "species": "Ninetales",
+          "displayName": "Ninetales",
+          "level": 100,
+          "ability": "Drought",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 287,
+            "atk": 169,
+            "def": 186,
+            "spa": 198,
+            "spd": 236,
+            "spe": 259
+          },
+          "moves": [
+            "flamethrower",
+            "willowisp",
+            "sunnyday",
+            "protect"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ou",
+            "set": "Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "blaine-126",
+          "speciesID": 126,
+          "species": "Magmar",
+          "displayName": "Magmar",
+          "level": 100,
+          "ability": "Vital Spirit",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 202,
+            "def": 150,
+            "spa": 258,
+            "spd": 206,
+            "spe": 222
+          },
+          "moves": [
+            "flamethrower",
+            "focusblast",
+            "hiddenpower",
+            "willowisp"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "nu",
+            "set": "Eviolite Attacker",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "pryce",
+      "index": 13,
+      "nameKo": "류옹",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "pryce-86",
+          "speciesID": 86,
+          "species": "Seel",
+          "displayName": "Seel",
+          "level": 100,
+          "ability": "Thick Fat",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 138,
+            "def": 146,
+            "spa": 113,
+            "spd": 176,
+            "spe": 126
+          },
+          "moves": [
+            "aquajet",
+            "iceshard",
+            "waterfall",
+            "fakeout"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5lc-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "pryce-87",
+          "speciesID": 87,
+          "species": "Dewgong",
+          "displayName": "Dewgong",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 158,
+            "def": 196,
+            "spa": 176,
+            "spd": 248,
+            "spe": 176
+          },
+          "moves": [
+            "rest",
+            "raindance",
+            "surf",
+            "icebeam"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2026-09-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "pryce-221",
+          "speciesID": 221,
+          "species": "Piloswine",
+          "displayName": "Piloswine",
+          "level": 100,
+          "ability": "Thick Fat",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 341,
+            "atk": 259,
+            "def": 196,
+            "spa": 140,
+            "spd": 156,
+            "spe": 136
+          },
+          "moves": [
+            "stealthrock",
+            "earthquake",
+            "iciclecrash",
+            "iceshard"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Tank",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "pryce-124",
+          "speciesID": 124,
+          "species": "Jynx",
+          "displayName": "Jynx",
+          "level": 100,
+          "ability": "Dry Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 122,
+            "def": 106,
+            "spa": 266,
+            "spd": 226,
+            "spe": 248
+          },
+          "moves": [
+            "nastyplot",
+            "icebeam",
+            "focusblast",
+            "substitute"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Nasty Plot",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "pryce-131",
+          "speciesID": 131,
+          "species": "Lapras",
+          "displayName": "Lapras",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 401,
+            "atk": 185,
+            "def": 196,
+            "spa": 226,
+            "spd": 226,
+            "spe": 156
+          },
+          "moves": [
+            "hydropump",
+            "thunderbolt",
+            "icebeam",
+            "substitute"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "nu",
+            "set": "Bulky Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "pryce-215",
+          "speciesID": 215,
+          "species": "Sneasel",
+          "displayName": "Sneasel",
+          "level": 100,
+          "ability": "Inner Focus",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 251,
+            "atk": 226,
+            "def": 146,
+            "spa": 95,
+            "spd": 186,
+            "spe": 292
+          },
+          "moves": [
+            "icepunch",
+            "pursuit",
+            "iceshard",
+            "lowkick"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": true,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "giovanni",
+      "index": 14,
+      "nameKo": "비주기",
+      "phase": "관동 관장",
+      "team": [
+        {
+          "id": "giovanni-111",
+          "speciesID": 111,
+          "species": "Rhyhorn",
+          "displayName": "Rhyhorn",
+          "level": 100,
+          "ability": "Rock Head",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 226,
+            "def": 226,
+            "spa": 86,
+            "spd": 96,
+            "spe": 86
+          },
+          "moves": [
+            "doubleedge",
+            "earthquake",
+            "rockblast",
+            "swordsdance"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": null,
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "giovanni-51",
+          "speciesID": 51,
+          "species": "Dugtrio",
+          "displayName": "Dugtrio",
+          "level": 100,
+          "ability": "Sand Force",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 196,
+            "def": 136,
+            "spa": 122,
+            "spd": 176,
+            "spe": 303
+          },
+          "moves": [
+            "earthquake",
+            "stoneedge",
+            "memento",
+            "stealthrock"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "May the Sand Force be with You",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "giovanni-31",
+          "speciesID": 31,
+          "species": "Nidoqueen",
+          "displayName": "Nidoqueen",
+          "level": 100,
+          "ability": "Sheer Force",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 180,
+            "def": 210,
+            "spa": 204,
+            "spd": 206,
+            "spe": 188
+          },
+          "moves": [
+            "earthpower",
+            "fireblast",
+            "icebeam",
+            "stealthrock"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Offensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "giovanni-34",
+          "speciesID": 34,
+          "species": "Nidoking",
+          "displayName": "Nidoking",
+          "level": 100,
+          "ability": "Sheer Force",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 303,
+            "atk": 198,
+            "def": 190,
+            "spa": 206,
+            "spd": 186,
+            "spe": 226
+          },
+          "moves": [
+            "earthpower",
+            "fireblast",
+            "icebeam",
+            "stealthrock"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Special Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "giovanni-112",
+          "speciesID": 112,
+          "species": "Rhydon",
+          "displayName": "Rhydon",
+          "level": 100,
+          "ability": "Rock Head",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 351,
+            "atk": 325,
+            "def": 276,
+            "spa": 113,
+            "spd": 126,
+            "spe": 116
+          },
+          "moves": [
+            "stealthrock",
+            "earthquake",
+            "rockblast",
+            "megahorn"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "ru",
+            "set": "Tank",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "giovanni-232",
+          "speciesID": 232,
+          "species": "Donphan",
+          "displayName": "Donphan",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 276,
+            "def": 303,
+            "spa": 140,
+            "spd": 156,
+            "spe": 136
+          },
+          "moves": [
+            "rapidspin",
+            "earthquake",
+            "stealthrock",
+            "iceshard"
+          ],
+          "item": "wiseglasses",
+          "evidence": {
+            "format": "ou",
+            "set": "Support",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "clair",
+      "index": 15,
+      "nameKo": "이향",
+      "phase": "성도 관장",
+      "team": [
+        {
+          "id": "clair-148",
+          "speciesID": 148,
+          "species": "Dragonair",
+          "displayName": "Dragonair",
+          "level": 100,
+          "ability": "Shed Skin",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 263,
+            "atk": 204,
+            "def": 166,
+            "spa": 158,
+            "spd": 193,
+            "spe": 176
+          },
+          "moves": [
+            "dragondance",
+            "rest",
+            "outrage",
+            "sleeptalk"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "Bulky Dragon Dance",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "clair-230",
+          "speciesID": 230,
+          "species": "Kingdra",
+          "displayName": "Kingdra",
+          "level": 100,
+          "ability": "Swift Swim",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 203,
+            "def": 226,
+            "spa": 248,
+            "spd": 226,
+            "spe": 206
+          },
+          "moves": [
+            "dracometeor",
+            "hydropump",
+            "dragonpulse",
+            "surf"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Specs",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "clair-149",
+          "speciesID": 149,
+          "species": "Dragonite",
+          "displayName": "Dragonite",
+          "level": 100,
+          "ability": "Multiscale",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 323,
+            "atk": 334,
+            "def": 226,
+            "spa": 212,
+            "spd": 236,
+            "spe": 196
+          },
+          "moves": [
+            "dragondance",
+            "outrage",
+            "firepunch",
+            "extremespeed"
+          ],
+          "item": "lumberry",
+          "evidence": {
+            "format": "ou",
+            "set": "3 Attacks Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "clair-373",
+          "speciesID": 373,
+          "species": "Salamence",
+          "displayName": "Salamence",
+          "level": 100,
+          "ability": "Moxie",
+          "nature": "Naive",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 306,
+            "def": 196,
+            "spa": 256,
+            "spd": 176,
+            "spe": 259
+          },
+          "moves": [
+            "outrage",
+            "earthquake",
+            "fireblast",
+            "dragonclaw"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "ou",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "clair-330",
+          "speciesID": 330,
+          "species": "Flygon",
+          "displayName": "Flygon",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 236,
+            "def": 196,
+            "spa": 176,
+            "spd": 196,
+            "spe": 259
+          },
+          "moves": [
+            "outrage",
+            "earthquake",
+            "uturn",
+            "stoneedge"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "clair-612",
+          "speciesID": 612,
+          "species": "Haxorus",
+          "displayName": "Haxorus",
+          "level": 100,
+          "ability": "Mold Breaker",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 293,
+            "atk": 330,
+            "def": 216,
+            "spa": 140,
+            "spd": 176,
+            "spe": 253
+          },
+          "moves": [
+            "dragondance",
+            "dualchop",
+            "outrage",
+            "superpower"
+          ],
+          "item": "yacheberry",
+          "evidence": {
+            "format": "ou",
+            "set": "Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "lorelei",
+      "index": 16,
+      "nameKo": "칸나",
+      "phase": "1세대 사천왕",
+      "team": [
+        {
+          "id": "lorelei-87",
+          "speciesID": 87,
+          "species": "Dewgong",
+          "displayName": "Dewgong",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 158,
+            "def": 196,
+            "spa": 176,
+            "spd": 248,
+            "spe": 176
+          },
+          "moves": [
+            "rest",
+            "raindance",
+            "surf",
+            "icebeam"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2026-09-gen5ou-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lorelei-91",
+          "speciesID": 91,
+          "species": "Cloyster",
+          "displayName": "Cloyster",
+          "level": 100,
+          "ability": "Skill Link",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 226,
+            "def": 396,
+            "spa": 185,
+            "spd": 126,
+            "spe": 193
+          },
+          "moves": [
+            "iciclespear",
+            "rapidspin",
+            "shellsmash",
+            "rockblast"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "ubers",
+            "set": "Offensive Support",
+            "source": "2014-11-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lorelei-80",
+          "speciesID": 80,
+          "species": "Slowbro",
+          "displayName": "Slowbro",
+          "level": 100,
+          "ability": "Regenerator",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 167,
+            "def": 281,
+            "spa": 236,
+            "spd": 196,
+            "spe": 96
+          },
+          "moves": [
+            "scald",
+            "icebeam",
+            "slackoff",
+            "thunderwave"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "lorelei-124",
+          "speciesID": 124,
+          "species": "Jynx",
+          "displayName": "Jynx",
+          "level": 100,
+          "ability": "Dry Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 122,
+            "def": 106,
+            "spa": 266,
+            "spd": 226,
+            "spe": 248
+          },
+          "moves": [
+            "substitute",
+            "nastyplot",
+            "icebeam",
+            "lovelykiss"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ru",
+            "set": "Substitute + Nasty Plot",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "lorelei-131",
+          "speciesID": 131,
+          "species": "Lapras",
+          "displayName": "Lapras",
+          "level": 100,
+          "ability": "Hydration",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 401,
+            "atk": 185,
+            "def": 196,
+            "spa": 226,
+            "spd": 226,
+            "spe": 156
+          },
+          "moves": [
+            "hydropump",
+            "thunderbolt",
+            "icebeam",
+            "substitute"
+          ],
+          "item": "choicespecs",
+          "evidence": {
+            "format": "nu",
+            "set": "Bulky Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lorelei-221",
+          "speciesID": 221,
+          "species": "Piloswine",
+          "displayName": "Piloswine",
+          "level": 100,
+          "ability": "Thick Fat",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 341,
+            "atk": 259,
+            "def": 196,
+            "spa": 140,
+            "spd": 156,
+            "spe": 136
+          },
+          "moves": [
+            "stealthrock",
+            "earthquake",
+            "iciclespear",
+            "iceshard"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "Stealth Rock",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "bruno1",
+      "index": 17,
+      "nameKo": "시바",
+      "phase": "1세대 사천왕",
+      "team": [
+        {
+          "id": "bruno1-95",
+          "speciesID": 95,
+          "species": "Onix",
+          "displayName": "Onix",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 126,
+            "def": 391,
+            "spa": 86,
+            "spd": 126,
+            "spe": 176
+          },
+          "moves": [
+            "stealthrock",
+            "dragontail",
+            "stoneedge",
+            "earthquake"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "lc",
+            "set": "Support",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno1-107",
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "displayName": "Hitmonchan",
+          "level": 100,
+          "ability": "Iron Fist",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 270,
+            "def": 194,
+            "spa": 95,
+            "spd": 256,
+            "spe": 188
+          },
+          "moves": [
+            "drainpunch",
+            "machpunch",
+            "thunderpunch",
+            "icepunch"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Life Orb",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno1-106",
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "displayName": "Hitmonlee",
+          "level": 100,
+          "ability": "Unburden",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 303,
+            "def": 142,
+            "spa": 95,
+            "spd": 256,
+            "spe": 210
+          },
+          "moves": [
+            "reversal",
+            "endure",
+            "stoneedge",
+            "earthquake"
+          ],
+          "item": "liechiberry",
+          "evidence": {
+            "format": "ru",
+            "set": "Reversal Sweeper",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno1-68",
+          "speciesID": 68,
+          "species": "Machamp",
+          "displayName": "Machamp",
+          "level": 100,
+          "ability": "No Guard",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 325,
+            "def": 196,
+            "spa": 149,
+            "spd": 206,
+            "spe": 146
+          },
+          "moves": [
+            "substitute",
+            "dynamicpunch",
+            "stoneedge",
+            "thunderpunch"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "SubChamp",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno1-62",
+          "speciesID": 62,
+          "species": "Poliwrath",
+          "displayName": "Poliwrath",
+          "level": 100,
+          "ability": "Water Absorb",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 206,
+            "def": 248,
+            "spa": 158,
+            "spd": 216,
+            "spe": 176
+          },
+          "moves": [
+            "rest",
+            "sleeptalk",
+            "circlethrow",
+            "toxic"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "RestTalk",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "bruno1-57",
+          "speciesID": 57,
+          "species": "Primeape",
+          "displayName": "Primeape",
+          "level": 100,
+          "ability": "Vital Spirit",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 246,
+            "def": 156,
+            "spa": 140,
+            "spd": 176,
+            "spe": 248
+          },
+          "moves": [
+            "closecombat",
+            "uturn",
+            "icepunch",
+            "stoneedge"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "nu",
+            "set": "Choice Band",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "agatha",
+      "index": 18,
+      "nameKo": "국화",
+      "phase": "1세대 사천왕",
+      "team": [
+        {
+          "id": "agatha-94",
+          "speciesID": 94,
+          "species": "Gengar",
+          "displayName": "Gengar",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 149,
+            "def": 156,
+            "spa": 296,
+            "spd": 186,
+            "spe": 281
+          },
+          "moves": [
+            "substitute",
+            "willowisp",
+            "shadowball",
+            "focusblast"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "ou",
+            "set": "Substitute + Will-O-Wisp",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "agatha-42",
+          "speciesID": 42,
+          "species": "Golbat",
+          "displayName": "Golbat",
+          "level": 100,
+          "ability": "Inner Focus",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 196,
+            "def": 193,
+            "spa": 149,
+            "spd": 186,
+            "spe": 216
+          },
+          "moves": [
+            "bravebird",
+            "roost",
+            "taunt",
+            "toxic"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "ru",
+            "set": "Defensive",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "agatha-93",
+          "speciesID": 93,
+          "species": "Haunter",
+          "displayName": "Haunter",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 30,
+            "spd": 30,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 231,
+            "atk": 122,
+            "def": 126,
+            "spa": 265,
+            "spd": 145,
+            "spe": 248
+          },
+          "moves": [
+            "shadowball",
+            "sludgebomb",
+            "hiddenpower",
+            "substitute"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Life Orb",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "agatha-24",
+          "speciesID": 24,
+          "species": "Arbok",
+          "displayName": "Arbok",
+          "level": 100,
+          "ability": "Shed Skin",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 226,
+            "def": 174,
+            "spa": 149,
+            "spd": 194,
+            "spe": 196
+          },
+          "moves": [
+            "coil",
+            "gunkshot",
+            "earthquake",
+            "suckerpunch"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "pu",
+            "set": "Coil",
+            "source": "2026-09-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "agatha-200",
+          "speciesID": 200,
+          "species": "Misdreavus",
+          "displayName": "Misdreavus",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 140,
+            "def": 171,
+            "spa": 206,
+            "spd": 206,
+            "spe": 206
+          },
+          "moves": [
+            "willowisp",
+            "shadowball",
+            "painsplit",
+            "taunt"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "nu",
+            "set": "Utility Counter",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "agatha-442",
+          "speciesID": 442,
+          "species": "Spiritomb",
+          "displayName": "Spiritomb",
+          "level": 100,
+          "ability": "Pressure",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 242,
+            "def": 252,
+            "spa": 198,
+            "spd": 252,
+            "spe": 106
+          },
+          "moves": [
+            "shadowsneak",
+            "suckerpunch",
+            "pursuit",
+            "willowisp"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "ru",
+            "set": "All-Out Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "lance1",
+      "index": 19,
+      "nameKo": "목호",
+      "phase": "1세대 사천왕",
+      "team": [
+        {
+          "id": "lance1-130",
+          "speciesID": 130,
+          "species": "Gyarados",
+          "displayName": "Gyarados",
+          "level": 100,
+          "ability": "Intimidate",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 286,
+            "def": 194,
+            "spa": 140,
+            "spd": 236,
+            "spe": 217
+          },
+          "moves": [
+            "dragondance",
+            "substitute",
+            "waterfall",
+            "bounce"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ou",
+            "set": "Substitute + Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance1-148",
+          "speciesID": 148,
+          "species": "Dragonair",
+          "displayName": "Dragonair",
+          "level": 100,
+          "ability": "Marvel Scale",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 263,
+            "atk": 204,
+            "def": 166,
+            "spa": 158,
+            "spd": 193,
+            "spe": 176
+          },
+          "moves": [
+            "rest",
+            "dragontail",
+            "thunderwave",
+            "sleeptalk"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "RestTalk",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance1-142",
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "displayName": "Aerodactyl",
+          "level": 100,
+          "ability": "Pressure",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 246,
+            "def": 166,
+            "spa": 140,
+            "spd": 186,
+            "spe": 325
+          },
+          "moves": [
+            "stealthrock",
+            "taunt",
+            "doubleedge",
+            "earthquake"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "ou",
+            "set": "Suicide Lead",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance1-149",
+          "speciesID": 149,
+          "species": "Dragonite",
+          "displayName": "Dragonite",
+          "level": 100,
+          "ability": "Multiscale",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 323,
+            "atk": 334,
+            "def": 226,
+            "spa": 212,
+            "spd": 236,
+            "spe": 196
+          },
+          "moves": [
+            "outrage",
+            "extremespeed",
+            "firepunch",
+            "earthquake"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "ou",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance1-230",
+          "speciesID": 230,
+          "species": "Kingdra",
+          "displayName": "Kingdra",
+          "level": 100,
+          "ability": "Swift Swim",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 203,
+            "def": 226,
+            "spa": 248,
+            "spd": 226,
+            "spe": 206
+          },
+          "moves": [
+            "raindance",
+            "hydropump",
+            "dracometeor",
+            "surf"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "uu",
+            "set": "Rain Dance Sweeper",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance1-330",
+          "speciesID": 330,
+          "species": "Flygon",
+          "displayName": "Flygon",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 236,
+            "def": 196,
+            "spa": 176,
+            "spd": 196,
+            "spe": 259
+          },
+          "moves": [
+            "outrage",
+            "earthquake",
+            "uturn",
+            "firepunch"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "will",
+      "index": 20,
+      "nameKo": "일목",
+      "phase": "2세대 사천왕",
+      "team": [
+        {
+          "id": "will-178",
+          "speciesID": 178,
+          "species": "Xatu",
+          "displayName": "Xatu",
+          "level": 100,
+          "ability": "Magic Bounce",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 186,
+            "def": 193,
+            "spa": 203,
+            "spd": 176,
+            "spe": 226
+          },
+          "moves": [
+            "roost",
+            "nightshade",
+            "reflect",
+            "uturn"
+          ],
+          "item": "rockyhelmet",
+          "evidence": {
+            "format": "ou",
+            "set": "Utility",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "will-124",
+          "speciesID": 124,
+          "species": "Jynx",
+          "displayName": "Jynx",
+          "level": 100,
+          "ability": "Dry Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 122,
+            "def": 106,
+            "spa": 266,
+            "spd": 226,
+            "spe": 248
+          },
+          "moves": [
+            "icebeam",
+            "psyshock",
+            "focusblast",
+            "lovelykiss"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Special Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "will-103",
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "displayName": "Exeggutor",
+          "level": 100,
+          "ability": "Harvest",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 202,
+            "def": 226,
+            "spa": 285,
+            "spd": 166,
+            "spe": 145
+          },
+          "moves": [
+            "leechseed",
+            "sleeppowder",
+            "substitute",
+            "hiddenpower"
+          ],
+          "item": "sitrusberry",
+          "evidence": {
+            "format": "ru",
+            "set": "Leech Seed",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "will-80",
+          "speciesID": 80,
+          "species": "Slowbro",
+          "displayName": "Slowbro",
+          "level": 100,
+          "ability": "Regenerator",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 167,
+            "def": 281,
+            "spa": 236,
+            "spd": 196,
+            "spe": 96
+          },
+          "moves": [
+            "scald",
+            "psyshock",
+            "slackoff",
+            "thunderwave"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Physical Tank",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "will-196",
+          "speciesID": 196,
+          "species": "Espeon",
+          "displayName": "Espeon",
+          "level": 100,
+          "ability": "Magic Bounce",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 148,
+            "def": 156,
+            "spa": 295,
+            "spd": 226,
+            "spe": 280
+          },
+          "moves": [
+            "psyshock",
+            "yawn",
+            "grassknot",
+            "hiddenpower"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "ubers",
+            "set": "Focus Sash Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "will-65",
+          "speciesID": 65,
+          "species": "Alakazam",
+          "displayName": "Alakazam",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 251,
+            "atk": 121,
+            "def": 125,
+            "spa": 306,
+            "spd": 206,
+            "spe": 303
+          },
+          "moves": [
+            "psychic",
+            "hiddenpower",
+            "focusblast",
+            "signalbeam"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ou",
+            "set": "Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "koga2",
+      "index": 21,
+      "nameKo": "독수",
+      "phase": "2세대 사천왕",
+      "team": [
+        {
+          "id": "koga2-168",
+          "speciesID": 168,
+          "species": "Ariados",
+          "displayName": "Ariados",
+          "level": 100,
+          "ability": "Insomnia",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 237,
+            "def": 176,
+            "spa": 140,
+            "spd": 156,
+            "spe": 116
+          },
+          "moves": [
+            "toxicspikes",
+            "suckerpunch",
+            "bugbite",
+            "batonpass"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "manual",
+            "set": "Authored legal fallback",
+            "source": "2022-01-gen5nu-0.txt",
+            "manual": true,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga2-49",
+          "speciesID": 49,
+          "species": "Venomoth",
+          "displayName": "Venomoth",
+          "level": 100,
+          "ability": "Wonder Skin",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 281,
+            "atk": 149,
+            "def": 156,
+            "spa": 216,
+            "spd": 186,
+            "spe": 237
+          },
+          "moves": [
+            "quiverdance",
+            "batonpass",
+            "sleeppowder",
+            "bugbuzz"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "uu",
+            "set": "QuiverPass",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga2-205",
+          "speciesID": 205,
+          "species": "Forretress",
+          "displayName": "Forretress",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Brave",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 237,
+            "def": 316,
+            "spa": 156,
+            "spd": 156,
+            "spe": 104
+          },
+          "moves": [
+            "rapidspin",
+            "stealthrock",
+            "spikes",
+            "gyroball"
+          ],
+          "item": "custapberry",
+          "evidence": {
+            "format": "ubers",
+            "set": "Custap Lead",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga2-89",
+          "speciesID": 89,
+          "species": "Muk",
+          "displayName": "Muk",
+          "level": 100,
+          "ability": "Sticky Hold",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 351,
+            "atk": 270,
+            "def": 186,
+            "spa": 149,
+            "spd": 236,
+            "spe": 136
+          },
+          "moves": [
+            "curse",
+            "poisonjab",
+            "brickbreak",
+            "shadowsneak"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "zu",
+            "set": "Curse",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "koga2-169",
+          "speciesID": 169,
+          "species": "Crobat",
+          "displayName": "Crobat",
+          "level": 100,
+          "ability": "Infiltrator",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 311,
+            "atk": 216,
+            "def": 196,
+            "spa": 158,
+            "spd": 196,
+            "spe": 325
+          },
+          "moves": [
+            "bravebird",
+            "uturn",
+            "crosspoison",
+            "roost"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "koga2-73",
+          "speciesID": 73,
+          "species": "Tentacruel",
+          "displayName": "Tentacruel",
+          "level": 100,
+          "ability": "Rain Dish",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 158,
+            "def": 166,
+            "spa": 196,
+            "spd": 303,
+            "spe": 236
+          },
+          "moves": [
+            "toxicspikes",
+            "rapidspin",
+            "scald",
+            "protect"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ubers",
+            "set": "Support",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "bruno2",
+      "index": 22,
+      "nameKo": "시바",
+      "phase": "2세대 사천왕",
+      "team": [
+        {
+          "id": "bruno2-237",
+          "speciesID": 237,
+          "species": "Hitmontop",
+          "displayName": "Hitmontop",
+          "level": 100,
+          "ability": "Intimidate",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 226,
+            "def": 248,
+            "spa": 95,
+            "spd": 256,
+            "spe": 176
+          },
+          "moves": [
+            "rapidspin",
+            "toxic",
+            "suckerpunch",
+            "closecombat"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Rapid Spin",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno2-106",
+          "speciesID": 106,
+          "species": "Hitmonlee",
+          "displayName": "Hitmonlee",
+          "level": 100,
+          "ability": "Unburden",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 303,
+            "def": 142,
+            "spa": 95,
+            "spd": 256,
+            "spe": 210
+          },
+          "moves": [
+            "closecombat",
+            "stoneedge",
+            "machpunch",
+            "earthquake"
+          ],
+          "item": "fightinggem",
+          "evidence": {
+            "format": "ru",
+            "set": "Unburden",
+            "source": "2026-08-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno2-107",
+          "speciesID": 107,
+          "species": "Hitmonchan",
+          "displayName": "Hitmonchan",
+          "level": 100,
+          "ability": "Iron Fist",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 241,
+            "atk": 270,
+            "def": 194,
+            "spa": 95,
+            "spd": 256,
+            "spe": 188
+          },
+          "moves": [
+            "drainpunch",
+            "machpunch",
+            "thunderpunch",
+            "icepunch"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Life Orb",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno2-95",
+          "speciesID": 95,
+          "species": "Onix",
+          "displayName": "Onix",
+          "level": 100,
+          "ability": "Sturdy",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 138,
+            "def": 356,
+            "spa": 86,
+            "spd": 126,
+            "spe": 176
+          },
+          "moves": [
+            "rockpolish",
+            "earthquake",
+            "stoneedge",
+            "explosion"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "lc",
+            "set": "Rock Polish",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "bruno2-68",
+          "speciesID": 68,
+          "species": "Machamp",
+          "displayName": "Machamp",
+          "level": 100,
+          "ability": "No Guard",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 325,
+            "def": 196,
+            "spa": 149,
+            "spd": 206,
+            "spe": 146
+          },
+          "moves": [
+            "bulkup",
+            "dynamicpunch",
+            "stoneedge",
+            "thunderpunch"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Bulk Up",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "bruno2-214",
+          "speciesID": 214,
+          "species": "Heracross",
+          "displayName": "Heracross",
+          "level": 100,
+          "ability": "Moxie",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 286,
+            "def": 186,
+            "spa": 104,
+            "spd": 226,
+            "spe": 226
+          },
+          "moves": [
+            "substitute",
+            "closecombat",
+            "megahorn",
+            "stoneedge"
+          ],
+          "item": "muscleband",
+          "evidence": {
+            "format": "uu",
+            "set": "Substitute",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "karen",
+      "index": 23,
+      "nameKo": "카렌",
+      "phase": "2세대 사천왕",
+      "team": [
+        {
+          "id": "karen-197",
+          "speciesID": 197,
+          "species": "Umbreon",
+          "displayName": "Umbreon",
+          "level": 100,
+          "ability": "Synchronize",
+          "nature": "Calm",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 149,
+            "def": 256,
+            "spa": 156,
+            "spd": 325,
+            "spe": 166
+          },
+          "moves": [
+            "wish",
+            "foulplay",
+            "healbell",
+            "protect"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Wish Support",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "karen-45",
+          "speciesID": 45,
+          "species": "Vileplume",
+          "displayName": "Vileplume",
+          "level": 100,
+          "ability": "Effect Spore",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 176,
+            "def": 226,
+            "spa": 236,
+            "spd": 216,
+            "spe": 136
+          },
+          "moves": [
+            "aromatherapy",
+            "gigadrain",
+            "sludgebomb",
+            "synthesis"
+          ],
+          "item": "blacksludge",
+          "evidence": {
+            "format": "pu",
+            "set": "Cleric",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "karen-94",
+          "speciesID": 94,
+          "species": "Gengar",
+          "displayName": "Gengar",
+          "level": 100,
+          "ability": "Levitate",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 148,
+            "def": 155,
+            "spa": 296,
+            "spd": 186,
+            "spe": 281
+          },
+          "moves": [
+            "shadowball",
+            "focusblast",
+            "willowisp",
+            "hiddenpower"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Offensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "karen-198",
+          "speciesID": 198,
+          "species": "Murkrow",
+          "displayName": "Murkrow",
+          "level": 100,
+          "ability": "Prankster",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 261,
+            "atk": 185,
+            "def": 132,
+            "spa": 206,
+            "spd": 120,
+            "spe": 218
+          },
+          "moves": [
+            "calmmind",
+            "roost",
+            "darkpulse",
+            "featherdance"
+          ],
+          "item": "eviolite",
+          "evidence": {
+            "format": "nu",
+            "set": "Calm Mind",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "karen-229",
+          "speciesID": 229,
+          "species": "Houndoom",
+          "displayName": "Houndoom",
+          "level": 100,
+          "ability": "Flash Fire",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 30,
+            "spa": 30,
+            "spd": 30,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 194,
+            "def": 135,
+            "spa": 255,
+            "spd": 195,
+            "spe": 247
+          },
+          "moves": [
+            "nastyplot",
+            "fireblast",
+            "darkpulse",
+            "hiddenpower"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Nasty Plot",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "karen-248",
+          "speciesID": 248,
+          "species": "Tyranitar",
+          "displayName": "Tyranitar",
+          "level": 100,
+          "ability": "Sand Stream",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 341,
+            "atk": 334,
+            "def": 256,
+            "spa": 203,
+            "spd": 236,
+            "spe": 158
+          },
+          "moves": [
+            "crunch",
+            "pursuit",
+            "thunderwave",
+            "superpower"
+          ],
+          "item": "chopleberry",
+          "evidence": {
+            "format": "ou",
+            "set": "Bulky Pursuit Trapper",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "blue",
+      "index": 24,
+      "nameKo": "그린",
+      "phase": "최종 구간",
+      "team": [
+        {
+          "id": "blue-18",
+          "speciesID": 18,
+          "species": "Pidgeot",
+          "displayName": "Pidgeot",
+          "level": 100,
+          "ability": "Tangled Feet",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 307,
+            "atk": 196,
+            "def": 186,
+            "spa": 158,
+            "spd": 176,
+            "spe": 239
+          },
+          "moves": [
+            "bravebird",
+            "return",
+            "uturn",
+            "quickattack"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "nu",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blue-65",
+          "speciesID": 65,
+          "species": "Alakazam",
+          "displayName": "Alakazam",
+          "level": 100,
+          "ability": "Magic Guard",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 30,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 251,
+            "atk": 121,
+            "def": 125,
+            "spa": 306,
+            "spd": 206,
+            "spe": 303
+          },
+          "moves": [
+            "psychic",
+            "hiddenpower",
+            "focusblast",
+            "signalbeam"
+          ],
+          "item": "focussash",
+          "evidence": {
+            "format": "ou",
+            "set": "Attacker",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blue-112",
+          "speciesID": 112,
+          "species": "Rhydon",
+          "displayName": "Rhydon",
+          "level": 100,
+          "ability": "Rock Head",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 351,
+            "atk": 325,
+            "def": 276,
+            "spa": 113,
+            "spd": 126,
+            "spe": 116
+          },
+          "moves": [
+            "earthquake",
+            "stoneedge",
+            "megahorn",
+            "rockblast"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ru",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "blue-130",
+          "speciesID": 130,
+          "species": "Gyarados",
+          "displayName": "Gyarados",
+          "level": 100,
+          "ability": "Intimidate",
+          "nature": "Adamant",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 314,
+            "def": 194,
+            "spa": 140,
+            "spd": 236,
+            "spe": 198
+          },
+          "moves": [
+            "dragondance",
+            "waterfall",
+            "earthquake",
+            "stoneedge"
+          ],
+          "item": "lumberry",
+          "evidence": {
+            "format": "ou",
+            "set": "Offensive Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blue-103",
+          "speciesID": 103,
+          "species": "Exeggutor",
+          "displayName": "Exeggutor",
+          "level": 100,
+          "ability": "Harvest",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 30,
+            "def": 31,
+            "spa": 30,
+            "spd": 31,
+            "spe": 30
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 202,
+            "def": 206,
+            "spa": 285,
+            "spd": 166,
+            "spe": 159
+          },
+          "moves": [
+            "sunnyday",
+            "gigadrain",
+            "psyshock",
+            "hiddenpower"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ru",
+            "set": "Sunny Day",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "blue-59",
+          "speciesID": 59,
+          "species": "Arcanine",
+          "displayName": "Arcanine",
+          "level": 100,
+          "ability": "Flash Fire",
+          "nature": "Impish",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 321,
+            "atk": 256,
+            "def": 215,
+            "spa": 212,
+            "spd": 196,
+            "spe": 226
+          },
+          "moves": [
+            "flareblitz",
+            "extremespeed",
+            "morningsun",
+            "willowisp"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Physically Defensive",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "lance2",
+      "index": 25,
+      "nameKo": "목호",
+      "phase": "최종 구간",
+      "team": [
+        {
+          "id": "lance2-130",
+          "speciesID": 130,
+          "species": "Gyarados",
+          "displayName": "Gyarados",
+          "level": 100,
+          "ability": "Intimidate",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 286,
+            "def": 194,
+            "spa": 140,
+            "spd": 236,
+            "spe": 217
+          },
+          "moves": [
+            "dragondance",
+            "substitute",
+            "waterfall",
+            "bounce"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "ou",
+            "set": "Substitute + Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance2-149",
+          "speciesID": 149,
+          "species": "Dragonite",
+          "displayName": "Dragonite",
+          "level": 100,
+          "ability": "Multiscale",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 323,
+            "atk": 304,
+            "def": 226,
+            "spa": 212,
+            "spd": 236,
+            "spe": 215
+          },
+          "moves": [
+            "substitute",
+            "dragondance",
+            "dragonclaw",
+            "roost"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Substitute + Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        },
+        {
+          "id": "lance2-142",
+          "speciesID": 142,
+          "species": "Aerodactyl",
+          "displayName": "Aerodactyl",
+          "level": 100,
+          "ability": "Pressure",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 246,
+            "def": 166,
+            "spa": 140,
+            "spd": 186,
+            "spe": 325
+          },
+          "moves": [
+            "stoneedge",
+            "earthquake",
+            "aquatail",
+            "doubleedge"
+          ],
+          "item": "choiceband",
+          "evidence": {
+            "format": "uu",
+            "set": "Choice Band",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance2-6",
+          "speciesID": 6,
+          "species": "Charizard",
+          "displayName": "Charizard",
+          "level": 100,
+          "ability": "Solar Power",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 297,
+            "atk": 183,
+            "def": 192,
+            "spa": 254,
+            "spd": 206,
+            "spe": 259
+          },
+          "moves": [
+            "fireblast",
+            "flamethrower",
+            "focusblast",
+            "airslash"
+          ],
+          "item": "choicescarf",
+          "evidence": {
+            "format": "nu",
+            "set": "Choice Scarf",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance2-373",
+          "speciesID": 373,
+          "species": "Salamence",
+          "displayName": "Salamence",
+          "level": 100,
+          "ability": "Moxie",
+          "nature": "Jolly",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 331,
+            "atk": 306,
+            "def": 196,
+            "spa": 230,
+            "spd": 196,
+            "spe": 259
+          },
+          "moves": [
+            "dragondance",
+            "outrage",
+            "earthquake",
+            "dragonclaw"
+          ],
+          "item": "lumberry",
+          "evidence": {
+            "format": "ou",
+            "set": "Dragon Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "lance2-230",
+          "speciesID": 230,
+          "species": "Kingdra",
+          "displayName": "Kingdra",
+          "level": 100,
+          "ability": "Swift Swim",
+          "nature": "Modest",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 291,
+            "atk": 203,
+            "def": 226,
+            "spa": 248,
+            "spd": 226,
+            "spe": 206
+          },
+          "moves": [
+            "raindance",
+            "hydropump",
+            "dracometeor",
+            "surf"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "ou",
+            "set": "Rain Dance",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "red",
+      "index": 26,
+      "nameKo": "레드",
+      "phase": "최종 구간",
+      "team": [
+        {
+          "id": "red-25",
+          "speciesID": 25,
+          "species": "Pikachu",
+          "displayName": "Pikachu",
+          "level": 100,
+          "ability": "Static",
+          "nature": "Lonely",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 211,
+            "atk": 160,
+            "def": 86,
+            "spa": 136,
+            "spd": 116,
+            "spe": 216
+          },
+          "moves": [
+            "extremespeed",
+            "wildcharge",
+            "voltswitch",
+            "hiddenpower"
+          ],
+          "item": "lightball",
+          "evidence": {
+            "format": "zu",
+            "set": "Revenge Killer",
+            "source": "2026-07-gen5ou-0.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "red-196",
+          "speciesID": 196,
+          "species": "Espeon",
+          "displayName": "Espeon",
+          "level": 100,
+          "ability": "Magic Bounce",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 271,
+            "atk": 149,
+            "def": 156,
+            "spa": 296,
+            "spd": 226,
+            "spe": 281
+          },
+          "moves": [
+            "reflect",
+            "lightscreen",
+            "psychic",
+            "grassknot"
+          ],
+          "item": "lightclay",
+          "evidence": {
+            "format": "ou",
+            "set": "Screens Setter",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "red-143",
+          "speciesID": 143,
+          "species": "Snorlax",
+          "displayName": "Snorlax",
+          "level": 100,
+          "ability": "Thick Fat",
+          "nature": "Careful",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 461,
+            "atk": 256,
+            "def": 166,
+            "spa": 149,
+            "spd": 281,
+            "spe": 96
+          },
+          "moves": [
+            "curse",
+            "bodyslam",
+            "earthquake",
+            "rest"
+          ],
+          "item": "leftovers",
+          "evidence": {
+            "format": "uu",
+            "set": "Classic CurseLax",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "red-3",
+          "speciesID": 3,
+          "species": "Venusaur",
+          "displayName": "Venusaur",
+          "level": 100,
+          "ability": "Chlorophyll",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 301,
+            "atk": 180,
+            "def": 202,
+            "spa": 236,
+            "spd": 236,
+            "spe": 215
+          },
+          "moves": [
+            "sunnyday",
+            "growth",
+            "gigadrain",
+            "sludgebomb"
+          ],
+          "item": "lifeorb",
+          "evidence": {
+            "format": "ou",
+            "set": "Sun \"Sweeper\"",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": false
+          }
+        },
+        {
+          "id": "red-6",
+          "speciesID": 6,
+          "species": "Charizard",
+          "displayName": "Charizard",
+          "level": 100,
+          "ability": "Solar Power",
+          "nature": "Timid",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 297,
+            "atk": 183,
+            "def": 192,
+            "spa": 254,
+            "spd": 206,
+            "spe": 259
+          },
+          "moves": [
+            "weatherball",
+            "solarbeam",
+            "fireblast",
+            "airslash"
+          ],
+          "item": "charizarditey",
+          "evidence": {
+            "format": "ru",
+            "set": "User-requested Mega Charizard Y sun set",
+            "source": "User instruction 2026-10-30",
+            "manual": true,
+            "itemAdapted": true,
+            "exception": "Charizardite Y and post-BW Weather Ball compatibility"
+          }
+        },
+        {
+          "id": "red-9",
+          "speciesID": 9,
+          "species": "Blastoise",
+          "displayName": "Blastoise",
+          "level": 100,
+          "ability": "Rain Dish",
+          "nature": "Bold",
+          "gender": "",
+          "shiny": false,
+          "form": null,
+          "ivs": {
+            "hp": 31,
+            "atk": 31,
+            "def": 31,
+            "spa": 31,
+            "spd": 31,
+            "spe": 31
+          },
+          "stats": {
+            "hp": 299,
+            "atk": 181,
+            "def": 259,
+            "spa": 206,
+            "spd": 246,
+            "spe": 192
+          },
+          "moves": [
+            "rapidspin",
+            "scald",
+            "roar",
+            "toxic"
+          ],
+          "item": "expertbelt",
+          "evidence": {
+            "format": "uu",
+            "set": "Utility",
+            "source": "2026-09-gen5ou-1630.txt",
+            "manual": false,
+            "itemAdapted": true
+          }
+        }
+      ]
+    }
+  ]
+}

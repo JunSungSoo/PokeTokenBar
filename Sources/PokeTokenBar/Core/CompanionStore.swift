@@ -2382,6 +2382,31 @@ final class CompanionStore {
         // (디코드는 *성공*하므로 위의 .corrupt 복구도 발동하지 않는다). 여기서 걸면 자가 복구된다.
         state = SaveTransfer.sanitized(s)
     }
+    var championShinyTargets:[DexEntry] {state.dex.filter{!$0.isReleased && !$0.isShiny}}
+    /// Collection mutation and claim ledger are one atomic transaction. Retries are idempotent.
+    func claimChallengeShiny(runID:String,entryID:String)throws {
+        guard !runID.isEmpty else{throw ChallengeFailure.invalidReward}
+        if let claimed=state.challengeShinyClaims?[runID] {
+            guard claimed==entryID else{throw ChallengeFailure.invalidReward};return
+        }
+        guard let index=state.dex.firstIndex(where:{$0.id==entryID}),
+              championShinyTargets.contains(where:{$0.id==entryID}) else{throw ChallengeFailure.invalidReward}
+        var next=state
+        next.dex[index].isShiny=true
+        var claims=next.challengeShinyClaims ?? [:];claims[runID]=entryID;next.challengeShinyClaims=claims
+        try JSONEncoder().encode(next).write(to:fileURL,options:.atomic)
+        state=next;refreshRepresentativeSubject()
+    }
+    /// Award exact winning individuals; commit the full collection atomically before publishing.
+    func markChallengeChampions(ids:Set<String>,date:Date=Date())throws {
+        var next=state,changed=false
+        for i in next.dex.indices where ids.contains(next.dex[i].id) && next.dex[i].championAchievedAt==nil {
+            next.dex[i].championAchievedAt=date;changed=true
+        }
+        guard changed else{return}
+        try JSONEncoder().encode(next).write(to:fileURL,options:.atomic)
+        state=next
+    }
     private func save() {
         refreshRepresentativeSubject()
         guard let data = try? JSONEncoder().encode(state) else { return }

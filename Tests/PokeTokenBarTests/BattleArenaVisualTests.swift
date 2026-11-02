@@ -69,7 +69,7 @@ import XCTest
                 }
             }
         }
-        XCTAssertEqual(report.count,240)
+        XCTAssertEqual(report.count,BattleMode.allCases.count * BattleArena.allCases.count * 4 * 2)
         if let folder { try JSONSerialization.data(withJSONObject:report,options:[.prettyPrinted,.sortedKeys]).write(to:folder.appendingPathComponent("matrix.json")) }
         XCTAssertNil(player.error)
     }

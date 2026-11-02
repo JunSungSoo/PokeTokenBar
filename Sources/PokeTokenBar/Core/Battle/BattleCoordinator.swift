@@ -219,7 +219,6 @@ final class BattleCoordinator {
                 opponent = peer
                 localPlayer = (identity.code + identity.nonce) < (peer.code + peer.nonce) ? 0 : 1
                 matchID = [identity.nonce, peer.nonce].sorted().joined(separator: ":")
-                arena = BattleArena.forMatch(matchID)
                 selectedPeer = TradePeer(id: peer.nonce, nickname: peer.nickname, code: peer.code, discoveryGroup: mode.rawValue)
                 return
             }
@@ -244,6 +243,7 @@ final class BattleCoordinator {
                       roster.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) && BattleTeamBuilder.isSpeciesEligible($0.speciesID) && (5...100).contains($0.level) }) else { throw BattleFailure.invalidMessage }
                 guard opponentRoster.isEmpty else { throw BattleFailure.invalidMessage }
                 clearReady(resetRegistration: false); opponentRoster = roster
+                arena = BattleArena.forOpponent(roster)
             case "unregister":
                 throw BattleFailure.invalidMessage
             case "ready":

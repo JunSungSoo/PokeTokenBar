@@ -10,7 +10,7 @@ or an exact implementation of Champions rules.
 
 ## Selection and storage
 
-- The whitelist has 36 normal items: 17 type boosters, 6 offensive boosters,
+- The whitelist has 37 normal items: 18 type boosters, 6 offensive boosters,
   3 recovery items, 5 survival/contact/status items, 3 order/speed items, Sitrus and Lum.
 - Items are configured per Pokémon while drafting the six-member registration team.
   Clicking an item previews its localized description on the right; only Apply
@@ -36,6 +36,11 @@ or an exact implementation of Champions rules.
   future normal species/abilities/moves and pre-transformed Mega registration are
   rejected. Items are not disclosed by the public six-member roster or hidden
   opponent battle-state fields. Public item/consumption logs remain public.
+
+- Fairy Feather is an explicit Gen IX item exception: Fairy attacks gain 1.2× power.
+  The type-boost category, collection defaults, recent-use memory and item clause
+  use the same shared catalog. Only its item definition is imported into the isolated
+  battle dex; unrelated later-generation items remain unavailable.
 
 ## Simulation
 

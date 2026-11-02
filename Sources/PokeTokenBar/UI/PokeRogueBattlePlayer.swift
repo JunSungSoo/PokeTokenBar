@@ -47,6 +47,10 @@ struct PokeRogueActor:Sendable {
     private(set) var ready=false
     private(set) var isPlaying=false
     var entryHiddenPositions=Set<String>()
+    private(set) var nativeAnimationPositions:Set<String>?
+    func hidesNative(_ position:BattleEffectPosition)->Bool {
+        entryHiddenPositions.contains(position.key) || (isPlaying && (nativeAnimationPositions?.contains(position.key) ?? true))
+    }
     private(set) var effectsVolume=0.0
     private(set) var error:String?
     private var bridge:RogueBattleBridge?
@@ -150,7 +154,7 @@ struct PokeRogueActor:Sendable {
                 let (texture,data)=try await sprite(actor.pokemon,back:actor.position.own,reduced:reducedMotion)
                 members.append(["key":actor.position.key,"own":actor.position.own,"slot":actor.position.slot,"shiny":actor.pokemon.shiny,"texture":texture,"sprite":data,
                     "speciesID":actor.pokemon.speciesID,"form":actor.pokemon.form?.rawValue ?? "","hpRatio":Double(actor.pokemon.hp)/Double(max(1,actor.pokemon.maxHP)),
-                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset,"visible":!entryHiddenPositions.contains(actor.position.key)])
+                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset,"visible":!entryHiddenPositions.contains(actor.position.key) && (event.phase != "entry" || (entrySources.isEmpty ? [event.source]:entrySources).contains(actor.position))])
             }
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
@@ -171,6 +175,7 @@ struct PokeRogueActor:Sendable {
             let prepared = try await evaluateLayers("return await window.ptbPrepare(payload)",arguments:["payload":payload])
             guard !Task.isCancelled,run==generation else{return false}
             _ = try await evaluate("return {volume: window.ptbSetEffectsVolume(volume)}", arguments: ["volume": effectsVolume])
+            nativeAnimationPositions=event.phase == "entry" ? Set((entrySources.isEmpty ? [event.source]:entrySources).map(\.key)):nil
             isPlaying=true
             if reducedMotion {
                 let entry=PokeRogueOriginalCatalog.shared.entry(event)
@@ -205,7 +210,7 @@ struct PokeRogueActor:Sendable {
         if data["kind"] as? String=="error"{error=data["message"] as? String ?? "PokéRogue unavailable"}
     }
     func stop(){
-        generation=UUID();isPlaying=false;entryHiddenPositions=[];ready=false;readyLayers=[];error=nil
+        generation=UUID();isPlaying=false;nativeAnimationPositions=nil;entryHiddenPositions=[];ready=false;readyLayers=[];error=nil
         for view in [backgroundWebView,webView]{view.evaluateJavaScript("window.ptbFinish?.()",completionHandler:nil);view.stopLoading()}
         let pending=evaluations.values;evaluations=[:];for c in pending{c.resume(throwing:CancellationError())}
         try? input?.fileHandleForWriting.close();input=nil

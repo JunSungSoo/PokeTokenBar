@@ -193,12 +193,12 @@ final class BattleTests: XCTestCase {
         XCTAssertNil(battle.opponent);XCTAssertEqual(battle.error,"Battle mode mismatch")
         for language in AppLanguage.allCases {XCTAssertNotEqual(L(language).battleUserError(battle.error!),battle.error)}
     }
-    func testBothPeersKeepTheSameArenaThroughSinglesAndDoubles() async throws {
+    func testOpposingTypeArenaStaysFixedThroughSinglesAndDoubles() async throws {
         defer { cleanup() }
         for mode in BattleMode.allCases {
             let (a,b,_,_) = try await pair(mode:mode)
-            let sharedID = [a.identity.nonce,b.identity.nonce].sorted().joined(separator:":")
-            let arena = BattleArena.forMatch(sharedID)
+            let arena = BattleArena.metropolis
+            XCTAssertEqual(BattleArena.forOpponent(a.opponentRoster),arena)
             XCTAssertEqual(a.arena,arena); XCTAssertEqual(b.arena,arena)
             a.completePresentation(); b.completePresentation()
             XCTAssertEqual(a.arena,arena); XCTAssertEqual(b.arena,arena)
@@ -778,8 +778,11 @@ final class BattleTests: XCTestCase {
             a.select(TradePeer(id:"BBBB",nickname:"BBBB",code:"BBBB",discoveryGroup:mode.rawValue))
             try await wait { a.opponent != nil && b.opponent != nil && b.mode == mode }
             controller.show()
-            try await wait { abs(window.contentRect(forFrameRect:window.frame).width-(mode == .doubles ? 680 : 660))<0.5 }
+            // Hosting-controller layout can publish minimum sizes after the frame already matches.
+            try await wait { abs(window.contentRect(forFrameRect:window.frame).width-(mode == .doubles ? 680 : 660))<0.5
+                && window.minSize.width == (mode == .doubles ? 680 : 660) }
             XCTAssertTrue(controller.window === window)
+            window.minSize = .zero // Reproduce a hosting-controller minimum-size reset.
             XCTAssertEqual(window.minSize.width,mode == .doubles ? 680 : 660)
         }
         controller.show()

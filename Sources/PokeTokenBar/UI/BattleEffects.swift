@@ -22,6 +22,7 @@ struct BattleSpriteAnchorKey: PreferenceKey {
 @MainActor
 struct BattleEffectsLayer: View {
     let events: [BattleVisualEvent]
+    var completionToken:String? = nil
     let rects: [String:CGRect]
     let messages: [Int: String]
     let originalPlayer:PokeRogueBattlePlayer?
@@ -31,6 +32,8 @@ struct BattleEffectsLayer: View {
     var onScene: (BattleScene) -> Void = { _ in }
     var onFinished: () -> Void = {}
     var onAnimatedScene: ((BattleScene) async -> Void)?
+    var beforeEvent:((BattleVisualEvent) async -> Void)?
+    var hideActor:((BattleEffectPosition)->Bool)?
     @State private var notices = BattleNoticeQueue()
     @Binding var busy: Bool
     @Binding var playback: BattleEffectPlayback?
@@ -48,7 +51,9 @@ struct BattleEffectsLayer: View {
     @State private var lastPresentedScene: BattleScene?
     @State private var draining = false
     @State private var runID = 0
-    init(events: [BattleVisualEvent],rects: [String:CGRect],busy: Binding<Bool>,playback: Binding<BattleEffectPlayback?> = .constant(nil),messages: [Int: String] = [:],presentOpeningAbilities: Bool = false,reducedMotionOverride: Bool? = nil,scenes: [Int: BattleScene] = [:],onScene: @escaping (BattleScene) -> Void = { _ in },onFinished: @escaping () -> Void = {},onAnimatedScene: ((BattleScene) async -> Void)? = nil,originalPlayer:PokeRogueBattlePlayer?=nil,actors:[PokeRogueActor]=[],viewport:CGSize = .zero) {
+    init(events: [BattleVisualEvent],rects: [String:CGRect],busy: Binding<Bool>,playback: Binding<BattleEffectPlayback?> = .constant(nil),messages: [Int: String] = [:],presentOpeningAbilities: Bool = false,reducedMotionOverride: Bool? = nil,scenes: [Int: BattleScene] = [:],onScene: @escaping (BattleScene) -> Void = { _ in },onFinished: @escaping () -> Void = {},onAnimatedScene: ((BattleScene) async -> Void)? = nil,originalPlayer:PokeRogueBattlePlayer?=nil,actors:[PokeRogueActor]=[],viewport:CGSize = .zero,beforeEvent:((BattleVisualEvent) async -> Void)?=nil,hideActor:((BattleEffectPosition)->Bool)?=nil,completionToken:String?=nil) {
+        self.completionToken=completionToken
+        self.beforeEvent=beforeEvent;self.hideActor=hideActor
         self.originalPlayer=originalPlayer;self.actors=actors;self.viewport=viewport
         self.events=events;self.rects=rects;self.messages=messages;_busy=busy
         self.scenes=scenes;self.onScene=onScene;self.onFinished=onFinished;self.onAnimatedScene=onAnimatedScene
@@ -101,6 +106,8 @@ struct BattleEffectsLayer: View {
             while !pending.isEmpty {
                 guard !Task.isCancelled else { return }
                 let item=pending.removeFirst(),event=item.event
+                await beforeEvent?(event)
+                guard !Task.isCancelled else{return}
                 var batch=[item]
                 if let next=pending.first,BattleEntryEffects.canAppearTogether(event,next.event) { batch.append(pending.removeFirst()) }
                 if event.phase == "health" {
@@ -142,6 +149,7 @@ struct BattleEffectsLayer: View {
                 var originalPlayed=false
                 if let originalPlayer {
                     let eventActors=actors.compactMap { actor -> PokeRogueActor? in
+                        if hideActor?(actor.position)==true{return nil}
                         guard let scene=finalScene else{return actor}
                         let members=actor.position.own ? scene.own.filter(\.active):scene.foe
                         guard members.indices.contains(actor.position.slot) else{return isOpening ? actor:nil}
@@ -204,6 +212,13 @@ struct BattleEffectsLayer: View {
                 }
                 catch { return }
             }
+            onFinished()
+        }.task(id:completionToken) {
+            // A surrender/end-only frame has no new visual events, but must still settle.
+            // Yield to event ingestion first so real damage/entry queues cannot be skipped.
+            guard completionToken != nil else{return}
+            await Task.yield()
+            guard !Task.isCancelled,!draining,pending.isEmpty else{return}
             onFinished()
         }.task(id: notices.entries) {
             guard let expiry = notices.nextExpiry else { return }

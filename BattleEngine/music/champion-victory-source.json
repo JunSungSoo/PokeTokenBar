@@ -1,0 +1,10 @@
+{
+  "source": "User-provided /tmp/RubySapphireChampionVictory.ogg",
+  "sourceSHA256": "468696310084e61b0d5c2f6ca14e5163eb36d898bf76e02b32ea0754a7dc5196",
+  "pcmSHA256": "ce926832c2a0a6cae552f24e6fc9c73673925428be82520fe385f4c9d3a59ea7",
+  "wavSHA256": "8e5d93afe63707832364dda9bad0df25cececd41dc41a0b85e2394e05b6a5b63",
+  "sampleRate": 44100,
+  "channels": 2,
+  "frames": 2178255,
+  "playback": "entire original track, repeated without rate or trim changes"
+}

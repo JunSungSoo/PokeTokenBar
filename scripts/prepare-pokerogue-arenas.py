@@ -15,6 +15,7 @@ GROUPS = {
     "highlands": ["mountain", "desert", "volcano"],
     "caves": ["cave", "ice_cave", "fairy_cave"],
     "settlements": ["town", "metropolis", "dojo"],
+    "special": ["end"],  # Red-only override; never selected by the ordinary type mapping.
 }
 
 

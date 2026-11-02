@@ -23,7 +23,10 @@ struct PokeRogueSpriteSizes:Decodable,Sendable {
         let raw=size(speciesID:speciesID,form:form,back:back)
         let front=size(speciesID:speciesID,form:form,back:false),rear=size(speciesID:speciesID,form:form,back:true)
         let reference=max(1,[front.width,front.height,rear.width,rear.height].max() ?? 1)
-        let extent=90*pow(PokemonDisplayHeights.shared.metres(speciesID:speciesID,form:form),0.3)
+        let physicalExtent=90*pow(PokemonDisplayHeights.shared.metres(speciesID:speciesID,form:form),0.3)
+        // Compress extreme heights smoothly so one giant reserve does not shrink both teams.
+        // Normal-sized species retain their height-based extent and original atlas proportions.
+        let extent=physicalExtent<=140 ? physicalExtent:140+20*(1-exp(-(physicalExtent-140)/50))
         let factor=extent/reference
         return CGSize(width:raw.width*factor,height:raw.height*factor)
     }

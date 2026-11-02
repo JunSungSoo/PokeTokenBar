@@ -38,7 +38,7 @@ struct BattleWindowLayout {
 @MainActor
 struct BattleAuxiliaryView: View {
     let kind: BattleAuxiliaryKind
-    let battle: BattleCoordinator
+    let battle: any BattleSessionPresentation
     let store: CompanionStore
     var body: some View {
         ScrollView {

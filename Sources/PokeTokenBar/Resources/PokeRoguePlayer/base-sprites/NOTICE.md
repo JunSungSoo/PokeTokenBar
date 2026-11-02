@@ -1,0 +1,1 @@
+Original PokéRogue Charizard atlases at 009cac30c39d3615c7b2c320c3984af368871031. Source bytes and hashes are retained in source/. Frames reconstruct the original canvas at 10 FPS. Preserve parent REUSE/license notices.

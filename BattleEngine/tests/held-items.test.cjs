@@ -5,7 +5,7 @@ function team(p,lead,second){const mons=[lead,second||member(p+'1','Blissey'),me
 function make(item='',moves=['tackle'],mode='singles'){return new OwnedBattle(mode,[team('a',member('a','Smeargle',item,moves)),team('b',member('b','Mew','',['splash']))],[1,2,3,4]);}
 function turn(e,a=[{kind:'move',index:1,target:0}],b=[{kind:'move',index:1,target:0}]){for(const [p,actions]of [[0,a],[1,b]])e.choose(p,e.frame(p).decisionID,actions);}
 function firstDamage(e){const line=e.frame(0).log.find(l=>l.startsWith('|-damage|p2a:'));return 100-Number(line.split('|')[3].split('/')[0]);}
-const types=['tackle','flamethrower','surf','thunderbolt','energyball','icebeam','brickbreak','sludgebomb','earthquake','aerialace','psychic','bugbuzz','rockslide','shadowball','dragonpulse','darkpulse','flashcannon'];
+const types=['tackle','flamethrower','surf','thunderbolt','energyball','icebeam','brickbreak','sludgebomb','earthquake','aerialace','psychic','bugbuzz','rockslide','shadowball','dragonpulse','darkpulse','flashcannon','moonblast'];
 for(const [index,item]of catalog.items.filter(i=>i.group==='type').entries())test(item.id+' increases its matching attack in the real BW2 simulation',()=>{const base=make('',[types[index]]),boosted=make(item.id,[types[index]]);turn(base);turn(boosted);assert.ok(firstDamage(boosted)>firstDamage(base));});
 for(const [item,move]of [['lifeorb','tackle'],['expertbelt','shadowball'],['muscleband','tackle'],['wiseglasses','psychic'],['normalgem','tackle']])test(item+' power and consumption/recoil',()=>{const base=make('',[move]),e=make(item,[move]);turn(base);turn(e);assert.ok(firstDamage(e)>firstDamage(base));const p=e.battle.sides[0].active[0];if(item==='lifeorb')assert.equal(p.hp,450);if(item==='normalgem'){assert.equal(p.item,'');assert.ok((500-e.battle.sides[1].pokemon[0].hp)/(500-base.battle.sides[1].pokemon[0].hp)>1.4);assert.match(battleDex().items.get(item).desc,/1\.5x/);}});
 test('Metronome accumulates and resets when the chosen move changes',()=>{const e=make('metronome',['tackle','scratch']);turn(e);const p=e.battle.sides[0].active[0];assert.equal(p.volatiles.metronome.numConsecutive,0);turn(e);assert.equal(p.volatiles.metronome.numConsecutive,1);turn(e,[{kind:'move',index:2,target:0}]);assert.equal(p.volatiles.metronome.numConsecutive,0);});
@@ -58,8 +58,8 @@ for(const mode of ['singles','doubles'])test('all 64 Mega Stones preserve custom
  }
 });
 test('whitelist, base form, stone-species binding, unsupported generations and private preview',()=>{
- assert.equal(catalog.items.length,100);assert.equal(catalog.items.filter(i=>i.mega).length,64);
- for(const item of ['fairyfeather','assaultvest','mewtwonitex','not-an-item'])assert.throws(()=>make(item),/held item/);
+ assert.equal(catalog.items.length,101);assert.equal(catalog.items.filter(i=>i.mega).length,64);
+ for(const item of ['assaultvest','mewtwonitex','not-an-item'])assert.throws(()=>make(item),/held item/);
  const wrong=team('a',member('a','Smeargle','charizarditex'));assert.throws(()=>validateTeam(wrong,6),/does not match/);
  const mega=team('a',member('a','Charizard-Mega-X'));assert.throws(()=>validateTeam(mega,6),/base Pokémon/);
  const e=make('lifeorb');assert.equal(e.frame(1).foe[0].item,undefined);
@@ -138,4 +138,24 @@ test('Toxic Orb interacts with Poison Heal and Guts through actual ability mecha
  const normal=makeGuts(''),poisoned=makeGuts('toxicorb');turn(normal);turn(poisoned);
  turn(normal,[{kind:'move',index:2,target:0}]);turn(poisoned,[{kind:'move',index:2,target:0}]);
  assert.ok(firstDamage(poisoned)>firstDamage(normal));
+});
+
+for(const mode of ['singles','doubles'])test('Fairy Feather boosts only Fairy damage and obeys suppression in '+mode,()=>{
+ function sample(item,move='moonblast',suppression=''){
+  const e=make(item,[move],mode),p=e.battle.sides[0].active[0];
+  if(suppression==='klutz')p.setAbility('klutz');
+  if(suppression==='magicroom')e.battle.field.addPseudoWeather('magicroom',p);
+  const a=Array.from({length:mode==='doubles'?2:1},(_,i)=>({kind:'move',index:1,target:i===0?1:0}));
+  turn(e,a,a.map(()=>({kind:'move',index:1,target:0})));
+  return {damage:500-e.battle.sides[1].pokemon[0].hp,item:p.item};
+ }
+ const base=sample(''),boosted=sample('fairyfeather');
+ assert.ok(boosted.damage>base.damage*1.15&&boosted.damage<base.damage*1.25);
+ assert.equal(boosted.item,'fairyfeather','Permanent type booster is not consumed');
+ assert.equal(sample('fairyfeather','psychic').damage,sample('','psychic').damage);
+ for(const suppressed of ['klutz','magicroom'])assert.equal(sample('fairyfeather','moonblast',suppressed).damage,base.damage);
+ const own=team('a',member('a','Smeargle','fairyfeather',['moonblast']));own[5].item='fairyfeather';
+ assert.throws(()=>validateTeam(own,6),/Duplicate held item/);
+ assert.equal(Dex.mod('gen5').items.get('fairyfeather').isNonstandard,'Future');
+ assert.equal(battleDex().items.get('fairyfeather').onBasePower,Dex.mod('gen9').items.get('fairyfeather').onBasePower);
 });

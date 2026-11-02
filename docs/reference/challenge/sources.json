@@ -1,0 +1,163 @@
+{
+  "reviewDate": "2026-10-30",
+  "scope": "BW generation-V singles, not limited to battles played in 2012–2013",
+  "nonemptyUsageFiles": 17,
+  "limitations": [
+    "2014-11 gen5ru, 2015-01 gen5lc and gen5nu were empty.",
+    "2022-01 gen5ru and gen5uu returned HTTP 404.",
+    "2013-09 legacy usage URL returned HTTP 404.",
+    "No usage found means absent from the reviewed snapshots, not absent from every historical battle."
+  ],
+  "sources": [
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2014-11/moveset/gen5gbusingles-0.txt",
+      "sha256": "22bdd6d99340e2fd5c6a63a60f47e0a0501d403ed373a8d1d768defddfee8bdf",
+      "bytes": 116280,
+      "localName": "2014-11-gen5gbusingles-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2014-11/moveset/gen5lc-0.txt",
+      "sha256": "2691967cdf082f7ab48a6891007739237eda4997b46ea22664eb6c771b200683",
+      "bytes": 14175,
+      "localName": "2014-11-gen5lc-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2014-11/moveset/gen5ou-0.txt",
+      "sha256": "70da22774083c31ef95812e062f5e161aa5f1d5764f8298e1e6a3399cb23cc78",
+      "bytes": 577190,
+      "localName": "2014-11-gen5ou-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2014-11/moveset/gen5ubers-0.txt",
+      "sha256": "2181b5c18faeefbf408b7f547b6781575e3509b929b0e559c0f8e4d4194a23e1",
+      "bytes": 112680,
+      "localName": "2014-11-gen5ubers-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2014-11/moveset/gen5uu-0.txt",
+      "sha256": "1e43e6bbbe76463f3bb9b11de719cfa3df835fd6990dd526fe492eb8430a7feb",
+      "bytes": 43965,
+      "localName": "2014-11-gen5uu-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2017-08/moveset/gen5lc-0.txt",
+      "sha256": "fb22e08dcef9a20eb6e15b9f5c56cca5017ea5173dc3404c8c6dc928b64aa035",
+      "bytes": 16740,
+      "localName": "2017-08-gen5lc-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2017-08/moveset/gen5nu-0.txt",
+      "sha256": "bdf74b18bcb10edf1ca444c9cfa7a91194d512b888870c11ee7eb308b2dc5d33",
+      "bytes": 15930,
+      "localName": "2017-08-gen5nu-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2017-08/moveset/gen5ru-0.txt",
+      "sha256": "05f589b8785fd717f50f2050bb9c129a8df6264d3d66b9ba0122a5ec44844620",
+      "bytes": 75780,
+      "localName": "2017-08-gen5ru-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2017-08/moveset/gen5uu-0.txt",
+      "sha256": "ead904da7bd5c9d076bae43fe95db8a32fd011ced912d4399a6ea715e986fb14",
+      "bytes": 103860,
+      "localName": "2017-08-gen5uu-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2022-01/moveset/gen5lc-0.txt",
+      "sha256": "d51bf3b17bcbf074a7308d698367e4ae17feb2aab68e7a93c04219f076b13973",
+      "bytes": 363244,
+      "localName": "2022-01-gen5lc-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2022-01/moveset/gen5nu-0.txt",
+      "sha256": "a9b64a167c077b50a7e214612beffe51b5461f359faa5997c9606d833a5631d4",
+      "bytes": 507218,
+      "localName": "2022-01-gen5nu-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-07/moveset/gen5ou-0.txt",
+      "sha256": "975f5cf176acc1160842f7f9dea1029bb8b9af9d66f363c8c72f1dacaf2727d7",
+      "bytes": 854617,
+      "localName": "2026-07-gen5ou-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-07/moveset/gen5ou-1630.txt",
+      "sha256": "72046ae877a28c07b095221c152392c5a19c5882d536ec3646d4a6d9bf9984c1",
+      "bytes": 381412,
+      "localName": "2026-07-gen5ou-1630.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-08/moveset/gen5ou-0.txt",
+      "sha256": "c982c667cbf2e80bb56dc12b1126693dba57e814e0ff588c1f8f1f6b5ae84974",
+      "bytes": 821088,
+      "localName": "2026-08-gen5ou-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-08/moveset/gen5ou-1630.txt",
+      "sha256": "0058384a02bf828c63379970fd18cc6a01dbb4f272e3ac9a61af255139499526",
+      "bytes": 391900,
+      "localName": "2026-08-gen5ou-1630.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-09/moveset/gen5ou-0.txt",
+      "sha256": "bc48098a51531d1730bfe5f07f14b3b10b39c3ac50bf89c9b325de49ce5e3003",
+      "bytes": 806705,
+      "localName": "2026-09-gen5ou-0.txt"
+    },
+    {
+      "kind": "observed_usage",
+      "url": "https://www.smogon.com/stats/2026-09/moveset/gen5ou-1630.txt",
+      "sha256": "c5aae0428a80e9eeb38a1facdb018009a923a636d732d22a83bf999b5ed8f56d",
+      "bytes": 379506,
+      "localName": "2026-09-gen5ou-1630.txt"
+    },
+    {
+      "kind": "original_party_disassembly",
+      "url": "https://github.com/pret/pokered/blob/master/data/trainers/parties.asm",
+      "sha256": "61eac58fe43a181fcd936d5366457a940cf805ee15c787ff5957e175f83b217d"
+    },
+    {
+      "kind": "original_party_disassembly",
+      "url": "https://github.com/pret/pokegold/blob/master/data/trainers/parties.asm",
+      "sha256": "fd7099ef191cdd65a286d78cf79b39f10a6bb448962be7de297302e69909b8b9"
+    },
+    {
+      "kind": "original_party_disassembly",
+      "url": "https://github.com/pret/pokecrystal/blob/master/data/trainers/parties.asm",
+      "sha256": "934e5a781c64c000c82423ea3bde5ef947549112d4129f5e075a084f343d7eba"
+    },
+    {
+      "kind": "original_party_disassembly",
+      "url": "https://github.com/pret/pokeyellow/blob/master/data/trainers/parties.asm",
+      "sha256": "ebb66129bb01bacd957dd7408506e8fa06bf78f1e53d98c0e0b0115fd45566e2"
+    },
+    {
+      "kind": "authored_analysis_not_usage",
+      "url": "https://pkmn.github.io/smogon/data/sets/gen5.json",
+      "sha256": "fe000670bc1440dd312e1b0ea461fc7a32ddd0e5a2ce2a8fd4b8a30e1f049c39",
+      "note": "Species-first snapshot; format-keyed standard sets; slash choices are not automatically legal in combination."
+    },
+    {
+      "kind": "trainer_assets",
+      "url": "https://github.com/pagefaultgames/pokerogue-assets/tree/fb8ccb6d0703ffe48cdf80a8102d5ed943c82dba/images/trainer",
+      "revision": "fb8ccb6d0703ffe48cdf80a8102d5ed943c82dba"
+    }
+  ]
+}

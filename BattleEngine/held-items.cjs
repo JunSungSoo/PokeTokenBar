@@ -11,6 +11,8 @@ function battleDex(){
  const parent=Dex.mod('gen5'),d=new Dex.ModdedDex(id);
  d.gen=5;d.parentMod='gen5';
  d.dataCache={...parent.data,Pokedex:{...parent.data.Pokedex},Items:{...parent.data.Items},Abilities:{...parent.data.Abilities},Scripts:{...parent.data.Scripts},Moves:{...parent.data.Moves},TypeChart:{...parent.data.TypeChart}};
+ // Import only the requested modern type booster; leave the shared BW2 dex intact.
+ d.dataCache.Items.fairyfeather=Dex.mod('gen9').data.Items.fairyfeather;
  for(const id of allowedFairyMoves)d.dataCache.Moves[id]=fairyDex.data.Moves[id];
  for(const [id,type]of Object.entries(parent.data.TypeChart)){
   const donor=fairyDex.data.TypeChart[id];

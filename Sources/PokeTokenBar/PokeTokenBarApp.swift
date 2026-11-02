@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var companion: CompanionStore!
     private var battle: BattleCoordinator!
     private var battleWindow: BattleWindowController!
+    private var challengeTestWindow:NSWindow?
     private var updater: UpdateChecker!
     private var floatingPet: FloatingPetController!
     private let navigation = PopoverNavigation()
@@ -78,6 +79,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var needsSpriteLayout = true
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if ChallengeTestMode.enabled {
+            // The challenge QA app does not need usage providers, credential prompts or login agents.
+            NSApp.setActivationPolicy(.regular)
+            do{companion=CompanionStore(fileURL:try ChallengeTestData.snapshot())}
+            catch{AppLog.write("challenge test data failed: \(error)");NSApp.terminate(nil);return}
+            battle=BattleCoordinator()
+            battleWindow=BattleWindowController(battle:battle,store:companion)
+            Task{await companion.preparePokemonProfiles()}
+            let window=NSWindow(contentRect:NSRect(x:0,y:0,width:420,height:640),styleMask:[.titled,.closable,.miniaturizable],backing:.buffered,defer:false)
+            window.title="PokeTokenBar Challenge Test · Battle";window.isReleasedWhenClosed=false
+            window.contentViewController=NSHostingController(rootView:ChallengeTestRootView(store:companion,battle:battle))
+            challengeTestWindow=window;window.center();NSApp.activate(ignoringOtherApps:true);window.makeKeyAndOrderFront(nil)
+            return
+        }
         // 로그인 에이전트 등록(plist 의 RunAtLoad)이 이미 떠 있는 앱을 한 번 더 실행한다 — 나중에 뜬
         // 쪽이 물러난다. 메뉴바 항목을 만들기 전에 판정해 아이콘이 떴다 사라지는 깜빡임을 없애고,
         // **`CrashReporter.install` 보다도 앞**에 둔다: 뒤면 물러나는 인스턴스가 running 마커를 덮어쓰고

@@ -1807,7 +1807,11 @@ struct PokemonDetailView: View {
     private func individualSection(entry: DexEntry, profile: PokemonProfile,
                                    details: PokemonDetails) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            detailTitle(store.l.pokemonIndividual)
+            HStack {
+                detailTitle(store.l.pokemonIndividual)
+                if entry.championAchievedAt != nil {ChallengeChampionBadge(label:store.l.challengeChampion)}
+                Spacer()
+            }
             HStack(spacing: 12) {
                 valuePair(store.l.level, "\(profile.level)")
                 valuePair(store.l.gender, store.l.genderLabel(profile.gender))
@@ -2019,6 +2023,11 @@ private struct DexSpeciesCell: View {
             .frame(maxWidth: .infinity)
             // Attach number and shiny markers to the full cell width.
             .overlay(alignment: .topLeading) { numberTag }
+            .overlay(alignment:.bottomTrailing) {
+                if store.state.dex.contains(where:{$0.finalID==species.id && $0.championAchievedAt != nil}) {
+                    ChallengeChampionBadge(label:store.l.challengeChampion).font(.system(size:11))
+                }
+            }
             .overlay(alignment: .topTrailing) {
                 // ✨ = 이 종의 이로치를 잡은 적이 있다는 표식.
                 if species.isShiny {
@@ -2132,6 +2141,7 @@ private struct DexEntryRow: View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Badge(store.l.rarityLabel(entry.rarity).uppercased(), tint: .rarity(entry.rarity), size: 10)
+                if entry.championAchievedAt != nil {ChallengeChampionBadge(label:store.l.challengeChampion).font(.system(size:12))}
                 if store.isActiveDexEntry(entry) {
                     Badge(store.l.dexRaising.uppercased(), tint: .accent, style: .tinted, size: 10)
                 } else if entry.isReleased {

@@ -15,6 +15,119 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Arena audit totals must track the bundled arena catalog
+
+- Adding Red's original End biome increased the two-format/four-move/two-direction
+  rendering matrix from 240 to 256 cases. All render assertions passed, but an old
+  hard-coded final total still expected 240; the earlier focused arena suite omitted
+  this separate visual test class. Sweep found no other fixed arena count in its tests.
+- Derive the final audit count from both enum catalogs and the tested move/direction
+  dimensions. Keep the actual render/occlusion assertions for every case. The full
+  visual matrix reproduces the old-count failure and must pass before committing.
+
+## Cross-file champion rewards require an atomic collection receipt
+
+- A clear is stored separately from the collection. Saving only a run-level “claimed” flag
+  after making a Pokémon shiny leaves a reachable crash window: on restart, another recipient
+  could be chosen. Happy-path persistence tests do not exercise that interruption.
+- Persist recipient intent in the run first. Atomically save the shiny mutation and a run-ID
+  receipt in the collection; acknowledge the run last. Recovery finishes the original receipt,
+  and collection-side retries reject another recipient. Publish state only after disk succeeds.
+- Sweep: native X and bottom Close share the same offer handler; deferred offers survive
+  reopening; new runs cannot overwrite them. Released/already-shiny individuals are excluded,
+  while stored legacy graduates and non-team graduates remain eligible. Tests interrupt the
+  two-file transaction and force a real collection-write failure, then reopen/retry.
+- QA and the production app can run concurrently. Reading the real collection into a second
+  writable store risks stale-process overwrite. The marked challenge test app now snapshots
+  once to its own collection path and preserves that snapshot across launches. A regression
+  verifies both source isolation and repeated-launch preservation.
+
+## Terminal battle frames may contain no new effect events
+
+- The test opponent-surrender command really ends the engine and saves the reward phase,
+  but adds no move/HP animation. The shared effects view previously completed only after
+  draining new events; unchanged event arrays left the challenge on the ended battlefield.
+  Existing tests manually called presentation completion, masking the production trigger.
+  Disabling the decision-token idle completion reproduced the stuck `battle` screen in
+  the new production-window regression; the fix makes that same test pass.
+- Pass the authoritative decision token to the effects layer. After event ingestion has
+  yielded, settle an empty idle queue too; never skip a pending move/damage/entry queue.
+  The production-window regression waits for the opening to finish, sends a real instant
+  victory, verifies the unchanged event list and reaches the reward footer without any
+  test-supplied presentation completion. Ordinary final-knockout rendering is retained.
+- Champion awards persist exact individual IDs, not species, and atomically commit the
+  collection before publishing badges. Reopening a cleared run retries missing awards
+  idempotently; retired/replaced and other same-species individuals do not gain trophies.
+
+## Entry transitions must not hide uninvolved native Pokémon
+
+- The shared battle view hid every native sprite whenever WebKit was playing. That
+  contract suits moves which animate both actors, but a trainer handoff splits the
+  two opening entries and leaves the first Pokémon stationary during the second ball
+  flight. Existing entry tests checked queue completion, timing and GIF advancement,
+  not the native visibility of a nonparticipating actor; the blank handoff escaped.
+- Entry playback now hides only its incoming/recalling positions. Other Pokémon keep
+  their native GIF and floating animation continuously. Their duplicate WebKit actors
+  are invisible for entry events; moves and Mega effects retain full-actor rendering.
+  Restoring the old global mask made that regression fail throughout the ball flight.
+  A real renderer test samples the opponent's entire entry and checks both native
+  visibility and duplicate WebKit visibility. The same path handles peer openings,
+  forced replacement, voluntary switches and simultaneous doubles entries.
+- Extreme physical heights formerly scaled down every other member through a shared
+  camera, including large unused forms. Smoothly compress only extents above 140;
+  retain ordinary species' height-based proportions, shared camera and ground anchoring.
+  A Charizard/Pikachu/Wailord/Rayquaza regression checks readable Charizard size, size
+  ordering and viewport bounds. Do not replace height scaling with equal-sized squares.
+- Normal Charizard previously used the BW PokéAPI GIF provider; Mega-only original-asset
+  tests did not cover it. Its four original PokéRogue variants are now pinned, reconstructed
+  at authored 10 FPS and provenance-keyed so old cached BW GIFs cannot mask an update.
+
+## Challenge reward UI must resume from disk without a live battle frame
+
+- A victory is already atomically recorded before the reward screen opens. Reopening that
+  screen creates a new session with no frame; requiring `frame.ended == true` blocks every
+  reward after restart even though the storage-only reward tests pass. Accept the saved
+  reward phase with no frame, while still rejecting an unfinished presented battle.
+  The real-engine victory/reopen/replacement regression exercises this exact branch.
+- Replacement builds only the incoming owned individual. Rebuilding the other five from
+  collection profiles would break frozen run stats, learned Sketch moves or availability.
+  The regression's provider deliberately rejects requests for every existing member;
+  the ordinary six-member registration contract is separately tested.
+- Shared battle labels must not assume peer singles uses three in every mode. The challenge
+  window's offscreen render exposed the inherited three-member label; it now has an
+  explicit localized six-member label while preserving the peer label.
+
+## Persistent battle resources must use simulator identities and original PP slots
+
+- A copied `baseMoveSlots` object list stopped tracking `moveSlots` PP. Previous tests
+  checked displayed PP and transforms separately, not switching or cross-battle export.
+  New spent-PP/export/switch tests failed before replacing object clones with Showdown's
+  normal shallow array copy (shared slot objects). Transform still replaces current
+  slots and therefore exports the original slots, not copied opponent PP.
+- Team order changes when combatants switch or dead leads are skipped. Carry state and
+  reward targeting use stable individual IDs, and exports retain registration order.
+  Real engine win/reward/next-encounter tests exposed positional assumptions that pure
+  storage fixtures missed. Keep those end-to-end tests as well as storage tests.
+- Sketch changes base move slots permanently within a run. Keep both the latest run
+  team and the encounter's original team: replaying old commands with the newly learned
+  move would fail PP validation or execute a different move. Real Sketch/resume tests
+  retain the learned slot while leaving the collection untouched.
+- Restore resources before switch-in events, retain zero HP, validate PP against base
+  limits, reset encounter-only conditions and recalculate Mega eligibility from the
+  carried item. Save an input intent before submission, then atomically acknowledge
+  resources and the command; model/engine/catalog versions must match silent replay.
+
+## Hosting-controller minimum sizes can change after the frame already matches
+
+- With the current native hosting runtime, a reused preparing battle window received a
+  zero minimum size although its frame width already matched. Waiting only for the
+  frame produced a false readiness signal; waiting for both then reproduced a persistent
+  reset. Keep the width contract at the NSWindow minimum-size accessor boundary while allowing height
+  measurements to change. Switching modes updates that boundary explicitly.
+- The existing singles/doubles/singles reuse test now also injects the same zero-size
+  reset, then checks the preserved 660/680 minimum width. Do not remove an assertion or
+  weaken the sizing contract to hide a framework-driven reset.
+
 ## Ground contact shares one baseline across native GIFs and original effects
 
 - The earlier five-point hover and team-wide oval width implemented the previous

@@ -2,7 +2,7 @@ import AVFoundation
 
 @MainActor
 enum BattleMusicCue {
-    case battle, trainerVictory, playerLost
+    case battle, trainerVictory, playerLost, championVictory
     static func resolve(phase: BattleCoordinator.Phase, outcome: String?, pending: Bool) -> Self? {
         if phase == .playing || (phase == .ended && pending) { return .battle }
         if phase == .ended && outcome == "win" { return .trainerVictory }
@@ -28,8 +28,8 @@ struct BattleMusicTrack {
             try file.read(into:buffer)
             return buffer
         }
-        intro = try load(cue == .playerLost ? "BattleRevolutionPlayerLost.wav" : cue.prefix + "Intro.wav")
-        loop = cue.repeats ? try load(cue.prefix + "Loop.wav") : nil
+        intro = try load(cue == .championVictory ? "RubySapphireChampionVictory.wav":cue == .playerLost ? "BattleRevolutionPlayerLost.wav" : cue.prefix + "Intro.wav")
+        loop = cue == .championVictory ? intro:cue.repeats ? try load(cue.prefix + "Loop.wav") : nil
         if let loop, intro.format != loop.format { throw BattleFailure.invalidMessage }
     }
     func schedule(on node: AVAudioPlayerNode, completion: @escaping @Sendable () -> Void = {}) {

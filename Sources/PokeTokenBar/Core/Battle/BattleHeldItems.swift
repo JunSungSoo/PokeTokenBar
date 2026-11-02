@@ -112,3 +112,22 @@ enum BattleMegaText {
         return try! JSONDecoder().decode(Catalog.self,from:Data(contentsOf:url))
     }()
 }
+
+/// Original normal-form atlases, plus the existing Mega catalog, use provenance-keyed caches.
+enum BattleOriginalSprites {
+    static var directory:URL {
+        let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer/base-sprites")
+        if let bundled,FileManager.default.fileExists(atPath:bundled.appendingPathComponent("manifest.json").path){return bundled}
+        return Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("base-sprites")
+    }
+    static let records:[String:BattleMegaSprites.Record] = {
+        guard let data=try? Data(contentsOf:directory.appendingPathComponent("manifest.json")) else{return [:]}
+        return (try? JSONDecoder().decode([String:BattleMegaSprites.Record].self,from:data)) ?? [:]
+    }()
+    static func asset(speciesID:Int,form:PokemonForm?,back:Bool,shiny:Bool)->(record:BattleMegaSprites.Record,directory:URL)? {
+        if let mega=BattleMegaSprites.record(speciesID:speciesID,form:form,back:back,shiny:shiny){return (mega,BattleMegaSprites.directory)}
+        guard PokemonForm.resolved(speciesID:speciesID,form:form)==nil,
+              let record=records[(back ? "back-":"")+String(speciesID)+(shiny ? "-sh":"")] else{return nil}
+        return (record,directory)
+    }
+}
