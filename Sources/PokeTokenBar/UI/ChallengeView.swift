@@ -23,6 +23,8 @@ import SwiftUI
                     replayOpening:!model.resuming,musicActive:model.musicEnabled,auxiliaryState:auxiliary,
                     onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onLayout:onLayout,
                     onTestWin:model.session.testControlsEnabled ? {do{try model.session.winForTesting()}catch{model.report(error)}}:nil,
+                    onTestNextTrainer:model.session.testControlsEnabled ? {model.nextTrainerForTesting()}:nil,
+                    canTestNextTrainer:model.canTestNextTrainer,
                     onPlaybackBusy:{model.effectsBusy=$0})
                     .id(model.run?.encounterIndex)
             } else if model.screen == .championReward {
@@ -59,6 +61,10 @@ import SwiftUI
                         Button(l.challengeSaveExit,action:onClose).disabled(![ChallengePhase.reward,.intermission].contains(model.run?.phase ?? .ready) || model.building)
                             .accessibilityIdentifier("challenge-save-exit")
                         Spacer()
+                        if model.session.testControlsEnabled {
+                            Button(l.challengeTestNextTrainer){model.nextTrainerForTesting()}
+                                .disabled(!model.canTestNextTrainer).accessibilityIdentifier("challenge-test-next-trainer")
+                        }
                         Button(l.challengeNext){model.next()}.buttonStyle(.borderedProminent)
                             .disabled(model.run?.phase != .intermission || model.building).accessibilityIdentifier("challenge-next")
                     }

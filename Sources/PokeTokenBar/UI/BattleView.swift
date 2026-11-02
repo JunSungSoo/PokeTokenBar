@@ -19,6 +19,8 @@ struct BattleView: View {
     var onClose: () -> Void = {}
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
     var onTestWin:(()->Void)? = nil
+    var onTestNextTrainer:(()->Void)? = nil
+    var canTestNextTrainer=true
     var onPlaybackBusy:(Bool)->Void = {_ in}
     @State private var layoutWidth: CGFloat = BattleWindowLayout.preferredWidth(for: .singles)
     @State private var choices: [Int: BattleAction] = [:]
@@ -125,9 +127,14 @@ struct BattleView: View {
             if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
         }
         if let onTestWin {
-            HStack {Spacer();Button(l.challengeTestWin,action:onTestWin)
-                .disabled(effectsBusy || battle.submitted || battle.presentation.pending || battle.frame?.ended != false)
-                .accessibilityIdentifier("challenge-test-win")}
+            HStack {
+                Spacer()
+                Button(l.challengeTestWin,action:onTestWin).accessibilityIdentifier("challenge-test-win")
+                if let onTestNextTrainer {
+                    Button(l.challengeTestNextTrainer,action:onTestNextTrainer)
+                        .disabled(!canTestNextTrainer).accessibilityIdentifier("challenge-test-next-trainer")
+                }
+            }.disabled(effectsBusy || battle.submitted || battle.presentation.pending || battle.frame?.ended != false)
         }
         if let auxiliaryState, !auxiliaryState.fieldVisible || !auxiliaryState.statsVisible {
             HStack {

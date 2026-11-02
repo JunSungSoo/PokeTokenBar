@@ -170,6 +170,25 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         try await win(m);m.didFinishPresentation();m.configureRewardSelection()
         try await Task.sleep(for:.milliseconds(400));try capture("reward")
     }
+    func testNextTrainerResetsIntroAndAppliesArenaAndBattleMusic()async throws {
+        let fixture=try fixture(testControls:true)
+        let session=try ChallengeBattleSession(save:fixture.save,catalog:ChallengeEncounterCatalog.load(),testControlsEnabled:true)
+        let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
+        m.isOpen=true;defer{m.close()}
+        let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();_ = try await wait(m)
+        m.session.completePresentation();m.intro.finish()
+        m.effectsBusy=true;m.nextTrainerForTesting();XCTAssertEqual(m.run?.encounterIndex,0)
+        m.effectsBusy=false
+        for (index,key,arena) in [(1,"falkner",BattleArena.mountain),(2,"misty",.lake)] {
+            m.nextTrainerForTesting();_ = try await wait(m)
+            XCTAssertEqual(m.run?.encounterIndex,index)
+            XCTAssertEqual(m.intro.key,key);XCTAssertTrue(m.intro.active)
+            XCTAssertFalse(m.intro.exiting);XCTAssertFalse(m.resuming)
+            XCTAssertEqual(controller.battle.arena,arena);XCTAssertEqual(controller.resolvedMusicCue,.battle)
+            m.session.completePresentation();m.intro.finish()
+        }
+    }
     func testProductionInstantVictoryWithNoNewEffectsShowsRewardFooter()async throws {
         let m=try fixture(testControls:true)
         // No manual presentation completion is allowed.
@@ -192,6 +211,22 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let view=try XCTUnwrap(window.window?.contentView);view.layoutSubtreeIfNeeded()
         let bitmap=try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in:view.bounds));view.cacheDisplay(in:view.bounds,to:bitmap)
         try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-challenge-reward-fixed.png"))
+    }
+    func testRedUsesDistinctProvidedBattleAndVictoryMusic()async throws {
+        let fixture=try fixture(testControls:true)
+        let catalog=ChallengeEncounterCatalog(version:"red-music-test",encounters:[.init(id:"red",index:0,nameKo:"레드",phase:"최종 구간",team:fixture.session.catalog.encounters[0].team)])
+        let session=try ChallengeBattleSession(save:fixture.save,catalog:catalog,testControlsEnabled:true)
+        let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
+        m.isOpen=true;defer{m.close()}
+        let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();let frame=try await wait(m)
+        XCTAssertEqual(m.run?.phase,.battling);XCTAssertEqual(controller.resolvedMusicCue,.championBattle)
+        m.session.completePresentation();m.intro.finish()
+        XCTAssertEqual(controller.resolvedMusicCue,.championBattle)
+        try session.winForTesting();_ = try await wait(m,after:frame.decisionID)
+        XCTAssertEqual(m.run?.phase,.cleared);XCTAssertEqual(controller.resolvedMusicCue,.championBattle)
+        m.didFinishPresentation();XCTAssertEqual(controller.resolvedMusicCue,.championVictory)
+        try m.offerChampionReward();XCTAssertNil(controller.resolvedMusicCue)
     }
     func testChampionAwardPersistsOnlyWinningIndividualsAndIsIdempotent()async throws {
         let m=try fixture();defer{m.close()}

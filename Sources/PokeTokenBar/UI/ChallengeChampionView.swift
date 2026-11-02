@@ -63,8 +63,10 @@ struct ChallengeChampionBadge:View {
                 }
             }.frame(maxWidth:.infinity,minHeight:280)
             Spacer(minLength:12)
-            Divider()
-            HStack{Spacer();Button(L(language).challengeClose,action:onClose).buttonStyle(.borderedProminent).tint(.blue).accessibilityIdentifier("challenge-champion-close")}.padding(14)
+            if sequence.completed {
+                Divider()
+                HStack{Spacer();Button(L(language).challengeClose,action:onClose).buttonStyle(.borderedProminent).tint(.blue).accessibilityIdentifier("challenge-champion-close")}.padding(14)
+            }
         }.task(id:runID){await sequence.play(count:team.count,reducedMotion:reducedMotion)}
     }
 }

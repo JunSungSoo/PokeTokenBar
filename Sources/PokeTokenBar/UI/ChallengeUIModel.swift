@@ -96,6 +96,18 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
         do {try session.startEncounter();running=true;sceneSettled=false;resuming=false;if let encounter{intro.reset(encounter:encounter.id)}}
         catch {report(error)}
     }
+    var canTestNextTrainer:Bool {
+        session.testControlsEnabled && !building && !effectsBusy && run.map{$0.encounterIndex+1<$0.encounterCount} == true
+    }
+    func nextTrainerForTesting() {
+        guard canTestNextTrainer else{return}
+        problem=false
+        do {
+            try session.nextTrainerForTesting()
+            running=true;sceneSettled=false;resuming=false
+            if let encounter{intro.reset(encounter:encounter.id)}
+        }catch{report(error)}
+    }
     func didFinishPresentation(){
         session.completePresentation()
         if session.frame?.ended==true {sceneSettled=true;synchronizeChampionAward()}

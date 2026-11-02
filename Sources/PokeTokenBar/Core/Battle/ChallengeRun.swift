@@ -186,6 +186,13 @@ enum ChallengeReward {
         next.encounterIndex+=1;next.phase = .ready
         try commit(next)
     }
+    /// QA-only encounter traversal; preserve the current resources and never mark a victory.
+    func skipEncounterForTesting()throws {
+        guard var next=run,[.battling,.reward,.intermission].contains(next.phase),
+              next.encounterIndex+1<next.encounterCount else{throw ChallengeFailure.invalidState}
+        next.encounterIndex+=1;next.phase = .ready;next.checkpoint=nil
+        try commit(next)
+    }
     func offerChampionReward()throws {
         guard var next=run,next.phase == .cleared,next.championReward?.claimed != true else{throw ChallengeFailure.invalidReward}
         if next.championReward==nil{next.championReward=ChallengeChampionReward();try commit(next)}

@@ -1,6 +1,10 @@
 import Foundation
 
 extension L {
+    var challengeSecondGeneration:String {t("2세대","Gen II","第2世代","2.ª generación","2e génération","2ª geração","2. Generation","2-е поколение")}
+
+    var challengeTestNextTrainer:String {t("다음 트레이너 (테스트)","Next trainer (test)","次のトレーナー（テスト）","Siguiente entrenador (prueba)","Dresseur suivant (test)","Próximo treinador (teste)","Nächster Trainer (Test)","Следующий тренер (тест)")}
+
     var challengeTestData:String {t("테스트 데이터 · 실제 보유 목록의 사본","Test data · Copy of your collection","テストデータ・所持一覧のコピー","Datos de prueba · Copia de tu colección","Données de test · Copie de la collection","Dados de teste · Cópia da coleção","Testdaten · Kopie deiner Sammlung","Тестовые данные · Копия коллекции")}
 
     var challengeShinyReward:String {t("챔피언 보상 · 이로치 변경","Champion reward · Shiny conversion","王者報酬・色違いに変更","Recompensa de campeón · Variocolor","Récompense du champion · Chromatique","Recompensa de campeão · Shiny","Champion-Belohnung · Schillernd","Награда чемпиона · Шайни")}
@@ -13,9 +17,18 @@ extension L {
     var challengeClose:String {t("닫기","Close","閉じる","Cerrar","Fermer","Fechar","Schließen","Закрыть")}
 
     var challengeTestWin:String {t("즉시 승리 (테스트)","Instant win (test)","即勝利（テスト）","Victoria inmediata (prueba)","Victoire immédiate (test)","Vitória imediata (teste)","Sofortsieg (Test)","Мгновенная победа (тест)")}
-    func challengeTrainerAppeared(_ name:String)->String {
-        let scalar=name.unicodeScalars.last?.value ?? 0
+    func challengeTrainerAppeared(_ name:String,encounter:String="")->String {
+        let scalar=name.components(separatedBy:" (").first?.unicodeScalars.last?.value ?? 0
         let particle=(0xAC00...0xD7A3).contains(scalar) && (scalar-0xAC00)%28 != 0 ? "이":"가"
+        switch encounter {
+        case "red":
+            return t("포켓몬 마스터 \(name)\(particle) 등장했다.","Pokémon Master \(name) appeared!","ポケモンマスターの\(name)が現れた！","¡Ha aparecido el Maestro Pokémon \(name)!","Le Maître Pokémon \(name) apparaît !","O Mestre Pokémon \(name) apareceu!","Pokémon-Meister \(name) erscheint!","Появляется мастер покемонов \(name)!")
+        case "blue","lance2":
+            return t("챔피언 \(name)\(particle) 등장했다.","Champion \(name) appeared!","チャンピオンの\(name)が現れた！","¡Ha aparecido el Campeón \(name)!","Le Maître \(name) apparaît !","O Campeão \(name) apareceu!","Champ \(name) erscheint!","Появляется чемпион \(name)!")
+        case "lorelei","bruno1","agatha","lance1","will","koga2","bruno2","karen":
+            return t("사천왕 \(name)\(particle) 등장했다.","Elite Four \(name) appeared!","四天王の\(name)が現れた！","¡Ha aparecido \(name) del Alto Mando!","\(name) du Conseil 4 apparaît !","\(name) da Elite dos Quatro apareceu!","Top-Vier-Mitglied \(name) erscheint!","Появляется \(name) из Элитной четвёрки!")
+        default:break
+        }
         return t("적 \(name)\(particle) 등장했다.","Enemy \(name) appeared!","敵の\(name)が現れた！","¡Ha aparecido \(name)!","\(name) apparaît !","\(name) apareceu!","Gegner \(name) erscheint!","Появляется противник \(name)!")
     }
 

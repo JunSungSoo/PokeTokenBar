@@ -15,6 +15,21 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Champion Close must follow the trophy presentation stage
+
+- The Champion footer originally rendered Close unconditionally; prior screenshot tests
+  waited only for the completed scene and never checked the six-member introduction.
+  With the requested trophy-only close behavior, that old test path could not detect
+  a premature action. Other result/reward close controls have separate lifecycle rules.
+- Render the footer only when the shared celebration completion state reveals the trophy.
+  The production-view regression captures the introduction and completed scene, recognizes
+  the actual rendered Korean text and requires Close absent before, present with Champion
+  afterward. SwiftUI's prominent button is drawn without an NSButton descendant here,
+  so checking only native button subclasses would falsely report absence at both stages.
+- Temporarily restoring the unconditional footer makes this same pre-trophy pixel/OCR
+  regression fail. Restore the condition before the final passing suite. The native X
+  handler and deferred/exactly-once shiny-reward transaction retain their existing behavior.
+
 ## Arena audit totals must track the bundled arena catalog
 
 - Adding Red's original End biome increased the two-format/four-move/two-direction

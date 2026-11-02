@@ -109,7 +109,7 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
 - End-only frames (including test opponent surrender) now complete an idle presentation queue using the decision token. New damage/move/entry events still drain first. The actual production-window regression reproduces the former missing reward footer without calling presentation completion from the test. Restoring the old behavior leaves the screen stuck in `battle`, as reported.
 - The reward footer stays visible. Save-and-exit can preserve an unclaimed reward; Next activates after claiming the one reward. Existing HP/PP carry and atomic reward handling remain in place.
 - Final Red victory replaces the battle/result music with the supplied `RubySapphireChampionVictory.ogg`, decoded without trimming or rate changes into PCM WAV (44,100 Hz stereo, 2,178,255 frames). The complete track repeats through the existing BGM mixer/volume. Original OGG, WAV and SHA-256/PCM metadata are retained; `prepare-champion-music.py` reproduces the conversion with SoundFile.
-- The six final run members appear individually in order, hold briefly and fade out, followed by the exact `Champion!` title. A bottom Close button is available throughout. Closing cancels the animation task and stops music.
+- The six final run members appear individually in order, hold briefly and fade out, followed by the exact `Champion!` title. A bottom Close button appears only alongside the completed trophy/Champion title, after all six introductions and fades. Closing cancels the animation task and stops music.
 - An optional per-individual `championAchievedAt` field preserves old save compatibility. Only the final six individual IDs receive the gold trophy, not retired members or other same-species individuals. The collection is atomically written before badges publish, repeated awards keep the original date, and a restored cleared run retries missing awards. Trophy icons appear in the collection grid, the individual/loadout section and the capture-log card.
 
 - Final validation: 15 focused native UI/celebration tests passed (`/tmp/ptb-champion-ui-verified.log`), including original champion PCM/frame metadata, sequential/cancelled celebration, production final-screen render, legacy save decode, exact-ID/idempotent trophy persistence, atomic-write failure, the no-event production victory footer and normal challenge transitions. The broader 29-test selection also passed before the final render fixture was added, including normal final-knockout playback and result music (`/tmp/ptb-champion-verified.log`). Full engine suite: 136 passing (`/tmp/ptb-champion-engine-final.log`). LLVM regions: `/tmp/ptb-champion-regions-final.txt`. Screens: `/tmp/ptb-challenge-reward-fixed.png`, `/tmp/ptb-champion-complete.png`.
@@ -129,3 +129,43 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
 - The full visual audit exposed an obsolete total of 240 after adding Red's End biome; all render assertions had passed. Its expected total now follows the mode/arena catalogs, and all 256 arena/move/direction cases pass. The earlier fixed-count version fails on exactly this matrix.
 - Disabling the collection's duplicate-run recipient guard made the actual close/reopen/claim regression fail (`/tmp/ptb-shiny-ledger-mutation.log`); the original guard was restored before the final passing run. LLVM source regions were inspected in `/tmp/ptb-champion-shiny-regions.txt`, including write/recovery and window-close paths. Defensive invalid-input branches are not claimed as covered.
 - Offscreen production picker render: `/tmp/ptb-champion-shiny-reward.png`, using controlled fixture graduates. Python script syntax, bundled challenge JSON and staged whitespace checks passed. No release-note entry or ZIP was generated for this work.
+
+
+### Test-only next-trainer traversal
+
+- The marked QA app shows Next trainer beside Instant win on the battlefield, and on the victory-reward footer. It can skip the current battle or its unclaimed reward without fabricating a victory. The ordinary app provides neither control and the session rejects test traversal when disabled.
+- Traversal atomically advances exactly one encounter, keeps current HP/PP/status/items, clears the previous replay checkpoint and starts the next real CPU encounter. The UI remounts the battlefield, resets the trainer entrance and selects that opponent's original arena and configured BGM immediately. Ordinary trainers use the shared battle BGM; Red uses separate user-supplied Ruby/Sapphire champion battle and victory tracks, retaining its End arena.
+- Playback/submitted-action gating prevents changing encounters in the middle of an effect. Red has no next encounter: the traversal button is disabled there, while Instant win can exercise the full Champion celebration and shiny reward.
+- Regression runs the actual engine through all 27 encounters to Red with spent PP carried forward, checks disabled-mode rejection and the terminal boundary, and also traverses an unclaimed victory reward. A UI-model test verifies fresh trainer intro state, Misty's water arena, configured battle music and playback gating. Removing the session's test-mode guard deliberately fails the traversal regression; the guard is restored before the passing run.
+
+- Final traversal verification: all 36 challenge-native tests passed (`/tmp/ptb-challenge-next-final.log`). Session/UI/store LLVM regions were inspected (`/tmp/ptb-challenge-next-regions.txt`); the disabled-mode guard and effect-busy early return executed. The 27-encounter test exercises the last-encounter rejection and uses Instant win on Red to enter the normal clear path. ARM64 QA app is rebuilt with the marked test controls; production saves are not reset.
+
+
+### Encounter-specific entrance titles
+
+- The eight Elite Four encounters announce “사천왕 {name}이/가 등장했다.”; Red announces “포켓몬 마스터 레드가 등장했다.”. Gym leaders keep the existing opponent wording; Blue and final Lance now use Champion wording as described below. Equivalent titles are localized in all eight languages.
+- Retain the original encounter ID separately from the shared sprite/name key, so Koga's gym and Elite Four appearances and Lance's Elite Four/champion appearances remain distinct. Opening-only messages and Korean subject-particle selection are preserved. The two focused announcement tests pass, covering all Elite Four encounters, Red, repeated-role trainers, unchanged resume messages and localized names (`/tmp/ptb-trainer-title-tests.log`).
+
+
+### Returning trainers, champions and Red battle music
+
+- The second Koga, Bruno and Lance encounters display a localized `(Gen II)` suffix in all opponent names and entrance messages, including Korean `(2세대)`. Shared sprite keys remain unchanged. Green/Blue and the final Lance announce the Champion title; earlier Elite Four appearances retain Elite Four titles. Korean subject particles follow the base trainer name rather than the parenthesized suffix.
+- Red's victory music uses the exact supplied `/tmp/RubySapphireChampionVictory.ogg` source, already bundled as the losslessly decoded `RubySapphireChampionVictory.wav`. Original/archived source SHA-256 matches `468696310084e61b0d5c2f6ca14e5163eb36d898bf76e02b32ea0754a7dc5196`. The existing BGM volume and complete-track looping apply. The victory celebration uses that track; ordinary loss/result and reward-screen music behavior remains unchanged.
+- Five focused announcement/music tests pass, including the real Red CPU session from battle through clear and reward-screen silence, the original PCM/frame/hash verification, and normal opponent traversal (`/tmp/ptb-challenge-roles-red-music-final.log`).
+
+
+### Separate Red battle and victory audio
+
+- Corrected the requested split: Red battles use `/tmp/RubySapphireChampionBattle.ogg`; only the settled Red win/Champion celebration uses `/tmp/RubySapphireChampionVictory.ogg`. Pending final-action effects keep the battle track until the normal presentation completes. Ordinary trainers retain Gold/Silver battle audio.
+- Archived the new source under `BattleEngine/music` and decoded it to `RubySapphireChampionBattle.wav`: 44,100 Hz stereo, 4,119,954 frames, complete-track repeat at the original rate. SHA-256/PCM metadata is in `champion-battle-source.json`; reproduce with `prepare-champion-music.py --battle`. Both normal and QA bundles include the new WAV. Existing BGM volume controls apply to both cues.
+- Focused tests cover the distinct source/WAV hashes, original frame counts/rate/looping, real Red battle → pending victory → settled victory → reward-screen silence, and ordinary trainer music (`/tmp/ptb-red-separated-music.log`).
+
+
+### Trophy-gated close and ZIP packaging
+
+- Champion Close now appears only when the trophy/Champion scene is complete. An actual production SwiftUI render verifies the introduction has no Close text and the completed scene contains both Champion and Close. Captures: `/tmp/ptb-champion-before-trophy.png`, `/tmp/ptb-champion-complete.png`.
+- Restoring the former unconditional footer deliberately fails that rendered-text regression (`/tmp/ptb-champion-close-mutation.log`); the mutation is restored before final validation. The user explicitly requested a November 2 release-note entry and an ARM64 Desktop ZIP for all accumulated challenge and presentation changes.
+
+- Final cumulative native selection: 54 tests passed (`/tmp/ptb-challenge-zip-native-final.log`), covering challenge traversal, resources/rewards, trainer titles, both Red tracks, actual trophy-gated Close rendering, entry continuity and item defaults. Build preparation reran the complete engine suite: 136 passing (`/tmp/ptb-challenge-release-build.log`). LLVM source regions for the celebration and cue transitions were inspected (`/tmp/ptb-challenge-zip-regions.txt`).
+
+- Release bundle verification passed: ARM64 app and helper, strict/deep signature validation, 4,356 matching source/resource files, both audio hashes, test marker absent and an actual CPU battle turn through the bundled engine (`/tmp/ptb-challenge-release-verification.json`). No installed app was replaced. The ZIP includes the full descending Korean release-note history, with November 2 (1st release) added at the user's request.

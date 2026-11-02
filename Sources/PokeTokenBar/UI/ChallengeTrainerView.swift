@@ -18,7 +18,8 @@ import SwiftUI
         return names
     }()
     static func name(_ encounter:String,language:AppLanguage)->String {
-        names[key(encounter)]?[language.rawValue] ?? L(language).challengeTitle
+        let name=names[key(encounter)]?[language.rawValue] ?? L(language).challengeTitle
+        return ["koga2","bruno2","lance2"].contains(encounter) ? "\(name) (\(L(language).challengeSecondGeneration))":name
     }
     private struct Atlas:Decodable {
         struct Texture:Decodable {
@@ -51,6 +52,7 @@ import SwiftUI
 }
 @MainActor @Observable final class ChallengeTrainerIntro {
     private(set) var key="brock"
+    private var encounterID="brock"
     private(set) var active=false
     private(set) var exiting=false
     private(set) var ownEntryStarted=false
@@ -58,10 +60,10 @@ import SwiftUI
     func openingMessages(events:[BattleVisualEvent],messages:[Int:String],language:AppLanguage,enabled:Bool)->[Int:String] {
         guard enabled,let first=events.first(where:{$0.phase=="entry"}) else{return messages}
         var result=messages
-        result[first.id]=L(language).challengeTrainerAppeared(ChallengeTrainerCatalog.name(key,language:language))
+        result[first.id]=L(language).challengeTrainerAppeared(ChallengeTrainerCatalog.name(encounterID,language:language),encounter:encounterID)
         return result
     }
-    func reset(encounter:String){key=ChallengeTrainerCatalog.key(encounter);exiting=false;ownEntryStarted=false;active=true}
+    func reset(encounter:String){encounterID=encounter;key=ChallengeTrainerCatalog.key(encounter);exiting=false;ownEntryStarted=false;active=true}
     func finish(){active=false;exiting=false}
     func before(_ event:BattleVisualEvent)async {
         guard active,event.phase=="entry" else{return}

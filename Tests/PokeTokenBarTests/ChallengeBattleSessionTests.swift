@@ -90,6 +90,45 @@ import XCTest
         XCTAssertEqual(won.resources,before.resources)
         XCTAssertThrowsError(try session.winForTesting())
     }
+    func testTestTraversalVisitsEveryTrainerAndRedWithoutRefillingOrClearing()async throws {
+        let helper=ChallengeRunTests(),save=try helper.store(),catalog=try ChallengeEncounterCatalog.load()
+        defer{try? FileManager.default.removeItem(at:save.url.deletingLastPathComponent())}
+        let session=try ChallengeBattleSession(save:save,catalog:catalog,testControlsEnabled:true)
+        defer{session.stop()}
+        try session.start(team:helper.team());var frame=try await wait(session)
+        // Spend PP in a real turn before exercising QA traversal.
+        try session.choose(action(frame));frame=try await wait(session,after:frame.decisionID)
+        session.completePresentation()
+        let carried=try XCTUnwrap(save.run?.resources)
+        XCTAssertLessThan(carried[0].moves[0].pp,15)
+        let disabled=try ChallengeBattleSession(save:save,catalog:catalog,testControlsEnabled:false)
+        XCTAssertThrowsError(try disabled.nextTrainerForTesting())
+        XCTAssertEqual(save.run?.encounterIndex,0)
+        for index in 1..<catalog.encounters.count {
+            try session.nextTrainerForTesting()
+            frame=try await wait(session)
+            session.completePresentation()
+            XCTAssertEqual(save.run?.encounterIndex,index)
+            XCTAssertEqual(save.run?.checkpoint?.opponent.map(\.id),catalog.encounters[index].team.map(\.id))
+            XCTAssertEqual(save.run?.checkpoint?.initialResources,carried)
+            XCTAssertEqual(save.run?.phase,.battling)
+        }
+        XCTAssertEqual(catalog.encounters[try XCTUnwrap(save.run?.encounterIndex)].id,"red")
+        XCTAssertThrowsError(try session.nextTrainerForTesting())
+        try session.winForTesting();frame=try await wait(session,after:frame.decisionID)
+        XCTAssertTrue(frame.ended);XCTAssertEqual(save.run?.phase,.cleared)
+    }
+    func testTestNextTrainerCanLeaveUnclaimedVictoryReward()async throws {
+        let helper=ChallengeRunTests(),save=try helper.store(),session=try ChallengeBattleSession(save:save,catalog:ChallengeEncounterCatalog.load(),testControlsEnabled:true)
+        defer{session.stop();try? FileManager.default.removeItem(at:save.url.deletingLastPathComponent())}
+        try session.start(team:helper.team());let first=try await wait(session)
+        session.completePresentation();try session.winForTesting()
+        _ = try await wait(session,after:first.decisionID);session.completePresentation()
+        XCTAssertEqual(save.run?.phase,.reward)
+        let carried=save.run?.resources
+        try session.nextTrainerForTesting();_ = try await wait(session)
+        XCTAssertEqual(save.run?.encounterIndex,1);XCTAssertEqual(save.run?.checkpoint?.initialResources,carried)
+    }
     func testSketchPersistsItsLearnedMoveAndReplaysFromTheOriginalTeam()async throws {
         let helper=ChallengeRunTests(),save=try helper.store()
         var own=helper.team();let p=own[0];var stats=p.stats;stats["spe"]=1

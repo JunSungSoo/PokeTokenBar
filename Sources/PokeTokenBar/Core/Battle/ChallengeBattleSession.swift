@@ -111,6 +111,12 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
               frame?.ended==false,!presentation.pending else{throw ChallengeFailure.invalidState}
         try engine?.surrender(player:1)
     }
+    func nextTrainerForTesting()throws {
+        guard testControlsEnabled,!submitted,!replaying,!presentation.pending else{throw ChallengeFailure.invalidState}
+        try save.skipEncounterForTesting()
+        stop();frame=nil
+        try startEncounter()
+    }
     func surrender()throws {
         try save.forfeit();stop()
     }

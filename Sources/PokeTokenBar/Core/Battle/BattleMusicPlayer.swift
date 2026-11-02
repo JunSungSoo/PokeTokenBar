@@ -2,7 +2,7 @@ import AVFoundation
 
 @MainActor
 enum BattleMusicCue {
-    case battle, trainerVictory, playerLost, championVictory
+    case battle, trainerVictory, playerLost, championVictory, championBattle
     static func resolve(phase: BattleCoordinator.Phase, outcome: String?, pending: Bool) -> Self? {
         if phase == .playing || (phase == .ended && pending) { return .battle }
         if phase == .ended && outcome == "win" { return .trainerVictory }
@@ -28,8 +28,14 @@ struct BattleMusicTrack {
             try file.read(into:buffer)
             return buffer
         }
-        intro = try load(cue == .championVictory ? "RubySapphireChampionVictory.wav":cue == .playerLost ? "BattleRevolutionPlayerLost.wav" : cue.prefix + "Intro.wav")
-        loop = cue == .championVictory ? intro:cue.repeats ? try load(cue.prefix + "Loop.wav") : nil
+        let fullTrack:String?
+        switch cue {
+        case .championBattle:fullTrack="RubySapphireChampionBattle.wav"
+        case .championVictory:fullTrack="RubySapphireChampionVictory.wav"
+        default:fullTrack=nil
+        }
+        intro = try load(fullTrack ?? (cue == .playerLost ? "BattleRevolutionPlayerLost.wav" : cue.prefix + "Intro.wav"))
+        loop = fullTrack != nil ? intro:cue.repeats ? try load(cue.prefix + "Loop.wav") : nil
         if let loop, intro.format != loop.format { throw BattleFailure.invalidMessage }
     }
     func schedule(on node: AVAudioPlayerNode, completion: @escaping @Sendable () -> Void = {}) {

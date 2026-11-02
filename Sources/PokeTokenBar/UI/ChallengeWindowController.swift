@@ -139,8 +139,10 @@ import SwiftUI
     var musicCue:BattleMusicCue? {player?.cue}
     var resolvedMusicCue:BattleMusicCue? {
         if model.screen == .championReward{return nil}
-        if model.run?.phase == .cleared{return model.sceneSettled || !model.running ? .championVictory:.battle}
-        return BattleMusicCue.resolve(phase:battle.phase,outcome:battle.outcome,pending:battle.presentation.pending)
+        let encounterMusic:BattleMusicCue=model.encounter?.id=="red" ? .championBattle:.battle
+        if model.run?.phase == .cleared{return model.sceneSettled || !model.running ? .championVictory:encounterMusic}
+        let cue=BattleMusicCue.resolve(phase:battle.phase,outcome:battle.outcome,pending:battle.presentation.pending)
+        return cue == .battle ? encounterMusic:cue
     }
     private func refreshMusic() {
         guard model.isOpen,(model.running || model.run?.phase == .cleared),allowsAudio,model.musicEnabled,

@@ -38,6 +38,20 @@ import XCTest
         XCTAssertEqual(intro.openingMessages(events:[event],messages:[7:"existing"],language:.ko,enabled:false)[7],"existing")
         for lang in AppLanguage.allCases{XCTAssertNotNil(intro.openingMessages(events:[event],messages:[:],language:lang,enabled:true)[7])}
     }
+    func testEliteFourAndRedAppearWithEncounterSpecificTitles() {
+        let intro=ChallengeTrainerIntro()
+        let event=BattleVisualEvent(id:7,move:"",type:"",category:"",source:.init(own:true,slot:0),targets:[],phase:"entry")
+        let expected=["lorelei":"사천왕 칸나가 등장했다.","bruno1":"사천왕 시바가 등장했다.","agatha":"사천왕 국화가 등장했다.","lance1":"사천왕 목호가 등장했다.","will":"사천왕 일목이 등장했다.","koga2":"사천왕 독수 (2세대)가 등장했다.","bruno2":"사천왕 시바 (2세대)가 등장했다.","karen":"사천왕 카렌이 등장했다.","red":"포켓몬 마스터 레드가 등장했다.","koga1":"적 독수가 등장했다.","lance2":"챔피언 목호 (2세대)가 등장했다.","blue":"챔피언 그린이 등장했다."]
+        for (encounter,message) in expected {
+            intro.reset(encounter:encounter)
+            XCTAssertEqual(intro.openingMessages(events:[event],messages:[:],language:.ko,enabled:true)[7],message)
+            XCTAssertEqual(intro.openingMessages(events:[event],messages:[7:"unchanged"],language:.ko,enabled:false)[7],"unchanged")
+            for language in AppLanguage.allCases {
+                let localized=intro.openingMessages(events:[event],messages:[:],language:language,enabled:true)[7]
+                XCTAssertTrue(localized?.contains(ChallengeTrainerCatalog.name(encounter,language:language)) == true)
+            }
+        }
+    }
     func testFoeBallAnimationNeverHidesAlreadyPresentOwnPokemon()async throws {
         let (store,dir)=try PokeRogueFaithfulTests().gifStore();defer{try? FileManager.default.removeItem(at:dir)}
         let player=PokeRogueBattlePlayer(spriteStore:store)
