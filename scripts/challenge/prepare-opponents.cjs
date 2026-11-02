@@ -70,5 +70,6 @@ for(const r of rosters){
  catalog.encounters.push({id:r.id,index:r.round-1,nameKo:r.name,phase:r.phase,team});
 }
 require('./red-overrides.cjs').applyRedOverrides(catalog,dex);
+require('./level-policy.cjs').applyOpponentLevels(catalog,dex);
 fs.writeFileSync('BattleEngine/challenge-opponents.json',JSON.stringify(catalog,null,2)+'\n');
 console.log(JSON.stringify({encounters:catalog.encounters.length,members:catalog.encounters.flatMap(e=>e.team).length,manualSlots:catalog.encounters.flatMap(e=>e.team).filter(p=>p.evidence.manual).length}));

@@ -168,10 +168,10 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         var resources=try XCTUnwrap(m.run?.resources);resources[0].hp=0
         try m.save.accept(resources:resources,decision:nil,winner:0)
         XCTAssertNil(m.session.frame);XCTAssertEqual(m.screen,.reward)
-        m.selectReward(.revive);XCTAssertTrue(m.canApplyReward)
+        m.selectReward(.heal);XCTAssertTrue(m.canApplyReward)
         await m.applyReward();XCTAssertFalse(m.problem)
-        XCTAssertEqual(m.run?.resources[0].hp,250);XCTAssertEqual(m.run?.phase,.intermission)
-        await m.applyReward();XCTAssertEqual(m.run?.resources[0].hp,250,"A reward is claimed only once")
+        XCTAssertEqual(m.run?.resources[0].hp,175);XCTAssertEqual(m.run?.phase,.intermission)
+        await m.applyReward();XCTAssertEqual(m.run?.resources[0].hp,175,"A reward is claimed only once")
     }
     func testSingleReplacementValidationDoesNotWeakenSixMemberTeamContract()async throws {
         let m=try fixture();defer{m.close()}
@@ -288,25 +288,23 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
         try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
         let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
-        for label in ["챌린지상점","완전회복","PP전체회복","20%","40%","100포인트","50포인트","10포인트","30포인트"]{XCTAssertTrue(text.contains(label),"Missing card text: \(label) in \(text)")}
+        for label in ["챌린지상점","완전회복","PP전체회복","20%","40%","100포인트","30포인트","10포인트","20포인트"]{XCTAssertTrue(text.contains(label),"Missing card text: \(label) in \(text)")}
         XCTAssertTrue(m.canPurchase(.ppRecovery,targetID:"owned-0"))
-        XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"));XCTAssertEqual(m.shopBalance,50)
+        XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"));XCTAssertEqual(m.shopBalance,70)
         XCTAssertEqual(m.run?.phase,.reward);m.next();XCTAssertEqual(m.run?.encounterIndex,0)
         m.selectReward(.buff);await m.applyReward();XCTAssertEqual(m.run?.phase,.intermission)
         m.next();_ = try await wait(m);XCTAssertEqual(m.run?.encounterIndex,1)
-        XCTAssertEqual(m.shopBalance,50,"Skipping further purchases must not block Next")
+        XCTAssertEqual(m.shopBalance,70,"Skipping further purchases must not block Next")
     }
-    func testRandomNewProductCardsRenderAndFaintedRewardSelectionIsRestricted()async throws {
-        let m=try fixture(stock:[.statusCure,.revive,.teamHeal30,.maxRevive]);defer{m.close()}
+    func testSevenProductShopRendersWithoutRevivalItemsAndHPRewardAllowsFainted()async throws {
+        let m=try fixture(stock:[.statusCure,.heal40,.teamHeal50,.ppRecovery]);defer{m.close()}
         let team=ChallengeRunTests().team()
         try m.save.start(team:team,catalogVersion:m.session.catalog.version,encounterCount:2)
         try m.save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
         var resources=m.run!.resources;resources[0].hp=0;resources[1].hp=1
         try m.save.accept(resources:resources,decision:nil,winner:0)
-        m.selectReward(.heal);XCTAssertEqual(m.rewardPokemonID,"a1")
-        m.rewardPokemonID="a0";XCTAssertFalse(m.canApplyReward)
-        m.selectReward(.revive);XCTAssertEqual(m.rewardPokemonID,"a0");XCTAssertTrue(m.canApplyReward)
-        m.rewardPokemonID="a1";XCTAssertFalse(m.canApplyReward)
+        m.selectReward(.heal);XCTAssertEqual(m.rewardPokemonID,"a0");XCTAssertTrue(m.canApplyReward)
+        m.rewardPokemonID="a1";XCTAssertTrue(m.canApplyReward)
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
         controller.show(present:false);defer{controller.window?.close()}
         try await Task.sleep(for:.milliseconds(200))
@@ -316,8 +314,37 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
         try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
         let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
-        for label in ["상태이상회복","기력의조각","전체HP30%회복","기력의덩어리","40포인트","30포인트","50포인트","70포인트"]{XCTAssertTrue(text.contains(label),"Missing card: \(label) in \(text)")}
-        XCTAssertFalse(text.contains("20%회복"));XCTAssertFalse(text.contains("PP전체회복"))
+        for label in ["상태이상회복","HP40%회복","전체HP50%회복","PP전체회복","10포인트","20포인트","30포인트","50포인트"]{XCTAssertTrue(text.contains(label),"Missing card: \(label) in \(text)")}
+        XCTAssertFalse(text.contains("기력의조각"));XCTAssertFalse(text.contains("기력의덩어리"))
+    }
+    func testMovePPSheetRendersSelectionAndUpdatedPriceAfterPurchase()async throws {
+        let m=try fixture(stock:[.ppMoveRecovery,.ppRecovery,.fullRecovery,.teamHeal50]);defer{m.close()}
+        let team=ChallengeRunTests().team()
+        try m.save.start(team:team,catalogVersion:m.session.catalog.version,encounterCount:2)
+        try m.save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
+        var resources=m.run!.resources;resources[0].hp=0
+        resources[0].moves[0].pp=0;resources[0].moves[1].pp=0
+        try m.save.accept(resources:resources,decision:nil,winner:0)
+        let host=NSHostingController(rootView:ChallengeShopPurchaseView(model:m,item:.ppMoveRecovery,onClose:{}).background(Color(nsColor:.windowBackgroundColor)).preferredColorScheme(.dark))
+        let window=NSWindow(contentRect:NSRect(x:0,y:0,width:560,height:580),styleMask:[.titled],backing:.buffered,defer:false)
+        window.isReleasedWhenClosed=false;window.contentViewController=host;window.appearance=NSAppearance(named:.darkAqua);host.view.appearance=window.appearance
+        defer{window.contentViewController=nil;window.close()}
+        try await Task.sleep(for:.milliseconds(250));host.view.layoutSubtreeIfNeeded()
+        let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds));host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-selected-pp-shop.png"))
+        let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
+        try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
+        let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
+        for label in ["PP선택기술회복","파도타기","방어","0/15","0/10","10포인트"]{XCTAssertTrue(text.contains(label),"Missing move picker: \(label) in \(text)")}
+        XCTAssertTrue(m.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:1))
+        XCTAssertEqual(m.run?.resources[0].moves.map(\.pp),[0,10]);XCTAssertEqual(m.run?.resources[0].hp,0)
+        XCTAssertEqual(m.shopPrice(.ppMoveRecovery),15);XCTAssertEqual(m.shopPrice(.ppRecovery),30)
+        XCTAssertEqual(m.shopBalance,90);XCTAssertEqual(m.run?.phase,.reward)
+        try await Task.sleep(for:.milliseconds(150));host.view.layoutSubtreeIfNeeded()
+        let updated=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds));host.view.cacheDisplay(in:host.view.bounds,to:updated)
+        try VNImageRequestHandler(cgImage:try XCTUnwrap(updated.cgImage),options:[:]).perform([request])
+        let updatedText=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
+        XCTAssertTrue(updatedText.contains("15포인트"),"Purchase button must show the inflated price: \(updatedText)")
     }
     func testRewardOptionsAndNextStayLockedUntilActualRewardApplication()async throws {
         let fixture=try fixture(testControls:true),save=ChallengeRunStore(url:fixture.save.url,roll:{.attack})
@@ -334,7 +361,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
             try save.accept(resources:resources,decision:nil,winner:0)
             m.configureRewardSelection()
             XCTAssertEqual(m.screen,.reward);XCTAssertFalse(m.canTestNextTrainer)
-            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.revive,.buff]:[.heal,.pp,.replace,.revive,.buff])
+            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.buff]:[.heal,.pp,.replace,.buff])
             m.next();m.nextTrainerForTesting();XCTAssertEqual(save.run?.encounterIndex,index)
             XCTAssertEqual(save.run?.phase,.reward)
             if index==2 {
@@ -342,8 +369,8 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
                 XCTAssertTrue(save.run!.resources.allSatisfy{$0.hp>0 && $0.status.isEmpty && $0.moves.allSatisfy{$0.pp==$0.maxPP}})
             }else if index==15 {
                 m.selectReward(.pp);XCTAssertTrue(m.canApplyReward);await m.applyReward()
-                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==$0.maxPP})
-                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==0})
+                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==$0.maxPP})
+                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==0})
             }else{
                 m.selectReward(.buff);XCTAssertTrue(m.canApplyReward);await m.applyReward()
             }

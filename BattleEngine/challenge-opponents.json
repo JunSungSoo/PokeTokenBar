@@ -1,6 +1,5 @@
 {
-  "version": "challenge-bw-v2-red-sun-max-ivs",
-  "level": 100,
+  "version": "challenge-bw-v3-tiered-opponent-levels",
   "evPolicy": "zero",
   "encounters": [
     {
@@ -14,7 +13,7 @@
           "speciesID": 74,
           "species": "Geodude",
           "displayName": "Geodude",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Adamant",
           "gender": "",
@@ -29,12 +28,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 215,
-            "def": 236,
-            "spa": 86,
-            "spd": 96,
-            "spe": 76
+            "hp": 168,
+            "atk": 162,
+            "def": 178,
+            "spa": 65,
+            "spd": 73,
+            "spe": 58
           },
           "moves": [
             "stealthrock",
@@ -56,7 +55,7 @@
           "speciesID": 95,
           "species": "Onix",
           "displayName": "Onix",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Jolly",
           "gender": "",
@@ -71,12 +70,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 211,
-            "atk": 126,
-            "def": 356,
-            "spa": 86,
-            "spd": 126,
-            "spe": 193
+            "hp": 160,
+            "atk": 95,
+            "def": 268,
+            "spa": 65,
+            "spd": 95,
+            "spe": 146
           },
           "moves": [
             "sunnyday",
@@ -98,7 +97,7 @@
           "speciesID": 76,
           "species": "Golem",
           "displayName": "Golem",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Adamant",
           "gender": "",
@@ -113,12 +112,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 281,
-            "def": 296,
-            "spa": 131,
-            "spd": 166,
-            "spe": 126
+            "hp": 228,
+            "atk": 212,
+            "def": 223,
+            "spa": 99,
+            "spd": 125,
+            "spe": 95
           },
           "moves": [
             "stealthrock",
@@ -140,7 +139,7 @@
           "speciesID": 139,
           "species": "Omastar",
           "displayName": "Omastar",
-          "level": 100,
+          "level": 75,
           "ability": "Swift Swim",
           "nature": "Modest",
           "gender": "",
@@ -155,12 +154,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 139,
-            "def": 286,
-            "spa": 291,
-            "spd": 176,
-            "spe": 146
+            "hp": 213,
+            "atk": 105,
+            "def": 215,
+            "spa": 220,
+            "spd": 133,
+            "spe": 110
           },
           "moves": [
             "surf",
@@ -182,7 +181,7 @@
           "speciesID": 141,
           "species": "Kabutops",
           "displayName": "Kabutops",
-          "level": 100,
+          "level": 75,
           "ability": "Swift Swim",
           "nature": "Jolly",
           "gender": "",
@@ -197,12 +196,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 266,
-            "def": 246,
-            "spa": 149,
-            "spd": 176,
-            "spe": 215
+            "hp": 198,
+            "atk": 200,
+            "def": 185,
+            "spa": 112,
+            "spd": 133,
+            "spe": 162
           },
           "moves": [
             "swordsdance",
@@ -224,7 +223,7 @@
           "speciesID": 142,
           "species": "Aerodactyl",
           "displayName": "Aerodactyl",
-          "level": 100,
+          "level": 75,
           "ability": "Pressure",
           "nature": "Jolly",
           "gender": "",
@@ -239,12 +238,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 246,
-            "def": 166,
-            "spa": 140,
-            "spd": 186,
-            "spe": 325
+            "hp": 228,
+            "atk": 185,
+            "def": 125,
+            "spa": 106,
+            "spd": 140,
+            "spe": 245
           },
           "moves": [
             "stealthrock",
@@ -274,7 +273,7 @@
           "speciesID": 16,
           "species": "Pidgey",
           "displayName": "Pidgey",
-          "level": 100,
+          "level": 75,
           "ability": "Keen Eye",
           "nature": "Jolly",
           "gender": "",
@@ -289,12 +288,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 126,
-            "def": 116,
-            "spa": 95,
-            "spd": 106,
-            "spe": 162
+            "hp": 168,
+            "atk": 95,
+            "def": 88,
+            "spa": 72,
+            "spd": 80,
+            "spe": 123
           },
           "moves": [
             "bravebird",
@@ -316,7 +315,7 @@
           "speciesID": 17,
           "species": "Pidgeotto",
           "displayName": "Pidgeotto",
-          "level": 100,
+          "level": 75,
           "ability": "Keen Eye",
           "nature": "Jolly",
           "gender": "",
@@ -331,12 +330,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 267,
-            "atk": 156,
-            "def": 146,
-            "spa": 122,
-            "spd": 136,
-            "spe": 195
+            "hp": 202,
+            "atk": 118,
+            "def": 110,
+            "spa": 92,
+            "spd": 103,
+            "spe": 147
           },
           "moves": [
             "bravebird",
@@ -358,7 +357,7 @@
           "speciesID": 164,
           "species": "Noctowl",
           "displayName": "Noctowl",
-          "level": 100,
+          "level": 75,
           "ability": "Insomnia",
           "nature": "Calm",
           "gender": "",
@@ -373,12 +372,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 341,
-            "atk": 122,
-            "def": 136,
-            "spa": 188,
-            "spd": 250,
-            "spe": 176
+            "hp": 258,
+            "atk": 92,
+            "def": 103,
+            "spa": 142,
+            "spd": 189,
+            "spe": 133
           },
           "moves": [
             "roost",
@@ -400,7 +399,7 @@
           "speciesID": 85,
           "species": "Dodrio",
           "displayName": "Dodrio",
-          "level": 100,
+          "level": 75,
           "ability": "Early Bird",
           "nature": "Jolly",
           "gender": "",
@@ -415,12 +414,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 256,
-            "def": 176,
-            "spa": 140,
-            "spd": 156,
-            "spe": 259
+            "hp": 198,
+            "atk": 193,
+            "def": 133,
+            "spa": 106,
+            "spd": 118,
+            "spe": 195
           },
           "moves": [
             "bravebird",
@@ -442,7 +441,7 @@
           "speciesID": 169,
           "species": "Crobat",
           "displayName": "Crobat",
-          "level": 100,
+          "level": 75,
           "ability": "Infiltrator",
           "nature": "Jolly",
           "gender": "",
@@ -457,12 +456,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 311,
-            "atk": 216,
-            "def": 196,
-            "spa": 158,
-            "spd": 196,
-            "spe": 325
+            "hp": 235,
+            "atk": 163,
+            "def": 148,
+            "spa": 119,
+            "spd": 148,
+            "spe": 245
           },
           "moves": [
             "bravebird",
@@ -484,7 +483,7 @@
           "speciesID": 227,
           "species": "Skarmory",
           "displayName": "Skarmory",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Impish",
           "gender": "",
@@ -499,12 +498,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 196,
-            "def": 347,
-            "spa": 104,
-            "spd": 176,
-            "spe": 176
+            "hp": 205,
+            "atk": 148,
+            "def": 261,
+            "spa": 79,
+            "spd": 133,
+            "spe": 133
           },
           "moves": [
             "spikes",
@@ -534,7 +533,7 @@
           "speciesID": 120,
           "species": "Staryu",
           "displayName": "Staryu",
-          "level": 100,
+          "level": 75,
           "ability": "Natural Cure",
           "nature": "Timid",
           "gender": "",
@@ -549,12 +548,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 201,
-            "atk": 113,
-            "def": 146,
-            "spa": 176,
-            "spd": 146,
-            "spe": 226
+            "hp": 153,
+            "atk": 85,
+            "def": 110,
+            "spa": 133,
+            "spd": 110,
+            "spe": 170
           },
           "moves": [
             "scald",
@@ -576,7 +575,7 @@
           "speciesID": 121,
           "species": "Starmie",
           "displayName": "Starmie",
-          "level": 100,
+          "level": 75,
           "ability": "Analytic",
           "nature": "Timid",
           "gender": "",
@@ -591,12 +590,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 167,
-            "def": 206,
-            "spa": 236,
-            "spd": 206,
-            "spe": 292
+            "hp": 198,
+            "atk": 126,
+            "def": 155,
+            "spa": 178,
+            "spd": 155,
+            "spe": 220
           },
           "moves": [
             "rapidspin",
@@ -618,7 +617,7 @@
           "speciesID": 55,
           "species": "Golduck",
           "displayName": "Golduck",
-          "level": 100,
+          "level": 75,
           "ability": "Cloud Nine",
           "nature": "Timid",
           "gender": "",
@@ -633,12 +632,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 180,
-            "def": 192,
-            "spa": 226,
-            "spd": 196,
-            "spe": 226
+            "hp": 228,
+            "atk": 135,
+            "def": 145,
+            "spa": 170,
+            "spd": 148,
+            "spe": 170
           },
           "moves": [
             "substitute",
@@ -660,7 +659,7 @@
           "speciesID": 131,
           "species": "Lapras",
           "displayName": "Lapras",
-          "level": 100,
+          "level": 75,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -675,12 +674,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 401,
-            "atk": 185,
-            "def": 196,
-            "spa": 226,
-            "spd": 226,
-            "spe": 156
+            "hp": 303,
+            "atk": 139,
+            "def": 148,
+            "spa": 170,
+            "spd": 170,
+            "spe": 118
           },
           "moves": [
             "hydropump",
@@ -702,7 +701,7 @@
           "speciesID": 134,
           "species": "Vaporeon",
           "displayName": "Vaporeon",
-          "level": 100,
+          "level": 75,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -717,12 +716,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 401,
-            "atk": 148,
-            "def": 156,
-            "spa": 280,
-            "spd": 226,
-            "spe": 166
+            "hp": 303,
+            "atk": 112,
+            "def": 118,
+            "spa": 211,
+            "spd": 170,
+            "spe": 125
           },
           "moves": [
             "hydropump",
@@ -744,7 +743,7 @@
           "speciesID": 195,
           "species": "Quagsire",
           "displayName": "Quagsire",
-          "level": 100,
+          "level": 75,
           "ability": "Unaware",
           "nature": "Relaxed",
           "gender": "",
@@ -759,12 +758,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 206,
-            "def": 226,
-            "spa": 166,
-            "spd": 166,
-            "spe": 95
+            "hp": 250,
+            "atk": 155,
+            "def": 170,
+            "spa": 125,
+            "spd": 125,
+            "spe": 72
           },
           "moves": [
             "recover",
@@ -794,7 +793,7 @@
           "speciesID": 11,
           "species": "Metapod",
           "displayName": "Metapod",
-          "level": 100,
+          "level": 75,
           "ability": "Shed Skin",
           "nature": "Impish",
           "gender": "",
@@ -809,12 +808,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 76,
-            "def": 160,
-            "spa": 77,
-            "spd": 86,
-            "spe": 96
+            "hp": 183,
+            "atk": 58,
+            "def": 121,
+            "spa": 58,
+            "spd": 65,
+            "spe": 73
           },
           "moves": [
             "bugbite",
@@ -836,7 +835,7 @@
           "speciesID": 14,
           "species": "Kakuna",
           "displayName": "Kakuna",
-          "level": 100,
+          "level": 75,
           "ability": "Shed Skin",
           "nature": "Impish",
           "gender": "",
@@ -851,12 +850,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 231,
-            "atk": 86,
-            "def": 149,
-            "spa": 77,
-            "spd": 86,
-            "spe": 106
+            "hp": 175,
+            "atk": 65,
+            "def": 113,
+            "spa": 58,
+            "spd": 65,
+            "spe": 80
           },
           "moves": [
             "bugbite",
@@ -878,7 +877,7 @@
           "speciesID": 123,
           "species": "Scyther",
           "displayName": "Scyther",
-          "level": 100,
+          "level": 75,
           "ability": "Technician",
           "nature": "Jolly",
           "gender": "",
@@ -893,12 +892,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 256,
-            "def": 196,
-            "spa": 131,
-            "spd": 196,
-            "spe": 270
+            "hp": 213,
+            "atk": 193,
+            "def": 148,
+            "spa": 99,
+            "spd": 148,
+            "spe": 203
           },
           "moves": [
             "uturn",
@@ -920,7 +919,7 @@
           "speciesID": 127,
           "species": "Pinsir",
           "displayName": "Pinsir",
-          "level": 100,
+          "level": 75,
           "ability": "Moxie",
           "nature": "Adamant",
           "gender": "",
@@ -935,12 +934,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 314,
-            "def": 236,
-            "spa": 131,
-            "spd": 176,
-            "spe": 206
+            "hp": 205,
+            "atk": 236,
+            "def": 178,
+            "spa": 99,
+            "spd": 133,
+            "spe": 155
           },
           "moves": [
             "xscissor",
@@ -962,7 +961,7 @@
           "speciesID": 214,
           "species": "Heracross",
           "displayName": "Heracross",
-          "level": 100,
+          "level": 75,
           "ability": "Guts",
           "nature": "Jolly",
           "gender": "",
@@ -977,12 +976,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 286,
-            "def": 186,
-            "spa": 104,
-            "spd": 226,
-            "spe": 226
+            "hp": 228,
+            "atk": 215,
+            "def": 140,
+            "spa": 79,
+            "spd": 170,
+            "spe": 170
           },
           "moves": [
             "swordsdance",
@@ -1004,7 +1003,7 @@
           "speciesID": 212,
           "species": "Scizor",
           "displayName": "Scizor",
-          "level": 100,
+          "level": 75,
           "ability": "Technician",
           "nature": "Jolly",
           "gender": "",
@@ -1019,12 +1018,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 296,
-            "def": 236,
-            "spa": 131,
-            "spd": 196,
-            "spe": 182
+            "hp": 213,
+            "atk": 223,
+            "def": 178,
+            "spa": 99,
+            "spd": 148,
+            "spe": 137
           },
           "moves": [
             "uturn",
@@ -1054,7 +1053,7 @@
           "speciesID": 100,
           "species": "Voltorb",
           "displayName": "Voltorb",
-          "level": 100,
+          "level": 75,
           "ability": "Static",
           "nature": "Timid",
           "gender": "",
@@ -1069,12 +1068,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 85,
-            "def": 135,
-            "spa": 146,
-            "spd": 146,
-            "spe": 259
+            "hp": 168,
+            "atk": 64,
+            "def": 102,
+            "spa": 110,
+            "spd": 110,
+            "spe": 195
           },
           "moves": [
             "thunderbolt",
@@ -1096,7 +1095,7 @@
           "speciesID": 25,
           "species": "Pikachu",
           "displayName": "Pikachu",
-          "level": 100,
+          "level": 75,
           "ability": "Lightning Rod",
           "nature": "Timid",
           "gender": "",
@@ -1111,12 +1110,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 211,
-            "atk": 130,
-            "def": 95,
-            "spa": 136,
-            "spd": 116,
-            "spe": 237
+            "hp": 160,
+            "atk": 99,
+            "def": 72,
+            "spa": 103,
+            "spd": 88,
+            "spe": 179
           },
           "moves": [
             "substitute",
@@ -1138,7 +1137,7 @@
           "speciesID": 26,
           "species": "Raichu",
           "displayName": "Raichu",
-          "level": 100,
+          "level": 75,
           "ability": "Lightning Rod",
           "nature": "Timid",
           "gender": "",
@@ -1153,12 +1152,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 193,
-            "def": 145,
-            "spa": 216,
-            "spd": 196,
-            "spe": 259
+            "hp": 198,
+            "atk": 145,
+            "def": 110,
+            "spa": 163,
+            "spd": 148,
+            "spe": 195
           },
           "moves": [
             "thunderbolt",
@@ -1180,7 +1179,7 @@
           "speciesID": 125,
           "species": "Electabuzz",
           "displayName": "Electabuzz",
-          "level": 100,
+          "level": 75,
           "ability": "Vital Spirit",
           "nature": "Timid",
           "gender": "",
@@ -1195,12 +1194,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 180,
-            "def": 149,
-            "spa": 226,
-            "spd": 206,
-            "spe": 270
+            "hp": 205,
+            "atk": 136,
+            "def": 113,
+            "spa": 170,
+            "spd": 155,
+            "spe": 203
           },
           "moves": [
             "voltswitch",
@@ -1222,7 +1221,7 @@
           "speciesID": 135,
           "species": "Jolteon",
           "displayName": "Jolteon",
-          "level": 100,
+          "level": 75,
           "ability": "Volt Absorb",
           "nature": "Timid",
           "gender": "",
@@ -1237,12 +1236,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 148,
-            "def": 155,
-            "spa": 256,
-            "spd": 226,
-            "spe": 325
+            "hp": 205,
+            "atk": 112,
+            "def": 117,
+            "spa": 193,
+            "spd": 170,
+            "spe": 245
           },
           "moves": [
             "thunderbolt",
@@ -1264,7 +1263,7 @@
           "speciesID": 181,
           "species": "Ampharos",
           "displayName": "Ampharos",
-          "level": 100,
+          "level": 75,
           "ability": "Static",
           "nature": "Modest",
           "gender": "",
@@ -1279,12 +1278,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 166,
-            "def": 185,
-            "spa": 292,
-            "spd": 216,
-            "spe": 146
+            "hp": 243,
+            "atk": 126,
+            "def": 140,
+            "spa": 220,
+            "spd": 163,
+            "spe": 110
           },
           "moves": [
             "thunderbolt",
@@ -1314,7 +1313,7 @@
           "speciesID": 35,
           "species": "Clefairy",
           "displayName": "Clefairy",
-          "level": 100,
+          "level": 75,
           "ability": "Magic Guard",
           "nature": "Bold",
           "gender": "",
@@ -1329,12 +1328,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 113,
-            "def": 145,
-            "spa": 156,
-            "spd": 166,
-            "spe": 106
+            "hp": 213,
+            "atk": 85,
+            "def": 110,
+            "spa": 118,
+            "spd": 125,
+            "spe": 80
           },
           "moves": [
             "calmmind",
@@ -1356,7 +1355,7 @@
           "speciesID": 241,
           "species": "Miltank",
           "displayName": "Miltank",
-          "level": 100,
+          "level": 75,
           "ability": "Scrappy",
           "nature": "Careful",
           "gender": "",
@@ -1371,12 +1370,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 196,
-            "def": 246,
-            "spa": 104,
-            "spd": 193,
-            "spe": 236
+            "hp": 250,
+            "atk": 148,
+            "def": 185,
+            "spa": 79,
+            "spd": 146,
+            "spe": 178
           },
           "moves": [
             "curse",
@@ -1398,7 +1397,7 @@
           "speciesID": 36,
           "species": "Clefable",
           "displayName": "Clefable",
-          "level": 100,
+          "level": 75,
           "ability": "Magic Guard",
           "nature": "Calm",
           "gender": "",
@@ -1413,12 +1412,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 158,
-            "def": 182,
-            "spa": 206,
-            "spd": 237,
-            "spe": 156
+            "hp": 250,
+            "atk": 119,
+            "def": 137,
+            "spa": 155,
+            "spd": 179,
+            "spe": 118
           },
           "moves": [
             "thunderwave",
@@ -1440,7 +1439,7 @@
           "speciesID": 40,
           "species": "Wigglytuff",
           "displayName": "Wigglytuff",
-          "level": 100,
+          "level": 75,
           "ability": "Frisk",
           "nature": "Careful",
           "gender": "",
@@ -1455,12 +1454,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 421,
-            "atk": 176,
-            "def": 126,
-            "spa": 167,
-            "spd": 149,
-            "spe": 126
+            "hp": 318,
+            "atk": 133,
+            "def": 95,
+            "spa": 126,
+            "spd": 113,
+            "spe": 95
           },
           "moves": [
             "stealthrock",
@@ -1482,7 +1481,7 @@
           "speciesID": 115,
           "species": "Kangaskhan",
           "displayName": "Kangaskhan",
-          "level": 100,
+          "level": 75,
           "ability": "Scrappy",
           "nature": "Adamant",
           "gender": "",
@@ -1497,12 +1496,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 351,
-            "atk": 248,
-            "def": 196,
-            "spa": 104,
-            "spd": 196,
-            "spe": 216
+            "hp": 265,
+            "atk": 187,
+            "def": 148,
+            "spa": 79,
+            "spd": 148,
+            "spe": 163
           },
           "moves": [
             "doubleedge",
@@ -1524,7 +1523,7 @@
           "speciesID": 217,
           "species": "Ursaring",
           "displayName": "Ursaring",
-          "level": 100,
+          "level": 75,
           "ability": "Quick Feet",
           "nature": "Jolly",
           "gender": "",
@@ -1539,12 +1538,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 296,
-            "def": 186,
-            "spa": 167,
-            "spd": 186,
-            "spe": 160
+            "hp": 243,
+            "atk": 223,
+            "def": 140,
+            "spa": 126,
+            "spd": 140,
+            "spe": 121
           },
           "moves": [
             "swordsdance",
@@ -1574,7 +1573,7 @@
           "speciesID": 71,
           "species": "Victreebel",
           "displayName": "Victreebel",
-          "level": 100,
+          "level": 75,
           "ability": "Chlorophyll",
           "nature": "Modest",
           "gender": "",
@@ -1589,12 +1588,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 221,
-            "def": 166,
-            "spa": 259,
-            "spd": 156,
-            "spe": 176
+            "hp": 228,
+            "atk": 166,
+            "def": 125,
+            "spa": 195,
+            "spd": 118,
+            "spe": 133
           },
           "moves": [
             "solarbeam",
@@ -1616,7 +1615,7 @@
           "speciesID": 114,
           "species": "Tangela",
           "displayName": "Tangela",
-          "level": 100,
+          "level": 75,
           "ability": "Regenerator",
           "nature": "Bold",
           "gender": "",
@@ -1631,12 +1630,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 271,
-            "atk": 131,
-            "def": 291,
-            "spa": 236,
-            "spd": 115,
-            "spe": 155
+            "hp": 205,
+            "atk": 99,
+            "def": 220,
+            "spa": 178,
+            "spd": 87,
+            "spe": 117
           },
           "moves": [
             "gigadrain",
@@ -1658,7 +1657,7 @@
           "speciesID": 45,
           "species": "Vileplume",
           "displayName": "Vileplume",
-          "level": 100,
+          "level": 75,
           "ability": "Effect Spore",
           "nature": "Bold",
           "gender": "",
@@ -1673,12 +1672,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 176,
-            "def": 226,
-            "spa": 236,
-            "spd": 216,
-            "spe": 136
+            "hp": 220,
+            "atk": 133,
+            "def": 170,
+            "spa": 178,
+            "spd": 163,
+            "spe": 103
           },
           "moves": [
             "aromatherapy",
@@ -1700,7 +1699,7 @@
           "speciesID": 103,
           "species": "Exeggutor",
           "displayName": "Exeggutor",
-          "level": 100,
+          "level": 75,
           "ability": "Harvest",
           "nature": "Bold",
           "gender": "",
@@ -1715,12 +1714,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 331,
-            "atk": 202,
-            "def": 226,
-            "spa": 285,
-            "spd": 166,
-            "spe": 145
+            "hp": 250,
+            "atk": 153,
+            "def": 170,
+            "spa": 215,
+            "spd": 125,
+            "spe": 110
           },
           "moves": [
             "leechseed",
@@ -1742,7 +1741,7 @@
           "speciesID": 182,
           "species": "Bellossom",
           "displayName": "Bellossom",
-          "level": 100,
+          "level": 75,
           "ability": "Chlorophyll",
           "nature": "Modest",
           "gender": "",
@@ -1757,12 +1756,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 176,
-            "def": 206,
-            "spa": 237,
-            "spd": 236,
-            "spe": 136
+            "hp": 220,
+            "atk": 133,
+            "def": 155,
+            "spa": 179,
+            "spd": 178,
+            "spe": 103
           },
           "moves": [
             "sunnyday",
@@ -1784,7 +1783,7 @@
           "speciesID": 189,
           "species": "Jumpluff",
           "displayName": "Jumpluff",
-          "level": 100,
+          "level": 75,
           "ability": "Chlorophyll",
           "nature": "Jolly",
           "gender": "",
@@ -1799,12 +1798,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 146,
-            "def": 176,
-            "spa": 131,
-            "spd": 206,
-            "spe": 281
+            "hp": 220,
+            "atk": 110,
+            "def": 133,
+            "spa": 99,
+            "spd": 155,
+            "spe": 212
           },
           "moves": [
             "swordsdance",
@@ -1834,7 +1833,7 @@
           "speciesID": 92,
           "species": "Gastly",
           "displayName": "Gastly",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Hasty",
           "gender": "",
@@ -1849,12 +1848,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 201,
-            "atk": 106,
-            "def": 85,
-            "spa": 235,
-            "spd": 105,
-            "spe": 214
+            "hp": 153,
+            "atk": 80,
+            "def": 64,
+            "spa": 177,
+            "spd": 80,
+            "spe": 161
           },
           "moves": [
             "shadowball",
@@ -1876,7 +1875,7 @@
           "speciesID": 93,
           "species": "Haunter",
           "displayName": "Haunter",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -1891,12 +1890,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 231,
-            "atk": 122,
-            "def": 126,
-            "spa": 266,
-            "spd": 146,
-            "spe": 248
+            "hp": 175,
+            "atk": 92,
+            "def": 95,
+            "spa": 200,
+            "spd": 110,
+            "spe": 187
           },
           "moves": [
             "substitute",
@@ -1918,7 +1917,7 @@
           "speciesID": 94,
           "species": "Gengar",
           "displayName": "Gengar",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -1933,12 +1932,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 148,
-            "def": 155,
-            "spa": 296,
-            "spd": 186,
-            "spe": 281
+            "hp": 198,
+            "atk": 112,
+            "def": 117,
+            "spa": 223,
+            "spd": 140,
+            "spe": 212
           },
           "moves": [
             "shadowball",
@@ -1960,7 +1959,7 @@
           "speciesID": 200,
           "species": "Misdreavus",
           "displayName": "Misdreavus",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -1975,12 +1974,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 140,
-            "def": 171,
-            "spa": 206,
-            "spd": 206,
-            "spe": 206
+            "hp": 198,
+            "atk": 106,
+            "def": 129,
+            "spa": 155,
+            "spd": 155,
+            "spe": 155
           },
           "moves": [
             "willowisp",
@@ -2002,7 +2001,7 @@
           "speciesID": 356,
           "species": "Dusclops",
           "displayName": "Dusclops",
-          "level": 100,
+          "level": 75,
           "ability": "Pressure",
           "nature": "Bold",
           "gender": "",
@@ -2017,12 +2016,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 158,
-            "def": 325,
-            "spa": 156,
-            "spd": 296,
-            "spe": 86
+            "hp": 168,
+            "atk": 119,
+            "def": 245,
+            "spa": 118,
+            "spd": 223,
+            "spe": 65
           },
           "moves": [
             "curse",
@@ -2044,7 +2043,7 @@
           "speciesID": 609,
           "species": "Chandelure",
           "displayName": "Chandelure",
-          "level": 100,
+          "level": 75,
           "ability": "Flame Body",
           "nature": "Timid",
           "gender": "",
@@ -2059,12 +2058,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 130,
-            "def": 215,
-            "spa": 326,
-            "spd": 216,
-            "spe": 215
+            "hp": 198,
+            "atk": 99,
+            "def": 162,
+            "spa": 245,
+            "spd": 163,
+            "spe": 162
           },
           "moves": [
             "flamethrower",
@@ -2094,7 +2093,7 @@
           "speciesID": 109,
           "species": "Koffing",
           "displayName": "Koffing",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -2109,12 +2108,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 149,
-            "def": 248,
-            "spa": 156,
-            "spd": 126,
-            "spe": 106
+            "hp": 168,
+            "atk": 112,
+            "def": 187,
+            "spa": 118,
+            "spd": 95,
+            "spe": 80
           },
           "moves": [
             "willowisp",
@@ -2136,7 +2135,7 @@
           "speciesID": 89,
           "species": "Muk",
           "displayName": "Muk",
-          "level": 100,
+          "level": 75,
           "ability": "Poison Touch",
           "nature": "Adamant",
           "gender": "",
@@ -2151,12 +2150,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 351,
-            "atk": 270,
-            "def": 186,
-            "spa": 149,
-            "spd": 236,
-            "spe": 136
+            "hp": 265,
+            "atk": 203,
+            "def": 140,
+            "spa": 112,
+            "spd": 178,
+            "spe": 103
           },
           "moves": [
             "poisonjab",
@@ -2178,7 +2177,7 @@
           "speciesID": 110,
           "species": "Weezing",
           "displayName": "Weezing",
-          "level": 100,
+          "level": 75,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -2193,12 +2192,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 194,
-            "def": 303,
-            "spa": 206,
-            "spd": 176,
-            "spe": 156
+            "hp": 205,
+            "atk": 146,
+            "def": 228,
+            "spa": 155,
+            "spd": 133,
+            "spe": 118
           },
           "moves": [
             "willowisp",
@@ -2220,7 +2219,7 @@
           "speciesID": 169,
           "species": "Crobat",
           "displayName": "Crobat",
-          "level": 100,
+          "level": 75,
           "ability": "Infiltrator",
           "nature": "Jolly",
           "gender": "",
@@ -2235,12 +2234,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 311,
-            "atk": 216,
-            "def": 196,
-            "spa": 158,
-            "spd": 196,
-            "spe": 325
+            "hp": 235,
+            "atk": 163,
+            "def": 148,
+            "spa": 119,
+            "spd": 148,
+            "spe": 245
           },
           "moves": [
             "bravebird",
@@ -2262,7 +2261,7 @@
           "speciesID": 49,
           "species": "Venomoth",
           "displayName": "Venomoth",
-          "level": 100,
+          "level": 75,
           "ability": "Wonder Skin",
           "nature": "Timid",
           "gender": "",
@@ -2277,12 +2276,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 149,
-            "def": 156,
-            "spa": 216,
-            "spd": 186,
-            "spe": 237
+            "hp": 213,
+            "atk": 112,
+            "def": 118,
+            "spa": 163,
+            "spd": 140,
+            "spe": 179
           },
           "moves": [
             "quiverdance",
@@ -2304,7 +2303,7 @@
           "speciesID": 34,
           "species": "Nidoking",
           "displayName": "Nidoking",
-          "level": 100,
+          "level": 75,
           "ability": "Sheer Force",
           "nature": "Modest",
           "gender": "",
@@ -2319,12 +2318,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 303,
-            "atk": 198,
-            "def": 190,
-            "spa": 226,
-            "spd": 186,
-            "spe": 206
+            "hp": 229,
+            "atk": 149,
+            "def": 143,
+            "spa": 170,
+            "spd": 140,
+            "spe": 155
           },
           "moves": [
             "earthpower",
@@ -2354,7 +2353,7 @@
           "speciesID": 57,
           "species": "Primeape",
           "displayName": "Primeape",
-          "level": 100,
+          "level": 75,
           "ability": "Vital Spirit",
           "nature": "Jolly",
           "gender": "",
@@ -2369,12 +2368,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 246,
-            "def": 156,
-            "spa": 140,
-            "spd": 176,
-            "spe": 248
+            "hp": 205,
+            "atk": 185,
+            "def": 118,
+            "spa": 106,
+            "spd": 133,
+            "spe": 187
           },
           "moves": [
             "closecombat",
@@ -2396,7 +2395,7 @@
           "speciesID": 62,
           "species": "Poliwrath",
           "displayName": "Poliwrath",
-          "level": 100,
+          "level": 75,
           "ability": "Water Absorb",
           "nature": "Relaxed",
           "gender": "",
@@ -2411,12 +2410,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 206,
-            "def": 248,
-            "spa": 176,
-            "spd": 216,
-            "spe": 158
+            "hp": 243,
+            "atk": 155,
+            "def": 187,
+            "spa": 133,
+            "spd": 163,
+            "spe": 119
           },
           "moves": [
             "rest",
@@ -2438,7 +2437,7 @@
           "speciesID": 106,
           "species": "Hitmonlee",
           "displayName": "Hitmonlee",
-          "level": 100,
+          "level": 75,
           "ability": "Unburden",
           "nature": "Adamant",
           "gender": "",
@@ -2453,12 +2452,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 303,
-            "def": 142,
-            "spa": 95,
-            "spd": 256,
-            "spe": 210
+            "hp": 183,
+            "atk": 228,
+            "def": 107,
+            "spa": 72,
+            "spd": 193,
+            "spe": 158
           },
           "moves": [
             "endure",
@@ -2480,7 +2479,7 @@
           "speciesID": 107,
           "species": "Hitmonchan",
           "displayName": "Hitmonchan",
-          "level": 100,
+          "level": 75,
           "ability": "Iron Fist",
           "nature": "Adamant",
           "gender": "",
@@ -2495,12 +2494,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 270,
-            "def": 194,
-            "spa": 95,
-            "spd": 256,
-            "spe": 188
+            "hp": 183,
+            "atk": 203,
+            "def": 146,
+            "spa": 72,
+            "spd": 193,
+            "spe": 142
           },
           "moves": [
             "drainpunch",
@@ -2522,7 +2521,7 @@
           "speciesID": 68,
           "species": "Machamp",
           "displayName": "Machamp",
-          "level": 100,
+          "level": 75,
           "ability": "No Guard",
           "nature": "Adamant",
           "gender": "",
@@ -2537,12 +2536,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 325,
-            "def": 196,
-            "spa": 149,
-            "spd": 206,
-            "spe": 146
+            "hp": 243,
+            "atk": 245,
+            "def": 148,
+            "spa": 112,
+            "spd": 155,
+            "spe": 110
           },
           "moves": [
             "bulkup",
@@ -2564,7 +2563,7 @@
           "speciesID": 214,
           "species": "Heracross",
           "displayName": "Heracross",
-          "level": 100,
+          "level": 75,
           "ability": "Moxie",
           "nature": "Jolly",
           "gender": "",
@@ -2579,12 +2578,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 286,
-            "def": 186,
-            "spa": 104,
-            "spd": 226,
-            "spe": 226
+            "hp": 228,
+            "atk": 215,
+            "def": 140,
+            "spa": 79,
+            "spd": 170,
+            "spe": 170
           },
           "moves": [
             "closecombat",
@@ -2614,7 +2613,7 @@
           "speciesID": 64,
           "species": "Kadabra",
           "displayName": "Kadabra",
-          "level": 100,
+          "level": 75,
           "ability": "Magic Guard",
           "nature": "Timid",
           "gender": "",
@@ -2629,12 +2628,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 95,
-            "def": 96,
-            "spa": 275,
-            "spd": 175,
-            "spe": 270
+            "hp": 168,
+            "atk": 72,
+            "def": 73,
+            "spa": 207,
+            "spd": 132,
+            "spe": 203
           },
           "moves": [
             "psychic",
@@ -2656,7 +2655,7 @@
           "speciesID": 122,
           "species": "Mr. Mime",
           "displayName": "Mr. Mime",
-          "level": 100,
+          "level": 75,
           "ability": "Filter",
           "nature": "Timid",
           "gender": "",
@@ -2671,12 +2670,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 221,
-            "atk": 113,
-            "def": 166,
-            "spa": 236,
-            "spd": 276,
-            "spe": 237
+            "hp": 168,
+            "atk": 85,
+            "def": 125,
+            "spa": 178,
+            "spd": 208,
+            "spe": 179
           },
           "moves": [
             "batonpass",
@@ -2698,7 +2697,7 @@
           "speciesID": 49,
           "species": "Venomoth",
           "displayName": "Venomoth",
-          "level": 100,
+          "level": 75,
           "ability": "Wonder Skin",
           "nature": "Timid",
           "gender": "",
@@ -2713,12 +2712,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 149,
-            "def": 156,
-            "spa": 216,
-            "spd": 186,
-            "spe": 237
+            "hp": 213,
+            "atk": 112,
+            "def": 118,
+            "spa": 163,
+            "spd": 140,
+            "spe": 179
           },
           "moves": [
             "quiverdance",
@@ -2740,7 +2739,7 @@
           "speciesID": 65,
           "species": "Alakazam",
           "displayName": "Alakazam",
-          "level": 100,
+          "level": 75,
           "ability": "Magic Guard",
           "nature": "Timid",
           "gender": "",
@@ -2755,12 +2754,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 251,
-            "atk": 121,
-            "def": 125,
-            "spa": 306,
-            "spd": 206,
-            "spe": 303
+            "hp": 190,
+            "atk": 91,
+            "def": 95,
+            "spa": 230,
+            "spd": 155,
+            "spe": 228
           },
           "moves": [
             "psychic",
@@ -2782,7 +2781,7 @@
           "speciesID": 97,
           "species": "Hypno",
           "displayName": "Hypno",
-          "level": 100,
+          "level": 75,
           "ability": "Insomnia",
           "nature": "Calm",
           "gender": "",
@@ -2797,12 +2796,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 311,
-            "atk": 163,
-            "def": 176,
-            "spa": 182,
-            "spd": 292,
-            "spe": 170
+            "hp": 235,
+            "atk": 123,
+            "def": 133,
+            "spa": 137,
+            "spd": 220,
+            "spe": 128
           },
           "moves": [
             "wish",
@@ -2824,7 +2823,7 @@
           "speciesID": 196,
           "species": "Espeon",
           "displayName": "Espeon",
-          "level": 100,
+          "level": 75,
           "ability": "Magic Bounce",
           "nature": "Timid",
           "gender": "",
@@ -2839,12 +2838,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 149,
-            "def": 156,
-            "spa": 296,
-            "spd": 226,
-            "spe": 281
+            "hp": 205,
+            "atk": 112,
+            "def": 118,
+            "spa": 223,
+            "spd": 170,
+            "spe": 212
           },
           "moves": [
             "reflect",
@@ -2874,7 +2873,7 @@
           "speciesID": 81,
           "species": "Magnemite",
           "displayName": "Magnemite",
-          "level": 100,
+          "level": 75,
           "ability": "Magnet Pull",
           "nature": "Timid",
           "gender": "",
@@ -2889,12 +2888,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 191,
-            "atk": 94,
-            "def": 176,
-            "spa": 225,
-            "spd": 146,
-            "spe": 137
+            "hp": 145,
+            "atk": 72,
+            "def": 133,
+            "spa": 170,
+            "spd": 110,
+            "spe": 104
           },
           "moves": [
             "voltswitch",
@@ -2916,7 +2915,7 @@
           "speciesID": 208,
           "species": "Steelix",
           "displayName": "Steelix",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Relaxed",
           "gender": "",
@@ -2931,12 +2930,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 206,
-            "def": 479,
-            "spa": 146,
-            "spd": 166,
-            "spe": 86
+            "hp": 220,
+            "atk": 155,
+            "def": 360,
+            "spa": 110,
+            "spd": 125,
+            "spe": 65
           },
           "moves": [
             "stealthrock",
@@ -2958,7 +2957,7 @@
           "speciesID": 82,
           "species": "Magneton",
           "displayName": "Magneton",
-          "level": 100,
+          "level": 75,
           "ability": "Magnet Pull",
           "nature": "Timid",
           "gender": "",
@@ -2973,12 +2972,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 241,
-            "atk": 139,
-            "def": 226,
-            "spa": 275,
-            "spd": 176,
-            "spe": 192
+            "hp": 183,
+            "atk": 105,
+            "def": 170,
+            "spa": 207,
+            "spd": 133,
+            "spe": 145
           },
           "moves": [
             "thunderbolt",
@@ -3000,7 +2999,7 @@
           "speciesID": 212,
           "species": "Scizor",
           "displayName": "Scizor",
-          "level": 100,
+          "level": 75,
           "ability": "Technician",
           "nature": "Adamant",
           "gender": "",
@@ -3015,12 +3014,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 325,
-            "def": 236,
-            "spa": 131,
-            "spd": 196,
-            "spe": 166
+            "hp": 213,
+            "atk": 245,
+            "def": 178,
+            "spa": 99,
+            "spd": 148,
+            "spe": 125
           },
           "moves": [
             "bulletpunch",
@@ -3042,7 +3041,7 @@
           "speciesID": 227,
           "species": "Skarmory",
           "displayName": "Skarmory",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Careful",
           "gender": "",
@@ -3057,12 +3056,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 196,
-            "def": 316,
-            "spa": 104,
-            "spd": 193,
-            "spe": 176
+            "hp": 205,
+            "atk": 148,
+            "def": 238,
+            "spa": 79,
+            "spd": 146,
+            "spe": 133
           },
           "moves": [
             "roost",
@@ -3084,7 +3083,7 @@
           "speciesID": 205,
           "species": "Forretress",
           "displayName": "Forretress",
-          "level": 100,
+          "level": 75,
           "ability": "Sturdy",
           "nature": "Relaxed",
           "gender": "",
@@ -3099,12 +3098,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 216,
-            "def": 347,
-            "spa": 156,
-            "spd": 156,
-            "spe": 104
+            "hp": 220,
+            "atk": 163,
+            "def": 261,
+            "spa": 118,
+            "spd": 118,
+            "spe": 79
           },
           "moves": [
             "spikes",
@@ -3134,7 +3133,7 @@
           "speciesID": 58,
           "species": "Growlithe",
           "displayName": "Growlithe",
-          "level": 100,
+          "level": 90,
           "ability": "Intimidate",
           "nature": "Impish",
           "gender": "",
@@ -3149,12 +3148,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 251,
-            "atk": 176,
-            "def": 138,
-            "spa": 158,
-            "spd": 136,
-            "spe": 156
+            "hp": 226,
+            "atk": 158,
+            "def": 124,
+            "spa": 142,
+            "spd": 122,
+            "spe": 140
           },
           "moves": [
             "flareblitz",
@@ -3176,7 +3175,7 @@
           "speciesID": 77,
           "species": "Ponyta",
           "displayName": "Ponyta",
-          "level": 100,
+          "level": 90,
           "ability": "Flame Body",
           "nature": "Jolly",
           "gender": "",
@@ -3191,12 +3190,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 206,
-            "def": 146,
-            "spa": 149,
-            "spd": 166,
-            "spe": 237
+            "hp": 217,
+            "atk": 185,
+            "def": 131,
+            "spa": 134,
+            "spd": 149,
+            "spe": 213
           },
           "moves": [
             "flareblitz",
@@ -3218,7 +3217,7 @@
           "speciesID": 78,
           "species": "Rapidash",
           "displayName": "Rapidash",
-          "level": 100,
+          "level": 90,
           "ability": "Flash Fire",
           "nature": "Jolly",
           "gender": "",
@@ -3233,12 +3232,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 236,
-            "def": 176,
-            "spa": 176,
-            "spd": 196,
-            "spe": 270
+            "hp": 244,
+            "atk": 212,
+            "def": 158,
+            "spa": 158,
+            "spd": 176,
+            "spe": 243
           },
           "moves": [
             "flareblitz",
@@ -3260,7 +3259,7 @@
           "speciesID": 59,
           "species": "Arcanine",
           "displayName": "Arcanine",
-          "level": 100,
+          "level": 90,
           "ability": "Flash Fire",
           "nature": "Adamant",
           "gender": "",
@@ -3275,12 +3274,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 281,
-            "def": 196,
-            "spa": 212,
-            "spd": 196,
-            "spe": 226
+            "hp": 289,
+            "atk": 253,
+            "def": 176,
+            "spa": 190,
+            "spd": 176,
+            "spe": 203
           },
           "moves": [
             "flareblitz",
@@ -3302,7 +3301,7 @@
           "speciesID": 38,
           "species": "Ninetales",
           "displayName": "Ninetales",
-          "level": 100,
+          "level": 90,
           "ability": "Drought",
           "nature": "Timid",
           "gender": "",
@@ -3317,12 +3316,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 287,
-            "atk": 169,
-            "def": 186,
-            "spa": 198,
-            "spd": 236,
-            "spe": 259
+            "hp": 259,
+            "atk": 152,
+            "def": 167,
+            "spa": 178,
+            "spd": 212,
+            "spe": 233
           },
           "moves": [
             "flamethrower",
@@ -3344,7 +3343,7 @@
           "speciesID": 126,
           "species": "Magmar",
           "displayName": "Magmar",
-          "level": 100,
+          "level": 90,
           "ability": "Vital Spirit",
           "nature": "Modest",
           "gender": "",
@@ -3359,12 +3358,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 202,
-            "def": 150,
-            "spa": 258,
-            "spd": 206,
-            "spe": 222
+            "hp": 244,
+            "atk": 182,
+            "def": 135,
+            "spa": 233,
+            "spd": 185,
+            "spe": 200
           },
           "moves": [
             "flamethrower",
@@ -3394,7 +3393,7 @@
           "speciesID": 86,
           "species": "Seel",
           "displayName": "Seel",
-          "level": 100,
+          "level": 90,
           "ability": "Thick Fat",
           "nature": "Adamant",
           "gender": "",
@@ -3409,12 +3408,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 138,
-            "def": 146,
-            "spa": 113,
-            "spd": 176,
-            "spe": 126
+            "hp": 244,
+            "atk": 124,
+            "def": 131,
+            "spa": 101,
+            "spd": 158,
+            "spe": 113
           },
           "moves": [
             "aquajet",
@@ -3436,7 +3435,7 @@
           "speciesID": 87,
           "species": "Dewgong",
           "displayName": "Dewgong",
-          "level": 100,
+          "level": 90,
           "ability": "Hydration",
           "nature": "Calm",
           "gender": "",
@@ -3451,12 +3450,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 158,
-            "def": 196,
-            "spa": 176,
-            "spd": 248,
-            "spe": 176
+            "hp": 289,
+            "atk": 142,
+            "def": 176,
+            "spa": 158,
+            "spd": 223,
+            "spe": 158
           },
           "moves": [
             "rest",
@@ -3478,7 +3477,7 @@
           "speciesID": 221,
           "species": "Piloswine",
           "displayName": "Piloswine",
-          "level": 100,
+          "level": 90,
           "ability": "Thick Fat",
           "nature": "Adamant",
           "gender": "",
@@ -3493,12 +3492,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 341,
-            "atk": 259,
-            "def": 196,
-            "spa": 140,
-            "spd": 156,
-            "spe": 136
+            "hp": 307,
+            "atk": 233,
+            "def": 176,
+            "spa": 126,
+            "spd": 140,
+            "spe": 122
           },
           "moves": [
             "stealthrock",
@@ -3520,7 +3519,7 @@
           "speciesID": 124,
           "species": "Jynx",
           "displayName": "Jynx",
-          "level": 100,
+          "level": 90,
           "ability": "Dry Skin",
           "nature": "Timid",
           "gender": "",
@@ -3535,12 +3534,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 122,
-            "def": 106,
-            "spa": 266,
-            "spd": 226,
-            "spe": 248
+            "hp": 244,
+            "atk": 109,
+            "def": 95,
+            "spa": 239,
+            "spd": 203,
+            "spe": 223
           },
           "moves": [
             "nastyplot",
@@ -3562,7 +3561,7 @@
           "speciesID": 131,
           "species": "Lapras",
           "displayName": "Lapras",
-          "level": 100,
+          "level": 90,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -3577,12 +3576,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 401,
-            "atk": 185,
-            "def": 196,
-            "spa": 226,
-            "spd": 226,
-            "spe": 156
+            "hp": 361,
+            "atk": 166,
+            "def": 176,
+            "spa": 203,
+            "spd": 203,
+            "spe": 140
           },
           "moves": [
             "hydropump",
@@ -3604,7 +3603,7 @@
           "speciesID": 215,
           "species": "Sneasel",
           "displayName": "Sneasel",
-          "level": 100,
+          "level": 90,
           "ability": "Inner Focus",
           "nature": "Jolly",
           "gender": "",
@@ -3619,12 +3618,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 251,
-            "atk": 226,
-            "def": 146,
-            "spa": 95,
-            "spd": 186,
-            "spe": 292
+            "hp": 226,
+            "atk": 203,
+            "def": 131,
+            "spa": 85,
+            "spd": 167,
+            "spe": 262
           },
           "moves": [
             "icepunch",
@@ -3654,7 +3653,7 @@
           "speciesID": 111,
           "species": "Rhyhorn",
           "displayName": "Rhyhorn",
-          "level": 100,
+          "level": 90,
           "ability": "Rock Head",
           "nature": "Adamant",
           "gender": "",
@@ -3669,12 +3668,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 226,
-            "def": 226,
-            "spa": 86,
-            "spd": 96,
-            "spe": 86
+            "hp": 271,
+            "atk": 203,
+            "def": 203,
+            "spa": 77,
+            "spd": 86,
+            "spe": 77
           },
           "moves": [
             "doubleedge",
@@ -3696,7 +3695,7 @@
           "speciesID": 51,
           "species": "Dugtrio",
           "displayName": "Dugtrio",
-          "level": 100,
+          "level": 90,
           "ability": "Sand Force",
           "nature": "Jolly",
           "gender": "",
@@ -3711,12 +3710,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 211,
-            "atk": 196,
-            "def": 136,
-            "spa": 122,
-            "spd": 176,
-            "spe": 303
+            "hp": 190,
+            "atk": 176,
+            "def": 122,
+            "spa": 109,
+            "spd": 158,
+            "spe": 272
           },
           "moves": [
             "earthquake",
@@ -3738,7 +3737,7 @@
           "speciesID": 31,
           "species": "Nidoqueen",
           "displayName": "Nidoqueen",
-          "level": 100,
+          "level": 90,
           "ability": "Sheer Force",
           "nature": "Modest",
           "gender": "",
@@ -3753,12 +3752,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 180,
-            "def": 210,
-            "spa": 204,
-            "spd": 206,
-            "spe": 188
+            "hp": 289,
+            "atk": 162,
+            "def": 189,
+            "spa": 183,
+            "spd": 185,
+            "spe": 169
           },
           "moves": [
             "earthpower",
@@ -3780,7 +3779,7 @@
           "speciesID": 34,
           "species": "Nidoking",
           "displayName": "Nidoking",
-          "level": 100,
+          "level": 90,
           "ability": "Sheer Force",
           "nature": "Timid",
           "gender": "",
@@ -3795,12 +3794,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 303,
-            "atk": 198,
-            "def": 190,
-            "spa": 206,
-            "spd": 186,
-            "spe": 226
+            "hp": 273,
+            "atk": 178,
+            "def": 171,
+            "spa": 185,
+            "spd": 167,
+            "spe": 203
           },
           "moves": [
             "earthpower",
@@ -3822,7 +3821,7 @@
           "speciesID": 112,
           "species": "Rhydon",
           "displayName": "Rhydon",
-          "level": 100,
+          "level": 90,
           "ability": "Rock Head",
           "nature": "Adamant",
           "gender": "",
@@ -3837,12 +3836,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 351,
-            "atk": 325,
-            "def": 276,
-            "spa": 113,
-            "spd": 126,
-            "spe": 116
+            "hp": 316,
+            "atk": 292,
+            "def": 248,
+            "spa": 101,
+            "spd": 113,
+            "spe": 104
           },
           "moves": [
             "stealthrock",
@@ -3864,7 +3863,7 @@
           "speciesID": 232,
           "species": "Donphan",
           "displayName": "Donphan",
-          "level": 100,
+          "level": 90,
           "ability": "Sturdy",
           "nature": "Impish",
           "gender": "",
@@ -3879,12 +3878,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 276,
-            "def": 303,
-            "spa": 140,
-            "spd": 156,
-            "spe": 136
+            "hp": 289,
+            "atk": 248,
+            "def": 272,
+            "spa": 126,
+            "spd": 140,
+            "spe": 122
           },
           "moves": [
             "rapidspin",
@@ -3914,7 +3913,7 @@
           "speciesID": 148,
           "species": "Dragonair",
           "displayName": "Dragonair",
-          "level": 100,
+          "level": 90,
           "ability": "Shed Skin",
           "nature": "Careful",
           "gender": "",
@@ -3929,12 +3928,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 263,
-            "atk": 204,
-            "def": 166,
-            "spa": 158,
-            "spd": 193,
-            "spe": 176
+            "hp": 237,
+            "atk": 184,
+            "def": 149,
+            "spa": 142,
+            "spd": 173,
+            "spe": 158
           },
           "moves": [
             "dragondance",
@@ -3956,7 +3955,7 @@
           "speciesID": 230,
           "species": "Kingdra",
           "displayName": "Kingdra",
-          "level": 100,
+          "level": 90,
           "ability": "Swift Swim",
           "nature": "Modest",
           "gender": "",
@@ -3971,12 +3970,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 203,
-            "def": 226,
-            "spa": 248,
-            "spd": 226,
-            "spe": 206
+            "hp": 262,
+            "atk": 182,
+            "def": 203,
+            "spa": 223,
+            "spd": 203,
+            "spe": 185
           },
           "moves": [
             "dracometeor",
@@ -3998,7 +3997,7 @@
           "speciesID": 149,
           "species": "Dragonite",
           "displayName": "Dragonite",
-          "level": 100,
+          "level": 90,
           "ability": "Multiscale",
           "nature": "Adamant",
           "gender": "",
@@ -4013,12 +4012,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 323,
-            "atk": 334,
-            "def": 226,
-            "spa": 212,
-            "spd": 236,
-            "spe": 196
+            "hp": 291,
+            "atk": 301,
+            "def": 203,
+            "spa": 190,
+            "spd": 212,
+            "spe": 176
           },
           "moves": [
             "dragondance",
@@ -4040,7 +4039,7 @@
           "speciesID": 373,
           "species": "Salamence",
           "displayName": "Salamence",
-          "level": 100,
+          "level": 90,
           "ability": "Moxie",
           "nature": "Naive",
           "gender": "",
@@ -4055,12 +4054,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 306,
-            "def": 196,
-            "spa": 256,
-            "spd": 176,
-            "spe": 259
+            "hp": 298,
+            "atk": 275,
+            "def": 176,
+            "spa": 230,
+            "spd": 158,
+            "spe": 233
           },
           "moves": [
             "outrage",
@@ -4082,7 +4081,7 @@
           "speciesID": 330,
           "species": "Flygon",
           "displayName": "Flygon",
-          "level": 100,
+          "level": 90,
           "ability": "Levitate",
           "nature": "Jolly",
           "gender": "",
@@ -4097,12 +4096,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 236,
-            "def": 196,
-            "spa": 176,
-            "spd": 196,
-            "spe": 259
+            "hp": 271,
+            "atk": 212,
+            "def": 176,
+            "spa": 158,
+            "spd": 176,
+            "spe": 233
           },
           "moves": [
             "outrage",
@@ -4124,7 +4123,7 @@
           "speciesID": 612,
           "species": "Haxorus",
           "displayName": "Haxorus",
-          "level": 100,
+          "level": 90,
           "ability": "Mold Breaker",
           "nature": "Jolly",
           "gender": "",
@@ -4139,12 +4138,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 293,
-            "atk": 330,
-            "def": 216,
-            "spa": 140,
-            "spd": 176,
-            "spe": 253
+            "hp": 264,
+            "atk": 297,
+            "def": 194,
+            "spa": 126,
+            "spd": 158,
+            "spe": 227
           },
           "moves": [
             "dragondance",
@@ -7024,5 +7023,13 @@
         }
       ]
     }
+  ],
+  "levelPolicy": {
+    "rounds1To12": 75,
+    "rounds13To16": 90,
+    "eliteFourAndBeyond": 100
+  },
+  "compatiblePreviousVersions": [
+    "challenge-bw-v2-red-sun-max-ivs/3b953196790944aba015f8c2c585ee1c2d5dce6c500cf3ad4f1856f715453956"
   ]
 }

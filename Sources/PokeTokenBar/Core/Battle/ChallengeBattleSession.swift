@@ -17,12 +17,13 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
     }
     let version: String
     let encounters: [Encounter]
+    var compatiblePreviousVersions:[String]? = nil
     @MainActor static func load() throws -> Self {
         let url=BattleEngineProcess.resourceDirectory.appendingPathComponent("challenge-opponents.json")
         let catalog=try JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
         guard catalog.encounters.count==27,Set(catalog.encounters.map(\.id)).count==27,
               catalog.encounters.enumerated().allSatisfy({$0.offset==$0.element.index && $0.element.team.count==6}) else{throw ChallengeFailure.invalidState}
-        return Self(version:catalog.version+"/"+SHA256.hash(data:try Data(contentsOf:url)).map{String(format:"%02x",$0)}.joined(),encounters:catalog.encounters)
+        return Self(version:catalog.version+"/"+SHA256.hash(data:try Data(contentsOf:url)).map{String(format:"%02x",$0)}.joined(),encounters:catalog.encounters,compatiblePreviousVersions:catalog.compatiblePreviousVersions)
     }
     @MainActor static func policyRevision()throws->String {
         let data=try Data(contentsOf:BattleEngineProcess.resourceDirectory.appendingPathComponent("challenge-policy.json"))
@@ -45,7 +46,10 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
     private var pending: BattleDecision?
     init(save:ChallengeRunStore,catalog:ChallengeEncounterCatalog,testControlsEnabled:Bool=ChallengeTestMode.enabled)throws {
         self.testControlsEnabled=testControlsEnabled;self.save=save;self.catalog=catalog
-        if let run=save.run,![.lost,.cleared].contains(run.phase),run.catalogVersion != catalog.version {throw ChallengeFailure.incompatibleVersion}
+        if let run=save.run,![.lost,.cleared].contains(run.phase),run.catalogVersion != catalog.version {
+            guard catalog.compatiblePreviousVersions?.contains(run.catalogVersion)==true else{throw ChallengeFailure.incompatibleVersion}
+            try save.adoptCatalog(version:catalog.version,previousVersion:run.catalogVersion,encounterCount:catalog.encounters.count)
+        }
     }
     func start(team:[BattlePokemon])throws {
         try save.start(team:team,catalogVersion:catalog.version,encounterCount:catalog.encounters.count)
@@ -106,9 +110,9 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
         guard save.run?.phase == .reward,(frame==nil || frame?.ended==true),!presentation.pending else{throw ChallengeFailure.invalidReward}
         try save.apply(reward,eligible:eligible)
     }
-    func purchase(_ item:ChallengeShopItem,targetID:String)throws {
+    func purchase(_ item:ChallengeShopItem,targetID:String,moveIndex:Int?=nil)throws {
         guard (frame==nil || frame?.ended==true),!presentation.pending else{throw ChallengeFailure.invalidReward}
-        try save.purchase(item,targetID:targetID)
+        try save.purchase(item,targetID:targetID,moveIndex:moveIndex)
     }
     func winForTesting()throws {
         guard testControlsEnabled,engine != nil,!submitted,!replaying,

@@ -44,21 +44,19 @@ import XCTest
         }
         XCTAssertEqual(save.run?.encounterIndex,26,"The final reward prepares Red, not a 28th encounter")
     }
-    func testEnhancedHealingRejectsFaintedAndPPRecoversEverySlotOnlyOnChosenIndividual()throws {
+    func testEnhancedHealingRevivesAndPPRecoversEverySlotOnlyOnChosenIndividual()throws {
         for pp in [false,true] {
             let save=try make(.speed)
             for _ in 0..<15 {try win(save,damage:false);try save.apply(.buff(.speed));try save.advance()}
             try win(save)
             if pp {
-                XCTAssertThrowsError(try save.apply(.pp("a0",0)))
-                try save.apply(.pp("a1",0))
-                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==$0.maxPP})
-                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==0})
+                try save.apply(.pp("a0",0))
+                XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==$0.maxPP})
+                XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==0})
                 XCTAssertEqual(save.run?.resources[0].hp,0)
             }else{
-                XCTAssertThrowsError(try save.apply(.heal("a0")))
-                try save.apply(.heal("a1"));XCTAssertEqual(save.run?.resources[1].hp,500)
-                XCTAssertEqual(save.run?.resources[0].hp,0)
+                try save.apply(.heal("a0"));XCTAssertEqual(save.run?.resources[0].hp,500)
+                XCTAssertEqual(save.run?.resources[1].hp,123)
             }
         }
     }

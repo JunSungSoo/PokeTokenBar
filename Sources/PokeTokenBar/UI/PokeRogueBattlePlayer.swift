@@ -184,7 +184,7 @@ struct PokeRogueActor:Sendable {
             }else{
                 var previous=Date();let deadline=previous.addingTimeInterval(60)
                 while !Task.isCancelled,run==generation {
-                    let now=Date(),delta=max(1,now.timeIntervalSince(previous)*1000);previous=now
+                    let now=Date(),delta=max(1,now.timeIntervalSince(previous)*1000)*BattleEffectPlayback.playbackRate(event);previous=now
                     let reply=try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":delta])
                     if reply["done"] as? Bool==true{break}
                     guard Date()<deadline else{throw BattleFailure.unavailableEngine}

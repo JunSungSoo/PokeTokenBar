@@ -18,6 +18,36 @@ import XCTest
         else {a=BattleAction(kind:"move",index:slot.moves.first(where:{!$0.disabled && $0.pp>0})!.index,target:0)}
         return BattleDecision(decisionID:f.decisionID,actions:[a],order:[])
     }
+    func testNextEncounterClearsOnlySleepAndMidbattleSleepSurvivesResume()async throws {
+        let helper=ChallengeRunTests(),temporary=try helper.store()
+        let save=ChallengeRunStore(url:temporary.url,roll:{.attack})
+        var own=helper.team();own[0].moves=["rest","protect"]
+        var foe=helper.team("b");for i in foe.indices{foe[i].moves=["splash"]}
+        let catalog=ChallengeEncounterCatalog(version:"sleep-boundary",encounters:[
+            .init(id:"brock",index:0,nameKo:"웅",phase:"gym",team:foe),
+            .init(id:"falkner",index:1,nameKo:"비상",phase:"gym",team:foe)])
+        try save.start(team:own,catalogVersion:catalog.version,encounterCount:2)
+        try save.beginEncounter(opponent:foe,seed:[1,2,3,4],policyRevision:ChallengeEncounterCatalog.policyRevision())
+        var state=save.run!.resources
+        for (i,status) in ["psn","brn","par","frz","slp","tox"].enumerated(){state[i].status=status}
+        state[0].hp=100;state[4].sleepStart=3;state[4].sleepRemaining=2
+        try save.accept(resources:state,decision:nil,winner:0);try save.apply(.buff(.attack))
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.resources,state,"Reward/reopen does not clear ailments")
+        let session=try ChallengeBattleSession(save:save,catalog:catalog);defer{session.stop()}
+        try session.startEncounter();let opening=try await wait(session)
+        let expected=["psn","brn","par","frz","","tox"]
+        XCTAssertEqual(save.run?.checkpoint?.initialResources.map(\.status),expected)
+        XCTAssertEqual(opening.resources?.map(\.status),expected)
+        XCTAssertNil(save.run?.resources[4].sleepStart);XCTAssertNil(save.run?.resources[4].sleepRemaining)
+        try session.choose(.init(decisionID:opening.decisionID,actions:[.init(kind:"move",index:1,target:0)],order:[]))
+        let asleep=try await wait(session,after:opening.decisionID)
+        XCTAssertEqual(asleep.resources?.first?.status,"slp","Rest creates real in-battle sleep")
+        session.stop()
+        let loaded=ChallengeRunStore(url:save.url),resumed=try ChallengeBattleSession(save:loaded,catalog:catalog)
+        defer{resumed.stop()};try resumed.resume();let restored=try await wait(resumed)
+        XCTAssertEqual(restored.resources,asleep.resources,"Resume must not wake or reroll sleep duration")
+        XCTAssertEqual(restored.resources?.first?.status,"slp")
+    }
     func testRealProcessSixVsSixAutomaticCPUAndDeterministicResume()async throws {
         let helper=ChallengeRunTests(),save=try helper.store(),catalog=try ChallengeEncounterCatalog.load()
         defer{try? FileManager.default.removeItem(at:save.url.deletingLastPathComponent())}

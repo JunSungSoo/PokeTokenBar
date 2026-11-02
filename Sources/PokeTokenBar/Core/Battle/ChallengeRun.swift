@@ -72,12 +72,13 @@ struct ChallengeChampionReward:Codable,Sendable {
 struct ChallengeRun: Codable, Sendable, Identifiable {
     var championReward:ChallengeChampionReward? = nil
     var shopOffers:[ChallengeShopItem]? = nil
+    var shopPurchaseCounts:[String:Int]? = nil
     var challengePoints:Int? = 0
     var teamBuffs:[ChallengeTeamBuff]? = nil
     var rewardRoll:ChallengeBuffKind? = nil
     var schemaVersion=1
     let id: String
-    let catalogVersion: String
+    var catalogVersion: String
     let encounterCount: Int
     var encounterIndex=0
     var phase: ChallengePhase = .ready
@@ -96,7 +97,6 @@ enum ChallengeReward {
     case pp(String,Int)
     case replace(String,BattlePokemon)
     case allHeal
-    case revive(String)
     case buff(ChallengeBuffKind)
 }
 
@@ -118,12 +118,19 @@ enum ChallengeReward {
             guard saved.schemaVersion==1 else{throw ChallengeFailure.incompatibleVersion}
             try Self.validate(saved)
             let missingShop=[ChallengePhase.reward,.intermission].contains(saved.phase) && saved.shopOffers==nil
+            let retiredShop=saved.shopOffers?.contains{!$0.available}==true
             if missingShop{saved.shopOffers=shopRoll()}
+            if retiredShop {
+                let candidates=(saved.shopOffers ?? []).filter(\.available)+shopRoll()+ChallengeShopItem.allCases
+                var stock:[ChallengeShopItem]=[]
+                for item in candidates where item.available && !stock.contains(item){stock.append(item)}
+                saved.shopOffers=Array(stock.prefix(4))
+            }
             let missingPoints=saved.challengePoints==nil
             let missingOffer=saved.phase == .reward && (saved.rewardRoll==nil || saved.rewardRoll == .power)
-            if missingPoints{saved.challengePoints=saved.completedVictories*100}
+            if missingPoints{saved.challengePoints=ChallengeRun.totalVictoryPoints(saved.completedVictories)}
             if missingOffer{saved.rewardRoll=roll()}
-            if missingPoints || missingOffer || missingShop{try commit(saved)}else{run=saved}
+            if missingPoints || missingOffer || missingShop || retiredShop{try commit(saved)}else{run=saved}
         } catch {self.error=error.localizedDescription;unreadable=true}
     }
     private static func validate(_ run:ChallengeRun)throws {
@@ -139,7 +146,10 @@ enum ChallengeReward {
             let fresh=try ChallengePokemonState.fresh(pokemon)
             guard zip(fresh.moves,r.moves).allSatisfy({$0.id==$1.id && $0.maxPP==$1.maxPP}) else{throw ChallengeFailure.invalidState}
         }
-        guard run.pointBalance>=0,run.pointBalance<=run.encounterCount*100 else{throw ChallengeFailure.invalidState}
+        guard run.pointBalance>=0,run.pointBalance<=ChallengeRun.totalVictoryPoints(run.encounterCount) else{throw ChallengeFailure.invalidState}
+        if let counts=run.shopPurchaseCounts {
+            guard counts.allSatisfy({ChallengeShopItem(rawValue:$0.key) != nil && $0.value>=0 && $0.value<=ChallengeRun.totalVictoryPoints(run.encounterCount)/10}) else{throw ChallengeFailure.invalidState}
+        }
         if let offers=run.shopOffers {guard offers.count==4,Set(offers).count==4 else{throw ChallengeFailure.invalidState}}
         let buffs=run.teamBuffs ?? []
         guard Set(buffs.map(\.id)).count==buffs.count,buffs.allSatisfy({(1...3).contains($0.remaining)}) else{throw ChallengeFailure.invalidState}
@@ -167,9 +177,18 @@ enum ChallengeReward {
         try commit(ChallengeRun(id:UUID().uuidString,catalogVersion:catalogVersion,encounterCount:encounterCount,
                                 team:team,resources:try team.map(ChallengePokemonState.fresh)))
     }
+    // Upgrade only a reviewed compatible catalog; replay uses the untouched checkpoint.
+    func adoptCatalog(version:String,previousVersion:String,encounterCount:Int)throws {
+        guard var next=run,next.catalogVersion==previousVersion,next.encounterCount==encounterCount else{throw ChallengeFailure.incompatibleVersion}
+        next.catalogVersion=version;try commit(next)
+    }
     func beginEncounter(opponent:[BattlePokemon],seed:[UInt16],policyRevision:String)throws {
         guard var next=run,next.phase == .ready || next.phase == .intermission,
               next.resources.contains(where:{$0.hp>0}),opponent.count==6,seed.count==4 else{throw ChallengeFailure.invalidState}
+        // Wake only between encounters, never while replaying an unfinished battle.
+        for i in next.resources.indices where next.resources[i].status == "slp" {
+            next.resources[i].status="";next.resources[i].sleepStart=nil;next.resources[i].sleepRemaining=nil
+        }
         next.checkpoint=ChallengeCheckpoint(opponent:opponent,initialTeam:next.team,initialResources:next.resources,seed:seed,
                                            engineRevision:BattleEngineProcess.revision,policyRevision:policyRevision,initialBuffs:next.teamBuffs)
         next.phase = .battling
@@ -197,7 +216,7 @@ enum ChallengeReward {
         }
         if let decision {next.checkpoint?.decisions.append(decision);next.checkpoint?.pendingDecision=nil}
         if let winner {
-            if winner==0{next.challengePoints=next.pointBalance+100}
+            if winner==0{next.challengePoints=next.pointBalance+ChallengeRun.victoryPoints(encounterIndex:next.encounterIndex)}
             next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
             next.phase=winner==0 ? (next.encounterIndex==next.encounterCount-1 ? .cleared:.reward):.lost
             next.rewardRoll=next.phase == .reward ? roll():nil
@@ -218,13 +237,12 @@ enum ChallengeReward {
         switch reward {
         case .heal(let id):
             guard !next.milestoneReward else{throw ChallengeFailure.invalidReward}
-            guard let index=next.resources.firstIndex(where:{$0.id==id}),let p=next.team.first(where:{$0.id==id}),let maxHP=p.stats["hp"],next.resources[index].hp>0,next.resources[index].hp<maxHP else{throw ChallengeFailure.invalidReward}
+            guard let index=next.resources.firstIndex(where:{$0.id==id}),let p=next.team.first(where:{$0.id==id}),let maxHP=p.stats["hp"],next.resources[index].hp<maxHP else{throw ChallengeFailure.invalidReward}
+            let wasFainted=next.resources[index].hp==0
             next.resources[index].hp=min(maxHP,next.resources[index].hp+(next.enhancedReward ? maxHP:max(1,Int(Double(maxHP)*0.35))))
-        case .revive(let id):
-            guard let index=next.resources.firstIndex(where:{$0.id==id}),let maxHP=next.team.first(where:{$0.id==id})?.stats["hp"],next.resources[index].hp==0 else{throw ChallengeFailure.invalidReward}
-            ChallengeShopItem.revive.apply(to:&next.resources[index],maxHP:maxHP)
+            if wasFainted{next.resources[index].status="";next.resources[index].sleepStart=nil;next.resources[index].sleepRemaining=nil}
         case .pp(let id,let move):
-            guard !next.milestoneReward,let index=next.resources.firstIndex(where:{$0.id==id}),next.resources[index].hp>0 else{throw ChallengeFailure.invalidReward}
+            guard !next.milestoneReward,let index=next.resources.firstIndex(where:{$0.id==id}) else{throw ChallengeFailure.invalidReward}
             if next.enhancedReward {
                 guard next.resources[index].moves.contains(where:{$0.pp<$0.maxPP}) else{throw ChallengeFailure.invalidReward}
                 for j in next.resources[index].moves.indices{next.resources[index].moves[j].pp=next.resources[index].moves[j].maxPP}
@@ -254,14 +272,16 @@ enum ChallengeReward {
         next.phase = .intermission;next.checkpoint=nil
         try commit(next)
     }
-    func purchase(_ item:ChallengeShopItem,targetID:String)throws {
-        guard var next=run,next.canPurchase(item,targetID:targetID) else{throw ChallengeFailure.invalidReward}
-        next.challengePoints=next.pointBalance-item.price
+    func purchase(_ item:ChallengeShopItem,targetID:String,moveIndex:Int?=nil)throws {
+        guard var next=run,(item != .ppMoveRecovery || moveIndex != nil),next.canPurchase(item,targetID:targetID,moveIndex:moveIndex) else{throw ChallengeFailure.invalidReward}
+        next.challengePoints=next.pointBalance-next.shopPrice(item)
+        next.shopPurchaseCounts=next.shopPurchaseCounts ?? [:]
+        next.shopPurchaseCounts?[item.rawValue,default:0]+=1
         let indices=item.teamWide ? Array(next.resources.indices):next.resources.indices.filter{next.resources[$0].id==targetID}
         for index in indices {
             let id=next.resources[index].id
             let maxHP=next.team.first{$0.id==id}!.stats["hp"]!
-            item.apply(to:&next.resources[index],maxHP:maxHP)
+            item.apply(to:&next.resources[index],maxHP:maxHP,moveIndex:moveIndex)
         }
         try commit(next)
     }

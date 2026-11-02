@@ -229,7 +229,7 @@ import SwiftUI
                     }.padding(8).frame(maxWidth:.infinity)
                         .background(selectable && model.rewardPokemonID==pokemon.id ? Color.accentColor.opacity(0.16):Color.secondary.opacity(0.07),in:RoundedRectangle(cornerRadius:8))
                         .overlay(RoundedRectangle(cornerRadius:8).stroke(selectable && model.rewardPokemonID==pokemon.id ? Color.accentColor:Color.clear,lineWidth:2))
-                }.buttonStyle(.plain).disabled(!selectable || model.building || ([ChallengeRewardKind.heal,.pp].contains(model.rewardKind) && resource?.hp==0) || (model.rewardKind == .revive && resource?.hp != 0)).accessibilityIdentifier("challenge-member-\(pokemon.id)")
+                }.buttonStyle(.plain).disabled(!selectable || model.building).accessibilityIdentifier("challenge-member-\(pokemon.id)")
             }
         }
     }
@@ -239,7 +239,6 @@ import SwiftUI
         case .heal:model.run?.enhancedReward == true ? l.challengeHealFull:l.challengeHeal
         case .pp:model.run?.enhancedReward == true ? l.challengePPFull:l.challengePP
         case .replace:l.challengeReplace
-        case .revive:l.challengeShopName(.revive)
         case .allHeal:l.challengeAllHeal
         case .buff:l.challengeBuffReward(model.run?.rewardRoll ?? .attack)+" · "+l.challengeBuffDuration
         }

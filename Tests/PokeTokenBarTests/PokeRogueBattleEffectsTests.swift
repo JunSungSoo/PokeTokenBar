@@ -12,6 +12,15 @@ final class PokeRogueBattleEffectsTests: XCTestCase {
         return .init(id:1,move:id,type:recipe?.type ?? "Normal",category:recipe?.category ?? "Special",source:.init(own:own,slot:slot),
             targets:[.init(position:.init(own:selfMove ? own : !own,slot:slot),hit:hit)],moveID:id,phase:charge ? "charge" : "move")
     }
+    func testMoveAndChargeAreOneAndHalfSpeedWithoutAcceleratingPassiveEffects() {
+        for phase in [nil,"move","charge","entry","mega","status","field","weather-hit","ability"] as [String?] {
+            var e=event("thunderbolt");e.phase=phase
+            let rate=BattleEffectPlayback.playbackRate(e)
+            XCTAssertEqual(rate,[nil,"move","charge"].contains(phase) ? 1.5:1,"\(phase ?? "legacy move")")
+            let oldDuration=max(2.2,BattleEffectPlayback.duration(e)/0.65)
+            XCTAssertEqual(BattleEffectPlayback.animationDuration(e),oldDuration/rate,accuracy:0.001)
+        }
+    }
     private func render(_ event: BattleVisualEvent,_ p: Double) throws -> NSBitmapImageRep {
         NSBitmapImageRep(cgImage:try XCTUnwrap(ImageRenderer(content:ZStack {
             PokeRogueBattleCanvas(event:event,rects:rects,progress:p,behind:true)

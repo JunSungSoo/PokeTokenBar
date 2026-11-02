@@ -2655,3 +2655,85 @@ read_when:
 - All 63 native challenge tests pass, including real engine carryover and native-view OCR of
   the new four-card stock. Removing the ordinary-item living-HP guard causes 12 assertions
   to fail in the exact fainted-target regression; the mutation is restored before final checks.
+
+
+## Encounter-only sleep cleanup must not run during battle replay
+
+- The corrected challenge rule excludes sleep from inter-encounter status carryover. The
+  previous generic resource carry test deliberately preserved sleep, so it did not enforce
+  the newly requested boundary. Clearing sleep in the engine initializer would also wake a
+  Pokémon on crash recovery, changing replayed move outcomes and saved PP.
+- Clear sleep only in the store's new-encounter transition, before checkpoint capture.
+  The real engine integration checks poison/burn/paralysis/freeze/toxic carryover, wakes
+  the previous encounter's sleeper, then uses Rest and replays its still-asleep checkpoint.
+- Recovery/UI/localization sweep removes living-only HP/PP gates, keeps the status-cure
+  living-target rule and clears ailments on HP-based revival. Removed shop products decode
+  for migration only and cannot be offered, selected as a reward or purchased.
+- Tests also retain three-win full-team HP/PP/revival/status cure and one-time old-stock
+  replacement while preserving run identity/resources/points; no existing release notes
+  are rewritten for this later correction.
+
+- Disabling the new sleep-reset predicate causes four assertions to fail in the actual
+  next-encounter test, then restoring it passes all 13 focused tests. Source-region inspection
+  confirms the sleep reset, retired-stock replacement and HP-revival status cleanup execute.
+
+
+## Dynamic shop prices must use one persisted purchase count and one move slot
+
+- Constant-price labels/checks were correct under the prior rules but would undercharge or
+  show stale prices after the new five-point increment. Sweep covers native card/sheet labels,
+  model/session forwarding, saved-run affordability and debit. Only the base-price fallback
+  and centralized current-price helper may read the product's base price directly.
+- Per-product counts belong to the same atomic write as the recovery and debit. Regression
+  uses repeated purchases on different slots of a fainted member, preserving other products'
+  prices, then checks reopening, new stock and new-run reset. Failed writes and invalid/full
+  move selections must neither spend points nor increment counts.
+- The move selector may find eligible members before a slot is chosen, but the committing
+  purchase must require a selected valid depleted slot. Otherwise a missing selection could
+  charge/inflate without restoring PP. Both nil and out-of-range slots are reachable inputs
+  through a purchase request; full slots are reachable after earlier purchases.
+- Old save counters default to zero. User-editable JSON can contain negative/huge counters;
+  validate before computing prices, preserve malformed files and refuse writes. Team full
+  recovery is separately tested for six members with one charge and no mandatory-reward bypass.
+
+- Omitting the purchase-count increment deliberately fails five assertions in the persisted
+  price regression. After restoration all 69 native challenge tests pass; the sheet's actual
+  rendered price increase (10 → 15) is OCR-verified. Source regions confirm counter writes,
+  selected-slot recovery, team scope, the affordability check and corrupt-counter rejection.
+
+
+## Tiered victory awards require a matching saved-balance ceiling
+
+- Increasing the award alone leaves the previous `encounterCount * 100` validation cap.
+  Normal 27-battle progress would then reject the 19th victory at 2,920 points, even though
+  early three-victory tests still pass. The production save commit is the trigger path.
+- Sweep updates award calculation, missing-point migration, maximum balance, purchase-count
+  bound and all eight shop guidance translations. Existing spent balances are never topped up.
+  A 27-victory regression follows real store transitions, reloads every win and checks 4,860
+  total, every three-battle boundary and duplicate-terminal rejection without crafting a high
+  balance directly into JSON.
+
+- The old-ceiling mutation fails on an ordinary victory transition; after restoration the
+  full 27-win and legacy-spent-balance regressions pass. All 16 point/shop tests passed;
+  source-region inspection verifies the tiered award, cumulative cap and legacy migration.
+
+
+## Opponent level policy must recalculate stats and preserve existing replay checkpoints
+
+- The engine intentionally trusts explicit owned/NPC stats; changing only `level` would leave
+  level-100 HP/offense/defense/speed. The new level-policy compiler rebuilds every stat using
+  Gen V base stats, stored IVs/nature and zero EVs. Independent formula and real engine checks
+  cover all 162 members and all three level tiers, including the 12→13 and 16→17 boundaries.
+- Catalog content hashes intentionally reject arbitrary roster changes, so a raw JSON edit
+  alone would block existing active runs. A pinned, reviewed previous hash is eligible for a
+  version-only save adoption. Replay retains the stored opponent unchanged; new encounters
+  draw from the new catalog. Regression completes/resumes the old battle and then observes
+  a level-75 opponent, while an unknown hash or wrong encounter count cannot rewrite a save.
+- NPC-only held items must remain on the NPC side of engine tests. The independent test
+  initially used Red as the player with NPC-only gear, triggering the intended user item gate;
+  its player fixture now clears held items while testing every opponent's original items.
+
+- Bypassing the prior-catalog allowlist fails two assertions in the unknown-version/save-byte
+  regression. After restoration both focused level tests pass; source-region inspection
+  confirms the adoption and rejection branches. Full engine validation passes 145 tests,
+  and the broader native session/level selection passes 14 tests.

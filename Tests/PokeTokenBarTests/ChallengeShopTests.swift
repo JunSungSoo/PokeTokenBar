@@ -31,15 +31,15 @@ import XCTest
         try save.start(team:ChallengeRunTests().team(),catalogVersion:"shop-test")
         XCTAssertEqual(save.run?.pointBalance,0)
     }
-    func testFullRecoveryIsOneLivingIndividualAndDoesNotClaimTheRequiredReward()throws {
-        let save=try ready();let before=save.run!.resources[0],offer=save.run?.rewardRoll
-        XCTAssertThrowsError(try save.purchase(.fullRecovery,targetID:"a0"))
-        try save.purchase(.fullRecovery,targetID:"a1")
+    func testFullRecoveryRevivesEntireTeamWithoutClaimingRequiredReward()throws {
+        let save=try ready()
+        try save.purchase(.fullRecovery,targetID:"a0")
         XCTAssertEqual(save.run?.pointBalance,0);XCTAssertEqual(save.run?.phase,.reward)
-        XCTAssertEqual(save.run?.resources[1].hp,500);XCTAssertEqual(save.run?.resources[1].status,"")
-        XCTAssertTrue(save.run!.resources[1].moves.allSatisfy{$0.pp==$0.maxPP})
-        XCTAssertEqual(save.run?.resources[0],before)
-        XCTAssertEqual(save.run?.rewardRoll,offer);XCTAssertThrowsError(try save.advance())
+        XCTAssertEqual(save.run?.resources[0].hp,500);XCTAssertEqual(save.run?.resources[0].status,"")
+        XCTAssertTrue(save.run!.resources[0].moves.allSatisfy{$0.pp==$0.maxPP})
+        XCTAssertTrue(save.run!.resources.allSatisfy{$0.hp==500 && $0.status.isEmpty && $0.moves.allSatisfy{$0.pp==$0.maxPP}})
+        XCTAssertEqual(save.run?.shopPrice(.fullRecovery),105)
+        XCTAssertThrowsError(try save.advance())
         XCTAssertEqual(ChallengeRunStore(url:save.url).run?.resources,save.run?.resources)
         try save.apply(.buff(.attack));try save.advance()
     }
@@ -49,12 +49,13 @@ import XCTest
         for expectedHP in [101,201]{try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.resources[1].hp,expectedHP)}
         try save.purchase(.heal40,targetID:"a1");XCTAssertEqual(save.run?.resources[1].hp,401)
         try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.resources[1].hp,500)
-        XCTAssertEqual(save.run?.pointBalance,90);XCTAssertEqual(save.run?.resources[1].status,"psn")
+        XCTAssertEqual(save.run?.pointBalance,105);XCTAssertEqual(save.run?.resources[1].status,"psn")
         XCTAssertThrowsError(try save.purchase(.heal20,targetID:"a1"))
         try save.purchase(.ppRecovery,targetID:"a1")
         try save.purchase(.heal40,targetID:"a3");XCTAssertEqual(save.run?.resources[3].hp,201)
         try save.purchase(.heal20,targetID:"a3");XCTAssertEqual(save.run?.resources[3].hp,301)
-        XCTAssertEqual(save.run?.pointBalance,0)
+        XCTAssertEqual(save.run?.pointBalance,20)
+        XCTAssertEqual(save.run?.shopPrice(.heal20),30)
         XCTAssertThrowsError(try save.purchase(.heal20,targetID:"a3"))
         XCTAssertThrowsError(try save.purchase(.heal20,targetID:"not-in-team"))
     }
@@ -70,7 +71,7 @@ import XCTest
         let save=try ready();let file=save.url,backup=file.appendingPathExtension("backup")
         try FileManager.default.moveItem(at:file,to:backup);try FileManager.default.createDirectory(at:file,withIntermediateDirectories:false)
         XCTAssertThrowsError(try save.purchase(.fullRecovery,targetID:"a1"))
-        XCTAssertEqual(save.run?.pointBalance,100);XCTAssertEqual(save.run?.resources[0].hp,0)
+        XCTAssertEqual(save.run?.pointBalance,100);XCTAssertEqual(save.run?.resources[0].hp,0);XCTAssertEqual(save.run?.shopPrice(.fullRecovery),100)
         try FileManager.default.removeItem(at:file);try FileManager.default.moveItem(at:backup,to:file)
         try save.purchase(.fullRecovery,targetID:"a1")
         XCTAssertEqual(save.run?.pointBalance,0);XCTAssertEqual(save.run?.resources[1].hp,500)
@@ -91,7 +92,7 @@ import XCTest
         }
     }
     func testEveryProductIsLocalizedAndFullRecoveryCuresSleep() {
-        XCTAssertEqual(ChallengeShopItem.allCases.map(\.price),[100,50,10,30,40,30,50,70])
+        XCTAssertEqual(ChallengeShopItem.allCases.map(\.price),[100,30,10,20,10,50,10])
         for language in AppLanguage.allCases{for item in ChallengeShopItem.allCases{
             XCTAssertFalse(L(language).challengeShopName(item).isEmpty);XCTAssertFalse(L(language).challengeShopDescription(item).isEmpty)
         }}
@@ -105,50 +106,58 @@ import XCTest
         state.status="";state.moves[0].pp=1
         XCTAssertTrue(ChallengeShopItem.fullRecovery.needed(state,maxHP:50),"PP-only recovery must remain purchasable at full HP")
     }
-    func testOrdinaryRecoveryNeverRevivesAndRevivalLeavesPPSpent()throws {
-        let ordinary:[ChallengeShopItem]=[.fullRecovery,.ppRecovery,.heal20,.heal40,.statusCure,.teamHeal30]
+    func testHPRecoveryRevivesAndCuresOnlyRevivedMembersWhilePPDoesNotRevive()throws {
         let fainted=ChallengePokemonState(id:"a",hp:0,status:"slp",item:"",sleepStart:3,sleepRemaining:2,moves:[.init(id:"tackle",pp:0,maxPP:35)])
-        for item in ordinary {
-            var state=fainted
-            XCTAssertFalse(item.needed(state,maxHP:501),item.rawValue)
-            item.apply(to:&state,maxHP:501);XCTAssertEqual(state,fainted)
+        for (item,hp) in [(ChallengeShopItem.fullRecovery,501),(.heal20,100),(.heal40,200),(.teamHeal50,250)] {
+            var state=fainted;XCTAssertTrue(item.needed(state,maxHP:501))
+            item.apply(to:&state,maxHP:501);XCTAssertEqual(state.hp,hp)
+            XCTAssertEqual(state.status,"");XCTAssertNil(state.sleepStart);XCTAssertNil(state.sleepRemaining)
+            XCTAssertEqual(state.moves[0].pp,item == .fullRecovery ? 35:0)
+            var alive=fainted;alive.hp=1;alive.status="psn"
+            item.apply(to:&alive,maxHP:501)
+            XCTAssertEqual(alive.status,item == .fullRecovery ? "":"psn")
         }
-        for item in [ChallengeShopItem.revive,.maxRevive] {
-            var state=fainted;item.apply(to:&state,maxHP:501)
-            XCTAssertEqual(state.hp,item == .revive ? 250:501)
-            XCTAssertEqual(state.moves[0].pp,0);XCTAssertEqual(state.status,"")
-            XCTAssertNil(state.sleepStart);XCTAssertNil(state.sleepRemaining)
-            XCTAssertFalse(item.needed(state,maxHP:501))
+        var pp=fainted;ChallengeShopItem.ppRecovery.apply(to:&pp,maxHP:501)
+        XCTAssertEqual(pp.hp,0);XCTAssertEqual(pp.moves[0].pp,35)
+        XCTAssertFalse(ChallengeShopItem.statusCure.needed(fainted,maxHP:501))
+        var unchanged=fainted;ChallengeShopItem.statusCure.apply(to:&unchanged,maxHP:501);XCTAssertEqual(unchanged,fainted)
+        for retired in [ChallengeShopItem.revive,.maxRevive] {
+            XCTAssertFalse(ChallengeShopItem.allCases.contains(retired))
+            XCTAssertFalse(retired.needed(fainted,maxHP:501))
         }
-        let save=try ready()
-        XCTAssertThrowsError(try save.apply(.heal("a0")))
-        XCTAssertThrowsError(try save.apply(.pp("a0",0)))
-        try save.apply(.revive("a0"));XCTAssertEqual(save.run?.resources[0].hp,250)
-        XCTAssertEqual(save.run?.resources[0].moves[0].pp,0)
+        let save=try ready();try save.apply(.pp("a0",0))
+        XCTAssertEqual(save.run?.resources[0].hp,0);XCTAssertEqual(save.run?.resources[0].moves[0].pp,3)
+        let heal=try ready();try heal.apply(.heal("a0"));XCTAssertEqual(heal.run?.resources[0].hp,175)
     }
-    func testNewStockPurchasesStatusRevivalAndLivingTeamOnlyHealing()throws {
-        let stock:[ChallengeShopItem]=[.statusCure,.revive,.teamHeal30,.maxRevive]
+    func testStatusCureAndTeamHealingIncludeRevivalWithoutClearingLivingStatus()throws {
+        let stock:[ChallengeShopItem]=[.statusCure,.teamHeal50,.heal40,.ppRecovery]
         let save=try ready(wins:3,stock:stock)
+        let before=save.run!.resources
+        try save.purchase(.teamHeal50,targetID:"")
+        XCTAssertEqual(save.run?.pointBalance,250)
+        for (i,r) in save.run!.resources.enumerated() {
+            XCTAssertEqual(r.hp,min(500,before[i].hp+250))
+            XCTAssertEqual(r.moves,before[i].moves);XCTAssertEqual(r.status,before[i].hp==0 ? "":before[i].status)
+        }
         try save.purchase(.statusCure,targetID:"a1")
-        XCTAssertEqual(save.run?.pointBalance,260);XCTAssertEqual(save.run?.resources[1].hp,1)
+        XCTAssertEqual(save.run?.pointBalance,240);XCTAssertEqual(save.run?.resources[1].hp,251)
         XCTAssertEqual(save.run?.resources[1].status,"");XCTAssertEqual(save.run?.resources[1].moves[0].pp,0)
         XCTAssertThrowsError(try save.purchase(.statusCure,targetID:"a1"))
-        let before=save.run!.resources
-        try save.purchase(.teamHeal30,targetID:"")
-        XCTAssertEqual(save.run?.pointBalance,210)
-        for (i,r) in save.run!.resources.enumerated() {
-            XCTAssertEqual(r.hp,before[i].hp==0 ? 0:min(500,before[i].hp+150))
-            XCTAssertEqual(r.moves,before[i].moves);XCTAssertEqual(r.status,before[i].status)
-        }
-        XCTAssertThrowsError(try save.purchase(.revive,targetID:"a1"))
-        try save.purchase(.revive,targetID:"a0");XCTAssertEqual(save.run?.resources[0].hp,250)
-        try save.purchase(.maxRevive,targetID:"a2");XCTAssertEqual(save.run?.resources[2].hp,500)
-        XCTAssertEqual(save.run?.pointBalance,110)
-        XCTAssertEqual(save.run?.resources[0].moves[0].pp,0);XCTAssertEqual(save.run?.resources[2].moves[0].pp,0)
         XCTAssertEqual(save.run?.phase,.reward);XCTAssertThrowsError(try save.advance())
-        // The fixed revive reward remains available at a three-win milestone.
-        let milestone=try ready(wins:3,stock:stock)
-        try milestone.apply(.revive("a0"));XCTAssertEqual(milestone.run?.resources[0].hp,250)
+    }
+    func testRemovedProductsMigrateWithoutResettingRunPointsOrOtherOffers()throws {
+        let save=try ready()
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        json["shopOffers"]=["statusCure","revive","teamHeal30","maxRevive"]
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let fresh:[ChallengeShopItem]=[.fullRecovery,.ppRecovery,.heal20,.heal40]
+        let loaded=ChallengeRunStore(url:save.url,shopRoll:{fresh})
+        XCTAssertEqual(loaded.run?.id,save.run?.id);XCTAssertEqual(loaded.run?.pointBalance,100)
+        XCTAssertEqual(loaded.run?.resources,save.run?.resources)
+        XCTAssertEqual(loaded.run?.shopOffers,[.statusCure,.teamHeal50,.fullRecovery,.ppRecovery])
+        XCTAssertFalse(loaded.run!.canPurchase(.revive,targetID:"a0"))
+        XCTAssertFalse(loaded.run!.canPurchase(.maxRevive,targetID:"a0"))
+        XCTAssertEqual(ChallengeRunStore(url:save.url,shopRoll:{XCTFail("Do not reroll migrated stock");return fresh}).run?.shopOffers,loaded.run?.shopOffers)
     }
     func testFourOffersPersistWithoutRerollAndRefreshOnlyAfterNextVictory()throws {
         let helper=ChallengeRunTests(),temporary=try helper.store()
@@ -164,8 +173,8 @@ import XCTest
         try save.advance();try helper.victory(save)
         XCTAssertEqual(calls,2);XCTAssertEqual(save.run?.shopOffers,second)
         let eligible=try ready(stock:second)
-        XCTAssertThrowsError(try eligible.purchase(.heal20,targetID:"a1"),"Affordable and useful but not offered")
-        try eligible.purchase(.revive,targetID:"a0")
+        XCTAssertThrowsError(try eligible.purchase(.fullRecovery,targetID:"a1"),"Affordable and useful but not offered")
+        try eligible.purchase(.heal40,targetID:"a0")
         XCTAssertEqual(eligible.run?.shopOffers,second)
         XCTAssertEqual(ChallengeRunStore(url:eligible.url).run?.shopOffers,second)
     }
@@ -185,6 +194,76 @@ import XCTest
             XCTAssertNil(invalid.run);XCTAssertFalse(invalid.canWrite)
             XCTAssertEqual(try Data(contentsOf:save.url),bytes)
         }
+    }
+
+    func testSelectedMovePPRecoveryOnlyChangesChosenSlotAndCountsPurchasesPerProduct()throws {
+        let stock:[ChallengeShopItem]=[.ppMoveRecovery,.ppRecovery,.heal20,.statusCure]
+        let save=try ready(wins:3,stock:stock)
+        let before=save.run!.resources
+        for bad in [nil,-1,2] as [Int?] {
+            XCTAssertThrowsError(try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:bad))
+            XCTAssertEqual(save.run?.resources,before);XCTAssertEqual(save.run?.pointBalance,300)
+            XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),10)
+        }
+        try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:1)
+        XCTAssertEqual(save.run?.resources[0].hp,0)
+        XCTAssertEqual(save.run?.resources[0].moves.map(\.pp),[0,10])
+        XCTAssertEqual(save.run?.resources[1],before[1])
+        XCTAssertEqual(save.run?.pointBalance,290);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),15)
+        XCTAssertEqual(save.run?.shopPrice(.ppRecovery),30);XCTAssertEqual(save.run?.shopPrice(.heal20),10)
+        XCTAssertThrowsError(try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:1))
+        try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:0)
+        XCTAssertEqual(save.run?.pointBalance,275);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),20)
+        let loaded=ChallengeRunStore(url:save.url)
+        XCTAssertEqual(loaded.run?.shopPrice(.ppMoveRecovery),20)
+        try save.apply(.buff(.attack));try save.advance()
+        try save.beginEncounter(opponent:ChallengeRunTests().team("b"),seed:[1,2,3,4],policyRevision:"test")
+        try save.accept(resources:save.run!.resources,decision:nil,winner:0)
+        XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),20,"New stock does not reset prices")
+        try save.apply(.buff(.attack));try save.advance()
+        try save.beginEncounter(opponent:ChallengeRunTests().team("b"),seed:[1,2,3,4],policyRevision:"test")
+        try save.forfeit();try save.start(team:ChallengeRunTests().team(),catalogVersion:"shop-test")
+        XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),10,"A new run resets price history")
+    }
+    func testMalformedPurchaseHistoryCannotOverflowPricesAndFailedWritesDoNotInflate()throws {
+        for count in [-1,Int.max] {
+            let save=try ready()
+            var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+            json["shopPurchaseCounts"]=["heal20":count]
+            let bytes=try JSONSerialization.data(withJSONObject:json);try bytes.write(to:save.url)
+            let loaded=ChallengeRunStore(url:save.url)
+            XCTAssertNil(loaded.run);XCTAssertFalse(loaded.canWrite);XCTAssertEqual(try Data(contentsOf:save.url),bytes)
+        }
+    }
+
+    func testVictoryPointsIncreaseEveryThreeEncountersThroughRedAndPersistWithoutDoubleCredit()throws {
+        let helper=ChallengeRunTests(),save=try helper.store()
+        try save.start(team:helper.team(),catalogVersion:"tiered-points")
+        let tiers=[100,120,140,160,180,200,220,240,260]
+        var total=0
+        for index in 0..<27 {
+            try save.beginEncounter(opponent:helper.team("b"),seed:[1,2,3,4],policyRevision:"test")
+            let resources=save.run!.resources
+            try save.accept(resources:resources,decision:nil,winner:0)
+            total+=tiers[index/3]
+            XCTAssertEqual(save.run?.pointBalance,total,"Victory \(index+1)")
+            XCTAssertThrowsError(try save.accept(resources:resources,decision:nil,winner:0))
+            XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,total)
+            if index<26{try save.apply(.buff(try XCTUnwrap(save.run?.rewardRoll)));try save.advance()}
+        }
+        XCTAssertEqual(total,4860);XCTAssertEqual(save.run?.phase,.cleared)
+    }
+    func testLegacyMissingPointsUseTieredTotalButSavedSpentBalanceIsNotRecalculated()throws {
+        let save=try ready(wins:4)
+        XCTAssertEqual(save.run?.pointBalance,420)
+        try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.pointBalance,410)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,410)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        json.removeValue(forKey:"challengePoints")
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let migrated=ChallengeRunStore(url:save.url)
+        XCTAssertEqual(migrated.run?.pointBalance,420)
+        XCTAssertEqual(migrated.run?.shopPrice(.heal20),15)
     }
 
 }

@@ -2,7 +2,7 @@ import Foundation
 
 extension L {
     var challengeAllHeal:String {t("전체 회복 · 선발 전원 HP·PP 최대, 부활·상태이상 해제","Full recovery · Team HP/PP, revive and cure","全回復・全員のHP・PP、復活と状態回復","Recuperación total · PS/PP, revivir y curar","Récupération complète · PV/PP, rappel et soin","Recuperação total · PS/PP, reviver e curar","Komplettheilung · Team-KP/AP, Wiederbelebung und Heilung","Полное восстановление команды · ОЗ/ОД, оживление и лечение")}
-    var challengeHealFull:String {t("선택한 포켓몬 HP 최대 회복","Restore full HP to one living Pokémon","1匹のHP全回復","Recuperar todos los PS","Tous les PV","Restaurar todos os PS","Alle KP heilen","Восстановить все ОЗ")}
+    var challengeHealFull:String {t("선택한 포켓몬 HP 최대 회복·부활","Restore full HP; revive if fainted","1匹のHP全回復","Recuperar todos los PS","Tous les PV","Restaurar todos os PS","Alle KP heilen","Восстановить все ОЗ")}
     var challengePPFull:String {t("선택한 포켓몬의 기술 4개 PP 최대 회복","Restore all move PP of one Pokémon","選んだ1匹の全技PPを全回復","Recuperar todos los PP de un Pokémon","Tous les PP du Pokémon choisi","Restaurar todos os PP de um Pokémon","Alle AP eines gewählten Pokémon auffüllen","Все ОД всех приёмов выбранного покемона")}
     func challengeBuffReward(_ kind:ChallengeBuffKind)->String {
         switch kind {
@@ -61,7 +61,7 @@ extension L {
     var challengeSaveExit:String {t("세이브 후 종료","Save and exit","セーブして終了","Guardar y salir","Sauvegarder et quitter","Salvar e sair","Speichern und beenden","Сохранить и выйти")}
     var challengeNext:String {t("다음","Next","次へ","Siguiente","Suivant","Próximo","Weiter","Далее")}
     var challengeReward:String {t("승리 보상 · 하나를 선택하세요","Victory reward · Choose one","勝利報酬・1つ選ぶ","Recompensa · Elige una","Récompense · Choisis-en une","Recompensa · Escolha uma","Siegesbelohnung · Eine wählen","Награда · Выберите одну")}
-    var challengeHeal:String {t("선택한 포켓몬 HP 35% 회복","Restore 35% max HP to one living Pokémon","1匹のHP35%回復","Recuperar 35% de PS","Rendre 35 % des PV","Restaurar 35% dos PS","35 % KP heilen","Восстановить 35% ОЗ")}
+    var challengeHeal:String {t("선택한 포켓몬 HP 35% 회복·부활","Restore 35% max HP; revive if fainted","1匹のHP35%回復","Recuperar 35% de PS","Rendre 35 % des PV","Restaurar 35% dos PS","35 % KP heilen","Восстановить 35% ОЗ")}
     var challengePP:String {t("선택한 기술 PP 3 회복","Restore 3 PP to one move","選んだ技のPPを3回復","Recupera 3 PP de un movimiento","Restaure 3 PP à une capacité","Restaura 3 PP de um golpe","3 AP einer Attacke auffüllen","Восстановить 3 ОД одного приёма")}
     var challengeReplace:String {t("선발 포켓몬 한 마리 교체","Replace one team member","チームの1匹を入れ替える","Sustituye un miembro del equipo","Remplace un membre de l’équipe","Substitui um membro da equipe","Ein Teammitglied austauschen","Заменить одного члена команды")}
     var challengeReplaceHint:String {t("교체된 개체는 이번 도전에 다시 출전할 수 없습니다. 남은 호환 도구는 이어받습니다.","A replaced individual cannot return this run. Compatible remaining gear transfers.","交代した個体は今回再出場できません。対応する残りの道具を引き継ぎます。","El Pokémon sustituido no puede volver en este desafío. Se transfiere su objeto compatible.","Le Pokémon remplacé ne peut plus revenir. Son objet compatible est transféré.","O Pokémon substituído não pode voltar neste desafio. O item compatível é transferido.","Ausgetauschte Pokémon können nicht zurückkehren. Passende verbleibende Items werden übertragen.","Заменённый покемон не сможет вернуться. Совместимый оставшийся предмет передаётся.")}

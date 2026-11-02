@@ -408,7 +408,7 @@ import XCTest
             if move=="quickattack" {
                 let first=try XCTUnwrap(samples.first),last=try XCTUnwrap(samples.last)
                 let rate=(last.1-first.1)/last.0.timeIntervalSince(first.0)/1000
-                XCTAssertEqual(rate,1,accuracy:0.15,"Production must preserve the original 1× clock")
+                XCTAssertEqual(rate,1.5,accuracy:0.2,"Move visuals must advance at the requested 1.5× rate")
                 XCTAssertTrue(snapshots.contains{ s in (s["sprites"] as? [[String:Any]] ?? []).contains{($0["texture"] as? String)?.hasPrefix("25") == true && abs(($0["x"] as? Double ?? 0)-120)>5}},"Original USER commands must move the caster")
             }
             if move=="thunderbolt" {

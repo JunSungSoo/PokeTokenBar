@@ -66,13 +66,17 @@ final class PokeRogueBattleCatalog {
 struct BattleEffectPlayback {
     let event: BattleVisualEvent
     let began: Date
+    // Scale move/charge visuals only; passive effects and entry clocks keep their timing.
+    static func playbackRate(_ event:BattleVisualEvent)->Double {
+        event.phase == nil || event.phase == "move" || event.phase == "charge" ? 1.5:1
+    }
     static let announcementLeadIn = 0.45
     static let interEventPause = 0.55
     @MainActor static func duration(_ event: BattleVisualEvent) -> Double {
         PokeRogueBattleCatalog.shared.entry(event)?.duration ?? PikachuMoveProfile.resolve(event)?.duration ?? BattleEffectCatalog.shared.duration(for:event)
     }
     @MainActor static func animationDuration(_ event: BattleVisualEvent) -> Double {
-        max(2.2, duration(event) / 0.65)
+        max(2.2, duration(event) / 0.65) / playbackRate(event)
     }
     @MainActor func progress(at date: Date) -> Double {
         max(0, min(1, date.timeIntervalSince(began) / Self.animationDuration(event)))

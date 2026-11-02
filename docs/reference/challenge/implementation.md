@@ -253,3 +253,126 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
 - Archive: `PokeTokenBar-2.5.6-arm64-20261102-challenge-shop-random.zip`; packaged `2026-11-02T14:49:20+09:00`;
   SHA-256 `24d585dc03d168d5200e9b0116cc041d5622f0ca4d31c281ae42f2e192cac8bc`. The ZIP contains the complete descending release history,
   app and release metadata; integrity, note bytes and packaged executable are verified.
+
+
+### Recovery rule correction after the third release
+
+- Active shop stock is now six products, still four distinct saved offers per victory.
+  Revive/Max Revive are removed from offers and the fixed revival reward is removed.
+  Their enum values remain decode-only for released saves; migration preserves retained
+  offers, points, resources and run ID, then fills removed slots from active products once.
+- All HP recovery products and individual HP rewards can revive at their advertised amount.
+  Revival clears the revived member's status/sleep counters. Partial HP recovery on a living
+  member preserves ailments. Full recovery retains HP/PP/status cure; the three-win team
+  reward still fully heals/revives/cures everyone.
+- PP items/rewards can target a fainted member but never change HP. Status-cure items only
+  target living, affected members. This distinction follows the user's explicit clarification.
+- Only `beginEncounter` clears sleep before capturing the next checkpoint. Poison, toxic
+  poison, burn, paralysis and freeze persist. Reloading a pending reward does not cure them;
+  replaying an unfinished battle retains real sleep and its exact remaining duration.
+- The native integration fixture carries all six major statuses across a victory, wakes only
+  the sleeper on the next actual engine start, then uses Rest and resumes its sleeping state
+  deterministically. Existing collection-loadout freezing, shop atomicity and milestone cure
+  regressions remain in the challenge suite.
+
+- Verification: all 65 then-current native challenge tests passed
+  (`/tmp/ptb-recovery-correction.log`); the added sleep-boundary integration plus all 12
+  shop tests passed (`/tmp/ptb-recovery-boundary.log`). Disabling the new sleep-reset
+  predicate fails four assertions; after restoring it, the same 13 tests pass
+  (`/tmp/ptb-recovery-restored.log`). LLVM regions are inspected in
+  `/tmp/ptb-recovery-regions.txt`; retired-item application remains intentionally unreachable
+  after eligibility rejects decode-only cases. This later change does not alter published notes.
+
+
+### Seven-product shop with per-product price inflation
+
+- Base prices are team full HP/PP/status recovery and revival 100; one member's all PP 30;
+  one selected move's maximum PP 10; individual HP 20% 10; individual HP 40% 20;
+  living-member status cure 10; team HP 50% 50. Four distinct products still appear per win.
+- Every successful purchase raises only that product's next price by five points, irrespective
+  of target member or move slot. Run-local counters survive stock refresh, close/reopen and
+  subsequent encounters. New runs reset them; older saves without counters begin at base prices.
+- The price used by card labels, the purchase button, affordability checks and atomic debit
+  comes from the same run helper. Counter update, recovery and point debit commit together;
+  failed writes and rejected/no-op purchases do not raise prices. External saved counters are
+  validated before price multiplication against a bound implied by awarded points/minimum price.
+- Selected-move recovery requires an explicit valid depleted move index at commit. The target
+  picker can inspect any member with depleted PP, including a fainted member, and shows move
+  names/current/max PP. Only the chosen slot changes; PP recovery never revives. Full recovery
+  now covers every registered member with a single charge. Half-HP team recovery preserves
+  living members' status and cures members it revives, leaving PP untouched.
+- The former `teamHeal30` serialized key is retained by the `teamHeal50` case so a saved
+  offer upgrades without resetting stock, points or progression. Removed revive-item save
+  migration remains supported. Collection loadout freezing and sleep-boundary rules remain.
+
+- Verification: all 69 native challenge tests pass (`/tmp/ptb-shop-prices-final.log`). The
+  selected-move sheet renders both move names and PP totals, and native OCR verifies the
+  purchase button changes from 10 to 15 points after a purchase. Product tests cover per-item
+  counts, same product on different slots, refreshed stock, reload, fresh-run reset, rejected
+  slots, failed writes, old saved stock and malformed counters. Removing the increment fails
+  five assertions (`/tmp/ptb-shop-inflation-mutation.log`), then restoration passes the full suite.
+  Source regions are inspected (`/tmp/ptb-shop-prices-regions.txt`); the apply-layer missing-slot
+  return is intentionally unentered because the committing store rejects a missing slot first.
+
+
+### Victory points increase every three encounters
+
+- The per-victory award is `100 + 20 * floor(encounterIndex / 3)` using the zero-based
+  encounter index: 1–3 award 100 each, 4–6 award 120 each, continuing to 25–27 at 260 each.
+  Twenty-seven actual victories earn 4,860 points before shop spending. Defeats, duplicate
+  terminal frames and QA skips retain their existing non-award behavior.
+- Award validation and the purchase-count bound use the cumulative maximum for the run's
+  encounter count, avoiding the former 2,700-point ceiling. External malformed count/HP
+  validation still runs before cumulative arithmetic. The victory result and points remain
+  one atomic save commit.
+- Existing stored balances are retained without retroactive refunds/recalculation. A legacy
+  save with no point field receives the cumulative tiered total for completed victories once.
+  Current stock and product purchase counts remain intact. Shop guidance is translated in
+  all eight languages to describe the three-encounter increment.
+- A full 27-victory store regression verifies every tier, duplicate rejection, reopening each
+  checkpoint, the 4,860-point total and final clear. Legacy/spent-balance regressions cover
+  the first 3→4 boundary while preserving product inflation history.
+
+- Verification: all 16 shop/point tests pass (`/tmp/ptb-tiered-points.log`). Restoring the old
+  balance ceiling deliberately fails the normal 19th-win commit; restoring the cumulative
+  ceiling passes both 27-victory and legacy/spent-balance tests
+  (`/tmp/ptb-tiered-points-restored.log`). Source regions are inspected in
+  `/tmp/ptb-tiered-points-regions.txt`. The isolated QA app is rebuilt with current source
+  while preserving its existing fourth-victory reward checkpoint.
+
+
+### Opponent level tiers
+
+- Rounds 1–12 use level 75, rounds 13–16 level 90, and rounds 17–27 (Elite Four,
+  champions and Red) level 100. All 162 opponents' six stats are rebuilt from the Gen V
+  species base stats, existing IVs, nature and zero EVs with the normal floor operations.
+  Rounds 17–27 retain their exact prior member data. No team, move, ability or item changes.
+- `scripts/challenge/level-policy.cjs` is invoked after the Red overrides in roster generation;
+  reapplying it is deterministic. The fixed-roster Korean report now shows each round's level.
+- The new catalog accepts only the exact reviewed preceding catalog version/hash. Adopting
+  it saves the new version without changing run identity, player loadouts/resources, points,
+  rewards or the in-flight checkpoint. A resumed old battle uses that checkpoint's level-100
+  opponent; the next encounter uses the new level tier. Unknown catalog hashes and mismatched
+  encounter counts remain rejected without rewriting the original save.
+- The user's QA app/window was terminated without resetting test progress. No new test window
+  is opened by this change. All 145 engine tests and 14 native session/level tests pass,
+  including all 162 stat/engine comparisons, generation reproducibility, old-battle resume,
+  transition to the new level and rejection of unreviewed saves.
+
+- Removing the reviewed-version allowlist deliberately fails two assertions (an unknown
+  catalog becomes writable); restoring it passes both focused level/resume tests.
+  Source-region inspection confirms both the catalog adoption and rejection paths execute
+  (`/tmp/ptb-opponent-levels-regions.txt`). Generated-data comparison confirms that all fixed
+  loadout fields are unchanged and all level-100 teams retain their complete prior data.
+
+
+### November 2 fourth ZIP release
+
+- Existing first/second/third release notes remain unchanged; the fourth records all subsequent
+  recovery, shop/inflation, point-tier, move-speed and opponent-level changes.
+- Final validation passes 83 native tests, 145 engine tests, strict/deep ARM64 app/helper
+  signatures, 4,356 matching resources, audio hashes, production test-mode exclusion and a
+  packaged-engine turn with all five boosts and unchanged owned stats. The packaged catalog
+  contains the 75/90/100 level policy and reviewed prior-version compatibility.
+- Archive: `PokeTokenBar-2.5.6-arm64-20261102-challenge-update.zip`; packaged `2026-11-02T16:02:05+09:00`;
+  SHA-256 `d0607228082f4e39adf83b78308551ebd2b800c16159a540ad4bdad6fbd3c126`. ZIP integrity, full release history and executable match.

@@ -238,3 +238,19 @@ actual original WebGL surfaces at the same 750 ms timestamp, production arena an
 notice views, and explicitly labeled HUD probes; they are not full BattleView
 screenshots. Full production singles/doubles geometry, native front/back GIF
 cadence and bounded localized notice stacks retain their separate native tests.
+
+
+### Battle move playback at 1.5× (user-requested timing update)
+
+- Move and charge events now advance the production player's shared foreground/background
+  clock at 1.5× wall time. Legacy move events without a phase use the same rate. The same
+  factor shortens fallback canvas animation duration, preserving its progress calculation.
+- Authored source timelines/assets remain intact. GIF frame cadence still follows the physical
+  clock. Entry/recall, Mega evolution, status/field/weather-hit and ability phases retain their
+  existing speeds. Reduced Motion timing and announcement/inter-event reading pauses remain.
+- Completion still controls HP/status application and subsequent actions; engine priority,
+  Speed/Trick Room order and damage calculations are unchanged. Audio pitch/volume settings
+  are untouched; audible move sounds are verified through the production WebGL player.
+- Ten focused tests pass (`/tmp/ptb-move-speed.log`): the real native clock measures 1.5×,
+  foreground/background motion and spread targets complete/clean up, normal move sounds play,
+  HP changes follow effects and replacement requests wait for presentation completion.
