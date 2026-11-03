@@ -302,7 +302,7 @@ class OwnedBattle {
     const effects=log.flatMap((entry,index)=>{
       if(!entry.startsWith('|move|')) return [];
       const parts=entry.split('|'), source=position(parts[2]);
-      if(!source) return [];
+      if(!source || parts.includes('[notarget]')) return [];
       const move=b.dex.moves.get(parts[3]);
       const spread=parts.find(p=>p.startsWith('[spread] '));
       const tokens=spread ? spread.slice(9).split(',') : [parts[4] || parts[2]];

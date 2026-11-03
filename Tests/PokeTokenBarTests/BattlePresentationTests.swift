@@ -187,12 +187,14 @@ final class BattlePresentationTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(first.date.timeIntervalSince(start),BattleEffectPlayback.announcementLeadIn-0.1)
         }
     }
-    func testForegroundAndBackgroundShareSlowerTimelineWhileSourceDurationsStayUnchanged() {
+    func testForegroundAndBackgroundShareRequestedSpeedupWhileSourceDurationsStayUnchanged() {
         for name in ["thunderbolt","quickattack","psychic","surf","rest"] {
             var sample=event(1);sample.moveID=name
             let source=BattleEffectPlayback.duration(sample),duration=BattleEffectPlayback.animationDuration(sample)
-            XCTAssertGreaterThanOrEqual(duration,2.2)
-            XCTAssertGreaterThanOrEqual(duration,source/0.65)
+            // The shipped move clock already runs at the user's requested 1.5x.
+            XCTAssertEqual(BattleEffectPlayback.playbackRate(sample),1.5)
+            XCTAssertGreaterThanOrEqual(duration,2.2/1.5)
+            XCTAssertGreaterThanOrEqual(duration,source/0.65/1.5)
             let start=Date(),playback=BattleEffectPlayback(event:sample,began:start)
             XCTAssertEqual(playback.progress(at:start.addingTimeInterval(duration/2)),0.5,accuracy:0.001)
             XCTAssertEqual(playback.progress(at:start.addingTimeInterval(duration)),1,accuracy:0.001)

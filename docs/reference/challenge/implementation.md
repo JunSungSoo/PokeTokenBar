@@ -579,3 +579,29 @@ resource hashes match. The actual bundled engine verifies 27 teams/162 NPCs, pre
 owned stats and runs a recovery turn. The third November 3 Desktop ZIP matches the
 verified executable, both version fields, source player and exact newest-first note
 bytes. Archive SHA-256/bytes/time are in the release ledger; installation was skipped.
+
+
+## No-target self-KO follow-up presentation (3.0.4, 2026-11-03)
+
+Showdown correctly fails a queued attack after the last active foe self-KOs, logging
+`[notarget]` and `-fail`. The presentation mapper previously turned its invalid target
+into a successful self-target fallback. Exclude those records from engine effects and
+native move announcements/effects, including frames received from older peers. Retain
+state/failure scenes and engine-authoritative HP/PP. Valid doubles retargeting and self
+recovery still run. Decision/state revision is unchanged because mechanics did not change.
+
+Verification before packaging: all 153 engine tests and 19 native presentation tests
+pass. Twelve actual engine scenarios cover Explosion/Self-Destruct, surviving normal
+and Ghost users, user KO, both active foes self-KOing, surviving alternate targets and
+Recover. Native tests also ingest released legacy effects for both viewpoints/all
+languages. Removing each exclusion fails its regression; source regions were inspected.
+The older duration test now uses the existing requested 1.5x clock; production speed
+is unchanged. Local release is ARM64-only and skips installation/live user-state edits.
+
+Final local 3.0.4 verification: the ARM64 app/helper pass strict/deep signatures;
+all 4,356 source resources match. The actual packaged helper verifies 27 teams/162 NPCs,
+owned-stat preservation, automatic recovery and both targetless self-KO cases.
+Version checks complete 19 tests with one opt-in network probe skipped, packaging
+checks pass all eight, and the release builder reruns all 153 engine tests successfully.
+The Desktop fourth-release ZIP matches both app version fields, executable/engine
+bytes and exact newest-first full notes. Archive size/hash/time are in the release ledger.

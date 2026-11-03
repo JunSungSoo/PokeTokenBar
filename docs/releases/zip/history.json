@@ -799,6 +799,27 @@
       "sha256": "fde4f3cad7dbc09768c86d609e0c630ee6a79a1e704af0094b984999883bd1af",
       "bytes": 126289863,
       "packagedAt": "2026-11-03T15:44:33+09:00"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "16:23:09",
+      "archive": "PokeTokenBar-3.0.4-261103(4).zip",
+      "version": "3.0.4",
+      "evidence": "Explicit user-requested 3.0.4 Desktop ZIP with fourth November 3 release notes, then commit/push. Actual 12-case self-KO regression covers both moves, normal/Ghost survival, user KO, doubles no-target and retarget, self Recover, both viewpoints/all languages and released legacy frames. Engine/native filter mutations fail as expected. Full release engine suite: 153 tests pass. Native presentation: 19 tests pass. Version checker: 19 complete with one opt-in network probe skipped, no failures. Packaging: 8 tests pass. Source regions inspected. ARM64 app/helper strict/deep signatures and 4356 source resources match; actual bundled helper checks all 27 teams/162 NPCs, preserved owned stats, automatic recovery and both targetless self-KO cases. Final ZIP integrity, current app/engine bytes, executable SHA, filename/app/metadata version, exact newest-first full notes and prior trainer-finale redaction verified. Installation and live user-state changes skipped.",
+      "turn": null,
+      "title": "Suppress targetless attacks after Explosion and Self-Destruct",
+      "commit": null,
+      "sourceBaseCommit": "6f6b655ca01f2813b0b13f4aa06589b2706132f6",
+      "artifactAvailable": true,
+      "releaseNumber": 4,
+      "changes": [
+        "대폭발·자폭 등으로 상대가 기절해 공격 대상이 없어진 경우, 선택한 공격의 사용 문구·이펙트·효과음이 재생되던 문제를 수정했습니다.",
+        "이전 버전에서 전달된 대상 없는 기술 기록도 연출에서 제외하고, 더블배틀의 남은 상대에게 공격하는 동작과 자신에게 사용하는 회복기는 정상적으로 유지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.4-261103(4).zip",
+      "sha256": "ade8755caf4b553707c612bbabf11b2bddabfea1aedd7493ab1a1f7d92ecbe48",
+      "bytes": 126290287,
+      "packagedAt": "2026-11-03T16:23:09+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

@@ -456,7 +456,9 @@ enum BattleLogText {
             let reason = ["par", "slp", "frz", "flinch", "confusion", "attract"].contains(BattleTextCatalog.key(value(1)))
                 ? l.battleStatus(value(1)) : catalog.effectName(value(1), language: language)
             return pokemon + " · " + reason + " · " + l.battleCannotAct + cause
-        case "move": return "\(pokemon) → \(catalog.moveName(value(1),language:language))"
+        case "move":
+            guard !parts.contains("[notarget]") else{return nil}
+            return "\(pokemon) → \(catalog.moveName(value(1),language:language))"
         case "switch", "drag": return "↔ " + catalog.pokemonName(value(1),language:language)
         case "-damage":
             guard !cause.isEmpty else { return nil }

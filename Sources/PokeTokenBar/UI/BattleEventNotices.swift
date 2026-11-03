@@ -25,9 +25,14 @@ struct BattlePresentationEvents {
             return (scene.id, event)
         })
         let replacedMoves = Set(fieldEffects.values.compactMap(\.replacesMove))
-        let moves = (frame.effects ?? []).filter { !replacedMoves.contains($0.id) }
+        // Older peers/checkpoints may still include an effect for a no-target move.
+        let targetlessMoves=Set(frame.log.enumerated().compactMap { index,line -> Int? in
+            let parts=line.split(separator:"|",omittingEmptySubsequences:false)
+            return parts.count>1 && parts[1]=="move" && parts.contains("[notarget]") ? offset+index:nil
+        })
+        let moves = (frame.effects ?? []).filter { !replacedMoves.contains($0.id) && !targetlessMoves.contains($0.id) }
         var messages: [Int: String] = [:]
-        for (index, line) in frame.log.enumerated() where line.hasPrefix("|move|") {
+        for (index, line) in frame.log.enumerated() where line.hasPrefix("|move|") && !targetlessMoves.contains(offset+index) {
             messages[offset + index] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
         }
         let abilityEvents = notices.filter { fieldEffects[$0.id + offset] == nil && statusEffects[$0.id + offset] == nil }.map { notice in

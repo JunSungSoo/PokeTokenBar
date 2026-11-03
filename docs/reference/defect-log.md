@@ -2866,3 +2866,29 @@ read_when:
   receipts by key. The next run cannot replace an unpaid lost run after a write failure.
 - Boundary/tier totals, full clear, persistence, repeated synchronization, skipped rounds,
   old-save decoding and write-failure publication are exercised by dedicated regressions.
+
+## No-target move records are failures, not successful self-targeted animations
+
+- After Explosion/Self-Destruct faints the last active foe, Showdown logs the queued
+  attack with `[notarget]` and `-fail`. Calculations already fail correctly. The effect
+  mapper treated every `move` record as executable; its unparseable `p2: Name` target
+  became an empty target list and then a successful source-target fallback. The UI
+  also announced every move. Prior miss/blocked tests retained a real active target,
+  so they never exercised this no-target fallback and gave no protection here.
+- Exclude `[notarget]` records in the engine-derived effect list and in native event/
+  message ingestion. The native filter is required for still-running older peers and
+  old checkpoint frames. Retain state/failure scenes and authoritative PP/HP/turn rules.
+  Never cancel every action after a self-KO: self-directed recovery and legal doubles
+  retargeting still execute. No engine revision bump is needed for presentation-only
+  mapping, keeping saved decision replay compatible.
+- Sweep found one engine effect builder, one presentation ingester and one direct move
+  text formatter. Shared no-target handling covers other self-KO/empty-field causes
+  without hard-coding a move-name blacklist or dropping valid field/self moves.
+- Real-engine regression covers both moves, normal survival, Ghost immunity, the chosen
+  user's KO, doubles with both foes self-KOing before its action, a living alternate foe
+  and Recover. Both viewpoints/all app languages also test the released sender's exact
+  legacy fallback effect. Removing either engine/native exclusion fails its regression.
+- The broader presentation suite exposed an older timing assertion that still required
+  the pre-1.5x minimum duration. The release already uses the requested 1.5x speed
+  (confirmed unchanged in HEAD); align that test's bounds and explicit rate assertion
+  without changing production playback speed.
