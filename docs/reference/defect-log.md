@@ -2892,3 +2892,24 @@ read_when:
   the pre-1.5x minimum duration. The release already uses the requested 1.5x speed
   (confirmed unchanged in HEAD); align that test's bounds and explicit rate assertion
   without changing production playback speed.
+
+
+## A height-dependent curve must still produce visible small/large battle differences
+
+- Species height records were correct, but extent used metres^0.3 and compressed all
+  extents above 140 toward 160. Lugia's wide authored aspect ratio reduced its visible
+  height further: front bounds were about 89 versus Pikachu's 63 design pixels.
+  Tests checked Pikachu/Wailord relative widths, data coverage and camera bounds,
+  without minimum visible differences for ordinary large species or actual artwork.
+- Use a square-root height curve with smooth compression above 180 toward 200 design
+  pixels. Keep the common roster/form camera, proportional fitting, GIF cadence, stance
+  and ground inset unchanged. Native idle sprites and original move/entry actors use
+  the same battleSize helper; no per-species fixed square or stretched art is introduced.
+- The four-species regression fails 22 assertions on the released policy. Cover both
+  modes and facings, plus a giant reserve, to require distinct Charizard/Lugia versus
+  Pikachu/Mew visible heights and widths without changing viewport limits. Existing
+  real native/original-player, Mega and physical-height regressions remain applicable.
+- An opt-in read-only artwork test copies the existing GIF cache and bundled original
+  Charizard into a temporary directory. It checks actual cropped GIF proportions and
+  exports an offscreen production-stage comparison; it never fetches or changes user
+  sprites. The deterministic catalog/camera regression still runs without local artwork.

@@ -67,7 +67,7 @@ does not change battle weather, terrain, statistics or engine RNG. Native Pokém
 GIFs, floating animation and existing sprite stages remain unchanged.
 
 Battle display size now uses original PokéAPI CSV height (decimetres), including
-all 649 species and 64 permitted Mega forms: extent = 90 * metres^0.3, normalized
+all 649 species and 64 permitted Mega forms: extent = 90 * sqrt(metres), smoothly limited to 200 design pixels beyond 180, normalized
 against the largest front/back atlas dimension before the existing shared camera.
 Physical length is never forced into vertical image height. Source CSV snapshots
 and hashes are preserved in original/physical/ and pokemon-heights.json.

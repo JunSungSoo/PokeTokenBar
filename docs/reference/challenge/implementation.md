@@ -605,3 +605,34 @@ Version checks complete 19 tests with one opt-in network probe skipped, packagin
 checks pass all eight, and the release builder reruns all 153 engine tests successfully.
 The Desktop fourth-release ZIP matches both app version fields, executable/engine
 bytes and exact newest-first full notes. Archive size/hash/time are in the release ledger.
+
+
+## Shared physical-size contrast (3.0.5, 2026-11-03)
+
+The previous metres^0.3 curve and 140-to-160 soft cap compressed ordinary large
+species too strongly: wide Lugia front height was about 89 design pixels versus
+Pikachu's 63. The common helper now uses 90 * sqrt(metres), smoothly limiting extents
+above 180 toward 200 before the shared roster/form camera. This is a policy for
+all 649 species and supported forms, not individual overrides for the four examples.
+Atlas aspect/facing proportions, current GIF artwork/cadence, stance, ground inset,
+viewport widths and the same scale for both teams remain unchanged. Native stages,
+original move/entry players and Mega actors all consume the same helper.
+
+Verification: the new visible-size regression fails 22 assertions against the old
+policy; all 15 sizing, physical-height and Mega tests pass afterward. The real-artwork
+check copies cached GIFs and bundled original Charizard into temporary storage, uses
+actual cropped bounds and exports an offscreen production-stage comparison without
+changing user data or fetching sprites. The final comparison export was checked for
+clipping, and both extent branches execute in source-region inspection.
+[Actual stage comparison](../../../assets/battle-size-comparison-305-ko.png) shows
+singles/doubles and front/back artwork; the same calculation applies to the full catalog.
+Local distribution remains ARM64-only and skips installation.
+
+Final local 3.0.5 verification: ARM64 app/helper strict/deep signatures pass, all
+4,356 source resources match and the executable differs from 3.0.4. The release
+builder passes all 153 engine tests; the bundled helper checks 27 teams/162 NPCs,
+owned stats, automatic recovery and both targetless cases. Version checks complete
+19 tests with one opt-in network probe skipped; all eight packaging checks pass.
+The fifth-release Desktop ZIP matches the verified executable, both version fields,
+source height/size catalogs, updated notice and exact newest-first full notes.
+Archive size/hash/time are in the release ledger; app installation was skipped.

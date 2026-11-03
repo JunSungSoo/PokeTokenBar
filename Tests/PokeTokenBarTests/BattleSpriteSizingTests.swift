@@ -36,6 +36,90 @@ import XCTest
             XCTAssertGreaterThan(sizing.pixelScale,0)
         }
     }
+    func testSmallSpeciesRemainDistinctFromCharizardAndLugiaInBothModesAndFacings() {
+        let catalog=PokeRogueSpriteSizes.shared
+        let ids=[25,151,6,249,321]
+        var measurements:[String:Double]=[:]
+        for mode in BattleMode.allCases {
+            let camera=BattleSpriteSizing.make(mode:mode,sizes:ids.flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+            for back in [false,true] {
+                func visible(_ id:Int)->CGSize {
+                    let target=catalog.battleSize(speciesID:id,form:nil,back:back)
+                    let fit=SpriteFit.size(for:catalog.size(speciesID:id,form:nil,back:back),width:target.width,height:target.height)
+                    return CGSize(width:fit.width*camera.pixelScale,height:fit.height*camera.pixelScale)
+                }
+                for small in [25,151] {
+                    XCTAssertGreaterThan(visible(6).height,visible(small).height*1.75,"Charizard versus \(small), \(mode), back=\(back)")
+                    XCTAssertGreaterThan(visible(249).height,visible(small).height*2.0,"Lugia versus \(small), \(mode), back=\(back)")
+                    XCTAssertGreaterThan(visible(249).width,visible(small).width*2.8)
+                }
+                for id in ids {measurements["\(mode)-\(back ? "back":"front")-\(id)"]=Double(visible(id).height)}
+            }
+        }
+        if let data=try? JSONSerialization.data(withJSONObject:measurements,options:[.prettyPrinted,.sortedKeys]) {
+            try? data.write(to:URL(fileURLWithPath:"/tmp/ptb-battle-size-measurements.json"))
+        }
+    }
+
+    func testRealCachedSpeciesKeepTheirSizeDifferencesAndRenderComparison()async throws {
+        guard let path=ProcessInfo.processInfo.environment["PTB_REAL_BATTLE_SPRITES"] else {
+            throw XCTSkip("Opt-in read-only comparison using existing production GIFs")
+        }
+        let sourceDirectory=URL(fileURLWithPath:path),ids=[25,151,6,249],catalog=PokeRogueSpriteSizes.shared
+        let directory=FileManager.default.temporaryDirectory.appendingPathComponent("battle-size-real-\(UUID())")
+        try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let store=SpriteStore(directory:directory)
+        var sources:[String:CGSize]=[:]
+        for id in ids {for back in [false,true] {
+            let key=SpriteStore.cacheKey(speciesID:id,animated:true,shiny:false,back:back)
+            let original=BattleOriginalSprites.asset(speciesID:id,form:nil,back:back,shiny:false)
+            let source=original.map{$0.directory.appendingPathComponent($0.record.file)} ?? sourceDirectory.appendingPathComponent(key+".gif")
+            try FileManager.default.copyItem(at:source,to:directory.appendingPathComponent(key+".gif"))
+            let frames=BattleSpriteGeometry.croppedFrames(SpriteLoader.cachedFrames(speciesID:id,shiny:false,directory:directory,back:back))
+            sources[key]=try XCTUnwrap(frames.first).image.size
+        }}
+        for mode in BattleMode.allCases {for back in [false,true] {
+            let camera=BattleSpriteSizing.make(mode:mode,sizes:(ids+[321]).flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+            func actual(_ id:Int)->CGSize {
+                let key=SpriteStore.cacheKey(speciesID:id,animated:true,shiny:false,back:back)
+                let target=catalog.battleSize(speciesID:id,form:nil,back:back)
+                let fit=SpriteFit.size(for:sources[key]!,width:target.width,height:target.height)
+                return CGSize(width:fit.width*camera.pixelScale,height:fit.height*camera.pixelScale)
+            }
+            for small in [25,151] {
+                XCTAssertGreaterThan(actual(6).height,actual(small).height*1.7)
+                XCTAssertGreaterThan(actual(249).height,actual(small).height*1.9)
+            }
+        }}
+        let root=VStack(alignment:.leading,spacing:14) {
+            ForEach(BattleMode.allCases,id:\.self){mode in
+                ForEach([false,true],id:\.self){back in
+                    let camera=BattleSpriteSizing.make(mode:mode,sizes:(ids+[321]).flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+                    VStack(alignment:.leading,spacing:5) {
+                        Text("\(mode == .singles ? "싱글":"더블") · \(back ? "뒷모습":"앞모습")").font(.headline)
+                        HStack(alignment:.bottom,spacing:8) {
+                            ForEach(ids,id:\.self){id in
+                                VStack(spacing:6) {
+                                    Text(BattleTextCatalog.shared.speciesName(id,language:.ko)).font(.caption)
+                                    BattlePokemonStage(pokemon:BattleCombatant(id:String(id),speciesID:id,name:"",level:50,shiny:false,active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil),back:back,stageSize:mode == .singles ? 108:90,sizing:camera,spriteStore:store)
+                                }.frame(width:192)
+                            }
+                        }
+                    }
+                }
+            }
+        }.padding(18).frame(width:830,height:1000,alignment:.topLeading).background(Color(nsColor:.windowBackgroundColor))
+        let host=NSHostingController(rootView:root);host.sizingOptions=[]
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:830,height:1000),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.setContentSize(NSSize(width:830,height:1000));window.orderFront(nil)
+        defer{window.orderOut(nil);window.contentViewController=nil}
+        try await Task.sleep(for:.seconds(2));host.view.layoutSubtreeIfNeeded()
+        let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
+        host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-battle-size-comparison.png"))
+    }
+
     func testGroundFootprintFollowsEachPokemonRatherThanTheLargestTeamMember() {
         for mode in BattleMode.allCases {
             let sizes=[25,321].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:$0,form:nil,back:true)}

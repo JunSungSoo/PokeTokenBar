@@ -820,6 +820,28 @@
       "sha256": "ade8755caf4b553707c612bbabf11b2bddabfea1aedd7493ab1a1f7d92ecbe48",
       "bytes": 126290287,
       "packagedAt": "2026-11-03T16:23:09+09:00"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "17:35:07",
+      "archive": "PokeTokenBar-3.0.5-261103(5).zip",
+      "version": "3.0.5",
+      "evidence": "Explicit user-requested 3.0.5 Desktop ZIP, fifth November 3 release notes then commit/push. Common height policy applies to all species and supported forms, not a four-species override. New small/large regression fails 22 assertions under the released policy. All 15 sizing/physical-height/Mega tests pass, including actual GIF artwork copied to temporary storage and offscreen comparison; final comparison renderer check passes and source regions inspected. Version tests: 19 complete with one opt-in network probe skipped, no failures. Packaging tests: 8 pass. Release builder passes all 153 engine tests. ARM64 app/helper strict/deep signatures verified; all 4356 source resources match, and executable differs from 3.0.4. Actual bundled helper checks 27 teams/162 NPCs, owned stats, automatic recovery and both targetless self-KO cases. Final ZIP integrity, both app version fields, executable SHA/bytes, source size/height catalogs, updated source notice, filename/metadata version and exact newest-first full notes/redaction verified. No app installation or live user-state changes.",
+      "turn": null,
+      "title": "Improve relative battle size differences for all species and supported forms",
+      "commit": null,
+      "sourceBaseCommit": "1f31286fae0611d0ae5d3528ddc44e48a3350393",
+      "artifactAvailable": true,
+      "releaseNumber": 5,
+      "changes": [
+        "배틀의 포켓몬 크기를 종 정보의 키에 따라 조정하는 공통 계산을 개선해, 전체 포켓몬과 지원되는 폼에서 작은 포켓몬과 큰 포켓몬의 크기 차이가 더 뚜렷하게 보이도록 했습니다.",
+        "싱글·더블배틀의 앞·뒷모습과 등장·기술·메가진화 연출에 같은 크기 기준을 적용하고, 기존 GIF·움직임·그림자 위 위치와 화면 폭을 유지했습니다.",
+        "매우 큰 포켓몬은 화면 안에 들어오도록 크기를 완만하게 제한하면서, 원본 이미지의 가로세로 비율과 양 진영의 공통 배율을 유지하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.5-261103(5).zip",
+      "sha256": "7c0d9e0e4a47720565fe90f3347b3831228878322dabf2e1283b51453e2f58f3",
+      "bytes": 126286979,
+      "packagedAt": "2026-11-03T17:35:07+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",
