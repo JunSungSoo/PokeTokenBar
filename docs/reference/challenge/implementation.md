@@ -5,7 +5,7 @@ Implemented 2026-10-30. The Battle tab now opens the native challenge window: se
 ## Implemented
 
 - Explicit `challenge` engine profile: six combatants per side, singles only. Peer singles still selects three and doubles four. A challenge does not create a fake LAN peer or a response deadline.
-- Twenty-seven fixed encounters / 24 characters / 162 slots. The reviewed six-species candidates are unchanged. Opponents are level 100, IV 31 except typed Hidden Power, EV 0 and fixed natures/items/abilities/moves. Every set passes the pinned Showdown generation-V `Obtainable` validator. The 16 species with missing/small usage samples have authored legal sets (17 slots); evidence flags distinguish them from reviewed analysis sets. Later encounters select another documented role where available; a single viable ability is not invented for variety.
+- Twenty-seven fixed encounters / 24 characters / 162 slots. The reviewed six-species candidates are unchanged. Opponents use level 95 (gyms and Elite Four) or 100 (Blue, second-generation Lance and Red), IV 31 except typed Hidden Power, EV 0 and fixed natures/items/abilities/moves. Every set passes the pinned Showdown generation-V `Obtainable` validator. The 16 species with missing/small usage samples have authored legal sets (17 slots); evidence flags distinguish them from reviewed analysis sets. Later encounters select another documented role where available; a single viable ability is not invented for variety.
 - NPC items may use generation-V held-item mechanics already implemented by Showdown. This does not expand the player's selectable item catalog. `itemAdapted` marks a standard-set item replaced to satisfy the six-member item clause.
 - Actual HP, base move PP, status, sleep origin and held items persist. Sketch replacements update only the run snapshot; checkpoints retain the original starting team so silent replay still reproduces learning the move. Dead leads are skipped, not healed. Battle-only stages/volatiles/weather are recreated per encounter. Base PP slots retain Showdown's shared references so switching and Transform cannot refund spent PP. Recompute Mega eligibility from the carried item, not an earlier registered item.
 - Atomic run state, seed and command checkpoint; pending human commands are saved before submission. Reopening a battle silently replays accepted/pending commands with the same catalog/model/engine versions. Save failure does not publish a successful mutation. Corrupt/unsupported saves are preserved.
@@ -376,3 +376,127 @@ Pinned public replays may later disappear; the fetch command reports a reproduct
   contains the 75/90/100 level policy and reviewed prior-version compatibility.
 - Archive: `PokeTokenBar-2.5.6-arm64-20261102-challenge-update.zip`; packaged `2026-11-02T16:02:05+09:00`;
   SHA-256 `d0607228082f4e39adf83b78308551ebd2b800c16159a540ad4bdad6fbd3c126`. ZIP integrity, full release history and executable match.
+
+
+## Role levels and per-encounter preparation (2026-11-03)
+
+- Gym leaders (rounds 1–16) now use level 90; Elite Four (17–24, including first-generation
+  Lance) level 95; Blue, second-generation Lance and Red (25–27) level 100. The fixed
+  moves, abilities, IVs, nature and zero-EV policy are unchanged. All six stats are rebuilt
+  from the new level. The prior tiered catalog is explicitly compatible: an already-started
+  battle retains its checkpoint; the next encounter uses the new catalog.
+- Initial registration and Next now lead to preparation, showing all six opposing species and types. The shared peer-battle preview orders all six owned members by click order; the first is LEAD. The
+  existing categorized item picker edits held items with species/form and duplicate-item
+  restrictions. Start commits order and items before creating the engine checkpoint.
+- Preparation edits only the frozen run team and carried resources. It does not reload
+  collection moves, abilities, stats, HP, PP or status. Items are synchronized into both
+  the registered team and carried resource records because the engine restores carried
+  items after set creation. Save and Exit persists preparation; reopening it can edit again.
+  A saved ongoing battle replays its checkpoint without reopening preparation.
+- Preparation cannot bypass the mandatory victory reward, modify an ongoing battle,
+  resume a loss, or alter membership. Replacement remains an explicit victory reward.
+
+Validation: 75 challenge native tests and all 145 engine tests pass. After the layout and
+item-memory adjustments, 32 preparation/level/run/UI tests and the final 11 focused tests
+pass. `/tmp/ptb-challenge-preparation.png` is an offscreen production-window render using
+fixture teams. Removing the duplicate-item guard makes the saved-byte regression fail;
+the guard is restored before the final passing run. Source-region review in
+`/tmp/ptb-challenge-preparation-regions.txt` confirms the reachable phase/membership,
+item-eligibility and duplicate-item rejection paths execute. Missing-ID fallback branches
+inside the maps are unreachable after the equal-member-ID set validation and existing
+run-resource validation; no fabricated invalid run is used to inflate their coverage.
+
+
+## Shared click-order preview (2026-11-03)
+
+Preparation now reuses `BattleTeamPreview` directly, with its selection limit set to six.
+Peer battles keep their existing three/four limits. Each new preparation starts unselected;
+clicking appends to the order and clicking a selected card removes it and renumbers the
+remaining cards. Start and preparation Save/Exit require all six. The first selected card
+shows LEAD. Opponent green/red borders and type-matchup tooltips use the exact same
+last-selected-member lookup and BW2 type comparison as peer battles; neutral stays unchanged.
+The held-item controls and carried HP/PP remain below the shared two-row preview.
+
+
+## Red psychic slot replaced with Mewtwo (2026-11-03)
+
+The user approved Mewtwo instead of Espeon, with Pressure, Timid and Psystrike / Ice Beam /
+Recover / Fire Blast. It retains level 100, all IVs 31 and zero EVs; recalculated stats are
+HP 353 / Atk 230 / Def 216 / SpA 344 / SpD 216 / Spe 325. Wise Glasses replaces the old
+screen extender because this set has no screens and the Red team already uses Life Orb
+and Expert Belt. The fixed override is reproducible from the original roster generator
+and explicitly marked as a user-authored set, not an observed usage statistic.
+The v4 role-level catalog is compatible: current battle checkpoints keep their original
+opponents, while a newly started Red encounter uses Mewtwo. All 146 engine tests pass,
+including BW legality, catalog regeneration and a real Recover turn with HP restoration
+and PP consumption. Both native catalog/save compatibility tests pass.
+
+
+## Life Orb Mewtwo with explicit recovery priority (2026-11-03)
+
+The revised user-approved moves are Psystrike / Shadow Ball / Recover / Flamethrower, with
+Life Orb. Red's Venusaur now holds Black Sludge to preserve the six-member item clause;
+its existing moves, Chlorophyll, nature and stats are unchanged. The catalog generator
+reproduces this assignment and all fixed sets remain BW-obtainable.
+
+Mewtwo's NPC record carries `cpuRecoveryThreshold: 0.65`. The optional field round-trips
+through the native BattlePokemon and checkpoint, becomes an NPC-only set property, and
+is visible only in that side's own CPU observation. At or below 65% HP, legal Recover is
+prioritized; disabled/empty-PP Recover and forced switches use the normal legal candidates.
+At full HP Recover is excluded. Above the cutoff the unchanged learned model scores the
+remaining choices. This is an explicit authored encounter tactic, not a claim of new ML
+training. No other opponent has the field, and player sets cannot enable it.
+
+Older opponent checkpoints omit the field and retain their original learned decisions and
+held items; the old model JSON/revision is unchanged. The prior v5 catalog is explicitly
+compatible. A new Red encounter receives the new set and tactic. Tests exercise the real
+CPU healing turn, threshold boundaries, full HP, exhausted PP, disabled moves and legacy
+checkpoint behavior. A strongly attacking injected model still selects Recover below the
+cutoff; removing the priority in an in-memory mutation makes that regression fail. No
+source mutation remains on disk.
+
+
+## Role-aware team item assignment (2026-11-03)
+
+The fixed fallback list is removed. An offline authored preference compiler checks the
+actual four moves, ability, evolution stage, defensive profile and reviewed set role,
+then finds the maximum total candidate score subject to one item per team. Scores are
+engineering preferences, not observed item usage or empirical win-rate estimates. The
+pinned original set recommendations in `scripts/challenge/item-reference.json` add a
+small preference only to compatible candidates. The application still reads a fixed
+catalog and never runs the optimizer, downloads recommendations or randomizes equipment.
+
+The sweep covers all 162 slots and changes 89 items; looking only at earlier duplicate
+fallbacks missed incompatible original slash variants. Physical/special boosters require
+matching moves; fixed-damage supporters do not receive offense boosts; Choice items cannot
+lock recovery/setup/support except deliberate Trick/Switcheroo/Sleep Talk variants.
+Eviolite, Black Sludge, screens/weather extensions, Guts/Quick Feet orbs, Harvest berries,
+Shell Smash White Herb, Unburden gems, Endure/Reversal berries and Sturdy/Custap are ranked
+for the actual build. Hidden Power types use the fixed IVs; Levitate does not need Air
+Balloon. Explicit Red Mewtwo Life Orb, Mega Charizard Y stone and Venusaur Black Sludge
+are reserved before conflicting team choices; Mewtwo's 65% recovery tactic remains intact.
+
+The entire reviewed six-member assignment is recorded with an item rationale in the
+catalog. `opponent-items.ko.md` lists all 27 teams' prior/new items and reasons;
+`opponent-rosters.ko.md` now includes held items alongside moves and abilities. Previous
+v6 catalogs are compatible and in-flight checkpoints keep their old exact equipment.
+
+Validation: 152 engine tests pass, including all 162 fixed items reaching the actual NPC
+frames, legal BW sets, role regressions, global allocation and real White Herb/Flame Orb
+turns. Fifteen native catalog/session tests pass; the final three-test catalog run also
+checks the new Donphan and Blastoise items after the shared resources are loaded. Full
+regeneration from the pinned Smogon/usage snapshots matches the checked-in catalog exactly.
+The in-memory greedy mutation fails the global assignment and fixed-catalog regressions.
+Logs: `/tmp/ptb-role-items-engine-final.log`, `/tmp/ptb-role-items-native.log`,
+`/tmp/ptb-role-items-native-final.log`, `/tmp/ptb-role-items-mutation.log`.
+
+
+## Gym and Elite Four level 95 (2026-11-03)
+
+After the user difficulty test, rounds 1–24 (all gyms and Elite Four, including first-
+generation Lance) use level 95. Rounds 25–27 (Blue, second-generation Lance and Red)
+remain level 100. The offline level policy recomputes all six stats with the existing
+nature, IVs and zero EVs. Species, moves, abilities, role-optimized held items and Mewtwo's
+recovery tactic are unchanged. The v7 item catalog is compatible; existing live battle
+checkpoints retain their exact original opponents and subsequent encounters use the new
+level policy. No release-note entry or release package is created by this adjustment.

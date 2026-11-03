@@ -45,6 +45,7 @@ function validateTeam(team, count, carried = false, npc = false) {
     return {name: species.name, species: species.name, level: mon.level, gender: mon.gender || '',
       ability: ability.name, nature: nature.name, moves: mon.moves, ivs: mon.ivs,
       evs: Object.fromEntries(keys.map(k => [k,0])), shiny: !!mon.shiny, item,
+      ptbCPURecoveryThreshold:npc && species.num===150 && Number.isFinite(mon.cpuRecoveryThreshold) && mon.cpuRecoveryThreshold>0 && mon.cpuRecoveryThreshold<1 ? mon.cpuRecoveryThreshold:undefined,
       ptbMegaStats:allowedItems.get(item)?.mega?.stats, ptbStats: {...mon.stats}, ptbBaseStats: {...species.baseStats}, ptbID: mon.id, ptbOrder:index, ptbForm: mon.form, ptbMoves: mon.moves};
   });
 }
@@ -236,6 +237,7 @@ class OwnedBattle {
       level:p.level, shiny:!!appearance.set.shiny, form:currentForm(appearance), active:p.side.active.includes(p), fainted:p.fainted || p.hp === 0,
       hp:own ? p.hp : Math.ceil(p.hp / p.maxhp * 100), maxHP:own ? p.maxhp : 100,
       status:p.status || '', stats:own ? {hp:p.maxhp,...p.storedStats} : undefined,
+      cpuRecoveryThreshold:own ? p.set.ptbCPURecoveryThreshold:undefined,
       boosts:own ? challengeBuffs.combinedBoosts(p) : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega};
     };
     // Only public battlefield conditions and their actual finite durations.

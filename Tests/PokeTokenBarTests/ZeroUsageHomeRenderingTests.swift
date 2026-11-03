@@ -59,7 +59,15 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         try await render(history:false,drive:true,current:"3.0.1")
     }
 
-    private func render(history: Bool,drive:Bool=false,tab:PopoverTab = .home,current:String="3.0.0") async throws {
+    func testLiveDriveThreeNoticeForOlderInstallAndNoNoticeOnCurrentInstall()async throws {
+        guard ProcessInfo.processInfo.environment["PTB_DRIVE_EXPECTED_VERSION"]=="3.0.0" else{throw XCTSkip("Opt-in published 3.0.0 verification")}
+        let fetched=await DriveReleaseSource.fetch(),release=try XCTUnwrap(fetched)
+        XCTAssertEqual(release.tag,"3.0.0")
+        try await render(history:false,drive:true,current:"2.5.6",remoteVersion:release.tag,expectedOffer:true)
+        try await render(history:false,drive:true,current:"3.0.0",remoteVersion:release.tag,expectedOffer:false)
+    }
+
+    private func render(history: Bool,drive:Bool=false,tab:PopoverTab = .home,current:String="3.0.0",remoteVersion:String="3.0.1",expectedOffer:Bool?=nil) async throws {
         let suite = "QuietHome-\(UUID())"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
@@ -98,7 +106,7 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         XCTAssertEqual(store.todayTotalTokens, 0)
         XCTAssertEqual(store.monthTotalTokens, series.reduce(0) { $0 + $1.totalTokens })
 
-        let checker=UpdateChecker(currentVersion:current,defaults:defaults,fetchLatest:{drive ? .init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString):nil})
+        let checker=UpdateChecker(currentVersion:current,defaults:defaults,fetchLatest:{drive ? .init(tag:remoteVersion,url:DriveReleaseSource.shareURL.absoluteString):nil})
         if drive {await checker.check()}
         let navigation=PopoverNavigation();navigation.tab=tab
         let height = drive ? 740.0:604.0
@@ -137,13 +145,13 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         let text = request.results?.compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ") ?? ""
         let normalizedText = text.replacingOccurrences(of: " ", with: "")
         if drive {
-            let shown=tab == .home && current=="3.0.0"
-            XCTAssertEqual(normalizedText.contains("3.0.1"),shown,"\(text)")
+            let shown=tab == .home && (expectedOffer ?? (current=="3.0.0"))
+            XCTAssertEqual(normalizedText.contains(remoteVersion+"사용가능"),shown,"\(text)")
             if shown {
                 XCTAssertTrue(normalizedText.contains("업데이트"))
-                try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-drive-version-notice.png"))
+                try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:expectedOffer == nil ? "/tmp/ptb-drive-version-notice.png":"/tmp/ptb-drive-live-3-notice.png"))
             }
-            XCTAssertFalse(normalizedText.contains("2.5.6"),"The old original-version notice must not remain")
+            if expectedOffer == nil{XCTAssertFalse(normalizedText.contains("2.5.6"),"The old original-version notice must not remain")}
             return
         }
         let chartCaption = companion.l.dailyTrend.replacingOccurrences(of: " ", with: "")

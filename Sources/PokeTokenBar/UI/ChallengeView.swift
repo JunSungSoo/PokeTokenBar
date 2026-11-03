@@ -40,6 +40,7 @@ import SwiftUI
                         VStack(alignment:.leading,spacing:16) {
                             switch model.screen {
                             case .setup:setup
+                            case .preparation:preparation
                             case .resume:resume
                             case .loading:ProgressView(l.battlePreparing).frame(maxWidth:.infinity).padding(60)
                             case .reward:reward
@@ -50,7 +51,7 @@ import SwiftUI
                     }
                 }
             }
-            if model.screen == .setup || model.screen == .reward {
+            if model.screen == .setup || model.screen == .reward || model.screen == .preparation {
                 Divider()
                 HStack {
                     if model.screen == .setup {
@@ -58,6 +59,11 @@ import SwiftUI
                         if model.building {ProgressView().controlSize(.small)}
                         Button(l.challengeStart){Task{await model.start()}}.buttonStyle(.borderedProminent)
                             .disabled(model.selectedIDs.count != 6 || model.building || !model.save.canWrite).accessibilityIdentifier("challenge-start")
+                    } else if model.screen == .preparation {
+                        Button(l.challengeSaveExit){if model.savePreparation(){onClose()}}.disabled(!model.canStartPrepared)
+                        Spacer()
+                        Button(l.challengeStart){model.beginPreparedEncounter()}.buttonStyle(.borderedProminent)
+                            .disabled(!model.canStartPrepared).accessibilityIdentifier("challenge-preparation-start")
                     } else {
                         Button(l.challengeSaveExit,action:onClose).disabled(![ChallengePhase.reward,.intermission].contains(model.run?.phase ?? .ready) || model.building)
                             .accessibilityIdentifier("challenge-save-exit")
@@ -75,9 +81,9 @@ import SwiftUI
         .background(Color(nsColor:.windowBackgroundColor))
         .environment(\.locale,model.store.language.displayLocale)
         .sheet(item:$editingItem) { entry in
-            BattleItemPicker(pokemon:entry,current:model.itemLoadout.items[entry.id] ?? "",assignments:model.itemLoadout.items,
+            BattleItemPicker(pokemon:entry,current:(model.preparing ? model.preparationItems:model.itemLoadout.items)[entry.id] ?? "",assignments:model.preparing ? model.preparationItems:model.itemLoadout.items,
                 language:model.store.language,usage:model.itemUsage,onApply:{item in
-                    guard model.applyItem(item,to:entry.id) else{return false};editingItem=nil;return true
+                    guard model.preparing ? model.applyPreparedItem(item,to:entry.id):model.applyItem(item,to:entry.id) else{return false};editingItem=nil;return true
                 },onCancel:{editingItem=nil})
         }
         .onAppear{model.synchronizeChampionAward()}
@@ -94,7 +100,7 @@ import SwiftUI
         HStack {
             Label(l.challengeTitle,systemImage:"flag.checkered").font(.title2.bold())
             Spacer()
-            if let run=model.run,model.screen != .setup {Text(l.challengeRound(run.encounterIndex+1,run.encounterCount)).font(.callout.monospacedDigit())}
+            if let run=model.run,model.screen != .setup {Text(l.challengeRound((model.preparing ? model.preparationOpponent?.index:run.encounterIndex).map{$0+1} ?? run.encounterIndex+1,run.encounterCount)).font(.callout.monospacedDigit())}
         }.padding(18)
     }
     private var setup:some View {
@@ -131,6 +137,39 @@ import SwiftUI
                     .accessibilityIdentifier("challenge-select-\(entry.id)")
             }
         }
+    }
+    private var preparation:some View {
+        VStack(alignment:.leading,spacing:8) {
+            if let encounter=model.preparationOpponent {
+                HStack {
+                    ChallengeTrainerSprite(key:ChallengeTrainerCatalog.key(encounter.id)).frame(width:36,height:44)
+                    Text(ChallengeTrainerCatalog.name(encounter.id,language:model.store.language)).font(.headline)
+                    Spacer()
+                    Text(l.challengeRound(encounter.index+1,model.session.catalog.encounters.count)).font(.caption)
+                }
+            }
+            Text(l.challengePreparationHint).font(.callout).foregroundStyle(.secondary)
+            BattleTeamPreview(own:(model.run?.team ?? []).map(BattleRosterMember.init),
+                opponent:(model.preparationOpponent?.team ?? []).map(BattleRosterMember.init),
+                selected:model.preparationOrder,mode:.singles,language:model.store.language,enabled:!model.building,
+                onSelect:{model.selectPrepared($0)},selectionLimit:6)
+            Text("\(model.preparationOrder.count)/6").font(.caption.monospacedDigit())
+            LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:8),count:3),spacing:8) {
+                ForEach(model.run?.team ?? []){p in
+                    if let entry=model.preparationEntries.first(where:{$0.id==p.id}) {
+                        VStack(spacing:4) {
+                            Text(name(p.speciesID)).font(.caption.bold()).lineLimit(1)
+                            if let r=model.run?.resources.first(where:{$0.id==p.id}) {
+                                Text("HP \(r.hp)/\(p.stats["hp"] ?? 0) · PP \(r.moves.reduce(0){$0+$1.pp})/\(r.moves.reduce(0){$0+$1.maxPP})").font(.caption2.monospacedDigit())
+                            }
+                            Button(BattleHeldItems.item(model.preparationItems[p.id])?.name(model.store.language) ?? l.battleNoItem){editingItem=entry}
+                                .font(.caption).accessibilityIdentifier("challenge-preparation-item-\(p.id)")
+                        }.padding(7).frame(maxWidth:.infinity).background(.quaternary,in:RoundedRectangle(cornerRadius:6))
+                    }
+                }
+            }
+            Text(l.battleDuplicateItem).font(.caption).foregroundStyle(.secondary)
+        }.accessibilityIdentifier("challenge-preparation")
     }
     private var resume:some View {
         VStack(alignment:.leading,spacing:16) {

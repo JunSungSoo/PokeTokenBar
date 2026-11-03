@@ -49,16 +49,15 @@ function candidates(name){
  return result.sort((a,b)=>b.score-a.score);
 }
 const selected=new Map(),catalog={version:'challenge-bw-v1',level:100,evPolicy:'zero',encounters:[]};
-const itemFallback=['Leftovers','Life Orb','Expert Belt','Muscle Band','Wise Glasses','Focus Sash','Lum Berry','Sitrus Berry','Quick Claw','Shell Bell','Rocky Helmet'];
 for(const r of rosters){
- const used=new Set(),team=[];
+ const team=[];
  for(const n of r.team){
   const name=n.species,choices=candidates(name);if(!choices.length)throw Error('No legal set: '+name);
   const occurrence=selected.get(name)||0;selected.set(name,occurrence+1);
   // Later encounters prefer another documented role where one is available.
   const roles=[...new Set(choices.map(c=>c.label))],label=roles[occurrence%roles.length];
   const c=choices.find(c=>c.label===label)||choices[0];
-  const item=[...c.items,...itemFallback].find(i=>!used.has(Dex.toID(i)));used.add(Dex.toID(item));
+  const item=c.items[0]; // Provisional original recommendation; team-wide assignment follows.
   const s={...c.set,item};const errors=validator.validateSet(structuredClone(s));if(errors?.length)throw Error(errors.join(';'));
   const species=dex.species.get(name),stats={};
   for(const [stat,base]of Object.entries(species.baseStats)){
@@ -71,5 +70,6 @@ for(const r of rosters){
 }
 require('./red-overrides.cjs').applyRedOverrides(catalog,dex);
 require('./level-policy.cjs').applyOpponentLevels(catalog,dex);
+require('./optimize-items.cjs').applyRoleItems(catalog,dex);
 fs.writeFileSync('BattleEngine/challenge-opponents.json',JSON.stringify(catalog,null,2)+'\n');
 console.log(JSON.stringify({encounters:catalog.encounters.length,members:catalog.encounters.flatMap(e=>e.team).length,manualSlots:catalog.encounters.flatMap(e=>e.team).filter(p=>p.evidence.manual).length}));

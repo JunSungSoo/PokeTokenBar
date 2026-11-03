@@ -64,6 +64,10 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         }
         throw ChallengeFailure.invalidState
     }
+    private func beginPrepared(_ m:ChallengeUIModel) {
+        if m.preparationOrder.isEmpty {for p in m.run?.team ?? []{m.selectPrepared(p.id)}}
+        m.beginPreparedEncounter()
+    }
     private func win(_ m:ChallengeUIModel)async throws {
         var f=try await wait(m)
         for _ in 0..<30 {
@@ -75,12 +79,63 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         }
         XCTAssertTrue(f.ended);XCTAssertEqual(f.winner,0)
     }
+    func testPreparationPreviewsBothTeamsAndOnlyChangesOrderAndItemsAcrossEncounters()async throws {
+        let m=try fixture();defer{m.close()}
+        for i in 0..<6{m.select("owned-\(i)")}
+        await m.start()
+        XCTAssertEqual(m.screen,.preparation);XCTAssertNil(m.session.frame)
+        XCTAssertEqual(m.preparationOpponent?.id,"brock")
+        XCTAssertEqual(m.preparationOpponent?.team.count,6)
+        let frozen=try XCTUnwrap(m.run?.team)
+        XCTAssertTrue(m.preparationOrder.isEmpty);XCTAssertFalse(m.canStartPrepared)
+        m.beginPreparedEncounter();XCTAssertNil(m.session.frame)
+        m.selectPrepared("owned-5");m.selectPrepared("owned-0");m.selectPrepared("owned-5")
+        XCTAssertEqual(m.preparationOrder,["owned-0"],"Clicking a selected card removes it and renumbers the rest")
+        m.selectPrepared("owned-0")
+        for id in ["owned-5","owned-0","owned-1","owned-2","owned-3","owned-4"]{m.selectPrepared(id)}
+        XCTAssertTrue(m.canStartPrepared)
+        XCTAssertTrue(m.applyPreparedItem("leftovers",to:"owned-5"))
+        XCTAssertFalse(m.applyPreparedItem("leftovers",to:"owned-0"))
+        XCTAssertFalse(m.applyPreparedItem("charizarditex",to:"owned-5"))
+        XCTAssertTrue(m.savePreparation())
+        m.close();m.isOpen=true;m.resume()
+        XCTAssertEqual(m.screen,.preparation)
+        XCTAssertTrue(m.preparationOrder.isEmpty,"Every preparation uses explicit click order")
+        for id in ["owned-5","owned-0","owned-1","owned-2","owned-3","owned-4"]{m.selectPrepared(id)}
+        XCTAssertEqual(m.preparationItems["owned-5"],"leftovers")
+        beginPrepared(m);let frame=try await wait(m)
+        XCTAssertEqual(frame.own.first(where:{$0.active})?.id,"owned-5")
+        XCTAssertEqual(m.run?.checkpoint?.initialTeam.first?.item,"leftovers")
+        XCTAssertEqual(m.run?.team.map(\.stats).count,6)
+        for p in frozen {
+            let current=try XCTUnwrap(m.run?.team.first{$0.id==p.id})
+            XCTAssertEqual(current.moves,p.moves);XCTAssertEqual(current.ability,p.ability);XCTAssertEqual(current.stats,p.stats)
+        }
+        try await win(m);m.didFinishPresentation()
+        m.next();XCTAssertEqual(m.screen,.reward,"Mandatory reward cannot be bypassed")
+        m.selectReward(.buff);await m.applyReward()
+        let carried=try XCTUnwrap(m.run?.resources)
+        m.next();XCTAssertEqual(m.screen,.preparation)
+        XCTAssertEqual(m.preparationOpponent?.id,"falkner")
+        XCTAssertEqual(m.run?.encounterIndex,0,"Preview does not advance the save before Start")
+        for id in ["owned-0","owned-5","owned-1","owned-2","owned-3","owned-4"]{m.selectPrepared(id)}
+        XCTAssertTrue(m.applyPreparedItem("",to:"owned-5"))
+        XCTAssertTrue(m.applyPreparedItem("leftovers",to:"owned-0"))
+        beginPrepared(m);_ = try await wait(m)
+        XCTAssertEqual(m.run?.encounterIndex,1)
+        for old in carried {
+            let now=try XCTUnwrap(m.run?.checkpoint?.initialResources.first{$0.id==old.id})
+            XCTAssertEqual(now.hp,old.hp);XCTAssertEqual(now.moves,old.moves);XCTAssertEqual(now.status,old.status)
+        }
+        XCTAssertEqual(m.run?.checkpoint?.initialResources.first{$0.id=="owned-0"}?.item,"leftovers")
+        XCTAssertEqual(m.run?.checkpoint?.initialTeam.first?.id,"owned-0")
+    }
     func testSelectionItemsActualBattleRewardSaveAndNext()async throws {
         let m=try fixture();defer{m.close()}
         m.select("owned-0");m.select("duplicate");XCTAssertEqual(m.selectedIDs,["owned-0"])
         for i in 1..<6{m.select("owned-\(i)")}
         XCTAssertTrue(m.applyItem("leftovers",to:"owned-0"));XCTAssertFalse(m.applyItem("leftovers",to:"owned-1"))
-        await m.start();XCTAssertFalse(m.problem);_ = try await wait(m)
+        await m.start();beginPrepared(m);XCTAssertFalse(m.problem);_ = try await wait(m)
         XCTAssertEqual(m.screen,.battle);XCTAssertEqual(m.run?.team.count,6);XCTAssertTrue(m.intro.active)
         XCTAssertEqual(m.run?.team[0].item,"leftovers")
         try await win(m)
@@ -93,13 +148,13 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let carried=try XCTUnwrap(m.run?.resources)
         m.close()
         XCTAssertEqual(ChallengeRunStore(url:m.save.url).run?.resources,carried)
-        m.isOpen=true;m.next();let next=try await wait(m)
+        m.isOpen=true;m.next();beginPrepared(m);let next=try await wait(m)
         XCTAssertEqual(m.run?.encounterIndex,1);XCTAssertEqual(next.resources,carried);XCTAssertTrue(m.intro.active)
     }
     func testCollectionLoadoutEditsCannotChangeStartedChallengeAfterResumeOrNextEncounter()async throws {
         let m=try fixture();defer{m.close()}
         for i in 0..<6{m.select("owned-\(i)")}
-        await m.start();let opening=try await wait(m)
+        await m.start();beginPrepared(m);let opening=try await wait(m)
         let registered=try XCTUnwrap(m.run?.team),checkpoint=try XCTUnwrap(m.run?.checkpoint)
         XCTAssertEqual(BattleTextCatalog.key(registered[0].ability),"blaze")
         XCTAssertEqual(registered[0].moves,["return"])
@@ -137,7 +192,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         XCTAssertLessThan(carried[0].moves[0].pp,checkpoint.initialResources[0].moves[0].pp)
         XCTAssertEqual(carried[0].moves[0].id,"return")
         resumed.selectReward(.buff);await resumed.applyReward();XCTAssertFalse(resumed.problem)
-        resumed.next();let next=try await wait(resumed)
+        resumed.next();beginPrepared(resumed);let next=try await wait(resumed)
         XCTAssertEqual(resumed.run?.encounterIndex,1)
         XCTAssertEqual(resumed.run?.team,registered)
         XCTAssertEqual(resumed.run?.checkpoint?.initialTeam,registered)
@@ -148,7 +203,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
     }
     func testPendingRewardReopensWithoutBattleFrameAndReplacementBuildsOnlyNewMember()async throws {
         let m=try fixture();defer{m.close()}
-        for i in 0..<6{m.select("owned-\(i)")};await m.start();try await win(m);m.didFinishPresentation();m.close()
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);try await win(m);m.didFinishPresentation();m.close()
         let loaded=try ChallengeBattleSession(save:ChallengeRunStore(url:m.save.url),catalog:m.session.catalog)
         let reopened=ChallengeUIModel(store:m.store,session:loaded,provider:IncomingOnlyProvider(),itemMemory:m.itemMemory,itemUsage:m.itemUsage)
         reopened.isOpen=true;defer{reopened.close()}
@@ -210,7 +265,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
             try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-challenge-\(name).png"))
         }
         try await Task.sleep(for:.milliseconds(400));try capture("selection")
-        await m.start();_ = try await wait(m)
+        await m.start();try await Task.sleep(for:.milliseconds(200));try capture("preparation");beginPrepared(m);_ = try await wait(m)
         let opening=BattlePresentationEvents(frame:try XCTUnwrap(m.session.frame),language:.ko,ownPlayer:0).events.filter{$0.phase=="entry"}
         XCTAssertEqual(opening.map(\.source.own),[true,false],"Trainer timing relies on engine's ordered opening entries")
         try capture("trainer")
@@ -240,7 +295,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         }
         try session.start(team:weak);m.resume();var frame=try await wait(m)
         session.completePresentation();try session.winForTesting();frame=try await wait(m,after:frame.decisionID);m.didFinishPresentation()
-        m.selectReward(.buff);await m.applyReward();m.next();frame=try await wait(m)
+        m.selectReward(.buff);await m.applyReward();m.next();beginPrepared(m);frame=try await wait(m)
         XCTAssertEqual(m.run?.encounterIndex,1);XCTAssertEqual(m.run?.teamBuffs?.first?.remaining,3)
         m.intro.finish();session.completePresentation()
         for _ in 0..<30 {
@@ -267,7 +322,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         XCTAssertThrowsError(try restoredSession.nextTrainerForTesting());XCTAssertThrowsError(try restored.save.advance())
         XCTAssertThrowsError(try restoredSession.applyReward(.buff(.attack)))
         restored.newChallenge();XCTAssertEqual(restored.screen,.setup);XCTAssertTrue(restored.selectedIDs.isEmpty)
-        for id in ids{restored.select(id)};await restored.start();let fresh=try await wait(restored)
+        for id in ids{restored.select(id)};await restored.start();beginPrepared(restored);let fresh=try await wait(restored)
         XCTAssertNotEqual(restored.run?.id,oldID);XCTAssertEqual(restored.run?.encounterIndex,0)
         XCTAssertEqual(restored.encounter?.id,"brock");XCTAssertTrue((restored.run?.teamBuffs ?? []).isEmpty)
         XCTAssertTrue(restored.run!.retiredIDs.isEmpty)
@@ -276,7 +331,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
     }
     func testShopCardsRenderAndPurchaseCannotBypassRequiredVictoryReward()async throws {
         let m=try fixture();defer{m.close()}
-        for i in 0..<6{m.select("owned-\(i)")};await m.start();_ = try await wait(m)
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);_ = try await wait(m)
         try await win(m);m.didFinishPresentation();m.configureRewardSelection()
         XCTAssertEqual(m.shopBalance,100)
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
@@ -293,7 +348,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"));XCTAssertEqual(m.shopBalance,70)
         XCTAssertEqual(m.run?.phase,.reward);m.next();XCTAssertEqual(m.run?.encounterIndex,0)
         m.selectReward(.buff);await m.applyReward();XCTAssertEqual(m.run?.phase,.intermission)
-        m.next();_ = try await wait(m);XCTAssertEqual(m.run?.encounterIndex,1)
+        m.next();beginPrepared(m);_ = try await wait(m);XCTAssertEqual(m.run?.encounterIndex,1)
         XCTAssertEqual(m.shopBalance,70,"Skipping further purchases must not block Next")
     }
     func testSevenProductShopRendersWithoutRevivalItemsAndHPRewardAllowsFainted()async throws {
@@ -388,7 +443,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
         m.isOpen=true;defer{m.close()}
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
-        for i in 0..<6{m.select("owned-\(i)")};await m.start();_ = try await wait(m)
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);_ = try await wait(m)
         m.session.completePresentation();m.intro.finish()
         m.effectsBusy=true;m.nextTrainerForTesting();XCTAssertEqual(m.run?.encounterIndex,0)
         m.effectsBusy=false
@@ -406,7 +461,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         // No manual presentation completion is allowed.
         let window=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
         window.show(present:false);defer{m.close();window.window?.close()}
-        for i in 0..<6{m.select("owned-\(i)")};await m.start();_ = try await wait(m)
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);_ = try await wait(m)
         let until=Date().addingTimeInterval(20)
         while (m.intro.active || m.effectsBusy),Date()<until{try await Task.sleep(for:.milliseconds(30))}
         XCTAssertFalse(m.intro.active);XCTAssertFalse(m.effectsBusy)
@@ -431,7 +486,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         let m=ChallengeUIModel(store:fixture.store,session:session,provider:fixture.provider)
         m.isOpen=true;defer{m.close()}
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
-        for i in 0..<6{m.select("owned-\(i)")};await m.start();let frame=try await wait(m)
+        for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);let frame=try await wait(m)
         XCTAssertEqual(m.run?.phase,.battling);XCTAssertEqual(controller.resolvedMusicCue,.championBattle)
         m.session.completePresentation();m.intro.finish()
         XCTAssertEqual(controller.resolvedMusicCue,.championBattle)

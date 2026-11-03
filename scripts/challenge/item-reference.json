@@ -1,0 +1,1170 @@
+{
+  "source": "https://pkmn.github.io/smogon/data/sets/gen5.json",
+  "sourceSHA256": "fe000670bc1440dd312e1b0ea461fc7a32ddd0e5a2ce2a8fd4b8a30e1f049c39",
+  "note": "Pinned selected-role item recommendations; manual species and Red overrides retain their explicit authored provenance. Previous items are the pre-optimization baseline, not runtime fallback choices.",
+  "members": {
+    "brock-74": {
+      "recommendedItems": [
+        "Oran Berry"
+      ],
+      "previousItem": "oranberry",
+      "role": "Stealth Rock"
+    },
+    "brock-95": {
+      "recommendedItems": [
+        "Heat Rock"
+      ],
+      "previousItem": "heatrock",
+      "role": "Sun Lead"
+    },
+    "brock-76": {
+      "recommendedItems": [
+        "Custap Berry"
+      ],
+      "previousItem": "custapberry",
+      "role": "Custap Lead"
+    },
+    "brock-139": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "brock-141": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "leftovers",
+      "role": "Swords Dance"
+    },
+    "brock-142": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Stealth Rock"
+    },
+    "falkner-16": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "falkner-17": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Authored legal fallback"
+    },
+    "falkner-164": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Authored legal fallback"
+    },
+    "falkner-85": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Authored legal fallback"
+    },
+    "falkner-169": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Choice Band"
+    },
+    "falkner-227": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "muscleband",
+      "role": "Support"
+    },
+    "misty-120": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Bulky Rapid Spin"
+    },
+    "misty-121": {
+      "recommendedItems": [
+        "Air Balloon",
+        "Life Orb"
+      ],
+      "previousItem": "airballoon",
+      "role": "Rapid Spin"
+    },
+    "misty-55": {
+      "recommendedItems": [
+        "Leftovers",
+        "Life Orb"
+      ],
+      "previousItem": "leftovers",
+      "role": "SubCM"
+    },
+    "misty-131": {
+      "recommendedItems": [
+        "Leftovers",
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Bulky Attacker"
+    },
+    "misty-134": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Offensive"
+    },
+    "misty-195": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Physically Defensive"
+    },
+    "bugsy-11": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "bugsy-14": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "leftovers",
+      "role": "Authored legal fallback"
+    },
+    "bugsy-123": {
+      "recommendedItems": [
+        "Choice Band",
+        "Choice Scarf"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Attacker"
+    },
+    "bugsy-127": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "bugsy-214": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Swords Dance"
+    },
+    "bugsy-212": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Choice Scarf"
+    },
+    "ltsurge-100": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Authored legal fallback"
+    },
+    "ltsurge-25": {
+      "recommendedItems": [
+        "Light Ball"
+      ],
+      "previousItem": "lightball",
+      "role": "Substitute"
+    },
+    "ltsurge-26": {
+      "recommendedItems": [
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Choice Specs"
+    },
+    "ltsurge-125": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Eviolite"
+    },
+    "ltsurge-135": {
+      "recommendedItems": [
+        "Choice Specs"
+      ],
+      "previousItem": "leftovers",
+      "role": "Choice Specs"
+    },
+    "ltsurge-181": {
+      "recommendedItems": [
+        "Life Orb",
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Tank"
+    },
+    "whitney-35": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "whitney-241": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Moodoo"
+    },
+    "whitney-36": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Support"
+    },
+    "whitney-40": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Support"
+    },
+    "whitney-115": {
+      "recommendedItems": [
+        "Silk Scarf",
+        "Life Orb"
+      ],
+      "previousItem": "silkscarf",
+      "role": "Physical Attacker"
+    },
+    "whitney-217": {
+      "recommendedItems": [
+        "Toxic Orb"
+      ],
+      "previousItem": "toxicorb",
+      "role": "Quick Feet"
+    },
+    "erika-71": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Sun Sweeper"
+    },
+    "erika-114": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Tank"
+    },
+    "erika-45": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "Support"
+    },
+    "erika-103": {
+      "recommendedItems": [
+        "Sitrus Berry"
+      ],
+      "previousItem": "sitrusberry",
+      "role": "SubSeed"
+    },
+    "erika-182": {
+      "recommendedItems": [
+        "Heat Rock"
+      ],
+      "previousItem": "heatrock",
+      "role": "Authored legal fallback"
+    },
+    "erika-189": {
+      "recommendedItems": [
+        "Flying Gem"
+      ],
+      "previousItem": "flyinggem",
+      "role": "Swords Dance"
+    },
+    "morty-92": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "morty-93": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "SubDisable"
+    },
+    "morty-94": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "leftovers",
+      "role": "Offensive"
+    },
+    "morty-200": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Support"
+    },
+    "morty-356": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Curse"
+    },
+    "morty-609": {
+      "recommendedItems": [
+        "Air Balloon",
+        "Choice Scarf"
+      ],
+      "previousItem": "airballoon",
+      "role": "Spinblocker"
+    },
+    "koga1-109": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "koga1-89": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "Touncher"
+    },
+    "koga1-110": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "leftovers",
+      "role": "Physical Wall"
+    },
+    "koga1-169": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Stallbreaker"
+    },
+    "koga1-49": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "expertbelt",
+      "role": "QuiverPass"
+    },
+    "koga1-34": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "chuck-57": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "chuck-62": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Physically Defensive"
+    },
+    "chuck-106": {
+      "recommendedItems": [
+        "Liechi Berry"
+      ],
+      "previousItem": "liechiberry",
+      "role": "Endure + Reversal Sweeper"
+    },
+    "chuck-107": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "chuck-68": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Bulk Up"
+    },
+    "chuck-214": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "muscleband",
+      "role": "Choice Scarf"
+    },
+    "sabrina-64": {
+      "recommendedItems": [
+        "Focus Sash",
+        "Life Orb"
+      ],
+      "previousItem": "focussash",
+      "role": "Special Attacker"
+    },
+    "sabrina-122": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Baton Pass"
+    },
+    "sabrina-49": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "QuiverPass"
+    },
+    "sabrina-65": {
+      "recommendedItems": [
+        "Focus Sash",
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Attacker"
+    },
+    "sabrina-97": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Specially Defensive"
+    },
+    "sabrina-196": {
+      "recommendedItems": [
+        "Light Clay"
+      ],
+      "previousItem": "lightclay",
+      "role": "Screens Setter"
+    },
+    "jasmine-81": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "jasmine-208": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Defensive"
+    },
+    "jasmine-82": {
+      "recommendedItems": [
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Choice Specs"
+    },
+    "jasmine-212": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "jasmine-227": {
+      "recommendedItems": [
+        "Leftovers",
+        "Rocky Helmet"
+      ],
+      "previousItem": "rockyhelmet",
+      "role": "Defensive"
+    },
+    "jasmine-205": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Entry Hazard Control"
+    },
+    "blaine-58": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "blaine-77": {
+      "recommendedItems": [
+        "Choice Scarf",
+        "Choice Band"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice"
+    },
+    "blaine-78": {
+      "recommendedItems": [
+        "Leftovers",
+        "Life Orb"
+      ],
+      "previousItem": "leftovers",
+      "role": "Physical Attacker"
+    },
+    "blaine-59": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Offensive"
+    },
+    "blaine-38": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Defensive"
+    },
+    "blaine-126": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "muscleband",
+      "role": "Eviolite Attacker"
+    },
+    "pryce-86": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "pryce-87": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Authored legal fallback"
+    },
+    "pryce-221": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Tank"
+    },
+    "pryce-124": {
+      "recommendedItems": [
+        "Leftovers",
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Nasty Plot"
+    },
+    "pryce-131": {
+      "recommendedItems": [
+        "Leftovers",
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Bulky Attacker"
+    },
+    "pryce-215": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "muscleband",
+      "role": "Authored legal fallback"
+    },
+    "giovanni-111": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Authored legal fallback"
+    },
+    "giovanni-51": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "May the Sand Force be with You"
+    },
+    "giovanni-31": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "leftovers",
+      "role": "Offensive"
+    },
+    "giovanni-34": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Special Attacker"
+    },
+    "giovanni-112": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "muscleband",
+      "role": "Tank"
+    },
+    "giovanni-232": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "wiseglasses",
+      "role": "Support"
+    },
+    "clair-148": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Bulky Dragon Dance"
+    },
+    "clair-230": {
+      "recommendedItems": [
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Choice Specs"
+    },
+    "clair-149": {
+      "recommendedItems": [
+        "Lum Berry"
+      ],
+      "previousItem": "lumberry",
+      "role": "3 Attacks Dragon Dance"
+    },
+    "clair-373": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "clair-330": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "leftovers",
+      "role": "Choice Scarf"
+    },
+    "clair-612": {
+      "recommendedItems": [
+        "Lum Berry",
+        "Yache Berry"
+      ],
+      "previousItem": "yacheberry",
+      "role": "Dragon Dance"
+    },
+    "lorelei-87": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Authored legal fallback"
+    },
+    "lorelei-91": {
+      "recommendedItems": [
+        "Focus Sash"
+      ],
+      "previousItem": "focussash",
+      "role": "Offensive Support"
+    },
+    "lorelei-80": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Defensive"
+    },
+    "lorelei-124": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Substitute + Nasty Plot"
+    },
+    "lorelei-131": {
+      "recommendedItems": [
+        "Leftovers",
+        "Choice Specs"
+      ],
+      "previousItem": "choicespecs",
+      "role": "Bulky Attacker"
+    },
+    "lorelei-221": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Stealth Rock"
+    },
+    "bruno1-95": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Support"
+    },
+    "bruno1-107": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "bruno1-106": {
+      "recommendedItems": [
+        "Liechi Berry"
+      ],
+      "previousItem": "liechiberry",
+      "role": "Reversal Sweeper"
+    },
+    "bruno1-68": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "SubChamp"
+    },
+    "bruno1-62": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "RestTalk"
+    },
+    "bruno1-57": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "agatha-94": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "Substitute + Will-O-Wisp"
+    },
+    "agatha-42": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Defensive"
+    },
+    "agatha-93": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "agatha-24": {
+      "recommendedItems": [
+        "Leftovers",
+        "Life Orb",
+        "Shuca Berry"
+      ],
+      "previousItem": "leftovers",
+      "role": "Coil"
+    },
+    "agatha-200": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Utility Counter"
+    },
+    "agatha-442": {
+      "recommendedItems": [
+        "Choice Band",
+        "Black Glasses"
+      ],
+      "previousItem": "choiceband",
+      "role": "All-Out Attacker"
+    },
+    "lance1-130": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Substitute + Dragon Dance"
+    },
+    "lance1-148": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "RestTalk"
+    },
+    "lance1-142": {
+      "recommendedItems": [
+        "Focus Sash"
+      ],
+      "previousItem": "focussash",
+      "role": "Suicide Lead"
+    },
+    "lance1-149": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "lance1-230": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Rain Dance Sweeper"
+    },
+    "lance1-330": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Choice Band"
+    },
+    "will-178": {
+      "recommendedItems": [
+        "Rocky Helmet"
+      ],
+      "previousItem": "rockyhelmet",
+      "role": "Utility"
+    },
+    "will-124": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Special Attacker"
+    },
+    "will-103": {
+      "recommendedItems": [
+        "Sitrus Berry"
+      ],
+      "previousItem": "sitrusberry",
+      "role": "Leech Seed"
+    },
+    "will-80": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Physical Tank"
+    },
+    "will-196": {
+      "recommendedItems": [
+        "Focus Sash"
+      ],
+      "previousItem": "focussash",
+      "role": "Focus Sash Attacker"
+    },
+    "will-65": {
+      "recommendedItems": [
+        "Focus Sash",
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Attacker"
+    },
+    "koga2-168": {
+      "recommendedItems": [
+        "Focus Sash"
+      ],
+      "previousItem": "focussash",
+      "role": "Authored legal fallback"
+    },
+    "koga2-49": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "blacksludge",
+      "role": "QuiverPass"
+    },
+    "koga2-205": {
+      "recommendedItems": [
+        "Custap Berry"
+      ],
+      "previousItem": "custapberry",
+      "role": "Custap Lead"
+    },
+    "koga2-89": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "leftovers",
+      "role": "Curse"
+    },
+    "koga2-169": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "koga2-73": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Support"
+    },
+    "bruno2-237": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Rapid Spin"
+    },
+    "bruno2-106": {
+      "recommendedItems": [
+        "Fighting Gem",
+        "Normal Gem"
+      ],
+      "previousItem": "fightinggem",
+      "role": "Unburden"
+    },
+    "bruno2-107": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Life Orb"
+    },
+    "bruno2-95": {
+      "recommendedItems": [
+        "Life Orb",
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Rock Polish"
+    },
+    "bruno2-68": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Bulk Up"
+    },
+    "bruno2-214": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "muscleband",
+      "role": "Substitute"
+    },
+    "karen-197": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Wish Support"
+    },
+    "karen-45": {
+      "recommendedItems": [
+        "Black Sludge",
+        "Occa Berry"
+      ],
+      "previousItem": "blacksludge",
+      "role": "Cleric"
+    },
+    "karen-94": {
+      "recommendedItems": [
+        "Black Sludge"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Offensive"
+    },
+    "karen-198": {
+      "recommendedItems": [
+        "Eviolite"
+      ],
+      "previousItem": "eviolite",
+      "role": "Calm Mind"
+    },
+    "karen-229": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Nasty Plot"
+    },
+    "karen-248": {
+      "recommendedItems": [
+        "Chople Berry",
+        "Tanga Berry"
+      ],
+      "previousItem": "chopleberry",
+      "role": "Bulky Pursuit Trapper"
+    },
+    "blue-18": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "blue-65": {
+      "recommendedItems": [
+        "Focus Sash",
+        "Life Orb"
+      ],
+      "previousItem": "focussash",
+      "role": "Attacker"
+    },
+    "blue-112": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "leftovers",
+      "role": "Choice Band"
+    },
+    "blue-130": {
+      "recommendedItems": [
+        "Leftovers",
+        "Lum Berry",
+        "Life Orb"
+      ],
+      "previousItem": "lumberry",
+      "role": "Offensive Dragon Dance"
+    },
+    "blue-103": {
+      "recommendedItems": [
+        "Life Orb",
+        "Heat Rock"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Sunny Day"
+    },
+    "blue-59": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Physically Defensive"
+    },
+    "lance2-130": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Substitute + Dragon Dance"
+    },
+    "lance2-149": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "lifeorb",
+      "role": "Substitute + Dragon Dance"
+    },
+    "lance2-142": {
+      "recommendedItems": [
+        "Choice Band"
+      ],
+      "previousItem": "choiceband",
+      "role": "Choice Band"
+    },
+    "lance2-6": {
+      "recommendedItems": [
+        "Choice Scarf"
+      ],
+      "previousItem": "choicescarf",
+      "role": "Choice Scarf"
+    },
+    "lance2-373": {
+      "recommendedItems": [
+        "Lum Berry"
+      ],
+      "previousItem": "lumberry",
+      "role": "Dragon Dance"
+    },
+    "lance2-230": {
+      "recommendedItems": [
+        "Life Orb"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Rain Dance"
+    },
+    "red-25": {
+      "recommendedItems": [
+        "Light Ball"
+      ],
+      "previousItem": "lightball",
+      "role": "Revenge Killer"
+    },
+    "red-150": {
+      "recommendedItems": [
+        "lifeorb"
+      ],
+      "previousItem": "lifeorb",
+      "role": "User-approved Mewtwo recovery attacker"
+    },
+    "red-143": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "leftovers",
+      "role": "Classic CurseLax"
+    },
+    "red-3": {
+      "recommendedItems": [
+        "Life Orb",
+        "Heat Rock"
+      ],
+      "previousItem": "blacksludge",
+      "role": "Sun \"Sweeper\""
+    },
+    "red-6": {
+      "recommendedItems": [
+        "charizarditey"
+      ],
+      "previousItem": "charizarditey",
+      "role": "User-requested Mega Charizard Y sun set"
+    },
+    "red-9": {
+      "recommendedItems": [
+        "Leftovers"
+      ],
+      "previousItem": "expertbelt",
+      "role": "Utility"
+    }
+  }
+}

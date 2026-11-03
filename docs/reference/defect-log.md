@@ -2760,3 +2760,38 @@ read_when:
   installs and other tabs hide the banner. Eight packaging tests pass, and a real signed
   ARM64 3.0.0 app/temporary ZIP verifies embedded version and metadata equality. Engine
   validation remains green at 145 tests; source/notes bytes are preserved by packaging.
+
+
+## Challenge preparation must edit both item snapshots without rebuilding profiles
+
+- The engine creates sets from `team`, then restores `resources.item`. A preparation UI
+  changing only one silently loses the new equipment or leaves the saved roster inconsistent.
+  Persist the same item in both records in one validated commit, matching resources by ID
+  when reordering. Preserve carried HP, PP and status and frozen moves, ability and stats.
+- Preparation is reachable only before the first encounter or after claiming a victory
+  reward. It cannot mutate a live checkpoint or a lost run. Validate exactly the same six
+  member IDs, species/form item eligibility and the team item clause before writing.
+- Trigger tests use the actual UI model, close/reopen preparation, change the lead and item,
+  start the real engine, win, claim a reward and prepare the next encounter. Invalid edits
+  must preserve save bytes. A separate production-window render covers the preparation UI.
+
+
+## Item-clause legality does not establish role compatibility
+
+- The old offline NPC compiler filled item conflicts from a fixed list and validated
+  generation legality and uniqueness. This allowed Wise Glasses on physical-only Donphan,
+  offense items on fixed-damage supporters, and Choice items on the selected slash variant
+  containing Substitute/recovery. Existing tests only covered valid items and unique teams,
+  so all these role mismatches passed. The raw analysis role label alone is not sufficient:
+  evaluate the actual fixed four moves, ability and evolution stage.
+- Sweep all 162 slots, not only `itemAdapted`: a non-adapted analysis item may be incompatible
+  with the concrete selected variant. Reject incompatible candidates, reserve explicit Red
+  items and optimize the six-member assignment together. Keep the pinned recommendations,
+  prior item baseline and per-member reasons reviewable. Do not present authored scores as
+  usage statistics, learned weights or measured win-rate optima.
+- Regression covers known bad builds, late reserved-item contention, a case where greedy
+  first-slot allocation loses to a global assignment, all fixed builds and real NPC White
+  Herb/Flame Orb activation. Replacing the solver with greedy assignment in memory makes the
+  global and fixed-catalog regressions fail. The full roster generator must reproduce the
+  checked-in catalog. Existing checkpoints retain old items; a reviewed compatible catalog
+  changes only subsequent encounter creation.

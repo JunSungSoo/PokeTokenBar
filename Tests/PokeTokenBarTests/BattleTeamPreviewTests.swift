@@ -39,6 +39,24 @@ final class BattleTeamPreviewTests: XCTestCase {
         let empty=try border([])
         XCTAssertEqual(empty.green,0);XCTAssertEqual(empty.red,0)
     }
+    func testChallengeUsesTheSameBordersWithSixSelections()throws {
+        let own=[member(6,"fire"),member(26,"electric"),member(3,"grass"),member(9,"water"),member(143,"normal"),member(94,"ghost")]
+        let foe=[member(130,"foe")]
+        func pixels(_ selected:[String])throws->(green:Int,red:Int) {
+            let view=BattleTeamPreview(own:own,opponent:foe,selected:selected,mode:.singles,language:.ko,enabled:true,onSelect:{_ in},selectionLimit:6)
+            let bitmap=NSBitmapImageRep(cgImage:try XCTUnwrap(ImageRenderer(content:view.frame(width:620)).cgImage))
+            var green=0,red=0
+            for y in (bitmap.pixelsHigh-82)..<(bitmap.pixelsHigh-10) {
+                let c=try XCTUnwrap(bitmap.colorAt(x:1,y:y)?.usingColorSpace(.deviceRGB))
+                if c.greenComponent>c.redComponent*1.5 && c.greenComponent>c.blueComponent*1.5{green+=1}
+                if c.redComponent>c.greenComponent*1.5 && c.redComponent>c.blueComponent*1.5{red+=1}
+            }
+            return(green,red)
+        }
+        XCTAssertGreaterThan(try pixels(["grass","water","normal","ghost","fire","electric"]).green,10)
+        XCTAssertGreaterThan(try pixels(["grass","water","normal","ghost","electric","fire"]).red,10)
+        XCTAssertEqual(try pixels([]).green,0);XCTAssertEqual(try pixels([]).red,0)
+    }
     func testRosterTypesUseBW2AndFormsInTheSelectedLanguage() {
         let catalog=BattleTextCatalog.shared
         XCTAssertEqual(catalog.speciesTypeNames(130,form:nil,language:.ko),"물 / 비행")

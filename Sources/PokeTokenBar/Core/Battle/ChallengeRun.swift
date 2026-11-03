@@ -177,6 +177,24 @@ enum ChallengeReward {
         try commit(ChallengeRun(id:UUID().uuidString,catalogVersion:catalogVersion,encounterCount:encounterCount,
                                 team:team,resources:try team.map(ChallengePokemonState.fresh)))
     }
+    /// Only order and held gear are editable between battles. Never rebuild owned profiles.
+    func prepareEncounter(order:[String],items:[String:String])throws {
+        guard var next=run,next.phase == .ready || next.phase == .intermission,
+              order.count==6,Set(order)==Set(next.team.map(\.id)),
+              Set(items.keys).isSubset(of:Set(order)) else{throw ChallengeFailure.invalidState}
+        next.team=try order.map { id in
+            guard var pokemon=next.team.first(where:{$0.id==id}) else{throw ChallengeFailure.invalidState}
+            let item=items[id] ?? ""
+            guard item.isEmpty || BattleHeldItems.choices(speciesID:pokemon.speciesID,form:pokemon.form).contains(where:{$0.id==item}) else{throw ChallengeFailure.invalidState}
+            pokemon.item=item;return pokemon
+        }
+        guard !BattleHeldItems.hasDuplicates(next.team) else{throw ChallengeFailure.invalidState}
+        next.resources=try order.map {id in
+            guard var resource=next.resources.first(where:{$0.id==id}) else{throw ChallengeFailure.invalidState}
+            resource.item=items[id] ?? "";return resource
+        }
+        try commit(next)
+    }
     // Upgrade only a reviewed compatible catalog; replay uses the untouched checkpoint.
     func adoptCatalog(version:String,previousVersion:String,encounterCount:Int)throws {
         guard var next=run,next.catalogVersion==previousVersion,next.encounterCount==encounterCount else{throw ChallengeFailure.incompatibleVersion}

@@ -11,10 +11,12 @@ import XCTest
         }
         throw ChallengeFailure.invalidState
     }
-    func testCatalogUsesThreeLevelTiersAndExistingBattleResumesBeforeNextOpponentChanges()async throws {
+    func testCatalogUsesTwoLevelTiersAndExistingBattleResumesBeforeNextOpponentChanges()async throws {
         let catalog=try ChallengeEncounterCatalog.load(),legacy=try XCTUnwrap(catalog.compatiblePreviousVersions?.first)
+        XCTAssertEqual(catalog.encounters.first{$0.id=="giovanni"}?.team.first{$0.speciesID==232}?.item,"custapberry")
+        XCTAssertEqual(catalog.encounters.first{$0.id=="red"}?.team.first{$0.speciesID==9}?.item,"leftovers")
         for encounter in catalog.encounters {
-            XCTAssertTrue(encounter.team.allSatisfy{$0.level == (encounter.index<12 ? 75:encounter.index<16 ? 90:100)})
+            XCTAssertTrue(encounter.team.allSatisfy{$0.level == (encounter.index<24 ? 95:100)})
         }
         let helper=ChallengeRunTests(),save=try helper.store(),own=helper.team(),oldOpponent=helper.team("old")
         try save.start(team:own,catalogVersion:legacy)
@@ -32,9 +34,23 @@ import XCTest
         try session.startEncounter();let next=try await wait(session,after:won.decisionID)
         XCTAssertEqual(save.run?.encounterIndex,1)
         XCTAssertEqual(save.run?.checkpoint?.opponent,catalog.encounters[1].team)
-        XCTAssertEqual(next.foe.first?.level,75)
+        XCTAssertEqual(next.foe.first?.level,95)
         XCTAssertEqual(save.run?.team,own,"Player loadouts and stats remain frozen")
         XCTAssertEqual(ChallengeRunStore(url:save.url).run?.catalogVersion,catalog.version)
+    }
+    func testMewtwoRecoveryTacticSurvivesOpponentCheckpointEncoding()async throws {
+        let catalog=try ChallengeEncounterCatalog.load(),helper=ChallengeRunTests(),save=try helper.store()
+        let red=try XCTUnwrap(catalog.encounters.first{$0.id=="red"})
+        let mewtwo=try XCTUnwrap(red.team.first{$0.speciesID==150})
+        XCTAssertEqual(mewtwo.moves,["psystrike","shadowball","recover","flamethrower"])
+        XCTAssertEqual(mewtwo.item,"lifeorb");XCTAssertEqual(mewtwo.cpuRecoveryThreshold,0.65)
+        try save.start(team:helper.team(),catalogVersion:catalog.version)
+        try save.beginEncounter(opponent:red.team,seed:[1,2,3,4],policyRevision:ChallengeEncounterCatalog.policyRevision())
+        let restored=ChallengeRunStore(url:save.url)
+        XCTAssertEqual(restored.run?.checkpoint?.opponent.first{$0.speciesID==150},mewtwo)
+        let session=try ChallengeBattleSession(save:restored,catalog:catalog);defer{session.stop()}
+        try session.resume();_ = try await wait(session)
+        XCTAssertNil(session.error)
     }
     func testUnknownCatalogAndIncompatibleEncounterCountNeverRewriteTheSave()throws {
         let catalog=try ChallengeEncounterCatalog.load()

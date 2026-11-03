@@ -3,7 +3,7 @@ import Observation
 
 @MainActor @Observable final class ChallengeActivity {static let shared=ChallengeActivity();var isOpen=false}
 enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace,allHeal,buff}
-enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championReward}
+enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result,championReward}
 
 @MainActor @Observable final class ChallengeUIModel {
     let store:CompanionStore
@@ -19,6 +19,52 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
     private(set) var running=false
     private(set) var sceneSettled=false
     private(set) var resuming=false
+    private(set) var preparing=false
+    private(set) var preparationOrder:[String]=[]
+    private(set) var preparationItems:[String:String]=[:]
+    var preparationOpponent:ChallengeEncounterCatalog.Encounter? {
+        guard let run else{return nil}
+        let index=run.encounterIndex+(run.phase == .intermission ? 1:0)
+        return session.catalog.encounters.indices.contains(index) ? session.catalog.encounters[index]:nil
+    }
+    var preparationEntries:[DexEntry] { (run?.team ?? []).map {p in
+        DexEntry(id:p.id,baseID:p.speciesID,finalID:p.speciesID,chainOrder:[p.speciesID],rarity:.common,caughtAt:nil,isShiny:p.shiny,form:p.form)
+    }}
+    func prepare() {
+        guard let run,run.phase == .ready || run.phase == .intermission else{return}
+        preparationOrder=[]
+        preparationItems=Dictionary(uniqueKeysWithValues:run.resources.map{($0.id,$0.item)})
+        preparing=true;running=false
+    }
+    func selectPrepared(_ id:String) {
+        guard preparing,run?.team.contains(where:{$0.id==id})==true else{return}
+        if preparationOrder.contains(id){preparationOrder.removeAll{$0==id}}
+        else if preparationOrder.count<6{preparationOrder.append(id)}
+    }
+    var canStartPrepared:Bool {preparing && preparationOrder.count==6 && !building && save.canWrite}
+    func applyPreparedItem(_ item:String,to id:String)->Bool {
+        guard preparing,let p=run?.team.first(where:{$0.id==id}),
+              item.isEmpty || BattleHeldItems.choices(speciesID:p.speciesID,form:p.form).contains(where:{$0.id==item}),
+              item.isEmpty || !preparationItems.contains(where:{$0.key != id && $0.value==item}) else{return false}
+        preparationItems[id]=item
+        if let entry=preparationEntries.first(where:{$0.id==id}){itemMemory.recordApplied(item,to:entry)}
+        itemUsage.recordApplied(item);return true
+    }
+    @discardableResult func savePreparation()->Bool {
+        guard canStartPrepared else{return false}
+        do{try save.prepareEncounter(order:preparationOrder,items:preparationItems);return true}
+        catch{report(error);return false}
+    }
+    func beginPreparedEncounter() {
+        guard canStartPrepared else{return}
+        problem=false
+        do {
+            guard savePreparation() else{return}
+            try session.startEncounter()
+            preparing=false;running=true;sceneSettled=false;resuming=false
+            if let encounter{intro.reset(encounter:encounter.id)}
+        } catch{report(error)}
+    }
     var shinyRewardSelection=""
     var effectsBusy=false
     var isOpen=false
@@ -43,6 +89,7 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
     var encounter:ChallengeEncounterCatalog.Encounter? {run.flatMap{session.catalog.encounters.indices.contains($0.encounterIndex) ? session.catalog.encounters[$0.encounterIndex]:nil}}
     var screen:ChallengeScreen {
         if newSetup || run==nil {return .setup}
+        if preparing{return .preparation}
         guard let run else{return .setup}
         if run.phase == .cleared,let reward=run.championReward {
             if !reward.claimed{return .championReward}
@@ -77,24 +124,22 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
         do {
             let team=try await BattleTeamBuilder.build(ids:ids,entries:candidates,mode:.singles,language:store.language,provider:provider,heldItems:items)
             guard isOpen,selectedIDs==ids,itemLoadout.items==items,ids.allSatisfy({id in candidates.contains{$0.id==id}}) else{return}
-            try session.start(team:team);newSetup=false;running=true;sceneSettled=false;resuming=false
-            if let encounter {intro.reset(encounter:encounter.id)}
+            try save.start(team:team,catalogVersion:session.catalog.version,encounterCount:session.catalog.encounters.count)
+            newSetup=false;prepare()
         } catch {report(error)}
     }
     func resume() {
+        if run?.phase == .ready{prepare();return}
         problem=false;sceneSettled=false;resuming=true;intro.finish()
         do {
-            if run?.phase == .ready {try session.startEncounter();resuming=false;if let encounter{intro.reset(encounter:encounter.id)}}
-            else if run?.phase == .battling {try session.resume()}
+            if run?.phase == .battling {try session.resume()}
             else {sceneSettled=true}
             running=true
         } catch {running=false;report(error)}
     }
     func next() {
         guard run?.phase == .intermission,!building else{return}
-        problem=false
-        do {try session.startEncounter();running=true;sceneSettled=false;resuming=false;if let encounter{intro.reset(encounter:encounter.id)}}
-        catch {report(error)}
+        prepare()
     }
     var canTestNextTrainer:Bool {
         session.testControlsEnabled && run?.phase == .battling && !building && !effectsBusy && run.map{$0.encounterIndex+1<$0.encounterCount} == true
@@ -117,7 +162,7 @@ enum ChallengeScreen {case setup,resume,loading,battle,reward,result,championRew
         do{try store.markChallengeChampions(ids:Set(run.team.map(\.id)))}catch{report(error)}
     }
     func runningDidEnd(){running=false;sceneSettled=true;intro.finish()}
-    func close(){isOpen=false;running=false;intro.finish();session.stop();sceneSettled=true}
+    func close(){isOpen=false;preparing=false;running=false;intro.finish();session.stop();sceneSettled=true}
     func newChallenge(){guard run?.phase == .lost || (run?.phase == .cleared && run?.championReward?.claimed==true) else{return};newSetup=true;selectedIDs=[];overrides=[:];restoreItems()}
     var canClaimChampionShiny:Bool {
         guard let run,run.phase == .cleared,run.championReward?.claimed==false,!building else{return false}

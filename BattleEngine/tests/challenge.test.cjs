@@ -47,7 +47,7 @@ test('all 27 fixed six-member NPC teams are obtainable in BW and instantiate wit
  assert.equal(encounters.length,27);assert.equal(new Set(encounters.map(e=>e.id)).size,27);
  for(const encounter of encounters){
   const items=new Set();
-  for(const p of encounter.team){assert.equal(p.level,encounter.index<12?75:encounter.index<16?90:100);assert.equal(p.moves.length,4);assert.equal(validator.validateSet(encounter.id==='red'&&p.speciesID===6?{...structuredClone(p),item:'',moves:p.moves.filter(m=>m!=='weatherball')}:structuredClone(p)),null,encounter.id+' '+p.species);assert.ok(!items.has(p.item));items.add(p.item);}
+  for(const p of encounter.team){assert.equal(p.level,encounter.index<24?95:100);assert.equal(p.moves.length,4);assert.equal(validator.validateSet(encounter.id==='red'&&p.speciesID===6?{...structuredClone(p),item:'',moves:p.moves.filter(m=>m!=='weatherball')}:structuredClone(p)),null,encounter.id+' '+p.species);assert.ok(!items.has(p.item));items.add(p.item);}
   const e=new OwnedBattle('singles',[team('a'),encounter.team],[1,2,3,4],{profile:'challenge'});e.runCPU();assert.equal(e.frame(1).waiting,true);assert.equal(e.frame(0).own.length,6);
  }
 });

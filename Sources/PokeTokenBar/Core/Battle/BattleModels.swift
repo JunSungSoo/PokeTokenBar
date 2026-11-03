@@ -22,6 +22,8 @@ struct BattlePokemon: Codable, Sendable, Identifiable, Equatable {
     let stats: [String: Int]
     var moves: [String]
     var item: String? = nil
+    /// Explicit NPC tactic, frozen with the challenge opponent checkpoint.
+    var cpuRecoveryThreshold:Double? = nil
 }
 
 /// The public six-member preview intentionally has no moves, ability, IVs or stats.

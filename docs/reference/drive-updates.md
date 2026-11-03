@@ -1,6 +1,6 @@
 # Drive version updates
 
-The current app version is 3.0.0. `scripts/build-app.sh` writes that version into both
+The current app version is 3.0.1. `scripts/build-app.sh` writes that version into both
 `CFBundleShortVersionString` and `CFBundleVersion`; the QA builder uses the same short version.
 Every subsequent Drive distribution must raise the app version and ZIP filename version.
 
@@ -55,3 +55,48 @@ audio hashes and a real packaged-engine turn. Test controls are absent from the 
 Archive: `PokeTokenBar-3.0.0-261102(5).zip`, packaged `2026-11-02T17:43:30+09:00`.
 SHA-256: `c90147e6135eaa6538c2e68ee13e79dff58b9973afe97f6767b4fa5d905e153a`. Both app version fields and ZIP metadata are 3.0.0;
 the complete five-entry November 2 history and executable match the verified source bundle.
+
+
+## Published Drive 3.0.0 verification
+
+After the user replaced the shared file, a read-only request returned HTTP 200 and the title
+`PokeTokenBar-3.0.0.zip - Google Drive`. The app's actual URLSession fetch likewise returns
+3.0.0. With `PTB_DRIVE_LIVE_PROBE=1 PTB_DRIVE_EXPECTED_VERSION=3.0.0`, all 23 native tests
+pass (`/tmp/ptb-drive-published-3-verification.log`). The published response is fed into the
+real checker and production Home renderer: an older-version fixture offers 3.0.0, current
+3.0.0 and newer 3.0.1 installations do not offer it, and the update action requests exactly
+the pinned Drive share URL without clearing the notice before installation. The callback
+is captured in the test; no browser window is opened or ZIP downloaded by this verification.
+The production-render screenshot is `/tmp/ptb-drive-live-3-notice.png`. No runtime fix or
+new release package is needed; only repeatable live-response verification was added.
+
+
+## Actual browser handoff verification (November 3)
+
+A separate visible preview assumes installed version 2.5.6 and uses the production banner,
+DriveReleaseSource and UpdateChecker, including its default NSWorkspace browser opener.
+The preview uses its own defaults suite, separate from both the production app and its own
+bundle identifier. The live response displayed “v3.0.0 사용 가능 (현재 2.5.6)”. Clicking the
+visible Update button with native UI automation opened a new Google Chrome tab at the pinned
+Drive file URL. Chrome showed `PokeTokenBar-3.0.0.zip - Google Drive`, the matching file ID
+and a Download button. The ZIP was not downloaded or installed. Both the preview and Drive
+tab remain open for inspection; production app data and release notes are unchanged.
+
+
+## November 3 local 3.0.1 distribution
+
+The user explicitly raised the app version to 3.0.1 after the initial local candidate was
+assembled and before any commit/push. The old 3.0.0 candidate was moved off Desktop into
+an ignored build backup and is not a separate release. Both release app version fields,
+the QA short version, archive filename and package metadata are now 3.0.1. This ZIP has
+not been uploaded to Drive by the agent. Existing comparator tests cover 3.0.0 seeing a
+3.0.1 offer and 3.0.1 suppressing that same offer. The shared file must be replaced with
+the 3.0.1-named ZIP before installed older apps can discover this distribution.
+
+Release checks: 152 engine tests, 104 native tests (2 opt-in network probes skipped, zero
+failures), 8 package tests, ARM64 app/helper signatures, 4,356 exact resource matches and
+actual bundled-engine checks for all 27 teams/162 NPCs plus an automatic recovery turn.
+Package verification independently opens the archive and checks version 3.0.1, executable
+SHA-256, exact catalog and release-note bytes. Trainer-specific finale details are removed
+from the release-note text at the user's request; gameplay and internal technical reference
+documents remain complete. Final artifact hashes are recorded in the ZIP release ledger.

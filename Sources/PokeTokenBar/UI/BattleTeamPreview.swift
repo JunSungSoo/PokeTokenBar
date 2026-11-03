@@ -10,6 +10,7 @@ struct BattleTeamPreview: View {
     let language: AppLanguage
     let enabled: Bool
     let onSelect: (String) -> Void
+    var selectionLimit:Int? = nil
     private var l: L { L(language) }
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -20,7 +21,7 @@ struct BattleTeamPreview: View {
                     Button { onSelect(member.id) } label: {
                         card(member, position: position)
                     }.buttonStyle(.plain)
-                        .disabled(!enabled || (position == nil && selected.count >= mode.battleSize))
+                        .disabled(!enabled || (position == nil && selected.count >= (selectionLimit ?? mode.battleSize)))
                         .accessibilityIdentifier("battle-preview-own-\(member.id)")
                         .accessibilityLabel(rosterLabel(member))
                         .accessibilityValue(position.map { "\($0 + 1) · " + l.battleSelected } ?? "")

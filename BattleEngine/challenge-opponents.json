@@ -1,5 +1,5 @@
 {
-  "version": "challenge-bw-v3-tiered-opponent-levels",
+  "version": "challenge-bw-v8-gym-elite-95",
   "evPolicy": "zero",
   "encounters": [
     {
@@ -13,7 +13,7 @@
           "speciesID": 74,
           "species": "Geodude",
           "displayName": "Geodude",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Adamant",
           "gender": "",
@@ -28,12 +28,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 162,
-            "def": 178,
-            "spa": 65,
-            "spd": 73,
-            "spe": 58
+            "hp": 210,
+            "atk": 204,
+            "def": 224,
+            "spa": 81,
+            "spd": 91,
+            "spe": 72
           },
           "moves": [
             "stealthrock",
@@ -41,13 +41,19 @@
             "earthquake",
             "firepunch"
           ],
-          "item": "oranberry",
+          "item": "eviolite",
           "evidence": {
             "format": "lc",
             "set": "Stealth Rock",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Stealth Rock",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 123
+            }
           }
         },
         {
@@ -55,7 +61,7 @@
           "speciesID": 95,
           "species": "Onix",
           "displayName": "Onix",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Jolly",
           "gender": "",
@@ -70,12 +76,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 160,
-            "atk": 95,
-            "def": 268,
-            "spa": 65,
-            "spd": 95,
-            "spe": 146
+            "hp": 200,
+            "atk": 119,
+            "def": 338,
+            "spa": 81,
+            "spd": 119,
+            "spe": 183
           },
           "moves": [
             "sunnyday",
@@ -89,7 +95,13 @@
             "set": "Sun Lead",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Sun Lead",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 133
+            }
           }
         },
         {
@@ -97,7 +109,7 @@
           "speciesID": 76,
           "species": "Golem",
           "displayName": "Golem",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Adamant",
           "gender": "",
@@ -112,12 +124,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 212,
-            "def": 223,
-            "spa": 99,
-            "spd": 125,
-            "spe": 95
+            "hp": 286,
+            "atk": 267,
+            "def": 281,
+            "spa": 124,
+            "spd": 157,
+            "spe": 119
           },
           "moves": [
             "stealthrock",
@@ -131,7 +143,13 @@
             "set": "Custap Lead",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Custap Lead",
+              "reason": "옹골참으로 버틴 뒤 같은 우선도 내 행동 선점",
+              "score": 133
+            }
           }
         },
         {
@@ -139,7 +157,7 @@
           "speciesID": 139,
           "species": "Omastar",
           "displayName": "Omastar",
-          "level": 75,
+          "level": 95,
           "ability": "Swift Swim",
           "nature": "Modest",
           "gender": "",
@@ -154,12 +172,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 105,
-            "def": 215,
-            "spa": 220,
-            "spd": 133,
-            "spe": 110
+            "hp": 267,
+            "atk": 132,
+            "def": 271,
+            "spa": 277,
+            "spd": 167,
+            "spe": 138
           },
           "moves": [
             "surf",
@@ -167,13 +185,19 @@
             "shellsmash",
             "hiddenpower"
           ],
-          "item": "lifeorb",
+          "item": "whiteherb",
           "evidence": {
             "format": "ubers",
             "set": "Life Orb",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "껍질깨기의 방어·특수방어 하락 복구",
+              "score": 140
+            }
           }
         },
         {
@@ -181,7 +205,7 @@
           "speciesID": 141,
           "species": "Kabutops",
           "displayName": "Kabutops",
-          "level": 75,
+          "level": 95,
           "ability": "Swift Swim",
           "nature": "Jolly",
           "gender": "",
@@ -196,12 +220,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 200,
-            "def": 185,
-            "spa": 112,
-            "spd": 133,
-            "spe": 162
+            "hp": 248,
+            "atk": 252,
+            "def": 233,
+            "spa": 141,
+            "spd": 167,
+            "spe": 204
           },
           "moves": [
             "swordsdance",
@@ -209,13 +233,19 @@
             "stoneedge",
             "aquajet"
           ],
-          "item": "leftovers",
+          "item": "lifeorb",
           "evidence": {
             "format": "uu",
             "set": "Swords Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Swords Dance",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.9
+            }
           }
         },
         {
@@ -223,7 +253,7 @@
           "speciesID": 142,
           "species": "Aerodactyl",
           "displayName": "Aerodactyl",
-          "level": 75,
+          "level": 95,
           "ability": "Pressure",
           "nature": "Jolly",
           "gender": "",
@@ -238,12 +268,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 185,
-            "def": 125,
-            "spa": 106,
-            "spd": 140,
-            "spe": 245
+            "hp": 286,
+            "atk": 233,
+            "def": 157,
+            "spa": 133,
+            "spd": 176,
+            "spe": 309
           },
           "moves": [
             "stealthrock",
@@ -251,13 +281,19 @@
             "earthquake",
             "taunt"
           ],
-          "item": "expertbelt",
+          "item": "focussash",
           "evidence": {
             "format": "uu",
             "set": "Stealth Rock",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Stealth Rock",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 127
+            }
           }
         }
       ]
@@ -273,7 +309,7 @@
           "speciesID": 16,
           "species": "Pidgey",
           "displayName": "Pidgey",
-          "level": 75,
+          "level": 95,
           "ability": "Keen Eye",
           "nature": "Jolly",
           "gender": "",
@@ -288,12 +324,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 95,
-            "def": 88,
-            "spa": 72,
-            "spd": 80,
-            "spe": 123
+            "hp": 210,
+            "atk": 119,
+            "def": 110,
+            "spa": 90,
+            "spd": 100,
+            "spe": 154
           },
           "moves": [
             "bravebird",
@@ -307,7 +343,13 @@
             "set": "Authored legal fallback",
             "source": null,
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 125.5
+            }
           }
         },
         {
@@ -315,7 +357,7 @@
           "speciesID": 17,
           "species": "Pidgeotto",
           "displayName": "Pidgeotto",
-          "level": 75,
+          "level": 95,
           "ability": "Keen Eye",
           "nature": "Jolly",
           "gender": "",
@@ -330,12 +372,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 202,
-            "atk": 118,
-            "def": 110,
-            "spa": 92,
-            "spd": 103,
-            "spe": 147
+            "hp": 254,
+            "atk": 148,
+            "def": 138,
+            "spa": 116,
+            "spd": 129,
+            "spe": 185
           },
           "moves": [
             "bravebird",
@@ -349,7 +391,13 @@
             "set": "Authored legal fallback",
             "source": null,
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.55
+            }
           }
         },
         {
@@ -357,7 +405,7 @@
           "speciesID": 164,
           "species": "Noctowl",
           "displayName": "Noctowl",
-          "level": 75,
+          "level": 95,
           "ability": "Insomnia",
           "nature": "Calm",
           "gender": "",
@@ -372,12 +420,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 258,
-            "atk": 92,
-            "def": 103,
-            "spa": 142,
-            "spd": 189,
-            "spe": 133
+            "hp": 324,
+            "atk": 116,
+            "def": 129,
+            "spa": 178,
+            "spd": 237,
+            "spe": 167
           },
           "moves": [
             "roost",
@@ -391,7 +439,13 @@
             "set": "Authored legal fallback",
             "source": "2014-11-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         },
         {
@@ -399,7 +453,7 @@
           "speciesID": 85,
           "species": "Dodrio",
           "displayName": "Dodrio",
-          "level": 75,
+          "level": 95,
           "ability": "Early Bird",
           "nature": "Jolly",
           "gender": "",
@@ -414,12 +468,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 193,
-            "def": 133,
-            "spa": 106,
-            "spd": 118,
-            "spe": 195
+            "hp": 248,
+            "atk": 243,
+            "def": 167,
+            "spa": 133,
+            "spd": 148,
+            "spe": 246
           },
           "moves": [
             "bravebird",
@@ -433,7 +487,13 @@
             "set": "Authored legal fallback",
             "source": "2022-01-gen5nu-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 110
+            }
           }
         },
         {
@@ -441,7 +501,7 @@
           "speciesID": 169,
           "species": "Crobat",
           "displayName": "Crobat",
-          "level": 75,
+          "level": 95,
           "ability": "Infiltrator",
           "nature": "Jolly",
           "gender": "",
@@ -456,12 +516,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 235,
-            "atk": 163,
-            "def": 148,
-            "spa": 119,
-            "spd": 148,
-            "spe": 245
+            "hp": 295,
+            "atk": 205,
+            "def": 186,
+            "spa": 150,
+            "spd": 186,
+            "spe": 309
           },
           "moves": [
             "bravebird",
@@ -469,13 +529,19 @@
             "crosspoison",
             "roost"
           ],
-          "item": "expertbelt",
+          "item": "blacksludge",
           "evidence": {
             "format": "uu",
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 121
+            }
           }
         },
         {
@@ -483,7 +549,7 @@
           "speciesID": 227,
           "species": "Skarmory",
           "displayName": "Skarmory",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Impish",
           "gender": "",
@@ -498,12 +564,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 148,
-            "def": 261,
-            "spa": 79,
-            "spd": 133,
-            "spe": 133
+            "hp": 257,
+            "atk": 186,
+            "def": 330,
+            "spa": 99,
+            "spd": 167,
+            "spe": 167
           },
           "moves": [
             "spikes",
@@ -511,13 +577,19 @@
             "whirlwind",
             "bravebird"
           ],
-          "item": "muscleband",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ubers",
             "set": "Support",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 98.66666666666667
+            }
           }
         }
       ]
@@ -533,7 +605,7 @@
           "speciesID": 120,
           "species": "Staryu",
           "displayName": "Staryu",
-          "level": 75,
+          "level": 95,
           "ability": "Natural Cure",
           "nature": "Timid",
           "gender": "",
@@ -548,12 +620,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 153,
-            "atk": 85,
-            "def": 110,
-            "spa": 133,
-            "spd": 110,
-            "spe": 170
+            "hp": 191,
+            "atk": 107,
+            "def": 138,
+            "spa": 167,
+            "spd": 138,
+            "spe": 214
           },
           "moves": [
             "scald",
@@ -567,7 +639,13 @@
             "set": "Bulky Rapid Spin",
             "source": "2022-01-gen5lc-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Rapid Spin",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 141
+            }
           }
         },
         {
@@ -575,7 +653,7 @@
           "speciesID": 121,
           "species": "Starmie",
           "displayName": "Starmie",
-          "level": 75,
+          "level": 95,
           "ability": "Analytic",
           "nature": "Timid",
           "gender": "",
@@ -590,12 +668,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 126,
-            "def": 155,
-            "spa": 178,
-            "spd": 155,
-            "spe": 220
+            "hp": 248,
+            "atk": 158,
+            "def": 195,
+            "spa": 224,
+            "spd": 195,
+            "spe": 277
           },
           "moves": [
             "rapidspin",
@@ -603,13 +681,19 @@
             "icebeam",
             "thunderbolt"
           ],
-          "item": "airballoon",
+          "item": "lifeorb",
           "evidence": {
             "format": "ou",
             "set": "Rapid Spin",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Rapid Spin",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.875
+            }
           }
         },
         {
@@ -617,7 +701,7 @@
           "speciesID": 55,
           "species": "Golduck",
           "displayName": "Golduck",
-          "level": 75,
+          "level": 95,
           "ability": "Cloud Nine",
           "nature": "Timid",
           "gender": "",
@@ -632,12 +716,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 135,
-            "def": 145,
-            "spa": 170,
-            "spd": 148,
-            "spe": 170
+            "hp": 286,
+            "atk": 171,
+            "def": 182,
+            "spa": 214,
+            "spd": 186,
+            "spe": 214
           },
           "moves": [
             "substitute",
@@ -645,13 +729,19 @@
             "scald",
             "icebeam"
           ],
-          "item": "leftovers",
+          "item": "lumberry",
           "evidence": {
             "format": "pu",
             "set": "SubCM",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "SubCM",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -659,7 +749,7 @@
           "speciesID": 131,
           "species": "Lapras",
           "displayName": "Lapras",
-          "level": 75,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -674,12 +764,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 303,
-            "atk": 139,
-            "def": 148,
-            "spa": 170,
-            "spd": 170,
-            "spe": 118
+            "hp": 381,
+            "atk": 175,
+            "def": 186,
+            "spa": 214,
+            "spd": 214,
+            "spe": 148
           },
           "moves": [
             "hydropump",
@@ -687,13 +777,19 @@
             "icebeam",
             "substitute"
           ],
-          "item": "choicespecs",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Bulky Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Attacker",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -701,7 +797,7 @@
           "speciesID": 134,
           "species": "Vaporeon",
           "displayName": "Vaporeon",
-          "level": 75,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -716,12 +812,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 303,
-            "atk": 112,
-            "def": 118,
-            "spa": 211,
-            "spd": 170,
-            "spe": 125
+            "hp": 381,
+            "atk": 141,
+            "def": 148,
+            "spa": 266,
+            "spd": 214,
+            "spe": 157
           },
           "moves": [
             "hydropump",
@@ -729,13 +825,19 @@
             "hiddenpower",
             "rest"
           ],
-          "item": "lifeorb",
+          "item": "chestoberry",
           "evidence": {
             "format": "ou",
             "set": "Offensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive",
+              "reason": "잠자기 직후 수면을 해제해 행동 유지",
+              "score": 112
+            }
           }
         },
         {
@@ -743,7 +845,7 @@
           "speciesID": 195,
           "species": "Quagsire",
           "displayName": "Quagsire",
-          "level": 75,
+          "level": 95,
           "ability": "Unaware",
           "nature": "Relaxed",
           "gender": "",
@@ -758,12 +860,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 250,
-            "atk": 155,
-            "def": 170,
-            "spa": 125,
-            "spd": 125,
-            "spe": 72
+            "hp": 314,
+            "atk": 195,
+            "def": 214,
+            "spa": 157,
+            "spd": 157,
+            "spe": 90
           },
           "moves": [
             "recover",
@@ -771,13 +873,19 @@
             "earthquake",
             "encore"
           ],
-          "item": "expertbelt",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ru",
             "set": "Physically Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physically Defensive",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 96.83333333333333
+            }
           }
         }
       ]
@@ -793,7 +901,7 @@
           "speciesID": 11,
           "species": "Metapod",
           "displayName": "Metapod",
-          "level": 75,
+          "level": 95,
           "ability": "Shed Skin",
           "nature": "Impish",
           "gender": "",
@@ -808,12 +916,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 183,
-            "atk": 58,
-            "def": 121,
-            "spa": 58,
-            "spd": 65,
-            "spe": 73
+            "hp": 229,
+            "atk": 72,
+            "def": 151,
+            "spa": 72,
+            "spd": 81,
+            "spe": 91
           },
           "moves": [
             "bugbite",
@@ -827,7 +935,13 @@
             "set": "Authored legal fallback",
             "source": "2026-09-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 138
+            }
           }
         },
         {
@@ -835,7 +949,7 @@
           "speciesID": 14,
           "species": "Kakuna",
           "displayName": "Kakuna",
-          "level": 75,
+          "level": 95,
           "ability": "Shed Skin",
           "nature": "Impish",
           "gender": "",
@@ -850,12 +964,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 175,
-            "atk": 65,
-            "def": 113,
-            "spa": 58,
-            "spd": 65,
-            "spe": 80
+            "hp": 219,
+            "atk": 81,
+            "def": 141,
+            "spa": 72,
+            "spd": 81,
+            "spe": 100
           },
           "moves": [
             "bugbite",
@@ -863,13 +977,19 @@
             "irondefense",
             "stringshot"
           ],
-          "item": "leftovers",
+          "item": "blacksludge",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": null,
             "manual": true,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 121
+            }
           }
         },
         {
@@ -877,7 +997,7 @@
           "speciesID": 123,
           "species": "Scyther",
           "displayName": "Scyther",
-          "level": 75,
+          "level": 95,
           "ability": "Technician",
           "nature": "Jolly",
           "gender": "",
@@ -892,12 +1012,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 193,
-            "def": 148,
-            "spa": 99,
-            "spd": 148,
-            "spe": 203
+            "hp": 267,
+            "atk": 243,
+            "def": 186,
+            "spa": 124,
+            "spd": 186,
+            "spe": 256
           },
           "moves": [
             "uturn",
@@ -911,7 +1031,13 @@
             "set": "Choice Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Attacker",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -919,7 +1045,7 @@
           "speciesID": 127,
           "species": "Pinsir",
           "displayName": "Pinsir",
-          "level": 75,
+          "level": 95,
           "ability": "Moxie",
           "nature": "Adamant",
           "gender": "",
@@ -934,12 +1060,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 236,
-            "def": 178,
-            "spa": 99,
-            "spd": 133,
-            "spe": 155
+            "hp": 257,
+            "atk": 298,
+            "def": 224,
+            "spa": 124,
+            "spd": 167,
+            "spe": 195
           },
           "moves": [
             "xscissor",
@@ -953,7 +1079,13 @@
             "set": "Choice Scarf",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         },
         {
@@ -961,7 +1093,7 @@
           "speciesID": 214,
           "species": "Heracross",
           "displayName": "Heracross",
-          "level": 75,
+          "level": 95,
           "ability": "Guts",
           "nature": "Jolly",
           "gender": "",
@@ -976,12 +1108,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 215,
-            "def": 140,
-            "spa": 79,
-            "spd": 170,
-            "spe": 170
+            "hp": 286,
+            "atk": 271,
+            "def": 176,
+            "spa": 99,
+            "spd": 214,
+            "spe": 214
           },
           "moves": [
             "swordsdance",
@@ -989,13 +1121,19 @@
             "megahorn",
             "stoneedge"
           ],
-          "item": "lifeorb",
+          "item": "flameorb",
           "evidence": {
             "format": "uu",
             "set": "Swords Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Swords Dance",
+              "reason": "근성 활성화로 물리 공격 강화",
+              "score": 150
+            }
           }
         },
         {
@@ -1003,7 +1141,7 @@
           "speciesID": 212,
           "species": "Scizor",
           "displayName": "Scizor",
-          "level": 75,
+          "level": 95,
           "ability": "Technician",
           "nature": "Jolly",
           "gender": "",
@@ -1018,12 +1156,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 223,
-            "def": 178,
-            "spa": 99,
-            "spd": 148,
-            "spe": 137
+            "hp": 267,
+            "atk": 281,
+            "def": 224,
+            "spa": 124,
+            "spd": 186,
+            "spe": 172
           },
           "moves": [
             "uturn",
@@ -1031,13 +1169,19 @@
             "superpower",
             "bulletpunch"
           ],
-          "item": "expertbelt",
+          "item": "lifeorb",
           "evidence": {
             "format": "ou",
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "구애 없이 공격 강화",
+              "score": 103.925
+            }
           }
         }
       ]
@@ -1053,7 +1197,7 @@
           "speciesID": 100,
           "species": "Voltorb",
           "displayName": "Voltorb",
-          "level": 75,
+          "level": 95,
           "ability": "Static",
           "nature": "Timid",
           "gender": "",
@@ -1068,12 +1212,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 64,
-            "def": 102,
-            "spa": 110,
-            "spd": 110,
-            "spe": 195
+            "hp": 210,
+            "atk": 81,
+            "def": 128,
+            "spa": 138,
+            "spd": 138,
+            "spe": 246
           },
           "moves": [
             "thunderbolt",
@@ -1081,13 +1225,19 @@
             "taunt",
             "hiddenpower"
           ],
-          "item": "lifeorb",
+          "item": "focussash",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": "2022-01-gen5lc-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 134.5
+            }
           }
         },
         {
@@ -1095,7 +1245,7 @@
           "speciesID": 25,
           "species": "Pikachu",
           "displayName": "Pikachu",
-          "level": 75,
+          "level": 95,
           "ability": "Lightning Rod",
           "nature": "Timid",
           "gender": "",
@@ -1110,12 +1260,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 160,
-            "atk": 99,
-            "def": 72,
-            "spa": 103,
-            "spd": 88,
-            "spe": 179
+            "hp": 200,
+            "atk": 124,
+            "def": 90,
+            "spa": 129,
+            "spd": 110,
+            "spe": 225
           },
           "moves": [
             "substitute",
@@ -1129,7 +1279,13 @@
             "set": "Substitute",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute",
+              "reason": "피카츄 전용 공격·특수공격 2배",
+              "score": 258
+            }
           }
         },
         {
@@ -1137,7 +1293,7 @@
           "speciesID": 26,
           "species": "Raichu",
           "displayName": "Raichu",
-          "level": 75,
+          "level": 95,
           "ability": "Lightning Rod",
           "nature": "Timid",
           "gender": "",
@@ -1152,12 +1308,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 145,
-            "def": 110,
-            "spa": 163,
-            "spd": 148,
-            "spe": 195
+            "hp": 248,
+            "atk": 183,
+            "def": 138,
+            "spa": 205,
+            "spd": 186,
+            "spe": 246
           },
           "moves": [
             "thunderbolt",
@@ -1165,13 +1321,19 @@
             "focusblast",
             "voltswitch"
           ],
-          "item": "choicespecs",
+          "item": "lifeorb",
           "evidence": {
             "format": "zu",
             "set": "Choice Specs",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Specs",
+              "reason": "구애 없이 공격 강화",
+              "score": 103.9
+            }
           }
         },
         {
@@ -1179,7 +1341,7 @@
           "speciesID": 125,
           "species": "Electabuzz",
           "displayName": "Electabuzz",
-          "level": 75,
+          "level": 95,
           "ability": "Vital Spirit",
           "nature": "Timid",
           "gender": "",
@@ -1194,12 +1356,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 136,
-            "def": 113,
-            "spa": 170,
-            "spd": 155,
-            "spe": 203
+            "hp": 257,
+            "atk": 171,
+            "def": 141,
+            "spa": 214,
+            "spd": 195,
+            "spe": 256
           },
           "moves": [
             "voltswitch",
@@ -1213,7 +1375,13 @@
             "set": "Eviolite",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Eviolite",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 132.2
+            }
           }
         },
         {
@@ -1221,7 +1389,7 @@
           "speciesID": 135,
           "species": "Jolteon",
           "displayName": "Jolteon",
-          "level": 75,
+          "level": 95,
           "ability": "Volt Absorb",
           "nature": "Timid",
           "gender": "",
@@ -1236,12 +1404,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 112,
-            "def": 117,
-            "spa": 193,
-            "spd": 170,
-            "spe": 245
+            "hp": 257,
+            "atk": 141,
+            "def": 147,
+            "spa": 243,
+            "spd": 214,
+            "spe": 309
           },
           "moves": [
             "thunderbolt",
@@ -1249,13 +1417,19 @@
             "hiddenpower",
             "voltswitch"
           ],
-          "item": "leftovers",
+          "item": "choicespecs",
           "evidence": {
             "format": "ou",
             "set": "Choice Specs",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Specs",
+              "reason": "공격 기술 중심 특수 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -1263,7 +1437,7 @@
           "speciesID": 181,
           "species": "Ampharos",
           "displayName": "Ampharos",
-          "level": 75,
+          "level": 95,
           "ability": "Static",
           "nature": "Modest",
           "gender": "",
@@ -1278,12 +1452,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 243,
-            "atk": 126,
-            "def": 140,
-            "spa": 220,
-            "spd": 163,
-            "spe": 110
+            "hp": 305,
+            "atk": 158,
+            "def": 176,
+            "spa": 277,
+            "spd": 205,
+            "spe": 138
           },
           "moves": [
             "thunderbolt",
@@ -1291,13 +1465,19 @@
             "voltswitch",
             "healbell"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Tank",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Tank",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         }
       ]
@@ -1313,7 +1493,7 @@
           "speciesID": 35,
           "species": "Clefairy",
           "displayName": "Clefairy",
-          "level": 75,
+          "level": 95,
           "ability": "Magic Guard",
           "nature": "Bold",
           "gender": "",
@@ -1328,12 +1508,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 85,
-            "def": 110,
-            "spa": 118,
-            "spd": 125,
-            "spe": 80
+            "hp": 267,
+            "atk": 107,
+            "def": 137,
+            "spa": 148,
+            "spd": 157,
+            "spe": 100
           },
           "moves": [
             "calmmind",
@@ -1347,7 +1527,13 @@
             "set": "Authored legal fallback",
             "source": "2026-07-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 141.3
+            }
           }
         },
         {
@@ -1355,7 +1541,7 @@
           "speciesID": 241,
           "species": "Miltank",
           "displayName": "Miltank",
-          "level": 75,
+          "level": 95,
           "ability": "Scrappy",
           "nature": "Careful",
           "gender": "",
@@ -1370,12 +1556,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 250,
-            "atk": 148,
-            "def": 185,
-            "spa": 79,
-            "spd": 146,
-            "spe": 178
+            "hp": 314,
+            "atk": 186,
+            "def": 233,
+            "spa": 99,
+            "spd": 183,
+            "spe": 224
           },
           "moves": [
             "curse",
@@ -1383,13 +1569,19 @@
             "milkdrink",
             "healbell"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "nu",
             "set": "Moodoo",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Moodoo",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 97.5
+            }
           }
         },
         {
@@ -1397,7 +1589,7 @@
           "speciesID": 36,
           "species": "Clefable",
           "displayName": "Clefable",
-          "level": 75,
+          "level": 95,
           "ability": "Magic Guard",
           "nature": "Calm",
           "gender": "",
@@ -1412,12 +1604,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 250,
-            "atk": 119,
-            "def": 137,
-            "spa": 155,
-            "spd": 179,
-            "spe": 118
+            "hp": 314,
+            "atk": 150,
+            "def": 173,
+            "spa": 195,
+            "spd": 225,
+            "spe": 148
           },
           "moves": [
             "thunderwave",
@@ -1425,13 +1617,19 @@
             "seismictoss",
             "softboiled"
           ],
-          "item": "lifeorb",
+          "item": "sitrusberry",
           "evidence": {
             "format": "ou",
             "set": "Support",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "최대 HP 25% 회복으로 중복 없는 생존 보완",
+              "score": 85
+            }
           }
         },
         {
@@ -1439,7 +1637,7 @@
           "speciesID": 40,
           "species": "Wigglytuff",
           "displayName": "Wigglytuff",
-          "level": 75,
+          "level": 95,
           "ability": "Frisk",
           "nature": "Careful",
           "gender": "",
@@ -1454,12 +1652,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 318,
-            "atk": 133,
-            "def": 95,
-            "spa": 126,
-            "spd": 113,
-            "spe": 95
+            "hp": 400,
+            "atk": 167,
+            "def": 119,
+            "spa": 158,
+            "spd": 141,
+            "spe": 119
           },
           "moves": [
             "stealthrock",
@@ -1467,13 +1665,19 @@
             "protect",
             "doubleedge"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Support",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -1481,7 +1685,7 @@
           "speciesID": 115,
           "species": "Kangaskhan",
           "displayName": "Kangaskhan",
-          "level": 75,
+          "level": 95,
           "ability": "Scrappy",
           "nature": "Adamant",
           "gender": "",
@@ -1496,12 +1700,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 265,
-            "atk": 187,
-            "def": 148,
-            "spa": 79,
-            "spd": 148,
-            "spe": 163
+            "hp": 333,
+            "atk": 235,
+            "def": 186,
+            "spa": 99,
+            "spd": 186,
+            "spe": 205
           },
           "moves": [
             "doubleedge",
@@ -1509,13 +1713,19 @@
             "fakeout",
             "suckerpunch"
           ],
-          "item": "silkscarf",
+          "item": "lifeorb",
           "evidence": {
             "format": "ru",
             "set": "Physical Attacker",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physical Attacker",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.675
+            }
           }
         },
         {
@@ -1523,7 +1733,7 @@
           "speciesID": 217,
           "species": "Ursaring",
           "displayName": "Ursaring",
-          "level": 75,
+          "level": 95,
           "ability": "Quick Feet",
           "nature": "Jolly",
           "gender": "",
@@ -1538,12 +1748,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 243,
-            "atk": 223,
-            "def": 140,
-            "spa": 126,
-            "spd": 140,
-            "spe": 121
+            "hp": 305,
+            "atk": 281,
+            "def": 176,
+            "spa": 158,
+            "spd": 176,
+            "spe": 151
           },
           "moves": [
             "swordsdance",
@@ -1557,7 +1767,13 @@
             "set": "Quick Feet",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Quick Feet",
+              "reason": "맹독으로 속보·객기 활성화",
+              "score": 168
+            }
           }
         }
       ]
@@ -1573,7 +1789,7 @@
           "speciesID": 71,
           "species": "Victreebel",
           "displayName": "Victreebel",
-          "level": 75,
+          "level": 95,
           "ability": "Chlorophyll",
           "nature": "Modest",
           "gender": "",
@@ -1588,12 +1804,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 166,
-            "def": 125,
-            "spa": 195,
-            "spd": 118,
-            "spe": 133
+            "hp": 286,
+            "atk": 209,
+            "def": 157,
+            "spa": 246,
+            "spd": 148,
+            "spe": 167
           },
           "moves": [
             "solarbeam",
@@ -1607,7 +1823,13 @@
             "set": "Sun Sweeper",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Sun Sweeper",
+              "reason": "구애 없이 공격 강화",
+              "score": 112.025
+            }
           }
         },
         {
@@ -1615,7 +1837,7 @@
           "speciesID": 114,
           "species": "Tangela",
           "displayName": "Tangela",
-          "level": 75,
+          "level": 95,
           "ability": "Regenerator",
           "nature": "Bold",
           "gender": "",
@@ -1630,12 +1852,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 205,
-            "atk": 99,
-            "def": 220,
-            "spa": 178,
-            "spd": 87,
-            "spe": 117
+            "hp": 257,
+            "atk": 124,
+            "def": 277,
+            "spa": 224,
+            "spd": 109,
+            "spe": 147
           },
           "moves": [
             "gigadrain",
@@ -1649,7 +1871,13 @@
             "set": "Tank",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Tank",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 145.5
+            }
           }
         },
         {
@@ -1657,7 +1885,7 @@
           "speciesID": 45,
           "species": "Vileplume",
           "displayName": "Vileplume",
-          "level": 75,
+          "level": 95,
           "ability": "Effect Spore",
           "nature": "Bold",
           "gender": "",
@@ -1672,12 +1900,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 220,
-            "atk": 133,
-            "def": 170,
-            "spa": 178,
-            "spd": 163,
-            "spe": 103
+            "hp": 276,
+            "atk": 167,
+            "def": 214,
+            "spa": 224,
+            "spd": 205,
+            "spe": 129
           },
           "moves": [
             "aromatherapy",
@@ -1691,7 +1919,13 @@
             "set": "Support",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -1699,7 +1933,7 @@
           "speciesID": 103,
           "species": "Exeggutor",
           "displayName": "Exeggutor",
-          "level": 75,
+          "level": 95,
           "ability": "Harvest",
           "nature": "Bold",
           "gender": "",
@@ -1714,12 +1948,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 250,
-            "atk": 153,
-            "def": 170,
-            "spa": 215,
-            "spd": 125,
-            "spe": 110
+            "hp": 314,
+            "atk": 192,
+            "def": 214,
+            "spa": 271,
+            "spd": 157,
+            "spe": 138
           },
           "moves": [
             "leechseed",
@@ -1733,7 +1967,13 @@
             "set": "SubSeed",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "SubSeed",
+              "reason": "수확으로 회복 열매를 재사용",
+              "score": 163
+            }
           }
         },
         {
@@ -1741,7 +1981,7 @@
           "speciesID": 182,
           "species": "Bellossom",
           "displayName": "Bellossom",
-          "level": 75,
+          "level": 95,
           "ability": "Chlorophyll",
           "nature": "Modest",
           "gender": "",
@@ -1756,12 +1996,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 220,
-            "atk": 133,
-            "def": 155,
-            "spa": 179,
-            "spd": 178,
-            "spe": 103
+            "hp": 276,
+            "atk": 167,
+            "def": 195,
+            "spa": 225,
+            "spd": 224,
+            "spe": 129
           },
           "moves": [
             "sunnyday",
@@ -1775,7 +2015,13 @@
             "set": "Authored legal fallback",
             "source": "2026-07-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 133
+            }
           }
         },
         {
@@ -1783,7 +2029,7 @@
           "speciesID": 189,
           "species": "Jumpluff",
           "displayName": "Jumpluff",
-          "level": 75,
+          "level": 95,
           "ability": "Chlorophyll",
           "nature": "Jolly",
           "gender": "",
@@ -1798,12 +2044,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 220,
-            "atk": 110,
-            "def": 133,
-            "spa": 99,
-            "spd": 155,
-            "spe": 212
+            "hp": 276,
+            "atk": 138,
+            "def": 167,
+            "spa": 124,
+            "spd": 195,
+            "spe": 267
           },
           "moves": [
             "swordsdance",
@@ -1817,7 +2063,13 @@
             "set": "Swords Dance",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Swords Dance",
+              "reason": "비행주얼 소모 후 애크러뱃 강화",
+              "score": 163
+            }
           }
         }
       ]
@@ -1833,7 +2085,7 @@
           "speciesID": 92,
           "species": "Gastly",
           "displayName": "Gastly",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Hasty",
           "gender": "",
@@ -1848,12 +2100,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 153,
-            "atk": 80,
-            "def": 64,
-            "spa": 177,
-            "spd": 80,
-            "spe": 161
+            "hp": 191,
+            "atk": 100,
+            "def": 81,
+            "spa": 223,
+            "spd": 100,
+            "spe": 203
           },
           "moves": [
             "shadowball",
@@ -1867,7 +2119,13 @@
             "set": "Life Orb",
             "source": "2022-01-gen5lc-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.675
+            }
           }
         },
         {
@@ -1875,7 +2133,7 @@
           "speciesID": 93,
           "species": "Haunter",
           "displayName": "Haunter",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -1890,12 +2148,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 175,
-            "atk": 92,
-            "def": 95,
-            "spa": 200,
-            "spd": 110,
-            "spe": 187
+            "hp": 219,
+            "atk": 116,
+            "def": 119,
+            "spa": 252,
+            "spd": 138,
+            "spe": 235
           },
           "moves": [
             "substitute",
@@ -1909,7 +2167,13 @@
             "set": "SubDisable",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "SubDisable",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -1917,7 +2181,7 @@
           "speciesID": 94,
           "species": "Gengar",
           "displayName": "Gengar",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -1932,12 +2196,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 112,
-            "def": 117,
-            "spa": 223,
-            "spd": 140,
-            "spe": 212
+            "hp": 248,
+            "atk": 141,
+            "def": 147,
+            "spa": 281,
+            "spd": 176,
+            "spe": 267
           },
           "moves": [
             "shadowball",
@@ -1945,13 +2209,19 @@
             "willowisp",
             "hiddenpower"
           ],
-          "item": "leftovers",
+          "item": "expertbelt",
           "evidence": {
             "format": "ou",
             "set": "Offensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive",
+              "reason": "복수 타입 견제 기술의 약점 타격 강화",
+              "score": 88
+            }
           }
         },
         {
@@ -1959,7 +2229,7 @@
           "speciesID": 200,
           "species": "Misdreavus",
           "displayName": "Misdreavus",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -1974,12 +2244,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 106,
-            "def": 129,
-            "spa": 155,
-            "spd": 155,
-            "spe": 155
+            "hp": 248,
+            "atk": 133,
+            "def": 162,
+            "spa": 195,
+            "spd": 195,
+            "spe": 195
           },
           "moves": [
             "willowisp",
@@ -1987,13 +2257,19 @@
             "shadowball",
             "taunt"
           ],
-          "item": "eviolite",
+          "item": "leftovers",
           "evidence": {
             "format": "ru",
             "set": "Support",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 115
+            }
           }
         },
         {
@@ -2001,7 +2277,7 @@
           "speciesID": 356,
           "species": "Dusclops",
           "displayName": "Dusclops",
-          "level": 75,
+          "level": 95,
           "ability": "Pressure",
           "nature": "Bold",
           "gender": "",
@@ -2016,12 +2292,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 119,
-            "def": 245,
-            "spa": 118,
-            "spd": 223,
-            "spe": 65
+            "hp": 210,
+            "atk": 150,
+            "def": 309,
+            "spa": 148,
+            "spd": 281,
+            "spe": 81
           },
           "moves": [
             "curse",
@@ -2029,13 +2305,19 @@
             "willowisp",
             "rest"
           ],
-          "item": "expertbelt",
+          "item": "eviolite",
           "evidence": {
             "format": "uu",
             "set": "Curse",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Curse",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 176
+            }
           }
         },
         {
@@ -2043,7 +2325,7 @@
           "speciesID": 609,
           "species": "Chandelure",
           "displayName": "Chandelure",
-          "level": 75,
+          "level": 95,
           "ability": "Flame Body",
           "nature": "Timid",
           "gender": "",
@@ -2058,12 +2340,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 198,
-            "atk": 99,
-            "def": 162,
-            "spa": 245,
-            "spd": 163,
-            "spe": 162
+            "hp": 248,
+            "atk": 124,
+            "def": 204,
+            "spa": 309,
+            "spd": 205,
+            "spe": 204
           },
           "moves": [
             "flamethrower",
@@ -2071,13 +2353,19 @@
             "hiddenpower",
             "trick"
           ],
-          "item": "airballoon",
+          "item": "choicespecs",
           "evidence": {
             "format": "ou",
             "set": "Spinblocker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Spinblocker",
+              "reason": "공격 기술 중심 특수 화력 강화",
+              "score": 102
+            }
           }
         }
       ]
@@ -2093,7 +2381,7 @@
           "speciesID": 109,
           "species": "Koffing",
           "displayName": "Koffing",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -2108,12 +2396,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 112,
-            "def": 187,
-            "spa": 118,
-            "spd": 95,
-            "spe": 80
+            "hp": 210,
+            "atk": 141,
+            "def": 235,
+            "spa": 148,
+            "spd": 119,
+            "spe": 100
           },
           "moves": [
             "willowisp",
@@ -2127,7 +2415,13 @@
             "set": "Authored legal fallback",
             "source": "2022-01-gen5lc-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 144
+            }
           }
         },
         {
@@ -2135,7 +2429,7 @@
           "speciesID": 89,
           "species": "Muk",
           "displayName": "Muk",
-          "level": 75,
+          "level": 95,
           "ability": "Poison Touch",
           "nature": "Adamant",
           "gender": "",
@@ -2150,12 +2444,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 265,
-            "atk": 203,
-            "def": 140,
-            "spa": 112,
-            "spd": 178,
-            "spe": 103
+            "hp": 333,
+            "atk": 256,
+            "def": 176,
+            "spa": 141,
+            "spd": 224,
+            "spe": 129
           },
           "moves": [
             "poisonjab",
@@ -2169,7 +2463,13 @@
             "set": "Touncher",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Touncher",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -2177,7 +2477,7 @@
           "speciesID": 110,
           "species": "Weezing",
           "displayName": "Weezing",
-          "level": 75,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -2192,12 +2492,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 146,
-            "def": 228,
-            "spa": 155,
-            "spd": 133,
-            "spe": 118
+            "hp": 257,
+            "atk": 184,
+            "def": 288,
+            "spa": 195,
+            "spd": 167,
+            "spe": 148
           },
           "moves": [
             "willowisp",
@@ -2205,13 +2505,19 @@
             "fireblast",
             "thunderbolt"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ru",
             "set": "Physical Wall",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physical Wall",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 98
+            }
           }
         },
         {
@@ -2219,7 +2525,7 @@
           "speciesID": 169,
           "species": "Crobat",
           "displayName": "Crobat",
-          "level": 75,
+          "level": 95,
           "ability": "Infiltrator",
           "nature": "Jolly",
           "gender": "",
@@ -2234,12 +2540,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 235,
-            "atk": 163,
-            "def": 148,
-            "spa": 119,
-            "spd": 148,
-            "spe": 245
+            "hp": 295,
+            "atk": 205,
+            "def": 186,
+            "spa": 150,
+            "spd": 186,
+            "spe": 309
           },
           "moves": [
             "bravebird",
@@ -2247,13 +2553,19 @@
             "roost",
             "uturn"
           ],
-          "item": "lifeorb",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Stallbreaker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Stallbreaker",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 115
+            }
           }
         },
         {
@@ -2261,7 +2573,7 @@
           "speciesID": 49,
           "species": "Venomoth",
           "displayName": "Venomoth",
-          "level": 75,
+          "level": 95,
           "ability": "Wonder Skin",
           "nature": "Timid",
           "gender": "",
@@ -2276,12 +2588,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 112,
-            "def": 118,
-            "spa": 163,
-            "spd": 140,
-            "spe": 179
+            "hp": 267,
+            "atk": 141,
+            "def": 148,
+            "spa": 205,
+            "spd": 176,
+            "spe": 225
           },
           "moves": [
             "quiverdance",
@@ -2289,13 +2601,19 @@
             "sleeppowder",
             "bugbuzz"
           ],
-          "item": "expertbelt",
+          "item": "lumberry",
           "evidence": {
             "format": "uu",
             "set": "QuiverPass",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "QuiverPass",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -2303,7 +2621,7 @@
           "speciesID": 34,
           "species": "Nidoking",
           "displayName": "Nidoking",
-          "level": 75,
+          "level": 95,
           "ability": "Sheer Force",
           "nature": "Modest",
           "gender": "",
@@ -2318,12 +2636,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 229,
-            "atk": 149,
-            "def": 143,
-            "spa": 170,
-            "spd": 140,
-            "spe": 155
+            "hp": 288,
+            "atk": 188,
+            "def": 180,
+            "spa": 214,
+            "spd": 176,
+            "spe": 195
           },
           "moves": [
             "earthpower",
@@ -2337,7 +2655,13 @@
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         }
       ]
@@ -2353,7 +2677,7 @@
           "speciesID": 57,
           "species": "Primeape",
           "displayName": "Primeape",
-          "level": 75,
+          "level": 95,
           "ability": "Vital Spirit",
           "nature": "Jolly",
           "gender": "",
@@ -2368,12 +2692,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 185,
-            "def": 118,
-            "spa": 106,
-            "spd": 133,
-            "spe": 187
+            "hp": 257,
+            "atk": 233,
+            "def": 148,
+            "spa": 133,
+            "spd": 167,
+            "spe": 235
           },
           "moves": [
             "closecombat",
@@ -2387,7 +2711,13 @@
             "set": "Choice Scarf",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         },
         {
@@ -2395,7 +2725,7 @@
           "speciesID": 62,
           "species": "Poliwrath",
           "displayName": "Poliwrath",
-          "level": 75,
+          "level": 95,
           "ability": "Water Absorb",
           "nature": "Relaxed",
           "gender": "",
@@ -2410,12 +2740,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 243,
-            "atk": 155,
-            "def": 187,
-            "spa": 133,
-            "spd": 163,
-            "spe": 119
+            "hp": 305,
+            "atk": 195,
+            "def": 235,
+            "spa": 167,
+            "spd": 205,
+            "spe": 150
           },
           "moves": [
             "rest",
@@ -2423,13 +2753,19 @@
             "scald",
             "circlethrow"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ru",
             "set": "Physically Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physically Defensive",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 97.16666666666667
+            }
           }
         },
         {
@@ -2437,7 +2773,7 @@
           "speciesID": 106,
           "species": "Hitmonlee",
           "displayName": "Hitmonlee",
-          "level": 75,
+          "level": 95,
           "ability": "Unburden",
           "nature": "Adamant",
           "gender": "",
@@ -2452,12 +2788,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 183,
-            "atk": 228,
-            "def": 107,
-            "spa": 72,
-            "spd": 193,
-            "spe": 158
+            "hp": 229,
+            "atk": 288,
+            "def": 135,
+            "spa": 90,
+            "spd": 243,
+            "spe": 199
           },
           "moves": [
             "endure",
@@ -2471,7 +2807,13 @@
             "set": "Endure + Reversal Sweeper",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Endure + Reversal Sweeper",
+              "reason": "버티기·기사회생과 저HP 공격 강화 연계",
+              "score": 163
+            }
           }
         },
         {
@@ -2479,7 +2821,7 @@
           "speciesID": 107,
           "species": "Hitmonchan",
           "displayName": "Hitmonchan",
-          "level": 75,
+          "level": 95,
           "ability": "Iron Fist",
           "nature": "Adamant",
           "gender": "",
@@ -2494,12 +2836,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 183,
-            "atk": 203,
-            "def": 146,
-            "spa": 72,
-            "spd": 193,
-            "spe": 142
+            "hp": 229,
+            "atk": 256,
+            "def": 184,
+            "spa": 90,
+            "spd": 243,
+            "spe": 178
           },
           "moves": [
             "drainpunch",
@@ -2513,7 +2855,13 @@
             "set": "Life Orb",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.7
+            }
           }
         },
         {
@@ -2521,7 +2869,7 @@
           "speciesID": 68,
           "species": "Machamp",
           "displayName": "Machamp",
-          "level": 75,
+          "level": 95,
           "ability": "No Guard",
           "nature": "Adamant",
           "gender": "",
@@ -2536,12 +2884,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 243,
-            "atk": 245,
-            "def": 148,
-            "spa": 112,
-            "spd": 155,
-            "spe": 110
+            "hp": 305,
+            "atk": 309,
+            "def": 186,
+            "spa": 141,
+            "spd": 195,
+            "spe": 138
           },
           "moves": [
             "bulkup",
@@ -2549,13 +2897,19 @@
             "stoneedge",
             "thunderpunch"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Bulk Up",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulk Up",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         },
         {
@@ -2563,7 +2917,7 @@
           "speciesID": 214,
           "species": "Heracross",
           "displayName": "Heracross",
-          "level": 75,
+          "level": 95,
           "ability": "Moxie",
           "nature": "Jolly",
           "gender": "",
@@ -2578,12 +2932,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 228,
-            "atk": 215,
-            "def": 140,
-            "spa": 79,
-            "spd": 170,
-            "spe": 170
+            "hp": 286,
+            "atk": 271,
+            "def": 176,
+            "spa": 99,
+            "spd": 214,
+            "spe": 214
           },
           "moves": [
             "closecombat",
@@ -2591,13 +2945,19 @@
             "stoneedge",
             "earthquake"
           ],
-          "item": "muscleband",
+          "item": "choiceband",
           "evidence": {
             "format": "uu",
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 102
+            }
           }
         }
       ]
@@ -2613,7 +2973,7 @@
           "speciesID": 64,
           "species": "Kadabra",
           "displayName": "Kadabra",
-          "level": 75,
+          "level": 95,
           "ability": "Magic Guard",
           "nature": "Timid",
           "gender": "",
@@ -2628,12 +2988,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 72,
-            "def": 73,
-            "spa": 207,
-            "spd": 132,
-            "spe": 203
+            "hp": 210,
+            "atk": 90,
+            "def": 91,
+            "spa": 261,
+            "spd": 166,
+            "spe": 256
           },
           "moves": [
             "psychic",
@@ -2647,7 +3007,13 @@
             "set": "Special Attacker",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Special Attacker",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 143
+            }
           }
         },
         {
@@ -2655,7 +3021,7 @@
           "speciesID": 122,
           "species": "Mr. Mime",
           "displayName": "Mr. Mime",
-          "level": 75,
+          "level": 95,
           "ability": "Filter",
           "nature": "Timid",
           "gender": "",
@@ -2670,12 +3036,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 168,
-            "atk": 85,
-            "def": 125,
-            "spa": 178,
-            "spd": 208,
-            "spe": 179
+            "hp": 210,
+            "atk": 107,
+            "def": 157,
+            "spa": 224,
+            "spd": 262,
+            "spe": 225
           },
           "moves": [
             "batonpass",
@@ -2683,13 +3049,19 @@
             "substitute",
             "psychic"
           ],
-          "item": "leftovers",
+          "item": "lumberry",
           "evidence": {
             "format": "nu",
             "set": "Baton Pass",
             "source": "2014-11-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Baton Pass",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -2697,7 +3069,7 @@
           "speciesID": 49,
           "species": "Venomoth",
           "displayName": "Venomoth",
-          "level": 75,
+          "level": 95,
           "ability": "Wonder Skin",
           "nature": "Timid",
           "gender": "",
@@ -2712,12 +3084,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 112,
-            "def": 118,
-            "spa": 163,
-            "spd": 140,
-            "spe": 179
+            "hp": 267,
+            "atk": 141,
+            "def": 148,
+            "spa": 205,
+            "spd": 176,
+            "spe": 225
           },
           "moves": [
             "quiverdance",
@@ -2731,7 +3103,13 @@
             "set": "QuiverPass",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "QuiverPass",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -2739,7 +3117,7 @@
           "speciesID": 65,
           "species": "Alakazam",
           "displayName": "Alakazam",
-          "level": 75,
+          "level": 95,
           "ability": "Magic Guard",
           "nature": "Timid",
           "gender": "",
@@ -2754,12 +3132,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 190,
-            "atk": 91,
-            "def": 95,
-            "spa": 230,
-            "spd": 155,
-            "spe": 228
+            "hp": 238,
+            "atk": 115,
+            "def": 119,
+            "spa": 290,
+            "spd": 195,
+            "spe": 288
           },
           "moves": [
             "psychic",
@@ -2773,7 +3151,13 @@
             "set": "Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Attacker",
+              "reason": "구애 없이 공격 강화 및 특성 연계",
+              "score": 141.925
+            }
           }
         },
         {
@@ -2781,7 +3165,7 @@
           "speciesID": 97,
           "species": "Hypno",
           "displayName": "Hypno",
-          "level": 75,
+          "level": 95,
           "ability": "Insomnia",
           "nature": "Calm",
           "gender": "",
@@ -2796,12 +3180,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 235,
-            "atk": 123,
-            "def": 133,
-            "spa": 137,
-            "spd": 220,
-            "spe": 128
+            "hp": 295,
+            "atk": 155,
+            "def": 167,
+            "spa": 173,
+            "spd": 277,
+            "spe": 161
           },
           "moves": [
             "wish",
@@ -2809,13 +3193,19 @@
             "thunderwave",
             "seismictoss"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Specially Defensive",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Specially Defensive",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -2823,7 +3213,7 @@
           "speciesID": 196,
           "species": "Espeon",
           "displayName": "Espeon",
-          "level": 75,
+          "level": 95,
           "ability": "Magic Bounce",
           "nature": "Timid",
           "gender": "",
@@ -2838,12 +3228,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 112,
-            "def": 118,
-            "spa": 223,
-            "spd": 170,
-            "spe": 212
+            "hp": 257,
+            "atk": 141,
+            "def": 148,
+            "spa": 281,
+            "spd": 214,
+            "spe": 267
           },
           "moves": [
             "reflect",
@@ -2857,7 +3247,13 @@
             "set": "Screens Setter",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Screens Setter",
+              "reason": "리플렉터·빛의장막 지속 턴 연장",
+              "score": 153
+            }
           }
         }
       ]
@@ -2873,7 +3269,7 @@
           "speciesID": 81,
           "species": "Magnemite",
           "displayName": "Magnemite",
-          "level": 75,
+          "level": 95,
           "ability": "Magnet Pull",
           "nature": "Timid",
           "gender": "",
@@ -2888,12 +3284,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 145,
-            "atk": 72,
-            "def": 133,
-            "spa": 170,
-            "spd": 110,
-            "spe": 104
+            "hp": 181,
+            "atk": 90,
+            "def": 167,
+            "spa": 214,
+            "spd": 138,
+            "spe": 130
           },
           "moves": [
             "voltswitch",
@@ -2907,7 +3303,13 @@
             "set": "Choice Scarf",
             "source": "2022-01-gen5lc-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         },
         {
@@ -2915,7 +3317,7 @@
           "speciesID": 208,
           "species": "Steelix",
           "displayName": "Steelix",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Relaxed",
           "gender": "",
@@ -2930,12 +3332,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 220,
-            "atk": 155,
-            "def": 360,
-            "spa": 110,
-            "spd": 125,
-            "spe": 65
+            "hp": 276,
+            "atk": 195,
+            "def": 455,
+            "spa": 138,
+            "spd": 157,
+            "spe": 81
           },
           "moves": [
             "stealthrock",
@@ -2943,13 +3345,19 @@
             "gyroball",
             "roar"
           ],
-          "item": "leftovers",
+          "item": "custapberry",
           "evidence": {
             "format": "ru",
             "set": "Defensive",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Defensive",
+              "reason": "옹골참으로 버틴 뒤 같은 우선도 내 행동 선점",
+              "score": 125
+            }
           }
         },
         {
@@ -2957,7 +3365,7 @@
           "speciesID": 82,
           "species": "Magneton",
           "displayName": "Magneton",
-          "level": 75,
+          "level": 95,
           "ability": "Magnet Pull",
           "nature": "Timid",
           "gender": "",
@@ -2972,12 +3380,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 183,
-            "atk": 105,
-            "def": 170,
-            "spa": 207,
-            "spd": 133,
-            "spe": 145
+            "hp": 229,
+            "atk": 132,
+            "def": 214,
+            "spa": 261,
+            "spd": 167,
+            "spe": 182
           },
           "moves": [
             "thunderbolt",
@@ -2991,7 +3399,13 @@
             "set": "Choice Specs",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Specs",
+              "reason": "공격 기술 중심 특수 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -2999,7 +3413,7 @@
           "speciesID": 212,
           "species": "Scizor",
           "displayName": "Scizor",
-          "level": 75,
+          "level": 95,
           "ability": "Technician",
           "nature": "Adamant",
           "gender": "",
@@ -3014,12 +3428,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 213,
-            "atk": 245,
-            "def": 178,
-            "spa": 99,
-            "spd": 148,
-            "spe": 125
+            "hp": 267,
+            "atk": 309,
+            "def": 224,
+            "spa": 124,
+            "spd": 186,
+            "spe": 157
           },
           "moves": [
             "bulletpunch",
@@ -3033,7 +3447,13 @@
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -3041,7 +3461,7 @@
           "speciesID": 227,
           "species": "Skarmory",
           "displayName": "Skarmory",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Careful",
           "gender": "",
@@ -3056,12 +3476,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 205,
-            "atk": 148,
-            "def": 238,
-            "spa": 79,
-            "spd": 146,
-            "spe": 133
+            "hp": 257,
+            "atk": 186,
+            "def": 300,
+            "spa": 99,
+            "spd": 183,
+            "spe": 167
           },
           "moves": [
             "roost",
@@ -3075,7 +3495,13 @@
             "set": "Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Defensive",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 106.66666666666667
+            }
           }
         },
         {
@@ -3083,7 +3509,7 @@
           "speciesID": 205,
           "species": "Forretress",
           "displayName": "Forretress",
-          "level": 75,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Relaxed",
           "gender": "",
@@ -3098,12 +3524,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 220,
-            "atk": 163,
-            "def": 261,
-            "spa": 118,
-            "spd": 118,
-            "spe": 79
+            "hp": 276,
+            "atk": 205,
+            "def": 330,
+            "spa": 148,
+            "spd": 148,
+            "spe": 99
           },
           "moves": [
             "spikes",
@@ -3111,13 +3537,19 @@
             "earthquake",
             "gyroball"
           ],
-          "item": "lifeorb",
+          "item": "leftovers",
           "evidence": {
             "format": "ou",
             "set": "Entry Hazard Control",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Entry Hazard Control",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         }
       ]
@@ -3133,7 +3565,7 @@
           "speciesID": 58,
           "species": "Growlithe",
           "displayName": "Growlithe",
-          "level": 90,
+          "level": 95,
           "ability": "Intimidate",
           "nature": "Impish",
           "gender": "",
@@ -3148,12 +3580,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 226,
-            "atk": 158,
-            "def": 124,
-            "spa": 142,
-            "spd": 122,
-            "spe": 140
+            "hp": 238,
+            "atk": 167,
+            "def": 130,
+            "spa": 150,
+            "spd": 129,
+            "spe": 148
           },
           "moves": [
             "flareblitz",
@@ -3167,7 +3599,13 @@
             "set": "Authored legal fallback",
             "source": "2022-01-gen5lc-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 139.5
+            }
           }
         },
         {
@@ -3175,7 +3613,7 @@
           "speciesID": 77,
           "species": "Ponyta",
           "displayName": "Ponyta",
-          "level": 90,
+          "level": 95,
           "ability": "Flame Body",
           "nature": "Jolly",
           "gender": "",
@@ -3190,12 +3628,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 217,
-            "atk": 185,
-            "def": 131,
-            "spa": 134,
-            "spd": 149,
-            "spe": 213
+            "hp": 229,
+            "atk": 195,
+            "def": 138,
+            "spa": 141,
+            "spd": 157,
+            "spe": 225
           },
           "moves": [
             "flareblitz",
@@ -3203,13 +3641,19 @@
             "return",
             "willowisp"
           ],
-          "item": "choicescarf",
+          "item": "expertbelt",
           "evidence": {
             "format": "lc",
             "set": "Choice",
             "source": "2022-01-gen5lc-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice",
+              "reason": "복수 타입 견제 기술의 약점 타격 강화",
+              "score": 88
+            }
           }
         },
         {
@@ -3217,7 +3661,7 @@
           "speciesID": 78,
           "species": "Rapidash",
           "displayName": "Rapidash",
-          "level": 90,
+          "level": 95,
           "ability": "Flash Fire",
           "nature": "Jolly",
           "gender": "",
@@ -3232,12 +3676,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 244,
-            "atk": 212,
-            "def": 158,
-            "spa": 158,
-            "spd": 176,
-            "spe": 243
+            "hp": 257,
+            "atk": 224,
+            "def": 167,
+            "spa": 167,
+            "spd": 186,
+            "spe": 256
           },
           "moves": [
             "flareblitz",
@@ -3245,13 +3689,19 @@
             "wildcharge",
             "drillrun"
           ],
-          "item": "leftovers",
+          "item": "lifeorb",
           "evidence": {
             "format": "pu",
             "set": "Physical Attacker",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physical Attacker",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.9
+            }
           }
         },
         {
@@ -3259,7 +3709,7 @@
           "speciesID": 59,
           "species": "Arcanine",
           "displayName": "Arcanine",
-          "level": 90,
+          "level": 95,
           "ability": "Flash Fire",
           "nature": "Adamant",
           "gender": "",
@@ -3274,12 +3724,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 289,
-            "atk": 253,
-            "def": 176,
-            "spa": 190,
-            "spd": 176,
-            "spe": 203
+            "hp": 305,
+            "atk": 267,
+            "def": 186,
+            "spa": 201,
+            "spd": 186,
+            "spe": 214
           },
           "moves": [
             "flareblitz",
@@ -3287,13 +3737,19 @@
             "wildcharge",
             "closecombat"
           ],
-          "item": "lifeorb",
+          "item": "choiceband",
           "evidence": {
             "format": "uu",
             "set": "Offensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 102
+            }
           }
         },
         {
@@ -3301,7 +3757,7 @@
           "speciesID": 38,
           "species": "Ninetales",
           "displayName": "Ninetales",
-          "level": 90,
+          "level": 95,
           "ability": "Drought",
           "nature": "Timid",
           "gender": "",
@@ -3316,12 +3772,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 259,
-            "atk": 152,
-            "def": 167,
-            "spa": 178,
-            "spd": 212,
-            "spe": 233
+            "hp": 273,
+            "atk": 160,
+            "def": 176,
+            "spa": 188,
+            "spd": 224,
+            "spe": 246
           },
           "moves": [
             "flamethrower",
@@ -3329,13 +3785,19 @@
             "sunnyday",
             "protect"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "ou",
             "set": "Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Defensive",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         },
         {
@@ -3343,7 +3805,7 @@
           "speciesID": 126,
           "species": "Magmar",
           "displayName": "Magmar",
-          "level": 90,
+          "level": 95,
           "ability": "Vital Spirit",
           "nature": "Modest",
           "gender": "",
@@ -3358,12 +3820,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 244,
-            "atk": 182,
-            "def": 135,
-            "spa": 233,
-            "spd": 185,
-            "spe": 200
+            "hp": 257,
+            "atk": 192,
+            "def": 142,
+            "spa": 245,
+            "spd": 195,
+            "spe": 211
           },
           "moves": [
             "flamethrower",
@@ -3371,13 +3833,19 @@
             "hiddenpower",
             "willowisp"
           ],
-          "item": "muscleband",
+          "item": "focussash",
           "evidence": {
             "format": "nu",
             "set": "Eviolite Attacker",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Eviolite Attacker",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 128.3
+            }
           }
         }
       ]
@@ -3393,7 +3861,7 @@
           "speciesID": 86,
           "species": "Seel",
           "displayName": "Seel",
-          "level": 90,
+          "level": 95,
           "ability": "Thick Fat",
           "nature": "Adamant",
           "gender": "",
@@ -3408,12 +3876,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 244,
-            "atk": 124,
-            "def": 131,
-            "spa": 101,
-            "spd": 158,
-            "spe": 113
+            "hp": 257,
+            "atk": 130,
+            "def": 138,
+            "spa": 107,
+            "spd": 167,
+            "spe": 119
           },
           "moves": [
             "aquajet",
@@ -3421,13 +3889,19 @@
             "waterfall",
             "fakeout"
           ],
-          "item": "eviolite",
+          "item": "focussash",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": "2022-01-gen5lc-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 130
+            }
           }
         },
         {
@@ -3435,7 +3909,7 @@
           "speciesID": 87,
           "species": "Dewgong",
           "displayName": "Dewgong",
-          "level": 90,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Calm",
           "gender": "",
@@ -3450,12 +3924,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 289,
-            "atk": 142,
-            "def": 176,
-            "spa": 158,
-            "spd": 223,
-            "spe": 158
+            "hp": 305,
+            "atk": 150,
+            "def": 186,
+            "spa": 167,
+            "spd": 235,
+            "spe": 167
           },
           "moves": [
             "rest",
@@ -3463,13 +3937,19 @@
             "surf",
             "icebeam"
           ],
-          "item": "leftovers",
+          "item": "damprock",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": "2026-09-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 125
+            }
           }
         },
         {
@@ -3477,7 +3957,7 @@
           "speciesID": 221,
           "species": "Piloswine",
           "displayName": "Piloswine",
-          "level": 90,
+          "level": 95,
           "ability": "Thick Fat",
           "nature": "Adamant",
           "gender": "",
@@ -3492,12 +3972,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 307,
-            "atk": 233,
-            "def": 176,
-            "spa": 126,
-            "spd": 140,
-            "spe": 122
+            "hp": 324,
+            "atk": 246,
+            "def": 186,
+            "spa": 133,
+            "spd": 148,
+            "spe": 129
           },
           "moves": [
             "stealthrock",
@@ -3505,13 +3985,19 @@
             "iciclecrash",
             "iceshard"
           ],
-          "item": "lifeorb",
+          "item": "eviolite",
           "evidence": {
             "format": "ru",
             "set": "Tank",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Tank",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 144
+            }
           }
         },
         {
@@ -3519,7 +4005,7 @@
           "speciesID": 124,
           "species": "Jynx",
           "displayName": "Jynx",
-          "level": 90,
+          "level": 95,
           "ability": "Dry Skin",
           "nature": "Timid",
           "gender": "",
@@ -3534,12 +4020,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 244,
-            "atk": 109,
-            "def": 95,
-            "spa": 239,
-            "spd": 203,
-            "spe": 223
+            "hp": 257,
+            "atk": 116,
+            "def": 100,
+            "spa": 252,
+            "spd": 214,
+            "spe": 235
           },
           "moves": [
             "nastyplot",
@@ -3547,13 +4033,19 @@
             "focusblast",
             "substitute"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Nasty Plot",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Nasty Plot",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -3561,7 +4053,7 @@
           "speciesID": 131,
           "species": "Lapras",
           "displayName": "Lapras",
-          "level": 90,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -3576,12 +4068,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 361,
-            "atk": 166,
-            "def": 176,
-            "spa": 203,
-            "spd": 203,
-            "spe": 140
+            "hp": 381,
+            "atk": 175,
+            "def": 186,
+            "spa": 214,
+            "spd": 214,
+            "spe": 148
           },
           "moves": [
             "hydropump",
@@ -3589,13 +4081,19 @@
             "icebeam",
             "substitute"
           ],
-          "item": "choicespecs",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "nu",
             "set": "Bulky Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Attacker",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 96.66666666666667
+            }
           }
         },
         {
@@ -3603,7 +4101,7 @@
           "speciesID": 215,
           "species": "Sneasel",
           "displayName": "Sneasel",
-          "level": 90,
+          "level": 95,
           "ability": "Inner Focus",
           "nature": "Jolly",
           "gender": "",
@@ -3618,12 +4116,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 226,
-            "atk": 203,
-            "def": 131,
-            "spa": 85,
-            "spd": 167,
-            "spe": 262
+            "hp": 238,
+            "atk": 214,
+            "def": 138,
+            "spa": 90,
+            "spd": 176,
+            "spe": 277
           },
           "moves": [
             "icepunch",
@@ -3631,13 +4129,19 @@
             "iceshard",
             "lowkick"
           ],
-          "item": "muscleband",
+          "item": "lifeorb",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": "2022-01-gen5nu-0.txt",
             "manual": true,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.65
+            }
           }
         }
       ]
@@ -3653,7 +4157,7 @@
           "speciesID": 111,
           "species": "Rhyhorn",
           "displayName": "Rhyhorn",
-          "level": 90,
+          "level": 95,
           "ability": "Rock Head",
           "nature": "Adamant",
           "gender": "",
@@ -3668,12 +4172,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 203,
-            "def": 203,
-            "spa": 77,
-            "spd": 86,
-            "spe": 77
+            "hp": 286,
+            "atk": 214,
+            "def": 214,
+            "spa": 81,
+            "spd": 91,
+            "spe": 81
           },
           "moves": [
             "doubleedge",
@@ -3687,7 +4191,13 @@
             "set": "Authored legal fallback",
             "source": null,
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 130.5
+            }
           }
         },
         {
@@ -3695,7 +4205,7 @@
           "speciesID": 51,
           "species": "Dugtrio",
           "displayName": "Dugtrio",
-          "level": 90,
+          "level": 95,
           "ability": "Sand Force",
           "nature": "Jolly",
           "gender": "",
@@ -3710,12 +4220,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 190,
-            "atk": 176,
-            "def": 122,
-            "spa": 109,
-            "spd": 158,
-            "spe": 272
+            "hp": 200,
+            "atk": 186,
+            "def": 129,
+            "spa": 116,
+            "spd": 167,
+            "spe": 288
           },
           "moves": [
             "earthquake",
@@ -3723,13 +4233,19 @@
             "memento",
             "stealthrock"
           ],
-          "item": "lifeorb",
+          "item": "focussash",
           "evidence": {
             "format": "ou",
             "set": "May the Sand Force be with You",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "May the Sand Force be with You",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 133.5
+            }
           }
         },
         {
@@ -3737,7 +4253,7 @@
           "speciesID": 31,
           "species": "Nidoqueen",
           "displayName": "Nidoqueen",
-          "level": 90,
+          "level": 95,
           "ability": "Sheer Force",
           "nature": "Modest",
           "gender": "",
@@ -3752,12 +4268,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 289,
-            "atk": 162,
-            "def": 189,
-            "spa": 183,
-            "spd": 185,
-            "spe": 169
+            "hp": 305,
+            "atk": 171,
+            "def": 199,
+            "spa": 193,
+            "spd": 195,
+            "spe": 178
           },
           "moves": [
             "earthpower",
@@ -3765,13 +4281,19 @@
             "icebeam",
             "stealthrock"
           ],
-          "item": "leftovers",
+          "item": "expertbelt",
           "evidence": {
             "format": "uu",
             "set": "Offensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive",
+              "reason": "복수 타입 견제 기술의 약점 타격 강화",
+              "score": 88
+            }
           }
         },
         {
@@ -3779,7 +4301,7 @@
           "speciesID": 34,
           "species": "Nidoking",
           "displayName": "Nidoking",
-          "level": 90,
+          "level": 95,
           "ability": "Sheer Force",
           "nature": "Timid",
           "gender": "",
@@ -3794,12 +4316,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 273,
-            "atk": 178,
-            "def": 171,
-            "spa": 185,
-            "spd": 167,
-            "spe": 203
+            "hp": 288,
+            "atk": 188,
+            "def": 180,
+            "spa": 195,
+            "spd": 176,
+            "spe": 214
           },
           "moves": [
             "earthpower",
@@ -3807,13 +4329,19 @@
             "icebeam",
             "stealthrock"
           ],
-          "item": "expertbelt",
+          "item": "lifeorb",
           "evidence": {
             "format": "uu",
             "set": "Special Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Special Attacker",
+              "reason": "구애 없이 공격 강화 및 특성 연계",
+              "score": 141.885
+            }
           }
         },
         {
@@ -3821,7 +4349,7 @@
           "speciesID": 112,
           "species": "Rhydon",
           "displayName": "Rhydon",
-          "level": 90,
+          "level": 95,
           "ability": "Rock Head",
           "nature": "Adamant",
           "gender": "",
@@ -3836,12 +4364,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 316,
-            "atk": 292,
-            "def": 248,
-            "spa": 101,
-            "spd": 113,
-            "spe": 104
+            "hp": 333,
+            "atk": 309,
+            "def": 262,
+            "spa": 107,
+            "spd": 119,
+            "spe": 110
           },
           "moves": [
             "stealthrock",
@@ -3849,13 +4377,19 @@
             "rockblast",
             "megahorn"
           ],
-          "item": "muscleband",
+          "item": "leftovers",
           "evidence": {
             "format": "ru",
             "set": "Tank",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Tank",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 115
+            }
           }
         },
         {
@@ -3863,7 +4397,7 @@
           "speciesID": 232,
           "species": "Donphan",
           "displayName": "Donphan",
-          "level": 90,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Impish",
           "gender": "",
@@ -3878,12 +4412,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 289,
-            "atk": 248,
-            "def": 272,
-            "spa": 126,
-            "spd": 140,
-            "spe": 122
+            "hp": 305,
+            "atk": 262,
+            "def": 288,
+            "spa": 133,
+            "spd": 148,
+            "spe": 129
           },
           "moves": [
             "rapidspin",
@@ -3891,13 +4425,19 @@
             "stealthrock",
             "iceshard"
           ],
-          "item": "wiseglasses",
+          "item": "custapberry",
           "evidence": {
             "format": "ou",
             "set": "Support",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "옹골참으로 버틴 뒤 같은 우선도 내 행동 선점",
+              "score": 125
+            }
           }
         }
       ]
@@ -3913,7 +4453,7 @@
           "speciesID": 148,
           "species": "Dragonair",
           "displayName": "Dragonair",
-          "level": 90,
+          "level": 95,
           "ability": "Shed Skin",
           "nature": "Careful",
           "gender": "",
@@ -3928,12 +4468,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 237,
-            "atk": 184,
-            "def": 149,
-            "spa": 142,
-            "spd": 173,
-            "spe": 158
+            "hp": 250,
+            "atk": 194,
+            "def": 157,
+            "spa": 150,
+            "spd": 183,
+            "spe": 167
           },
           "moves": [
             "dragondance",
@@ -3947,7 +4487,13 @@
             "set": "Bulky Dragon Dance",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Dragon Dance",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 143.5
+            }
           }
         },
         {
@@ -3955,7 +4501,7 @@
           "speciesID": 230,
           "species": "Kingdra",
           "displayName": "Kingdra",
-          "level": 90,
+          "level": 95,
           "ability": "Swift Swim",
           "nature": "Modest",
           "gender": "",
@@ -3970,12 +4516,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 262,
-            "atk": 182,
-            "def": 203,
-            "spa": 223,
-            "spd": 203,
-            "spe": 185
+            "hp": 276,
+            "atk": 192,
+            "def": 214,
+            "spa": 235,
+            "spd": 214,
+            "spe": 195
           },
           "moves": [
             "dracometeor",
@@ -3989,7 +4535,13 @@
             "set": "Choice Specs",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Specs",
+              "reason": "공격 기술 중심 특수 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -3997,7 +4549,7 @@
           "speciesID": 149,
           "species": "Dragonite",
           "displayName": "Dragonite",
-          "level": 90,
+          "level": 95,
           "ability": "Multiscale",
           "nature": "Adamant",
           "gender": "",
@@ -4012,12 +4564,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 301,
-            "def": 203,
-            "spa": 190,
-            "spd": 212,
-            "spe": 176
+            "hp": 307,
+            "atk": 317,
+            "def": 214,
+            "spa": 201,
+            "spd": 224,
+            "spe": 186
           },
           "moves": [
             "dragondance",
@@ -4025,13 +4577,19 @@
             "firepunch",
             "extremespeed"
           ],
-          "item": "lumberry",
+          "item": "leftovers",
           "evidence": {
             "format": "ou",
             "set": "3 Attacks Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "3 Attacks Dragon Dance",
+              "reason": "멀티스케일을 재활성화하는 HP 유지",
+              "score": 145
+            }
           }
         },
         {
@@ -4039,7 +4597,7 @@
           "speciesID": 373,
           "species": "Salamence",
           "displayName": "Salamence",
-          "level": 90,
+          "level": 95,
           "ability": "Moxie",
           "nature": "Naive",
           "gender": "",
@@ -4054,12 +4612,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 298,
-            "atk": 275,
-            "def": 176,
-            "spa": 230,
-            "spd": 158,
-            "spe": 233
+            "hp": 314,
+            "atk": 290,
+            "def": 186,
+            "spa": 243,
+            "spd": 167,
+            "spe": 246
           },
           "moves": [
             "outrage",
@@ -4067,13 +4625,19 @@
             "fireblast",
             "dragonclaw"
           ],
-          "item": "choicescarf",
+          "item": "lifeorb",
           "evidence": {
             "format": "ou",
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "구애 없이 공격 강화",
+              "score": 104.225
+            }
           }
         },
         {
@@ -4081,7 +4645,7 @@
           "speciesID": 330,
           "species": "Flygon",
           "displayName": "Flygon",
-          "level": 90,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Jolly",
           "gender": "",
@@ -4096,12 +4660,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 212,
-            "def": 176,
-            "spa": 158,
-            "spd": 176,
-            "spe": 233
+            "hp": 286,
+            "atk": 224,
+            "def": 186,
+            "spa": 167,
+            "spd": 186,
+            "spe": 246
           },
           "moves": [
             "outrage",
@@ -4109,13 +4673,19 @@
             "uturn",
             "stoneedge"
           ],
-          "item": "leftovers",
+          "item": "choicescarf",
           "evidence": {
             "format": "uu",
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         },
         {
@@ -4123,7 +4693,7 @@
           "speciesID": 612,
           "species": "Haxorus",
           "displayName": "Haxorus",
-          "level": 90,
+          "level": 95,
           "ability": "Mold Breaker",
           "nature": "Jolly",
           "gender": "",
@@ -4138,12 +4708,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 264,
-            "atk": 297,
-            "def": 194,
-            "spa": 126,
-            "spd": 158,
-            "spe": 227
+            "hp": 278,
+            "atk": 313,
+            "def": 205,
+            "spa": 133,
+            "spd": 167,
+            "spe": 239
           },
           "moves": [
             "dragondance",
@@ -4157,7 +4727,13 @@
             "set": "Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Dragon Dance",
+              "reason": "얼음 약점 완화로 강화·행동 기회 확보",
+              "score": 112
+            }
           }
         }
       ]
@@ -4173,7 +4749,7 @@
           "speciesID": 87,
           "species": "Dewgong",
           "displayName": "Dewgong",
-          "level": 100,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Calm",
           "gender": "",
@@ -4188,12 +4764,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 158,
-            "def": 196,
-            "spa": 176,
-            "spd": 248,
-            "spe": 176
+            "hp": 305,
+            "atk": 150,
+            "def": 186,
+            "spa": 167,
+            "spd": 235,
+            "spe": 167
           },
           "moves": [
             "rest",
@@ -4201,13 +4777,19 @@
             "surf",
             "icebeam"
           ],
-          "item": "leftovers",
+          "item": "damprock",
           "evidence": {
             "format": "manual",
             "set": "Authored legal fallback",
             "source": "2026-09-gen5ou-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 125
+            }
           }
         },
         {
@@ -4215,7 +4797,7 @@
           "speciesID": 91,
           "species": "Cloyster",
           "displayName": "Cloyster",
-          "level": 100,
+          "level": 95,
           "ability": "Skill Link",
           "nature": "Jolly",
           "gender": "",
@@ -4230,12 +4812,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 226,
-            "def": 396,
-            "spa": 185,
-            "spd": 126,
-            "spe": 193
+            "hp": 229,
+            "atk": 214,
+            "def": 376,
+            "spa": 175,
+            "spd": 119,
+            "spe": 183
           },
           "moves": [
             "iciclespear",
@@ -4243,13 +4825,19 @@
             "shellsmash",
             "rockblast"
           ],
-          "item": "focussash",
+          "item": "whiteherb",
           "evidence": {
             "format": "ubers",
             "set": "Offensive Support",
             "source": "2014-11-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive Support",
+              "reason": "껍질깨기의 방어·특수방어 하락 복구",
+              "score": 140
+            }
           }
         },
         {
@@ -4257,7 +4845,7 @@
           "speciesID": 80,
           "species": "Slowbro",
           "displayName": "Slowbro",
-          "level": 100,
+          "level": 95,
           "ability": "Regenerator",
           "nature": "Bold",
           "gender": "",
@@ -4272,12 +4860,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 167,
-            "def": 281,
-            "spa": 236,
-            "spd": 196,
-            "spe": 96
+            "hp": 314,
+            "atk": 158,
+            "def": 267,
+            "spa": 224,
+            "spd": 186,
+            "spe": 91
           },
           "moves": [
             "scald",
@@ -4285,13 +4873,19 @@
             "slackoff",
             "thunderwave"
           ],
-          "item": "lifeorb",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ou",
             "set": "Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Defensive",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 97.66666666666667
+            }
           }
         },
         {
@@ -4299,7 +4893,7 @@
           "speciesID": 124,
           "species": "Jynx",
           "displayName": "Jynx",
-          "level": 100,
+          "level": 95,
           "ability": "Dry Skin",
           "nature": "Timid",
           "gender": "",
@@ -4314,12 +4908,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 122,
-            "def": 106,
-            "spa": 266,
-            "spd": 226,
-            "spe": 248
+            "hp": 257,
+            "atk": 116,
+            "def": 100,
+            "spa": 252,
+            "spd": 214,
+            "spe": 235
           },
           "moves": [
             "substitute",
@@ -4327,13 +4921,19 @@
             "icebeam",
             "lovelykiss"
           ],
-          "item": "expertbelt",
+          "item": "lumberry",
           "evidence": {
             "format": "ru",
             "set": "Substitute + Nasty Plot",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute + Nasty Plot",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -4341,7 +4941,7 @@
           "speciesID": 131,
           "species": "Lapras",
           "displayName": "Lapras",
-          "level": 100,
+          "level": 95,
           "ability": "Hydration",
           "nature": "Modest",
           "gender": "",
@@ -4356,12 +4956,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 401,
-            "atk": 185,
-            "def": 196,
-            "spa": 226,
-            "spd": 226,
-            "spe": 156
+            "hp": 381,
+            "atk": 175,
+            "def": 186,
+            "spa": 214,
+            "spd": 214,
+            "spe": 148
           },
           "moves": [
             "hydropump",
@@ -4369,13 +4969,19 @@
             "icebeam",
             "substitute"
           ],
-          "item": "choicespecs",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Bulky Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Attacker",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -4383,7 +4989,7 @@
           "speciesID": 221,
           "species": "Piloswine",
           "displayName": "Piloswine",
-          "level": 100,
+          "level": 95,
           "ability": "Thick Fat",
           "nature": "Adamant",
           "gender": "",
@@ -4398,12 +5004,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 341,
-            "atk": 259,
-            "def": 196,
-            "spa": 140,
-            "spd": 156,
-            "spe": 136
+            "hp": 324,
+            "atk": 246,
+            "def": 186,
+            "spa": 133,
+            "spd": 148,
+            "spe": 129
           },
           "moves": [
             "stealthrock",
@@ -4417,7 +5023,13 @@
             "set": "Stealth Rock",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Stealth Rock",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 132
+            }
           }
         }
       ]
@@ -4433,7 +5045,7 @@
           "speciesID": 95,
           "species": "Onix",
           "displayName": "Onix",
-          "level": 100,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Impish",
           "gender": "",
@@ -4448,12 +5060,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 211,
-            "atk": 126,
-            "def": 391,
-            "spa": 86,
-            "spd": 126,
-            "spe": 176
+            "hp": 200,
+            "atk": 119,
+            "def": 371,
+            "spa": 81,
+            "spd": 119,
+            "spe": 167
           },
           "moves": [
             "stealthrock",
@@ -4467,7 +5079,13 @@
             "set": "Support",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 150.5
+            }
           }
         },
         {
@@ -4475,7 +5093,7 @@
           "speciesID": 107,
           "species": "Hitmonchan",
           "displayName": "Hitmonchan",
-          "level": 100,
+          "level": 95,
           "ability": "Iron Fist",
           "nature": "Adamant",
           "gender": "",
@@ -4490,12 +5108,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 270,
-            "def": 194,
-            "spa": 95,
-            "spd": 256,
-            "spe": 188
+            "hp": 229,
+            "atk": 256,
+            "def": 184,
+            "spa": 90,
+            "spd": 243,
+            "spe": 178
           },
           "moves": [
             "drainpunch",
@@ -4509,7 +5127,13 @@
             "set": "Life Orb",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.7
+            }
           }
         },
         {
@@ -4517,7 +5141,7 @@
           "speciesID": 106,
           "species": "Hitmonlee",
           "displayName": "Hitmonlee",
-          "level": 100,
+          "level": 95,
           "ability": "Unburden",
           "nature": "Adamant",
           "gender": "",
@@ -4532,12 +5156,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 303,
-            "def": 142,
-            "spa": 95,
-            "spd": 256,
-            "spe": 210
+            "hp": 229,
+            "atk": 288,
+            "def": 135,
+            "spa": 90,
+            "spd": 243,
+            "spe": 199
           },
           "moves": [
             "reversal",
@@ -4551,7 +5175,13 @@
             "set": "Reversal Sweeper",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Reversal Sweeper",
+              "reason": "버티기·기사회생과 저HP 공격 강화 연계",
+              "score": 163
+            }
           }
         },
         {
@@ -4559,7 +5189,7 @@
           "speciesID": 68,
           "species": "Machamp",
           "displayName": "Machamp",
-          "level": 100,
+          "level": 95,
           "ability": "No Guard",
           "nature": "Adamant",
           "gender": "",
@@ -4574,12 +5204,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 325,
-            "def": 196,
-            "spa": 149,
-            "spd": 206,
-            "spe": 146
+            "hp": 305,
+            "atk": 309,
+            "def": 186,
+            "spa": 141,
+            "spd": 195,
+            "spe": 138
           },
           "moves": [
             "substitute",
@@ -4593,7 +5223,13 @@
             "set": "SubChamp",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "SubChamp",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -4601,7 +5237,7 @@
           "speciesID": 62,
           "species": "Poliwrath",
           "displayName": "Poliwrath",
-          "level": 100,
+          "level": 95,
           "ability": "Water Absorb",
           "nature": "Impish",
           "gender": "",
@@ -4616,12 +5252,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 206,
-            "def": 248,
-            "spa": 158,
-            "spd": 216,
-            "spe": 176
+            "hp": 305,
+            "atk": 195,
+            "def": 235,
+            "spa": 150,
+            "spd": 205,
+            "spe": 167
           },
           "moves": [
             "rest",
@@ -4629,13 +5265,19 @@
             "circlethrow",
             "toxic"
           ],
-          "item": "expertbelt",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "uu",
             "set": "RestTalk",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "RestTalk",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 97.16666666666667
+            }
           }
         },
         {
@@ -4643,7 +5285,7 @@
           "speciesID": 57,
           "species": "Primeape",
           "displayName": "Primeape",
-          "level": 100,
+          "level": 95,
           "ability": "Vital Spirit",
           "nature": "Jolly",
           "gender": "",
@@ -4658,12 +5300,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 246,
-            "def": 156,
-            "spa": 140,
-            "spd": 176,
-            "spe": 248
+            "hp": 257,
+            "atk": 233,
+            "def": 148,
+            "spa": 133,
+            "spd": 167,
+            "spe": 235
           },
           "moves": [
             "closecombat",
@@ -4677,7 +5319,13 @@
             "set": "Choice Band",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         }
       ]
@@ -4693,7 +5341,7 @@
           "speciesID": 94,
           "species": "Gengar",
           "displayName": "Gengar",
-          "level": 100,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -4708,12 +5356,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 149,
-            "def": 156,
-            "spa": 296,
-            "spd": 186,
-            "spe": 281
+            "hp": 248,
+            "atk": 141,
+            "def": 148,
+            "spa": 281,
+            "spd": 176,
+            "spe": 267
           },
           "moves": [
             "substitute",
@@ -4727,7 +5375,13 @@
             "set": "Substitute + Will-O-Wisp",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute + Will-O-Wisp",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -4735,7 +5389,7 @@
           "speciesID": 42,
           "species": "Golbat",
           "displayName": "Golbat",
-          "level": 100,
+          "level": 95,
           "ability": "Inner Focus",
           "nature": "Impish",
           "gender": "",
@@ -4750,12 +5404,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 196,
-            "def": 193,
-            "spa": 149,
-            "spd": 186,
-            "spe": 216
+            "hp": 276,
+            "atk": 186,
+            "def": 183,
+            "spa": 141,
+            "spd": 176,
+            "spe": 205
           },
           "moves": [
             "bravebird",
@@ -4769,7 +5423,13 @@
             "set": "Defensive",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Defensive",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 144.5
+            }
           }
         },
         {
@@ -4777,7 +5437,7 @@
           "speciesID": 93,
           "species": "Haunter",
           "displayName": "Haunter",
-          "level": 100,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -4792,12 +5452,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 231,
-            "atk": 122,
-            "def": 126,
-            "spa": 265,
-            "spd": 145,
-            "spe": 248
+            "hp": 219,
+            "atk": 116,
+            "def": 119,
+            "spa": 252,
+            "spd": 138,
+            "spe": 235
           },
           "moves": [
             "shadowball",
@@ -4811,7 +5471,13 @@
             "set": "Life Orb",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.825
+            }
           }
         },
         {
@@ -4819,7 +5485,7 @@
           "speciesID": 24,
           "species": "Arbok",
           "displayName": "Arbok",
-          "level": 100,
+          "level": 95,
           "ability": "Shed Skin",
           "nature": "Adamant",
           "gender": "",
@@ -4834,12 +5500,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 226,
-            "def": 174,
-            "spa": 149,
-            "spd": 194,
-            "spe": 196
+            "hp": 248,
+            "atk": 214,
+            "def": 165,
+            "spa": 141,
+            "spd": 184,
+            "spe": 186
           },
           "moves": [
             "coil",
@@ -4847,13 +5513,19 @@
             "earthquake",
             "suckerpunch"
           ],
-          "item": "leftovers",
+          "item": "lumberry",
           "evidence": {
             "format": "pu",
             "set": "Coil",
             "source": "2026-09-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Coil",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -4861,7 +5533,7 @@
           "speciesID": 200,
           "species": "Misdreavus",
           "displayName": "Misdreavus",
-          "level": 100,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Bold",
           "gender": "",
@@ -4876,12 +5548,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 140,
-            "def": 171,
-            "spa": 206,
-            "spd": 206,
-            "spe": 206
+            "hp": 248,
+            "atk": 133,
+            "def": 162,
+            "spa": 195,
+            "spd": 195,
+            "spe": 195
           },
           "moves": [
             "willowisp",
@@ -4889,13 +5561,19 @@
             "painsplit",
             "taunt"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "nu",
             "set": "Utility Counter",
             "source": "2022-01-gen5nu-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Utility Counter",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 115
+            }
           }
         },
         {
@@ -4903,7 +5581,7 @@
           "speciesID": 442,
           "species": "Spiritomb",
           "displayName": "Spiritomb",
-          "level": 100,
+          "level": 95,
           "ability": "Pressure",
           "nature": "Adamant",
           "gender": "",
@@ -4918,12 +5596,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 242,
-            "def": 252,
-            "spa": 198,
-            "spd": 252,
-            "spe": 106
+            "hp": 229,
+            "atk": 229,
+            "def": 239,
+            "spa": 188,
+            "spd": 239,
+            "spe": 100
           },
           "moves": [
             "shadowsneak",
@@ -4931,13 +5609,19 @@
             "pursuit",
             "willowisp"
           ],
-          "item": "choiceband",
+          "item": "blackglasses",
           "evidence": {
             "format": "ru",
             "set": "All-Out Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "All-Out Attacker",
+              "reason": "실제 사용하는 Dark 타입 공격 강화",
+              "score": 90
+            }
           }
         }
       ]
@@ -4953,7 +5637,7 @@
           "speciesID": 130,
           "species": "Gyarados",
           "displayName": "Gyarados",
-          "level": 100,
+          "level": 95,
           "ability": "Intimidate",
           "nature": "Jolly",
           "gender": "",
@@ -4968,12 +5652,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 286,
-            "def": 194,
-            "spa": 140,
-            "spd": 236,
-            "spe": 217
+            "hp": 314,
+            "atk": 271,
+            "def": 184,
+            "spa": 133,
+            "spd": 224,
+            "spe": 206
           },
           "moves": [
             "dragondance",
@@ -4981,13 +5665,19 @@
             "waterfall",
             "bounce"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ou",
             "set": "Substitute + Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute + Dragon Dance",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 96.63333333333334
+            }
           }
         },
         {
@@ -4995,7 +5685,7 @@
           "speciesID": 148,
           "species": "Dragonair",
           "displayName": "Dragonair",
-          "level": 100,
+          "level": 95,
           "ability": "Marvel Scale",
           "nature": "Careful",
           "gender": "",
@@ -5010,12 +5700,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 263,
-            "atk": 204,
-            "def": 166,
-            "spa": 158,
-            "spd": 193,
-            "spe": 176
+            "hp": 250,
+            "atk": 194,
+            "def": 157,
+            "spa": 150,
+            "spd": 183,
+            "spe": 167
           },
           "moves": [
             "rest",
@@ -5029,7 +5719,13 @@
             "set": "RestTalk",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "RestTalk",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 143.5
+            }
           }
         },
         {
@@ -5037,7 +5733,7 @@
           "speciesID": 142,
           "species": "Aerodactyl",
           "displayName": "Aerodactyl",
-          "level": 100,
+          "level": 95,
           "ability": "Pressure",
           "nature": "Jolly",
           "gender": "",
@@ -5052,12 +5748,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 246,
-            "def": 166,
-            "spa": 140,
-            "spd": 186,
-            "spe": 325
+            "hp": 286,
+            "atk": 233,
+            "def": 157,
+            "spa": 133,
+            "spd": 176,
+            "spe": 309
           },
           "moves": [
             "stealthrock",
@@ -5071,7 +5767,13 @@
             "set": "Suicide Lead",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Suicide Lead",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 135
+            }
           }
         },
         {
@@ -5079,7 +5781,7 @@
           "speciesID": 149,
           "species": "Dragonite",
           "displayName": "Dragonite",
-          "level": 100,
+          "level": 95,
           "ability": "Multiscale",
           "nature": "Adamant",
           "gender": "",
@@ -5094,12 +5796,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 323,
-            "atk": 334,
-            "def": 226,
-            "spa": 212,
-            "spd": 236,
-            "spe": 196
+            "hp": 307,
+            "atk": 317,
+            "def": 214,
+            "spa": 201,
+            "spd": 224,
+            "spe": 186
           },
           "moves": [
             "outrage",
@@ -5107,13 +5809,19 @@
             "firepunch",
             "earthquake"
           ],
-          "item": "choiceband",
+          "item": "leftovers",
           "evidence": {
             "format": "ou",
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "멀티스케일을 재활성화하는 HP 유지",
+              "score": 145
+            }
           }
         },
         {
@@ -5121,7 +5829,7 @@
           "speciesID": 230,
           "species": "Kingdra",
           "displayName": "Kingdra",
-          "level": 100,
+          "level": 95,
           "ability": "Swift Swim",
           "nature": "Modest",
           "gender": "",
@@ -5136,12 +5844,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 203,
-            "def": 226,
-            "spa": 248,
-            "spd": 226,
-            "spe": 206
+            "hp": 276,
+            "atk": 192,
+            "def": 214,
+            "spa": 235,
+            "spd": 214,
+            "spe": 195
           },
           "moves": [
             "raindance",
@@ -5149,13 +5857,19 @@
             "dracometeor",
             "surf"
           ],
-          "item": "lifeorb",
+          "item": "damprock",
           "evidence": {
             "format": "uu",
             "set": "Rain Dance Sweeper",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Rain Dance Sweeper",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 125
+            }
           }
         },
         {
@@ -5163,7 +5877,7 @@
           "speciesID": 330,
           "species": "Flygon",
           "displayName": "Flygon",
-          "level": 100,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Jolly",
           "gender": "",
@@ -5178,12 +5892,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 236,
-            "def": 196,
-            "spa": 176,
-            "spd": 196,
-            "spe": 259
+            "hp": 286,
+            "atk": 224,
+            "def": 186,
+            "spa": 167,
+            "spd": 186,
+            "spe": 246
           },
           "moves": [
             "outrage",
@@ -5191,13 +5905,19 @@
             "uturn",
             "firepunch"
           ],
-          "item": "expertbelt",
+          "item": "choiceband",
           "evidence": {
             "format": "uu",
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         }
       ]
@@ -5213,7 +5933,7 @@
           "speciesID": 178,
           "species": "Xatu",
           "displayName": "Xatu",
-          "level": 100,
+          "level": 95,
           "ability": "Magic Bounce",
           "nature": "Impish",
           "gender": "",
@@ -5228,12 +5948,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 186,
-            "def": 193,
-            "spa": 203,
-            "spd": 176,
-            "spe": 226
+            "hp": 257,
+            "atk": 176,
+            "def": 183,
+            "spa": 192,
+            "spd": 167,
+            "spe": 214
           },
           "moves": [
             "roost",
@@ -5241,13 +5961,19 @@
             "reflect",
             "uturn"
           ],
-          "item": "rockyhelmet",
+          "item": "lightclay",
           "evidence": {
             "format": "ou",
             "set": "Utility",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Utility",
+              "reason": "리플렉터·빛의장막 지속 턴 연장",
+              "score": 145
+            }
           }
         },
         {
@@ -5255,7 +5981,7 @@
           "speciesID": 124,
           "species": "Jynx",
           "displayName": "Jynx",
-          "level": 100,
+          "level": 95,
           "ability": "Dry Skin",
           "nature": "Timid",
           "gender": "",
@@ -5270,12 +5996,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 122,
-            "def": 106,
-            "spa": 266,
-            "spd": 226,
-            "spe": 248
+            "hp": 257,
+            "atk": 116,
+            "def": 100,
+            "spa": 252,
+            "spd": 214,
+            "spe": 235
           },
           "moves": [
             "icebeam",
@@ -5289,7 +6015,13 @@
             "set": "Special Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Special Attacker",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.825
+            }
           }
         },
         {
@@ -5297,7 +6029,7 @@
           "speciesID": 103,
           "species": "Exeggutor",
           "displayName": "Exeggutor",
-          "level": 100,
+          "level": 95,
           "ability": "Harvest",
           "nature": "Bold",
           "gender": "",
@@ -5312,12 +6044,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 331,
-            "atk": 202,
-            "def": 226,
-            "spa": 285,
-            "spd": 166,
-            "spe": 145
+            "hp": 314,
+            "atk": 192,
+            "def": 214,
+            "spa": 271,
+            "spd": 157,
+            "spe": 138
           },
           "moves": [
             "leechseed",
@@ -5331,7 +6063,13 @@
             "set": "Leech Seed",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Leech Seed",
+              "reason": "수확으로 회복 열매를 재사용",
+              "score": 163
+            }
           }
         },
         {
@@ -5339,7 +6077,7 @@
           "speciesID": 80,
           "species": "Slowbro",
           "displayName": "Slowbro",
-          "level": 100,
+          "level": 95,
           "ability": "Regenerator",
           "nature": "Bold",
           "gender": "",
@@ -5354,12 +6092,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 167,
-            "def": 281,
-            "spa": 236,
-            "spd": 196,
-            "spe": 96
+            "hp": 314,
+            "atk": 158,
+            "def": 267,
+            "spa": 224,
+            "spd": 186,
+            "spe": 91
           },
           "moves": [
             "scald",
@@ -5373,7 +6111,13 @@
             "set": "Physical Tank",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physical Tank",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         },
         {
@@ -5381,7 +6125,7 @@
           "speciesID": 196,
           "species": "Espeon",
           "displayName": "Espeon",
-          "level": 100,
+          "level": 95,
           "ability": "Magic Bounce",
           "nature": "Timid",
           "gender": "",
@@ -5396,12 +6140,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 271,
-            "atk": 148,
-            "def": 156,
-            "spa": 295,
-            "spd": 226,
-            "spe": 280
+            "hp": 257,
+            "atk": 141,
+            "def": 148,
+            "spa": 280,
+            "spd": 214,
+            "spe": 266
           },
           "moves": [
             "psyshock",
@@ -5409,13 +6153,19 @@
             "grassknot",
             "hiddenpower"
           ],
-          "item": "focussash",
+          "item": "expertbelt",
           "evidence": {
             "format": "ubers",
             "set": "Focus Sash Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Focus Sash Attacker",
+              "reason": "복수 타입 견제 기술의 약점 타격 강화",
+              "score": 88
+            }
           }
         },
         {
@@ -5423,7 +6173,7 @@
           "speciesID": 65,
           "species": "Alakazam",
           "displayName": "Alakazam",
-          "level": 100,
+          "level": 95,
           "ability": "Magic Guard",
           "nature": "Timid",
           "gender": "",
@@ -5438,12 +6188,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 251,
-            "atk": 121,
-            "def": 125,
-            "spa": 306,
-            "spd": 206,
-            "spe": 303
+            "hp": 238,
+            "atk": 115,
+            "def": 119,
+            "spa": 290,
+            "spd": 195,
+            "spe": 288
           },
           "moves": [
             "psychic",
@@ -5451,13 +6201,19 @@
             "focusblast",
             "signalbeam"
           ],
-          "item": "expertbelt",
+          "item": "focussash",
           "evidence": {
             "format": "ou",
             "set": "Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Attacker",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 138.5
+            }
           }
         }
       ]
@@ -5473,7 +6229,7 @@
           "speciesID": 168,
           "species": "Ariados",
           "displayName": "Ariados",
-          "level": 100,
+          "level": 95,
           "ability": "Insomnia",
           "nature": "Adamant",
           "gender": "",
@@ -5488,12 +6244,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 237,
-            "def": 176,
-            "spa": 140,
-            "spd": 156,
-            "spe": 116
+            "hp": 267,
+            "atk": 225,
+            "def": 167,
+            "spa": 133,
+            "spd": 148,
+            "spe": 110
           },
           "moves": [
             "toxicspikes",
@@ -5507,7 +6263,13 @@
             "set": "Authored legal fallback",
             "source": "2022-01-gen5nu-0.txt",
             "manual": true,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Authored legal fallback",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 137
+            }
           }
         },
         {
@@ -5515,7 +6277,7 @@
           "speciesID": 49,
           "species": "Venomoth",
           "displayName": "Venomoth",
-          "level": 100,
+          "level": 95,
           "ability": "Wonder Skin",
           "nature": "Timid",
           "gender": "",
@@ -5530,12 +6292,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 281,
-            "atk": 149,
-            "def": 156,
-            "spa": 216,
-            "spd": 186,
-            "spe": 237
+            "hp": 267,
+            "atk": 141,
+            "def": 148,
+            "spa": 205,
+            "spd": 176,
+            "spe": 225
           },
           "moves": [
             "quiverdance",
@@ -5549,7 +6311,13 @@
             "set": "QuiverPass",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "QuiverPass",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -5557,7 +6325,7 @@
           "speciesID": 205,
           "species": "Forretress",
           "displayName": "Forretress",
-          "level": 100,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Brave",
           "gender": "",
@@ -5572,12 +6340,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 237,
-            "def": 316,
-            "spa": 156,
-            "spd": 156,
-            "spe": 104
+            "hp": 276,
+            "atk": 225,
+            "def": 300,
+            "spa": 148,
+            "spd": 148,
+            "spe": 99
           },
           "moves": [
             "rapidspin",
@@ -5591,7 +6359,13 @@
             "set": "Custap Lead",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Custap Lead",
+              "reason": "옹골참으로 버틴 뒤 같은 우선도 내 행동 선점",
+              "score": 133
+            }
           }
         },
         {
@@ -5599,7 +6373,7 @@
           "speciesID": 89,
           "species": "Muk",
           "displayName": "Muk",
-          "level": 100,
+          "level": 95,
           "ability": "Sticky Hold",
           "nature": "Adamant",
           "gender": "",
@@ -5614,12 +6388,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 351,
-            "atk": 270,
-            "def": 186,
-            "spa": 149,
-            "spd": 236,
-            "spe": 136
+            "hp": 333,
+            "atk": 256,
+            "def": 176,
+            "spa": 141,
+            "spd": 224,
+            "spe": 129
           },
           "moves": [
             "curse",
@@ -5627,13 +6401,19 @@
             "brickbreak",
             "shadowsneak"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "zu",
             "set": "Curse",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Curse",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 96.5
+            }
           }
         },
         {
@@ -5641,7 +6421,7 @@
           "speciesID": 169,
           "species": "Crobat",
           "displayName": "Crobat",
-          "level": 100,
+          "level": 95,
           "ability": "Infiltrator",
           "nature": "Jolly",
           "gender": "",
@@ -5656,12 +6436,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 311,
-            "atk": 216,
-            "def": 196,
-            "spa": 158,
-            "spd": 196,
-            "spe": 325
+            "hp": 295,
+            "atk": 205,
+            "def": 186,
+            "spa": 150,
+            "spd": 186,
+            "spe": 309
           },
           "moves": [
             "bravebird",
@@ -5669,13 +6449,19 @@
             "crosspoison",
             "roost"
           ],
-          "item": "choiceband",
+          "item": "lifeorb",
           "evidence": {
             "format": "uu",
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "구애 없이 공격 강화",
+              "score": 103.8
+            }
           }
         },
         {
@@ -5683,7 +6469,7 @@
           "speciesID": 73,
           "species": "Tentacruel",
           "displayName": "Tentacruel",
-          "level": 100,
+          "level": 95,
           "ability": "Rain Dish",
           "nature": "Calm",
           "gender": "",
@@ -5698,12 +6484,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 158,
-            "def": 166,
-            "spa": 196,
-            "spd": 303,
-            "spe": 236
+            "hp": 286,
+            "atk": 150,
+            "def": 157,
+            "spa": 186,
+            "spd": 288,
+            "spe": 224
           },
           "moves": [
             "toxicspikes",
@@ -5711,13 +6497,19 @@
             "scald",
             "protect"
           ],
-          "item": "lifeorb",
+          "item": "leftovers",
           "evidence": {
             "format": "ubers",
             "set": "Support",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Support",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 115
+            }
           }
         }
       ]
@@ -5733,7 +6525,7 @@
           "speciesID": 237,
           "species": "Hitmontop",
           "displayName": "Hitmontop",
-          "level": 100,
+          "level": 95,
           "ability": "Intimidate",
           "nature": "Impish",
           "gender": "",
@@ -5748,12 +6540,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 226,
-            "def": 248,
-            "spa": 95,
-            "spd": 256,
-            "spe": 176
+            "hp": 229,
+            "atk": 214,
+            "def": 235,
+            "spa": 90,
+            "spd": 243,
+            "spe": 167
           },
           "moves": [
             "rapidspin",
@@ -5761,13 +6553,19 @@
             "suckerpunch",
             "closecombat"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "uu",
             "set": "Rapid Spin",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Rapid Spin",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 97.16666666666667
+            }
           }
         },
         {
@@ -5775,7 +6573,7 @@
           "speciesID": 106,
           "species": "Hitmonlee",
           "displayName": "Hitmonlee",
-          "level": 100,
+          "level": 95,
           "ability": "Unburden",
           "nature": "Adamant",
           "gender": "",
@@ -5790,12 +6588,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 303,
-            "def": 142,
-            "spa": 95,
-            "spd": 256,
-            "spe": 210
+            "hp": 229,
+            "atk": 288,
+            "def": 135,
+            "spa": 90,
+            "spd": 243,
+            "spe": 199
           },
           "moves": [
             "closecombat",
@@ -5809,7 +6607,13 @@
             "set": "Unburden",
             "source": "2026-08-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Unburden",
+              "reason": "주얼 소모로 곡예 활성화",
+              "score": 158
+            }
           }
         },
         {
@@ -5817,7 +6621,7 @@
           "speciesID": 107,
           "species": "Hitmonchan",
           "displayName": "Hitmonchan",
-          "level": 100,
+          "level": 95,
           "ability": "Iron Fist",
           "nature": "Adamant",
           "gender": "",
@@ -5832,12 +6636,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 241,
-            "atk": 270,
-            "def": 194,
-            "spa": 95,
-            "spd": 256,
-            "spe": 188
+            "hp": 229,
+            "atk": 256,
+            "def": 184,
+            "spa": 90,
+            "spd": 243,
+            "spe": 178
           },
           "moves": [
             "drainpunch",
@@ -5851,7 +6655,13 @@
             "set": "Life Orb",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Life Orb",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.7
+            }
           }
         },
         {
@@ -5859,7 +6669,7 @@
           "speciesID": 95,
           "species": "Onix",
           "displayName": "Onix",
-          "level": 100,
+          "level": 95,
           "ability": "Sturdy",
           "nature": "Adamant",
           "gender": "",
@@ -5874,12 +6684,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 211,
-            "atk": 138,
-            "def": 356,
-            "spa": 86,
-            "spd": 126,
-            "spe": 176
+            "hp": 200,
+            "atk": 130,
+            "def": 338,
+            "spa": 81,
+            "spd": 119,
+            "spe": 167
           },
           "moves": [
             "rockpolish",
@@ -5893,7 +6703,13 @@
             "set": "Rock Polish",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Rock Polish",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 138.5
+            }
           }
         },
         {
@@ -5901,7 +6717,7 @@
           "speciesID": 68,
           "species": "Machamp",
           "displayName": "Machamp",
-          "level": 100,
+          "level": 95,
           "ability": "No Guard",
           "nature": "Adamant",
           "gender": "",
@@ -5916,12 +6732,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 321,
-            "atk": 325,
-            "def": 196,
-            "spa": 149,
-            "spd": 206,
-            "spe": 146
+            "hp": 305,
+            "atk": 309,
+            "def": 186,
+            "spa": 141,
+            "spd": 195,
+            "spe": 138
           },
           "moves": [
             "bulkup",
@@ -5929,13 +6745,19 @@
             "stoneedge",
             "thunderpunch"
           ],
-          "item": "expertbelt",
+          "item": "lumberry",
           "evidence": {
             "format": "uu",
             "set": "Bulk Up",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulk Up",
+              "reason": "상태이상 해제로 행동 및 강화 기회 확보",
+              "score": 96
+            }
           }
         },
         {
@@ -5943,7 +6765,7 @@
           "speciesID": 214,
           "species": "Heracross",
           "displayName": "Heracross",
-          "level": 100,
+          "level": 95,
           "ability": "Moxie",
           "nature": "Jolly",
           "gender": "",
@@ -5958,12 +6780,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 301,
-            "atk": 286,
-            "def": 186,
-            "spa": 104,
-            "spd": 226,
-            "spe": 226
+            "hp": 286,
+            "atk": 271,
+            "def": 176,
+            "spa": 99,
+            "spd": 214,
+            "spe": 214
           },
           "moves": [
             "substitute",
@@ -5971,13 +6793,19 @@
             "megahorn",
             "stoneedge"
           ],
-          "item": "muscleband",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Substitute",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         }
       ]
@@ -5993,7 +6821,7 @@
           "speciesID": 197,
           "species": "Umbreon",
           "displayName": "Umbreon",
-          "level": 100,
+          "level": 95,
           "ability": "Synchronize",
           "nature": "Calm",
           "gender": "",
@@ -6008,12 +6836,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 331,
-            "atk": 149,
-            "def": 256,
-            "spa": 156,
-            "spd": 325,
-            "spe": 166
+            "hp": 314,
+            "atk": 141,
+            "def": 243,
+            "spa": 148,
+            "spd": 309,
+            "spe": 157
           },
           "moves": [
             "wish",
@@ -6027,7 +6855,13 @@
             "set": "Wish Support",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Wish Support",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 130
+            }
           }
         },
         {
@@ -6035,7 +6869,7 @@
           "speciesID": 45,
           "species": "Vileplume",
           "displayName": "Vileplume",
-          "level": 100,
+          "level": 95,
           "ability": "Effect Spore",
           "nature": "Bold",
           "gender": "",
@@ -6050,12 +6884,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 291,
-            "atk": 176,
-            "def": 226,
-            "spa": 236,
-            "spd": 216,
-            "spe": 136
+            "hp": 276,
+            "atk": 167,
+            "def": 214,
+            "spa": 224,
+            "spd": 205,
+            "spe": 129
           },
           "moves": [
             "aromatherapy",
@@ -6069,7 +6903,13 @@
             "set": "Cleric",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Cleric",
+              "reason": "독 타입의 지속 회복으로 공격 도구와 역할 분담",
+              "score": 129
+            }
           }
         },
         {
@@ -6077,7 +6917,7 @@
           "speciesID": 94,
           "species": "Gengar",
           "displayName": "Gengar",
-          "level": 100,
+          "level": 95,
           "ability": "Levitate",
           "nature": "Timid",
           "gender": "",
@@ -6092,12 +6932,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 148,
-            "def": 155,
-            "spa": 296,
-            "spd": 186,
-            "spe": 281
+            "hp": 248,
+            "atk": 141,
+            "def": 147,
+            "spa": 281,
+            "spd": 176,
+            "spe": 267
           },
           "moves": [
             "shadowball",
@@ -6105,13 +6945,19 @@
             "willowisp",
             "hiddenpower"
           ],
-          "item": "lifeorb",
+          "item": "expertbelt",
           "evidence": {
             "format": "ou",
             "set": "Offensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive",
+              "reason": "복수 타입 견제 기술의 약점 타격 강화",
+              "score": 88
+            }
           }
         },
         {
@@ -6119,7 +6965,7 @@
           "speciesID": 198,
           "species": "Murkrow",
           "displayName": "Murkrow",
-          "level": 100,
+          "level": 95,
           "ability": "Prankster",
           "nature": "Bold",
           "gender": "",
@@ -6134,12 +6980,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 261,
-            "atk": 185,
-            "def": 132,
-            "spa": 206,
-            "spd": 120,
-            "spe": 218
+            "hp": 248,
+            "atk": 175,
+            "def": 125,
+            "spa": 195,
+            "spd": 114,
+            "spe": 207
           },
           "moves": [
             "calmmind",
@@ -6153,7 +6999,13 @@
             "set": "Calm Mind",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Calm Mind",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 138.4
+            }
           }
         },
         {
@@ -6161,7 +7013,7 @@
           "speciesID": 229,
           "species": "Houndoom",
           "displayName": "Houndoom",
-          "level": 100,
+          "level": 95,
           "ability": "Flash Fire",
           "nature": "Timid",
           "gender": "",
@@ -6176,12 +7028,12 @@
             "spe": 30
           },
           "stats": {
-            "hp": 291,
-            "atk": 194,
-            "def": 135,
-            "spa": 255,
-            "spd": 195,
-            "spe": 247
+            "hp": 276,
+            "atk": 184,
+            "def": 128,
+            "spa": 242,
+            "spd": 185,
+            "spe": 235
           },
           "moves": [
             "nastyplot",
@@ -6189,13 +7041,19 @@
             "darkpulse",
             "hiddenpower"
           ],
-          "item": "expertbelt",
+          "item": "lifeorb",
           "evidence": {
             "format": "uu",
             "set": "Nasty Plot",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Nasty Plot",
+              "reason": "구애 없이 공격 강화",
+              "score": 112
+            }
           }
         },
         {
@@ -6203,7 +7061,7 @@
           "speciesID": 248,
           "species": "Tyranitar",
           "displayName": "Tyranitar",
-          "level": 100,
+          "level": 95,
           "ability": "Sand Stream",
           "nature": "Adamant",
           "gender": "",
@@ -6218,12 +7076,12 @@
             "spe": 31
           },
           "stats": {
-            "hp": 341,
-            "atk": 334,
-            "def": 256,
-            "spa": 203,
-            "spd": 236,
-            "spe": 158
+            "hp": 324,
+            "atk": 317,
+            "def": 243,
+            "spa": 192,
+            "spd": 224,
+            "spe": 150
           },
           "moves": [
             "crunch",
@@ -6237,7 +7095,13 @@
             "set": "Bulky Pursuit Trapper",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Bulky Pursuit Trapper",
+              "reason": "격투 약점 완화로 역할 수행 보장",
+              "score": 112
+            }
           }
         }
       ]
@@ -6287,7 +7151,13 @@
             "set": "Choice Band",
             "source": "2026-09-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -6329,7 +7199,13 @@
             "set": "Attacker",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Attacker",
+              "reason": "첫 행동·기점 확보를 위한 일격 생존",
+              "score": 138.5
+            }
           }
         },
         {
@@ -6365,13 +7241,19 @@
             "megahorn",
             "rockblast"
           ],
-          "item": "leftovers",
+          "item": "eviolite",
           "evidence": {
             "format": "ru",
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "미진화체의 방어·특수방어 1.5배 강화",
+              "score": 126.5
+            }
           }
         },
         {
@@ -6407,13 +7289,19 @@
             "earthquake",
             "stoneedge"
           ],
-          "item": "lumberry",
+          "item": "lifeorb",
           "evidence": {
             "format": "ou",
             "set": "Offensive Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Offensive Dragon Dance",
+              "reason": "구애 없이 공격 강화",
+              "score": 111.925
+            }
           }
         },
         {
@@ -6449,13 +7337,19 @@
             "psyshock",
             "hiddenpower"
           ],
-          "item": "lifeorb",
+          "item": "sitrusberry",
           "evidence": {
             "format": "ru",
             "set": "Sunny Day",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Sunny Day",
+              "reason": "수확으로 회복 열매를 재사용",
+              "score": 155
+            }
           }
         },
         {
@@ -6491,13 +7385,19 @@
             "morningsun",
             "willowisp"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Physically Defensive",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Physically Defensive",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         }
       ]
@@ -6541,13 +7441,19 @@
             "waterfall",
             "bounce"
           ],
-          "item": "leftovers",
+          "item": "rockyhelmet",
           "evidence": {
             "format": "ou",
             "set": "Substitute + Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute + Dragon Dance",
+              "reason": "물리 접촉을 받아내는 방어·지원 역할",
+              "score": 96.63333333333334
+            }
           }
         },
         {
@@ -6583,13 +7489,19 @@
             "dragonclaw",
             "roost"
           ],
-          "item": "lifeorb",
+          "item": "leftovers",
           "evidence": {
             "format": "ou",
             "set": "Substitute + Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Substitute + Dragon Dance",
+              "reason": "멀티스케일을 재활성화하는 HP 유지",
+              "score": 153
+            }
           }
         },
         {
@@ -6631,7 +7543,13 @@
             "set": "Choice Band",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Band",
+              "reason": "공격 기술 중심 물리 화력 강화",
+              "score": 133
+            }
           }
         },
         {
@@ -6673,7 +7591,13 @@
             "set": "Choice Scarf",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Choice Scarf",
+              "reason": "공격 기술 중심 스피드 보완",
+              "score": 140
+            }
           }
         },
         {
@@ -6709,13 +7633,19 @@
             "earthquake",
             "dragonclaw"
           ],
-          "item": "lumberry",
+          "item": "lifeorb",
           "evidence": {
             "format": "ou",
             "set": "Dragon Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Dragon Dance",
+              "reason": "구애 없이 공격 강화",
+              "score": 104.225
+            }
           }
         },
         {
@@ -6751,13 +7681,19 @@
             "dracometeor",
             "surf"
           ],
-          "item": "expertbelt",
+          "item": "damprock",
           "evidence": {
             "format": "ou",
             "set": "Rain Dance",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Rain Dance",
+              "reason": "직접 설치하는 날씨의 지속 턴 연장",
+              "score": 125
+            }
           }
         }
       ]
@@ -6807,16 +7743,22 @@
             "set": "Revenge Killer",
             "source": "2026-07-gen5ou-0.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Revenge Killer",
+              "reason": "피카츄 전용 공격·특수공격 2배",
+              "score": 258
+            }
           }
         },
         {
-          "id": "red-196",
-          "speciesID": 196,
-          "species": "Espeon",
-          "displayName": "Espeon",
+          "id": "red-150",
+          "speciesID": 150,
+          "species": "Mewtwo",
+          "displayName": "Mewtwo",
           "level": 100,
-          "ability": "Magic Bounce",
+          "ability": "Pressure",
           "nature": "Timid",
           "gender": "",
           "shiny": false,
@@ -6830,27 +7772,33 @@
             "spe": 31
           },
           "stats": {
-            "hp": 271,
-            "atk": 149,
-            "def": 156,
-            "spa": 296,
-            "spd": 226,
-            "spe": 281
+            "hp": 353,
+            "atk": 230,
+            "def": 216,
+            "spa": 344,
+            "spd": 216,
+            "spe": 325
           },
           "moves": [
-            "reflect",
-            "lightscreen",
-            "psychic",
-            "grassknot"
+            "psystrike",
+            "shadowball",
+            "recover",
+            "flamethrower"
           ],
-          "item": "lightclay",
+          "item": "lifeorb",
           "evidence": {
-            "format": "ou",
-            "set": "Screens Setter",
-            "source": "2026-09-gen5ou-1630.txt",
-            "manual": false,
-            "itemAdapted": false
-          }
+            "manual": true,
+            "set": "User-approved Mewtwo recovery attacker",
+            "source": "User instruction 2026-11-03",
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "User-approved Mewtwo recovery attacker",
+              "reason": "사용자 지정 도구 유지",
+              "score": 1000
+            }
+          },
+          "cpuRecoveryThreshold": 0.65
         },
         {
           "id": "red-143",
@@ -6885,13 +7833,19 @@
             "earthquake",
             "rest"
           ],
-          "item": "leftovers",
+          "item": "chestoberry",
           "evidence": {
             "format": "uu",
             "set": "Classic CurseLax",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Classic CurseLax",
+              "reason": "잠자기 직후 수면을 해제해 행동 유지",
+              "score": 112
+            }
           }
         },
         {
@@ -6927,13 +7881,20 @@
             "gigadrain",
             "sludgebomb"
           ],
-          "item": "lifeorb",
+          "item": "blacksludge",
           "evidence": {
             "format": "ou",
             "set": "Sun \"Sweeper\"",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": false
+            "itemAdapted": true,
+            "itemReason": "Reserve Life Orb for the user-approved Mewtwo set",
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Sun \"Sweeper\"",
+              "reason": "사용자 지정 도구 유지",
+              "score": 1000
+            }
           }
         },
         {
@@ -6975,8 +7936,14 @@
             "set": "User-requested Mega Charizard Y sun set",
             "source": "User instruction 2026-10-30",
             "manual": true,
-            "itemAdapted": true,
-            "exception": "Charizardite Y and post-BW Weather Ball compatibility"
+            "itemAdapted": false,
+            "exception": "Charizardite Y and post-BW Weather Ball compatibility",
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "User-requested Mega Charizard Y sun set",
+              "reason": "사용자 지정 도구 유지",
+              "score": 1000
+            }
           }
         },
         {
@@ -7012,24 +7979,35 @@
             "roar",
             "toxic"
           ],
-          "item": "expertbelt",
+          "item": "leftovers",
           "evidence": {
             "format": "uu",
             "set": "Utility",
             "source": "2026-09-gen5ou-1630.txt",
             "manual": false,
-            "itemAdapted": true
+            "itemAdapted": false,
+            "itemOptimization": {
+              "version": "bw-role-items-v1",
+              "role": "Utility",
+              "reason": "회복·장기전 역할의 지속 회복",
+              "score": 123
+            }
           }
         }
       ]
     }
   ],
   "levelPolicy": {
-    "rounds1To12": 75,
-    "rounds13To16": 90,
-    "eliteFourAndBeyond": 100
+    "gymLeaders": 95,
+    "eliteFour": 95,
+    "championsAndRed": 100
   },
   "compatiblePreviousVersions": [
-    "challenge-bw-v2-red-sun-max-ivs/3b953196790944aba015f8c2c585ee1c2d5dce6c500cf3ad4f1856f715453956"
+    "challenge-bw-v2-red-sun-max-ivs/3b953196790944aba015f8c2c585ee1c2d5dce6c500cf3ad4f1856f715453956",
+    "challenge-bw-v3-tiered-opponent-levels/cba4ebcf4e2884f290606d8585fa84be1da23531fab95c0faf5ff32f9c00cd06",
+    "challenge-bw-v4-role-opponent-levels/6c25210dee2c3830259f1cf22730619d60e56fd65802971f134b8fb7f65afaea",
+    "challenge-bw-v5-red-mewtwo/bb4209190f979fdcd7995827e00629030c261579f7ef2483e7033c1ae1d8d7fb",
+    "challenge-bw-v6-red-mewtwo-recovery/60ccc86942e79cc8ef71d79f73d2e41da3cdfeff2d26a6d82b82f54676696089",
+    "challenge-bw-v7-role-items/906e0a5cec66ffa5ea9ac03262447019dc7feb2cf5fb91cc0cbc5b29e64d8779"
   ]
 }

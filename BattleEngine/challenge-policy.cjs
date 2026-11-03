@@ -51,7 +51,15 @@ function loadPolicy(){
  return cached={...model,revision:crypto.createHash('sha256').update(bytes).digest('hex')};
 }
 function chooseCPU(dex,frame,model=loadPolicy()){
- const actions=candidates(frame);if(!actions.length)throw Error('No legal CPU action');
+ let actions=candidates(frame);if(!actions.length)throw Error('No legal CPU action');
+ // Explicit encounter tactic; this is not a retrained model. Legacy checkpoints lack
+ // the field and continue using the unchanged learned scores for every action.
+ const own=frame.own.find(p=>p.active),threshold=own?.cpuRecoveryThreshold;
+ if(Number.isFinite(threshold)&&threshold>0&&threshold<1){
+  const heal=actions.find(a=>a.kind==='move'&&dex.moves.get(a.move).id==='recover');
+  if(heal&&own.hp/own.maxHP<=threshold)return {kind:heal.kind,index:heal.index,target:heal.target};
+  if(own.hp===own.maxHP)actions=actions.filter(a=>a!==heal);
+ }
  const o=observation(frame);let selected=actions[0],best=-Infinity;
  for(const action of actions){
   const vector=o&&action.kind!=='pass'?features(dex,o,action):FEATURES.map(()=>0);

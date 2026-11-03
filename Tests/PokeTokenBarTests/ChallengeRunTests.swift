@@ -18,6 +18,27 @@ import XCTest
         try save.beginEncounter(opponent:team("b"),seed:[1,2,3,4],policyRevision:"test")
         try save.accept(resources:resources ?? XCTUnwrap(save.run).resources,decision:nil,winner:0)
     }
+    func testPreparationRejectsInvalidTeamsAndLiveOrLostBattleEditsWithoutChangingDisk()throws {
+        let save=try store(),team=team()
+        try save.start(team:team,catalogVersion:"test")
+        let order=team.map(\.id),original=try Data(contentsOf:save.url)
+        for badOrder in [Array(order.dropLast()),Array(repeating:order[0],count:6)] {
+            XCTAssertThrowsError(try save.prepareEncounter(order:badOrder,items:[:]))
+            XCTAssertEqual(try Data(contentsOf:save.url),original)
+        }
+        for items in [["a0":"leftovers","a1":"leftovers"],["a0":"charizarditex"],["missing":"leftovers"]] {
+            XCTAssertThrowsError(try save.prepareEncounter(order:order,items:items))
+            XCTAssertEqual(try Data(contentsOf:save.url),original)
+        }
+        try save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
+        let live=try Data(contentsOf:save.url)
+        XCTAssertThrowsError(try save.prepareEncounter(order:Array(order.reversed()),items:[:]))
+        XCTAssertEqual(try Data(contentsOf:save.url),live)
+        try save.forfeit()
+        let lost=try Data(contentsOf:save.url)
+        XCTAssertThrowsError(try save.prepareEncounter(order:order,items:[:]))
+        XCTAssertEqual(try Data(contentsOf:save.url),lost)
+    }
     func testReviveAndPPRestoresExactlyOneMoveAcrossAtomicReloads()throws {
         let save=try store();try save.start(team:team(),catalogVersion:"test",encounterCount:3)
         var state=try XCTUnwrap(save.run).resources
