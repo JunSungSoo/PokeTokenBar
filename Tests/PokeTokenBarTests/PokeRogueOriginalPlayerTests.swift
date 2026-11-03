@@ -18,6 +18,49 @@ import XCTest
         while !condition(),Date()<end{try await Task.sleep(for:.milliseconds(25))}
         XCTAssertTrue(condition(),"Original production renderer timed out")
     }
+    func testBlockedAttackKeepsTargetVisibleAndShieldPlaysOriginalSound() async throws {
+        let (store,directory)=try PokeRogueFaithfulTests().gifStore()
+        defer{try? FileManager.default.removeItem(at:directory)}
+        let player=PokeRogueBattlePlayer(spriteStore:store)
+        let host=NSHostingController(rootView:Color.clear.frame(width:660,height:310).modifier(PokeRogueBattlefieldLayers(player:player)))
+        let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:660,height:310),styleMask:[.borderless],backing:.buffered,defer:false)
+        window.contentViewController=host;window.orderFront(nil)
+        defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        await player.start();try await wait({player.ready || player.error != nil});XCTAssertNil(player.error)
+        let sprite=try await PokeRogueFaithfulPlayer.spritePayload(back:true,store:store)
+        for background in [false,true] {
+            let result=try await player.evaluate("""
+                const actors=[{key:'own-0',own:true,slot:0,texture:'guard-fixture',sprite,x:120,y:280},{key:'foe-0',own:false,slot:0,texture:'guard-fixture',sprite,x:540,y:140},{key:'foe-1',own:false,slot:1,texture:'guard-fixture',sprite,x:430,y:140}];
+                const failures=[],sounds={};
+                for(const move of ['thunderbolt','psychic','surf']){
+                    await window.ptbPrepare({move,actors,source:'own-0',targets:move==='surf'?[{key:'foe-0'},{key:'foe-1'}]:[{key:'foe-0'}],hit:false,width:660,height:310,scale:1.5,effectsVolume:0});
+                    for(let step=0;step<160;step++){
+                        const reply=window.ptbAdvance(25),state=window.ptbInspect();
+                        if(state.actors.some(a=>a.key.startsWith('foe-')&&!a.spriteVisible)&&failures.length<3)failures.push(move+':'+step+':'+JSON.stringify(state.actors.map(a=>({key:a.key,visible:a.spriteVisible}))));
+                        if(reply.done)break;
+                    }
+                    window.ptbFinish();
+                }
+                for(const move of ['protect','detect']){
+                    await window.ptbPrepare({move,actors,source:'foe-0',targets:[{key:'foe-0'}],hit:true,width:660,height:310,scale:1.5,effectsVolume:0});
+                    for(let step=0;step<100;step++){if(window.ptbAdvance(25).done)break;}
+                    sounds[move]=window.ptbInspect().soundEvents.map(s=>s.key);
+                    window.ptbFinish();
+                }
+                return {failures,sounds};
+                """,arguments:["sprite":sprite],background:background)
+            XCTAssertEqual(result["failures"] as? [String],[])
+            let sounds=try XCTUnwrap(result["sounds"] as? [String:[String]])
+            for move in ["protect","detect"] {
+                if background {XCTAssertEqual(sounds[move],[])}
+                else {
+                    let authored=PokeRogueOriginalCatalog.shared.manifest.entries[move]!.sounds.map{"battle_anims/"+$0}
+                    XCTAssertTrue(sounds[move]?.contains(where:authored.contains)==true,"\(move): \(sounds)")
+                }
+            }
+        }
+    }
+
     func testOriginalBallThrowRecallParticlesSoundAndCompletionInNativePlayer() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer{try? FileManager.default.removeItem(at:directory)}

@@ -92,3 +92,8 @@ all sounds follow the existing effects-volume control. Pokémon GIF/floating pla
 original 1× effect timing, HP/notice ordering and foreground/background layers use the
 same production player. Misty Terrain and Fairy Lock are global field presentations;
 Fairy Lock's emitted `-fieldactivate` log is handled explicitly and is not double-played.
+
+Blocked/missed original moves retain the unmodified defender base sprite while
+TARGET animation commands are suppressed, preserving native GIF playback. Actual
+Protect blocks replay the defending move's authored shield timeline and sound;
+source assets and original animation code remain unchanged.

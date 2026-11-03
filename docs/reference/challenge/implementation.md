@@ -540,3 +540,42 @@ PTBChallengeTestMode. All 4,356 source resources match; the actual bundled helpe
 turn. The ZIP executable differs from the prior 3.0.1 release and matches the verified
 3.0.2 source bundle. The second-release notes precede the first and retain the requested
 trainer-finale redaction. Archive hashes and packaging time are in the ZIP release ledger.
+
+
+## Battle feedback, defeat currency and complete shop (3.0.3, 2026-11-03)
+
+Real accuracy misses now announce the actual public move and attacker. False-hit original
+playback restores the defender base after each clock step; original caster movement and
+native GIF cadence remain intact. Actual Protect activations replay the defending
+Protect/Detect timeline with its authored sound. The foreground owns audio.
+
+Lost runs credit spendable M after at least three actual wins: the first two wins are
+excluded, so three wins pay 10M and four pay 20M. Remaining gym wins add 10M, Elite Four
+wins 30M, then Champion wins 50M. The last pre-finale loss pays 480M. Cleared runs receive
+zero M and retain the existing shiny entitlement. Per-run atomic collection receipts
+prevent duplicate credit and never change real usage, growth or challenge shop points.
+
+Every reward/intermission shop now offers all seven active products in catalog order.
+Legacy four-item offers expand on loading without resetting balances, purchase counts,
+inflated prices or resources; retired revive products stay excluded. New victories
+also use the complete catalog. Registration and replacement candidate rows place each
+individual's localized nature and saved move loadout to the right of its name, so same-
+species individuals can be distinguished before choosing. Species duplication rules
+and the started-run loadout snapshot remain unchanged.
+
+Local distribution is ARM64-only, includes the complete TXT history, and skips app
+installation and live user-state edits. No public release/main merge is implied.
+
+Review images: [complete production shop](../../../assets/challenge-shop-303-ko.png)
+(offscreen challenge window) and [individual loadout labels](../../../assets/challenge-loadout-303-ko.png)
+(actual production row component rendered with two same-species sample individuals).
+The UI render checks all seven product names and both individual natures/all eight moves
+with OCR; every supported language also renders at the actual row width.
+
+Final 3.0.3 distribution verification: 70 native tests complete with one opt-in live
+Drive probe skipped and no failures; 152 engine tests and 8 ZIP packaging tests pass.
+The ARM64 release app/helper pass strict/deep signature checks and all 4,356 source
+resource hashes match. The actual bundled engine verifies 27 teams/162 NPCs, preserves
+owned stats and runs a recovery turn. The third November 3 Desktop ZIP matches the
+verified executable, both version fields, source player and exact newest-first note
+bytes. Archive SHA-256/bytes/time are in the release ledger; installation was skipped.

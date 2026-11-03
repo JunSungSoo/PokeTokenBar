@@ -2,8 +2,8 @@ import XCTest
 @testable import PokeTokenBar
 
 @MainActor final class ChallengeShopTests:XCTestCase {
-    private func ready(wins:Int=1,stock:[ChallengeShopItem]=Array(ChallengeShopItem.allCases.prefix(4)))throws->ChallengeRunStore {
-        let helper=ChallengeRunTests(),temporary=try helper.store(),save=ChallengeRunStore(url:temporary.url,roll:{.attack},shopRoll:{stock})
+    private func ready(wins:Int=1)throws->ChallengeRunStore {
+        let helper=ChallengeRunTests(),temporary=try helper.store(),save=ChallengeRunStore(url:temporary.url,roll:{.attack})
         var team=helper.team();team[0].item="leftovers"
         try save.start(team:team,catalogVersion:"shop-test")
         for index in 0..<wins {
@@ -130,8 +130,7 @@ import XCTest
         let heal=try ready();try heal.apply(.heal("a0"));XCTAssertEqual(heal.run?.resources[0].hp,175)
     }
     func testStatusCureAndTeamHealingIncludeRevivalWithoutClearingLivingStatus()throws {
-        let stock:[ChallengeShopItem]=[.statusCure,.teamHeal50,.heal40,.ppRecovery]
-        let save=try ready(wins:3,stock:stock)
+        let save=try ready(wins:3)
         let before=save.run!.resources
         try save.purchase(.teamHeal50,targetID:"")
         XCTAssertEqual(save.run?.pointBalance,250)
@@ -150,43 +149,54 @@ import XCTest
         var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
         json["shopOffers"]=["statusCure","revive","teamHeal30","maxRevive"]
         try JSONSerialization.data(withJSONObject:json).write(to:save.url)
-        let fresh:[ChallengeShopItem]=[.fullRecovery,.ppRecovery,.heal20,.heal40]
-        let loaded=ChallengeRunStore(url:save.url,shopRoll:{fresh})
+        let loaded=ChallengeRunStore(url:save.url)
         XCTAssertEqual(loaded.run?.id,save.run?.id);XCTAssertEqual(loaded.run?.pointBalance,100)
         XCTAssertEqual(loaded.run?.resources,save.run?.resources)
-        XCTAssertEqual(loaded.run?.shopOffers,[.statusCure,.teamHeal50,.fullRecovery,.ppRecovery])
+        XCTAssertEqual(loaded.run?.shopOffers,ChallengeShopItem.allCases)
         XCTAssertFalse(loaded.run!.canPurchase(.revive,targetID:"a0"))
         XCTAssertFalse(loaded.run!.canPurchase(.maxRevive,targetID:"a0"))
-        XCTAssertEqual(ChallengeRunStore(url:save.url,shopRoll:{XCTFail("Do not reroll migrated stock");return fresh}).run?.shopOffers,loaded.run?.shopOffers)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.shopOffers,loaded.run?.shopOffers)
     }
-    func testFourOffersPersistWithoutRerollAndRefreshOnlyAfterNextVictory()throws {
-        let helper=ChallengeRunTests(),temporary=try helper.store()
-        let first=Array(ChallengeShopItem.allCases.prefix(4)),second=Array(ChallengeShopItem.allCases.suffix(4))
-        var calls=0
-        let save=ChallengeRunStore(url:temporary.url,roll:{.attack},shopRoll:{calls+=1;return calls==1 ? first:second})
-        try save.start(team:helper.team(),catalogVersion:"stock")
-        try helper.victory(save);XCTAssertEqual(calls,1);XCTAssertEqual(save.run?.shopOffers,first)
-        XCTAssertThrowsError(try save.purchase(.revive,targetID:"a0"))
-        let reopened=ChallengeRunStore(url:save.url,shopRoll:{XCTFail("Stock rerolled on reopening");return second})
-        XCTAssertEqual(reopened.run?.shopOffers,first)
-        try save.apply(.buff(.attack));XCTAssertEqual(save.run?.shopOffers,first)
-        try save.advance();try helper.victory(save)
-        XCTAssertEqual(calls,2);XCTAssertEqual(save.run?.shopOffers,second)
-        let eligible=try ready(stock:second)
-        XCTAssertThrowsError(try eligible.purchase(.fullRecovery,targetID:"a1"),"Affordable and useful but not offered")
-        try eligible.purchase(.heal40,targetID:"a0")
-        XCTAssertEqual(eligible.run?.shopOffers,second)
-        XCTAssertEqual(ChallengeRunStore(url:eligible.url).run?.shopOffers,second)
+    func testAllSevenProductsPersistAcrossPurchasesRewardsAndNextVictory()throws {
+        let helper=ChallengeRunTests(),save=try ready(wins:3)
+        XCTAssertEqual(save.run?.shopOffers,ChallengeShopItem.allCases)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.shopOffers,ChallengeShopItem.allCases)
+        for item in ChallengeShopItem.allCases {
+            let target=item == .statusCure ? "a1":"a0"
+            XCTAssertTrue(save.run!.canPurchase(item,targetID:target,moveIndex:item == .ppMoveRecovery ? 0:nil),item.rawValue)
+        }
+        try save.purchase(.heal20,targetID:"a0")
+        XCTAssertEqual(save.run?.shopPrice(.heal20),15)
+        try save.apply(.buff(.attack));try save.advance();try helper.victory(save)
+        XCTAssertEqual(save.run?.shopOffers,ChallengeShopItem.allCases)
+        XCTAssertEqual(save.run?.shopPrice(.heal20),15)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.shopOffers,ChallengeShopItem.allCases)
+    }
+    func testExistingFourOffersExpandWithoutChangingMoneyPricesOrResources()throws {
+        let save=try ready(wins:3)
+        try save.purchase(.ppRecovery,targetID:"a0")
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
+        json["shopOffers"]=["heal20","heal40","fullRecovery","ppRecovery"]
+        try JSONSerialization.data(withJSONObject:json).write(to:save.url)
+        let migrated=ChallengeRunStore(url:save.url)
+        XCTAssertEqual(migrated.run?.shopOffers,ChallengeShopItem.allCases)
+        XCTAssertEqual(migrated.run?.id,save.run?.id)
+        XCTAssertEqual(migrated.run?.pointBalance,save.run?.pointBalance)
+        XCTAssertEqual(migrated.run?.shopPurchaseCounts,save.run?.shopPurchaseCounts)
+        XCTAssertEqual(migrated.run?.resources,save.run?.resources)
+        let bytes=try Data(contentsOf:save.url)
+        _ = ChallengeRunStore(url:save.url)
+        XCTAssertEqual(try Data(contentsOf:save.url),bytes,"Already-expanded stock is not rewritten")
     }
     func testLegacyStockMigratesOnceAndMalformedStockIsPreserved()throws {
         let save=try ready()
         var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
         json.removeValue(forKey:"shopOffers")
         try JSONSerialization.data(withJSONObject:json).write(to:save.url)
-        let stock=Array(ChallengeShopItem.allCases.suffix(4))
-        let migrated=ChallengeRunStore(url:save.url,shopRoll:{stock})
+        let stock=ChallengeShopItem.allCases
+        let migrated=ChallengeRunStore(url:save.url)
         XCTAssertEqual(migrated.run?.shopOffers,stock)
-        XCTAssertEqual(ChallengeRunStore(url:save.url,shopRoll:{XCTFail("Migration repeated");return []}).run?.shopOffers,stock)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.shopOffers,stock)
         for bad in [["revive"],["revive","revive","heal20","heal40"]] {
             json["shopOffers"]=bad
             let bytes=try JSONSerialization.data(withJSONObject:json);try bytes.write(to:save.url)
@@ -197,8 +207,7 @@ import XCTest
     }
 
     func testSelectedMovePPRecoveryOnlyChangesChosenSlotAndCountsPurchasesPerProduct()throws {
-        let stock:[ChallengeShopItem]=[.ppMoveRecovery,.ppRecovery,.heal20,.statusCure]
-        let save=try ready(wins:3,stock:stock)
+        let save=try ready(wins:3)
         let before=save.run!.resources
         for bad in [nil,-1,2] as [Int?] {
             XCTAssertThrowsError(try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:bad))

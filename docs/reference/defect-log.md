@@ -2817,3 +2817,52 @@ read_when:
   the fix, tests reward/intermission purchases with a stale mirror and delayed callbacks,
   and verifies debit, recovery, price inflation and disk persistence. A mounted actual
   animated-victory test makes no manual presentation completion calls before purchase.
+
+
+## Accuracy misses need a notice tied to the actual public move record
+
+- Showdown already emits `-miss` scenes, but the transient-notice allowlist omitted
+  them. Existing miss tests verified that failed attacks do not produce hit particles;
+  they never checked the presentation message, so the missing feedback passed.
+- Sweep of the UI log consumers found one presentation allowlist. Add `-miss` there
+  and use its attacker plus the preceding actual `move` record to localize the notice.
+  Never use the selected move or search past another move/turn; clipped public logs
+  may lack context. Misses remain separate from immunity, failure and blocked actions.
+- Real-engine accuracy misses cover singles/doubles, both viewpoints and every app
+  language, event order and absent hit bursts. Context and Korean topic particles have
+  regressions. Removing `-miss` from the allowlist must fail the real-engine regression.
+- The broader status-notice fixture still required direct-damage and weather-damage
+  text removed by earlier presentation changes. Confirmed the same failure without
+  the miss change; align it with the current no-text rules while retaining scene
+  assertions and poison/burn/blocked-action notice checks.
+
+
+## A blocked original move must retain the defender's base sprite
+
+- The native renderer hides its GIFs during original playback. BattleAnim also hides
+  the base USER/TARGET sprites before drawing authored copies. The miss/block filter
+  removed TARGET commands, leaving no original copy and no native fallback. Existing
+  miss checks proved only the absence of hit particles, not actor visibility.
+- Restore the untouched target base after each original clock step when hit is false;
+  keep original user movement, GIF cadence and hit-path TARGET tracks unchanged.
+  A real Showdown Protect activation maps to a defender-only Protect/Detect replay,
+  retaining authored sounds, one foreground audio owner and the effects-volume control.
+- Sweep covers miss/immunity/protection through the shared false-hit path and spread
+  targets through the shared player. Regression samples original Psychic/Thunderbolt/Surf
+  timelines in both compositor surfaces and checks authored shield sound events.
+  Removing the base restoration must fail that actual WKWebView regression.
+
+## Challenge defeat currency must use actual wins and an atomic per-run receipt
+
+- Only lost runs with at least three victories receive M: the first two victories
+  pay nothing, the third pays 10M, then remaining Gym wins pay 10M each, eight Elite
+  Four wins 30M each and two Champion wins 50M each (480M before the final trainer). A fully
+  cleared run receives zero M and keeps the existing shiny reward. New runs persist
+  actual victory rewards so developer next-trainer skips do not create money. Older
+  saves fall back to their completed-round count, as the old format has no win ledger.
+- Receipt and wallet credit are the same companion-state field committed atomically;
+  retries and reopening cannot add another credit. Currency does not alter lifetime
+  usage, evolution, egg progress or challenge shop points. Import retains per-run
+  receipts by key. The next run cannot replace an unpaid lost run after a write failure.
+- Boundary/tier totals, full clear, persistence, repeated synchronization, skipped rounds,
+  old-save decoding and write-failure publication are exercised by dedicated regressions.

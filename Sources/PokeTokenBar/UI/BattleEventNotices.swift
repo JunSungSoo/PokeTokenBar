@@ -54,6 +54,10 @@ struct BattlePresentationEvents {
                     ?? BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
                 return event
             }
+            if let event=BattleGuardEffects.event(scene:scene,log:frame.log,index:index,ownPlayer:ownPlayer) {
+                messages[scene.id]=BattleLogText.describe(line,language:language,ownPlayer:ownPlayer)
+                return event
+            }
             if let event=BattleWeatherHitEffects.event(scene:scene,line:line,ownPlayer:ownPlayer) {
                 return event
             }
@@ -68,8 +72,12 @@ struct BattlePresentationEvents {
                 let source=BattleEffectPosition(own:token.hasPrefix("p\(ownPlayer+1)"),slot:token.hasSuffix("b") ? 1:0)
                 return BattleVisualEvent(id:scene.id,move:"",type:"",category:"Status",source:source,targets:[],phase:"health")
             }
-            let visible = ["-item", "-enditem", "-mega", "switch", "drag", "replace", "faint", "cant", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldactivate", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
-            if visible { messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer) }
+            let visible = ["-item", "-enditem", "-mega", "switch", "drag", "replace", "faint", "cant", "-miss", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldactivate", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
+            if visible {
+                messages[scene.id] = kind == "-miss"
+                    ? BattleLogText.describeMiss(frame.log,at:index,language:language,ownPlayer:ownPlayer)
+                    : BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
+            }
             return BattleVisualEvent(id: scene.id, move: "", type: "", category: "Status",
                 source: BattleEffectPosition(own: true, slot: 0), targets: [], phase: visible ? "transition" : "state")
         }

@@ -417,6 +417,26 @@ enum BattleLogText {
         return result
     }
 
+    /// -miss contains the attacker and target, but the move name is in the preceding
+    /// public move record. Never substitute a selected move or an older turn's move.
+    static func describeMiss(_ log:[String],at index:Int,language:AppLanguage,ownPlayer:Int)->String? {
+        guard log.indices.contains(index) else{return nil}
+        let miss=log[index].split(separator:"|",omittingEmptySubsequences:false).map(String.init)
+        guard miss.count>2,miss[1]=="-miss" else{return nil}
+        for prior in log[..<index].reversed() {
+            let parts=prior.split(separator:"|",omittingEmptySubsequences:false).map(String.init)
+            guard parts.count>1 else{continue}
+            if parts[1]=="turn"{return nil}
+            guard parts[1]=="move" else{continue}
+            guard parts.count>3,parts[2]==miss[2] else{return nil}
+            let l=L(language),catalog=BattleTextCatalog.shared
+            let side=parts[2].hasPrefix("p1") ? 0:1
+            let pokemon=l.battleSide(ally:side==ownPlayer)+" "+catalog.pokemonName(parts[2],language:language)
+            return l.battleMoveMissed(pokemon,move:catalog.moveName(parts[3],language:language))
+        }
+        return nil
+    }
+
     static func describe(_ event: String, language: AppLanguage = .en, ownPlayer: Int = 0) -> String? {
         let parts = event.split(separator:"|",omittingEmptySubsequences:false).map(String.init)
         guard parts.count > 1 else { return nil }

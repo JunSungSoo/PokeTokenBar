@@ -673,6 +673,7 @@ struct CompanionState: Codable, Sendable {
     var representativeForm: PokemonForm? = nil
     // 도감
     var dex: [DexEntry] = []
+    var challengeCashClaims:[String:Int]? = nil
     var challengeShinyClaims:[String:String]? = nil
     // 소유한 (base,final) 쌍 — 분기 다양성용
     var collectedFinals: Set<String> = []
@@ -719,6 +720,7 @@ struct CompanionState: Codable, Sendable {
             form: PokemonForm.decoded(from: decoder, keys: "representativeForm", "representativeUnownForm"))
         // 도감은 항목별 격리 — 손상 항목 하나가 도감 전체를 날리지 않게.
         dex                = c.lenient([Lossy<DexEntry>].self, forKey: .dex, default: []).compactMap(\.value)
+        challengeCashClaims = try? c.decodeIfPresent([String:Int].self,forKey:.challengeCashClaims)
         challengeShinyClaims = try? c.decodeIfPresent([String:String].self,forKey:.challengeShinyClaims)
         collectedFinals    = c.lenient(Set<String>.self, forKey: .collectedFinals, default: [])
         language           = c.lenient(AppLanguage.self, forKey: .language, default: .systemDefault)

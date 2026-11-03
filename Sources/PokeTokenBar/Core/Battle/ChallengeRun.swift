@@ -70,6 +70,7 @@ struct ChallengeChampionReward:Codable,Sendable {
     var claimed=false
 }
 struct ChallengeRun: Codable, Sendable, Identifiable {
+    var cashVictoryRewards:[Int]? = []
     var championReward:ChallengeChampionReward? = nil
     var shopOffers:[ChallengeShopItem]? = nil
     var shopPurchaseCounts:[String:Int]? = nil
@@ -106,10 +107,8 @@ enum ChallengeReward {
     private(set) var error: String?
     private var unreadable=false
     let url: URL
-    private let shopRoll:()->[ChallengeShopItem]
     private let roll:()->ChallengeBuffKind
-    init(url: URL?=nil,roll:@escaping ()->ChallengeBuffKind = {ChallengeBuffKind.allCases.randomElement()!},shopRoll:@escaping ()->[ChallengeShopItem] = {Array(ChallengeShopItem.allCases.shuffled().prefix(4))}) {
-        self.shopRoll=shopRoll
+    init(url: URL?=nil,roll:@escaping ()->ChallengeBuffKind = {ChallengeBuffKind.allCases.randomElement()!}) {
         self.roll=roll
         self.url=url ?? AppStatePaths.directory().appendingPathComponent("challenge-run-v1.json")
         guard FileManager.default.fileExists(atPath:self.url.path) else{return}
@@ -117,20 +116,14 @@ enum ChallengeReward {
             var saved=try JSONDecoder().decode(ChallengeRun.self,from:Data(contentsOf:self.url))
             guard saved.schemaVersion==1 else{throw ChallengeFailure.incompatibleVersion}
             try Self.validate(saved)
-            let missingShop=[ChallengePhase.reward,.intermission].contains(saved.phase) && saved.shopOffers==nil
-            let retiredShop=saved.shopOffers?.contains{!$0.available}==true
-            if missingShop{saved.shopOffers=shopRoll()}
-            if retiredShop {
-                let candidates=(saved.shopOffers ?? []).filter(\.available)+shopRoll()+ChallengeShopItem.allCases
-                var stock:[ChallengeShopItem]=[]
-                for item in candidates where item.available && !stock.contains(item){stock.append(item)}
-                saved.shopOffers=Array(stock.prefix(4))
-            }
+            let needsShop=saved.shopOffers != nil || [.reward,.intermission].contains(saved.phase)
+            let changedShop=needsShop && saved.shopOffers != ChallengeShopItem.allCases
+            if changedShop{saved.shopOffers=ChallengeShopItem.allCases}
             let missingPoints=saved.challengePoints==nil
             let missingOffer=saved.phase == .reward && (saved.rewardRoll==nil || saved.rewardRoll == .power)
             if missingPoints{saved.challengePoints=ChallengeRun.totalVictoryPoints(saved.completedVictories)}
             if missingOffer{saved.rewardRoll=roll()}
-            if missingPoints || missingOffer || missingShop || retiredShop{try commit(saved)}else{run=saved}
+            if missingPoints || missingOffer || changedShop{try commit(saved)}else{run=saved}
         } catch {self.error=error.localizedDescription;unreadable=true}
     }
     private static func validate(_ run:ChallengeRun)throws {
@@ -146,11 +139,14 @@ enum ChallengeReward {
             let fresh=try ChallengePokemonState.fresh(pokemon)
             guard zip(fresh.moves,r.moves).allSatisfy({$0.id==$1.id && $0.maxPP==$1.maxPP}) else{throw ChallengeFailure.invalidState}
         }
+        if let rewards=run.cashVictoryRewards {
+            guard rewards.count<=run.completedVictories,rewards.allSatisfy({[0,10,30,50].contains($0)}),rewards.reduce(0,+)<=500 else{throw ChallengeFailure.invalidState}
+        }
         guard run.pointBalance>=0,run.pointBalance<=ChallengeRun.totalVictoryPoints(run.encounterCount) else{throw ChallengeFailure.invalidState}
         if let counts=run.shopPurchaseCounts {
             guard counts.allSatisfy({ChallengeShopItem(rawValue:$0.key) != nil && $0.value>=0 && $0.value<=ChallengeRun.totalVictoryPoints(run.encounterCount)/10}) else{throw ChallengeFailure.invalidState}
         }
-        if let offers=run.shopOffers {guard offers.count==4,Set(offers).count==4 else{throw ChallengeFailure.invalidState}}
+        if let offers=run.shopOffers {guard [4,ChallengeShopItem.allCases.count].contains(offers.count),Set(offers).count==offers.count else{throw ChallengeFailure.invalidState}}
         let buffs=run.teamBuffs ?? []
         guard Set(buffs.map(\.id)).count==buffs.count,buffs.allSatisfy({(1...3).contains($0.remaining)}) else{throw ChallengeFailure.invalidState}
         if let snapshot=run.checkpoint?.initialBuffs {
@@ -234,11 +230,12 @@ enum ChallengeReward {
         }
         if let decision {next.checkpoint?.decisions.append(decision);next.checkpoint?.pendingDecision=nil}
         if let winner {
+            if winner==0{next.cashVictoryRewards=next.completedCashRewards+[ChallengeRun.cashReward(encounterIndex:next.encounterIndex)]}
             if winner==0{next.challengePoints=next.pointBalance+ChallengeRun.victoryPoints(encounterIndex:next.encounterIndex)}
             next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
             next.phase=winner==0 ? (next.encounterIndex==next.encounterCount-1 ? .cleared:.reward):.lost
             next.rewardRoll=next.phase == .reward ? roll():nil
-            next.shopOffers=next.phase == .reward ? shopRoll():nil
+            next.shopOffers=next.phase == .reward ? ChallengeShopItem.allCases:nil
         }
         try commit(next)
     }

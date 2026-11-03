@@ -24,6 +24,14 @@ final class BattleStatusNoticeTests: XCTestCase {
                         let index = scene.id - (frame.logOffset ?? 0)
                         let line = frame.log[index]
                         guard line.hasPrefix("|cant|") || line.hasPrefix("|-damage|") || line.hasPrefix("|-status|") else { continue }
+                        // Direct damage and weather HP loss use awaited HP/effect scenes, not notices.
+                        let directDamage = line.hasPrefix("|-damage|") && !line.contains("[from]")
+                        let weatherDamage = line.hasPrefix("|-damage|") && ["[from] Sandstorm", "[from] Hail"].contains(where: line.contains)
+                        if directDamage || weatherDamage {
+                            XCTAssertNil(presentation.messages[scene.id], line)
+                            XCTAssertTrue(presentation.events.contains { $0.id == scene.id }, line)
+                            continue
+                        }
                         let text = try XCTUnwrap(presentation.messages[scene.id], line)
                         XCTAssertTrue(presentation.events.contains { $0.id == scene.id && $0.phase != "state" }, line)
                         if line.hasPrefix("|cant|") {

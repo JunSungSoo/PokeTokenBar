@@ -78,6 +78,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     init(store:CompanionStore,session:ChallengeBattleSession,provider:any PokemonDetailProviding=PokeAPIClient.shared,
          itemMemory:BattlePokemonItemStore = .shared,itemUsage:BattleItemUsageStore = .shared) {
         self.store=store;self.session=session;self.provider=provider;self.itemMemory=itemMemory;self.itemUsage=itemUsage
+        synchronizeChampionAward()
     }
     var save:ChallengeRunStore {session.save}
     var run:ChallengeRun? {save.run}
@@ -162,12 +163,20 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
         if session.frame?.ended==true {effectsBusy=false;sceneSettled=true;synchronizeChampionAward()}
     }
     func synchronizeChampionAward(){
-        guard let run,run.phase == .cleared else{return}
-        do{try store.markChallengeChampions(ids:Set(run.team.map(\.id)))}catch{report(error)}
+        guard let run else{return}
+        do {
+            if run.phase == .lost {try store.claimChallengeCash(run)}
+            if run.phase == .cleared {try store.markChallengeChampions(ids:Set(run.team.map(\.id)))}
+        }catch{report(error)}
     }
     func runningDidEnd(){running=false;effectsBusy=false;sceneSettled=true;intro.finish()}
-    func close(){isOpen=false;preparing=false;running=false;effectsBusy=false;intro.finish();session.stop();sceneSettled=true}
-    func newChallenge(){guard run?.phase == .lost || (run?.phase == .cleared && run?.championReward?.claimed==true) else{return};newSetup=true;selectedIDs=[];overrides=[:];restoreItems()}
+    func close(){synchronizeChampionAward();isOpen=false;preparing=false;running=false;effectsBusy=false;intro.finish();session.stop();sceneSettled=true}
+    func newChallenge(){
+        guard let run,run.phase == .lost || (run.phase == .cleared && run.championReward?.claimed==true) else{return}
+        synchronizeChampionAward()
+        guard run.defeatCashTokens==0 || store.state.challengeCashClaims?[run.id]==run.defeatCashTokens else{return}
+        newSetup=true;selectedIDs=[];overrides=[:];restoreItems()
+    }
     var canClaimChampionShiny:Bool {
         guard let run,run.phase == .cleared,run.championReward?.claimed==false,!building else{return false}
         if let id=run.championReward?.recipientID,store.state.challengeShinyClaims?[run.id]==id{return true}

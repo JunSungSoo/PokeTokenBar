@@ -25,7 +25,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
 }
 
 @MainActor final class ChallengeUITests:XCTestCase {
-    private func fixture(testControls:Bool=false,rewardFixtures:Bool=false,stock:[ChallengeShopItem]=Array(ChallengeShopItem.allCases.prefix(4)))throws->ChallengeUIModel {
+    private func fixture(testControls:Bool=false,rewardFixtures:Bool=false)throws->ChallengeUIModel {
         let dir=FileManager.default.temporaryDirectory.appendingPathComponent("challenge-ui-\(UUID())")
         try FileManager.default.createDirectory(at:dir,withIntermediateDirectories:true)
         let suite="ChallengeUI.\(UUID())",defaults=try XCTUnwrap(UserDefaults(suiteName:suite))
@@ -50,7 +50,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
                 stats:["hp":1,"atk":1,"def":1,"spa":1,"spd":1,"spe":1],moves:["splash"])
         }
         let catalog=ChallengeEncounterCatalog(version:"ui-test",encounters:[.init(id:"brock",index:0,nameKo:"웅",phase:"gym",team:weak),.init(id:"falkner",index:1,nameKo:"비상",phase:"gym",team:weak)])
-        let session=try ChallengeBattleSession(save:ChallengeRunStore(url:dir.appendingPathComponent("run.json"),shopRoll:{stock}),catalog:catalog,testControlsEnabled:testControls)
+        let session=try ChallengeBattleSession(save:ChallengeRunStore(url:dir.appendingPathComponent("run.json")),catalog:catalog,testControlsEnabled:testControls)
         let model=ChallengeUIModel(store:store,session:session,provider:ChallengeUIProvider(),itemMemory:BattlePokemonItemStore(defaults:defaults),itemUsage:BattleItemUsageStore(defaults:defaults))
         model.isOpen=true;addTeardownBlock{Task{@MainActor in model.close()}}
         return model
@@ -331,7 +331,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
     }
     func testFinishedRealBattleUnlocksShopBeforeAndAfterMandatoryReward()async throws {
         for claimReward in [false,true] {
-            let m=try fixture(stock:[.ppRecovery,.heal20,.fullRecovery,.ppMoveRecovery]);defer{m.close()}
+            let m=try fixture();defer{m.close()}
             for i in 0..<6{m.select("owned-\(i)")}
             await m.start();beginPrepared(m);_ = try await wait(m)
             XCTAssertFalse(m.canPurchase(.ppRecovery,targetID:"owned-0"))
@@ -358,7 +358,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         }
     }
     func testMountedAnimatedVictoryLeavesShopTargetsPurchasable()async throws {
-        let m=try fixture(stock:[.ppRecovery,.heal20,.fullRecovery,.ppMoveRecovery]);defer{m.close()}
+        let m=try fixture();defer{m.close()}
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
         controller.show(present:false);defer{controller.window?.close()}
         for i in 0..<6{m.select("owned-\(i)")}
@@ -409,7 +409,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         XCTAssertEqual(m.shopBalance,70,"Skipping further purchases must not block Next")
     }
     func testSevenProductShopRendersWithoutRevivalItemsAndHPRewardAllowsFainted()async throws {
-        let m=try fixture(stock:[.statusCure,.heal40,.teamHeal50,.ppRecovery]);defer{m.close()}
+        let m=try fixture();defer{m.close()}
         let team=ChallengeRunTests().team()
         try m.save.start(team:team,catalogVersion:m.session.catalog.version,encounterCount:2)
         try m.save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")
@@ -422,15 +422,15 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         try await Task.sleep(for:.milliseconds(200))
         let view=try XCTUnwrap(controller.window?.contentView);view.layoutSubtreeIfNeeded()
         let bitmap=try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in:view.bounds));view.cacheDisplay(in:view.bounds,to:bitmap)
-        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-random-challenge-shop.png"))
+        try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-all-challenge-shop.png"))
         let request=VNRecognizeTextRequest();request.recognitionLevel = .accurate;request.recognitionLanguages=["ko-KR","en-US"]
         try VNImageRequestHandler(cgImage:try XCTUnwrap(bitmap.cgImage),options:[:]).perform([request])
         let text=(request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined().replacingOccurrences(of:" ",with:"")
-        for label in ["상태이상회복","HP40%회복","전체HP50%회복","PP전체회복","10포인트","20포인트","30포인트","50포인트"]{XCTAssertTrue(text.contains(label),"Missing card: \(label) in \(text)")}
+        for label in ChallengeShopItem.allCases.map({m.store.l.challengeShopName($0).replacingOccurrences(of:" ",with:"")})+["10포인트","20포인트","30포인트","50포인트","100포인트"]{XCTAssertTrue(text.contains(label),"Missing card: \(label) in \(text)")}
         XCTAssertFalse(text.contains("기력의조각"));XCTAssertFalse(text.contains("기력의덩어리"))
     }
     func testMovePPSheetRendersSelectionAndUpdatedPriceAfterPurchase()async throws {
-        let m=try fixture(stock:[.ppMoveRecovery,.ppRecovery,.fullRecovery,.teamHeal50]);defer{m.close()}
+        let m=try fixture();defer{m.close()}
         let team=ChallengeRunTests().team()
         try m.save.start(team:team,catalogVersion:m.session.catalog.version,encounterCount:2)
         try m.save.beginEncounter(opponent:team,seed:[1,2,3,4],policyRevision:"test")

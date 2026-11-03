@@ -272,3 +272,17 @@ extension L {
         }
     }
 }
+
+
+extension L {
+    func battleMoveMissed(_ pokemon:String,move:String)->String {
+        t("\(pokemon)의 \(KoreanParticle.topic.attach(to:move)) 맞지 않았다.",
+          "\(pokemon)’s \(move) missed!",
+          "\(pokemon)の\(move)は 当たらなかった！",
+          "¡\(move) de \(pokemon) falló!",
+          "\(pokemon) a raté son attaque \(move) !",
+          "\(move) de \(pokemon) não acertou!",
+          "\(pokemon)s \(move) ging daneben!",
+          "\(pokemon): приём «\(move)» не попал!")
+    }
+}

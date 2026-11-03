@@ -6,6 +6,7 @@ import Foundation
 /// 판정은 마지막 글자가 한글 음절(U+AC00…U+D7A3)일 때만 한다. 그 밖(안농의 "[A]", 이름 로딩 전
 /// "#123" 등)은 받침을 알 수 없으므로 기존 병기 형태를 그대로 붙인다 — 틀린 조사보다 병기가 낫다.
 enum KoreanParticle {
+    case topic       // 은/는
     case subject     // 이/가
     case object      // 을/를
     case direction   // 으로/로
@@ -13,6 +14,7 @@ enum KoreanParticle {
     func attach(to word: String) -> String {
         guard let coda = Self.coda(of: word) else { return word + fallback }
         switch self {
+        case .topic:     return word + (coda == 0 ? "는" : "은")
         case .subject:   return word + (coda == 0 ? "가" : "이")
         case .object:    return word + (coda == 0 ? "를" : "을")
         // ㄹ 받침은 "으로"가 아니라 "로"(서울로·알로).
@@ -22,6 +24,7 @@ enum KoreanParticle {
 
     private var fallback: String {
         switch self {
+        case .topic:     return "은(는)"
         case .subject:   return "이(가)"
         case .object:    return "을(를)"
         case .direction: return "(으)로"

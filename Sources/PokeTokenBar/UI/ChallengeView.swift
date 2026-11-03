@@ -131,7 +131,8 @@ import SwiftUI
                     HStack {
                         Image(systemName:selected ? "checkmark.circle.fill":"circle")
                         SpriteView(speciesID:entry.finalID,size:32,shiny:entry.isShiny,form:entry.form)
-                        Text(name(entry.finalID));Spacer();Text("\(l.level) \(entry.profile?.level ?? 0)").font(.caption.monospacedDigit())
+                        ChallengePokemonLoadoutLabel(entry:entry,language:model.store.language)
+                        Text("\(l.level) \(entry.profile?.level ?? 0)").font(.caption.monospacedDigit()).fixedSize()
                     }.padding(5).contentShape(Rectangle())
                 }.buttonStyle(.plain).disabled(model.building || duplicate || (!selected && model.selectedIDs.count==6))
                     .accessibilityIdentifier("challenge-select-\(entry.id)")
@@ -228,7 +229,8 @@ import SwiftUI
                             HStack {
                                 Image(systemName:model.incomingID==entry.id ? "checkmark.circle.fill":"circle")
                                 SpriteView(speciesID:entry.finalID,size:32,shiny:entry.isShiny,form:entry.form)
-                                Text(name(entry.finalID));Spacer();Text("\(l.level) \(entry.profile?.level ?? 0)").font(.caption.monospacedDigit())
+                                ChallengePokemonLoadoutLabel(entry:entry,language:model.store.language)
+                                Text("\(l.level) \(entry.profile?.level ?? 0)").font(.caption.monospacedDigit()).fixedSize()
                             }.padding(5).contentShape(Rectangle())
                         }.buttonStyle(.plain).accessibilityIdentifier("challenge-incoming-\(entry.id)")
                     }
@@ -250,6 +252,10 @@ import SwiftUI
             Label(model.run?.phase == .cleared ? l.challengeCleared:l.challengeLost,systemImage:model.run?.phase == .cleared ? "trophy.fill":"flag.checkered")
                 .font(.title2.bold())
             opponent
+            if let run=model.run,let amount=model.store.state.challengeCashClaims?[run.id],amount>0 {
+                Text(l.challengeCashAward(amount/1_000_000)).foregroundStyle(.green).bold()
+                    .accessibilityIdentifier("challenge-cash-award")
+            }
             roster(selectable:false)
             HStack{Button(l.challengeNew){model.newChallenge()}.buttonStyle(.borderedProminent);Spacer();Button(l.quit,action:onClose)}
         }

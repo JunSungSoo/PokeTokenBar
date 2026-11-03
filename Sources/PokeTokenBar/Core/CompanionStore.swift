@@ -1197,9 +1197,12 @@ final class CompanionStore {
 
     // MARK: 상점 (재화 = 사용한 토큰)
 
-    /// 상점에서 쓸 수 있는 토큰(재화) = 실사용 누적 − 상점 지출 누적. 성장 미터(usedSinceInstall)는
-    /// 여기선 읽기만 — 구매는 spentTokens 만 올려 잔액을 깎는다(진화 진행·오늘/주/월 통계 무영향).
-    var availableTokens: Int { max(0, state.usedSinceInstall - state.spentTokens) }
+    /// Spendable currency includes challenge receipts; lifetime usage/growth remain unchanged.
+    /// Purchases increase spentTokens without consuming the per-run receipts.
+    var availableTokens: Int {
+        let bonus=(state.challengeCashClaims ?? [:]).values.reduce(0) { min(SaveTransfer.maxTokenValue,$0+max(0,min(500_000_000,$1))) }
+        return max(0,state.usedSinceInstall+bonus-state.spentTokens)
+    }
 
     /// 상점 판매 아이템 — shopPrice 있는 것만. 가격 저렴한 순, 단 구매 완료한 보유형은 맨 아래로.
     var purchasableItems: [ItemKind] {
@@ -2381,6 +2384,18 @@ final class CompanionStore {
         // 극단값은 그대로 남아, 앱이 매 기동마다 같은 값을 읽어 산술 트랩으로 죽는 상태를 못 벗어난다
         // (디코드는 *성공*하므로 위의 .corrupt 복구도 발동하지 않는다). 여기서 걸면 자가 복구된다.
         state = SaveTransfer.sanitized(s)
+    }
+    /// The wallet credit and per-run receipt share one atomic write; growth is unchanged.
+    func claimChallengeCash(_ run:ChallengeRun)throws {
+        let amount=run.defeatCashTokens
+        guard amount>0 else{return}
+        if let claimed=state.challengeCashClaims?[run.id] {
+            guard claimed==amount else{throw ChallengeFailure.invalidReward};return
+        }
+        var next=state,claims=state.challengeCashClaims ?? [:]
+        claims[run.id]=amount;next.challengeCashClaims=claims
+        try JSONEncoder().encode(next).write(to:fileURL,options:.atomic)
+        state=next
     }
     var championShinyTargets:[DexEntry] {state.dex.filter{!$0.isReleased && !$0.isShiny}}
     /// Collection mutation and claim ledger are one atomic transaction. Retries are idempotent.

@@ -773,6 +773,32 @@
       "sha256": "0cfaee1eb16c6fa11fca5c7a5c691ceb6a9a38cddb1aff68ae58cbb9552a70be",
       "bytes": 126275932,
       "packagedAt": "2026-11-03T14:31:08+09:00"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "15:44:33",
+      "archive": "PokeTokenBar-3.0.3-261103(3).zip",
+      "version": "3.0.3",
+      "evidence": "User explicitly requested a 3.0.3 local version bump, third November 3 release-note entry, Desktop ZIP then commit/push, including individual nature/move labels. Final native suite: 70 tests complete with one opt-in live-Drive test skipped, no failures. Full build engine suite: 152 tests pass. Packaging tests: 8 pass. Additional shop migration/purchase and source-region checks verified; original-player restoration mutation fails as expected. ARM64 release build and strict/deep app/helper signature checks pass; all 4356 source resources match. Actual packaged helper verifies 27 teams and 162 NPC stats/items, preserves owned stats and executes automatic recovery. ZIP integrity, executable SHA, current full note bytes/order/redaction, both app version fields and metadata/filename 3.0.3 verified. No app installation or live user-state changes.",
+      "turn": null,
+      "title": "Battle guard feedback, challenge defeat currency, complete shop and individual loadout labels",
+      "commit": null,
+      "sourceBaseCommit": "e88ab492e16962e1ccbf8c042fa2c712bcdcdb79",
+      "artifactAvailable": true,
+      "releaseNumber": 3,
+      "changes": [
+        "공격 기술이 빗나가면 사용한 포켓몬과 기술 이름을 포함한 일시 알림을 설정 언어로 표시하도록 했습니다.",
+        "방어·판별로 공격을 막았을 때 포켓몬이 사라지던 현상을 수정하고, 방어한 포켓몬에게 원본 방어 연출과 효과음이 재생되도록 했습니다.",
+        "챌린지 패배 시 첫 2승을 제외하고 3승부터 10M, 4승부터 20M으로 보상을 누적하며, 이후 체육관 승리마다 10M·사천왕 승리마다 30M·챔피언 승리마다 50M을 더해 지급하도록 했습니다.",
+        "챌린지 M 보상을 일반 상점에서 사용할 수 있도록 하고 재실행·창 재진입으로 중복 지급되지 않도록 했으며, 실제 사용량과 포켓몬 육성 진행에는 영향을 주지 않도록 했습니다.",
+        "챌린지 상점의 무작위 4개 상품 제한을 제거하고 매번 전체 7종 상품을 표시하도록 했습니다.",
+        "기존 챌린지의 상점 목록도 전체 상품으로 확장하면서 보유 포인트·상품별 구매 횟수·인상된 가격과 포켓몬의 HP·PP를 유지하도록 했습니다.",
+        "챌린지 등록·선발 교체 시 같은 종의 개체를 구분할 수 있도록 포켓몬 이름 오른쪽에 성격과 기술배치를 간략히 표시하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.3-261103(3).zip",
+      "sha256": "fde4f3cad7dbc09768c86d609e0c630ee6a79a1e704af0094b984999883bd1af",
+      "bytes": 126289863,
+      "packagedAt": "2026-11-03T15:44:33+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

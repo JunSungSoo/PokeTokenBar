@@ -153,6 +153,7 @@ enum SaveTransfer {
         var s = state
         s.usedSinceInstall = clampToken(s.usedSinceInstall)
         s.spentTokens = clampToken(s.spentTokens)
+        s.challengeCashClaims=s.challengeCashClaims?.filter{!$0.key.isEmpty && (10_000_000...500_000_000).contains($0.value) && $0.value.isMultiple(of:10_000_000)}
         s.eggUsage = clampToken(s.eggUsage)
         s.claimedTodayTokensByProvider = s.claimedTodayTokensByProvider?.reduce(into: [:]) { result, entry in
             result[entry.key] = clampToken(entry.value)
@@ -219,6 +220,7 @@ enum SaveTransfer {
                                      hasUsageData: Bool) -> CompanionState {
         var state = imported
         state.language = current.language
+        state.challengeCashClaims=(state.challengeCashClaims ?? [:]).merging(current.challengeCashClaims ?? [:],uniquingKeysWith:max)
         state.candyGrantTier = mergedGrantTier(imported.candyGrantTier, current.candyGrantTier)
         state.candyWindowEpoch = mergedWindowEpochs(
             imported.candyWindowEpoch, imported.candyGrantTier,
