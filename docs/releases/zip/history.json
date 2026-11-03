@@ -752,6 +752,27 @@
       "sha256": "1869883cfaa9ccc86f0f23abf4b8fb3d5201d5482582adde54f3d473293cf27f",
       "bytes": 126271681,
       "packagedAt": "2026-11-03T11:22:39+09:00"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "14:31:08",
+      "archive": "PokeTokenBar-3.0.2-261103(2).zip",
+      "version": "3.0.2",
+      "evidence": "Explicit user-requested 3.0.2 release, second November 3 note entry, Desktop ZIP then commit/push. Shop regression reproduces 14 failures before the fix; all 40 UI/shop tests pass afterward, including mounted animated combat through reward and a 100-to-70-point purchase. Source regions inspected. Release build passes 152 engine tests; 19 version/parser tests complete with one opt-in network test skipped, no failures; 8 package tests pass. ARM64 app/helper deep strict signatures, 4356 resource hashes, all 27 teams and 162 actual bundled-engine NPC stats/items, owned stats and an automatic recovery turn verified. Final ZIP integrity, notes ordering/redaction/bytes, executable SHA distinct from existing extracted 3.0.1 app, source catalog bytes, filename/app/metadata version 3.0.2 verified. Installation and user-state changes skipped.",
+      "turn": null,
+      "title": "Fix challenge shop purchase lock after animated victory",
+      "commit": null,
+      "sourceBaseCommit": "26f02e0b08ae7d15be94210089ee829001442361",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "챌린지 승리 후 전투 연출 상태가 남아 포인트가 있어도 상점의 포켓몬 선택과 구매가 비활성화되던 문제를 수정했습니다.",
+        "전투 연출이 끝나면 승리 보상 선택 전·후 모두 상점 상품을 정상적으로 구매할 수 있도록 하고, 전투 진행 중에는 구매 제한을 유지했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.2-261103(2).zip",
+      "sha256": "0cfaee1eb16c6fa11fca5c7a5c691ceb6a9a38cddb1aff68ae58cbb9552a70be",
+      "bytes": 126275932,
+      "packagedAt": "2026-11-03T14:31:08+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

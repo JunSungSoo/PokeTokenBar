@@ -500,3 +500,43 @@ nature, IVs and zero EVs. Species, moves, abilities, role-optimized held items a
 recovery tactic are unchanged. The v7 item catalog is compatible; existing live battle
 checkpoints retain their exact original opponents and subsequent encounters use the new
 level policy. No release-note entry or release package is created by this adjustment.
+
+
+## Shop target lock after animated victory (2026-11-03)
+
+Live inspection of a user's 3.0.1 first intermission confirmed affordable HP recovery with
+all targets and Buy disabled. The saved points/resources were valid. The final effect
+callback removed the battle view before its deferred busy reset reached the model, so
+`effectsBusy` incorrectly remained true on the shop screen. The model now clears terminal
+busy state synchronously, ignores late non-battle busy callbacks and gates purchases on
+settled authoritative reward presentation rather than the removed view's mirrored flag.
+Existing balances, prices, offers, recovery rules and pending mandatory rewards are retained.
+The running user app/save were only inspected; no points were spent and no app was replaced.
+
+Validation: 40 native UI/shop tests pass. The real-engine regression fails 14 assertions
+on the old source (`/tmp/ptb-shop-busy-before.log`), then succeeds with the fix. The mounted
+animated-victory test completes six actual attacks through production effects without
+manual presentation completion and purchases PP recovery after the mandatory reward,
+verifying a 100-to-70 point debit. Source-region inspection confirms the terminal reset,
+late callback filter and reward purchase path execute (`/tmp/ptb-shop-busy-regions.txt`).
+The running 3.0.1 user's shop was left open, its purchase sheet canceled, and saved points
+were neither spent nor rewritten by this investigation. No ZIP, release note or commit/push
+is produced for this fix unless requested separately.
+
+
+## Requested 3.0.2 local distribution (2026-11-03)
+
+The user requested packaging this fix as 3.0.2, a new November 3 second release-note entry,
+a Desktop ZIP and then commit/push. Both app version fields and the QA short version are
+updated together. The first-release notes and the earlier trainer-finale redaction remain
+intact. Release verification reuses the successful 40 UI/shop tests, including the actual
+mounted animated KO-to-intermission purchase, and reruns the full 152-test engine suite
+in the release builder plus version-check and packaging checks. User app data is not
+migrated or edited; installation is skipped by the local release builder.
+
+Final release verification: the ARM64 app reports 3.0.2 in both version fields and omits
+PTBChallengeTestMode. All 4,356 source resources match; the actual bundled helper checks
+27 teams/162 NPC levels, items and stats, preserves owned stats and executes a CPU recovery
+turn. The ZIP executable differs from the prior 3.0.1 release and matches the verified
+3.0.2 source bundle. The second-release notes precede the first and retain the requested
+trainer-finale redaction. Archive hashes and packaging time are in the ZIP release ledger.

@@ -329,6 +329,63 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         XCTAssertTrue(fresh.own.allSatisfy{$0.hp==$0.maxHP && $0.status.isEmpty})
         XCTAssertTrue(fresh.resources!.allSatisfy{$0.moves.allSatisfy{$0.pp==$0.maxPP}})
     }
+    func testFinishedRealBattleUnlocksShopBeforeAndAfterMandatoryReward()async throws {
+        for claimReward in [false,true] {
+            let m=try fixture(stock:[.ppRecovery,.heal20,.fullRecovery,.ppMoveRecovery]);defer{m.close()}
+            for i in 0..<6{m.select("owned-\(i)")}
+            await m.start();beginPrepared(m);_ = try await wait(m)
+            XCTAssertFalse(m.canPurchase(.ppRecovery,targetID:"owned-0"))
+            try await win(m)
+            XCTAssertEqual(m.session.frame?.ended,true)
+            // Real completion runs before the SwiftUI busy binding's deferred reset.
+            m.effectsBusy=true
+            XCTAssertFalse(m.canPurchase(.ppRecovery,targetID:"owned-0"),"The final battle presentation must finish first")
+            m.didFinishPresentation()
+            XCTAssertEqual(m.screen,.reward)
+            m.playbackBusyChanged(true)
+            XCTAssertFalse(m.effectsBusy,"The removed battle view must not retain a shop lock")
+            if claimReward{m.selectReward(.buff);await m.applyReward()}
+            XCTAssertEqual(m.run?.phase,claimReward ? .intermission:.reward)
+            XCTAssertTrue(m.run?.canPurchase(.ppRecovery,targetID:"owned-0")==true)
+            // A stale mirrored flag must never override settled authoritative presentation.
+            m.effectsBusy=true
+            XCTAssertTrue(m.canPurchase(.ppRecovery,targetID:"owned-0"))
+            XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"))
+            XCTAssertEqual(m.shopBalance,70);XCTAssertEqual(m.shopPrice(.ppRecovery),35)
+            let r=try XCTUnwrap(m.run?.resources.first{$0.id=="owned-0"})
+            XCTAssertTrue(r.moves.allSatisfy{$0.pp==$0.maxPP})
+            XCTAssertEqual(ChallengeRunStore(url:m.save.url).run?.pointBalance,70)
+        }
+    }
+    func testMountedAnimatedVictoryLeavesShopTargetsPurchasable()async throws {
+        let m=try fixture(stock:[.ppRecovery,.heal20,.fullRecovery,.ppMoveRecovery]);defer{m.close()}
+        let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:ChallengeActivity())
+        controller.show(present:false);defer{controller.window?.close()}
+        for i in 0..<6{m.select("owned-\(i)")}
+        await m.start();beginPrepared(m)
+        let deadline=Date().addingTimeInterval(65)
+        var submitted=Set<String>()
+        // Let the actual mounted renderer finish every entry/hit/HP/faint sequence.
+        // No manual completePresentation/didFinishPresentation calls are allowed.
+        while Date()<deadline,m.screen != .reward {
+            if let error=m.session.error{XCTFail(error);break}
+            if let frame=m.session.frame,!frame.ended,!m.session.submitted,!m.effectsBusy,
+               !m.intro.active,!m.session.presentation.pending,!submitted.contains(frame.decisionID),
+               let slot=frame.slots.first {
+                submitted.insert(frame.decisionID)
+                let action=BattleAction(kind:"move",index:try XCTUnwrap(slot.moves.first{!$0.disabled&&$0.pp>0}).index,target:0)
+                try m.session.choose(.init(decisionID:frame.decisionID,actions:[action],order:[]))
+            }
+            try await Task.sleep(for:.milliseconds(30))
+        }
+        XCTAssertEqual(m.screen,.reward);XCTAssertEqual(m.session.frame?.ended,true)
+        XCTAssertFalse(m.effectsBusy);XCTAssertFalse(m.session.presentation.pending)
+        XCTAssertGreaterThan(submitted.count,0)
+        m.selectReward(.buff);await m.applyReward()
+        XCTAssertEqual(m.run?.phase,.intermission)
+        XCTAssertTrue(m.canPurchase(.ppRecovery,targetID:"owned-0"))
+        XCTAssertTrue(m.purchase(.ppRecovery,targetID:"owned-0"));XCTAssertEqual(m.shopBalance,70)
+    }
     func testShopCardsRenderAndPurchaseCannotBypassRequiredVictoryReward()async throws {
         let m=try fixture();defer{m.close()}
         for i in 0..<6{m.select("owned-\(i)")};await m.start();beginPrepared(m);_ = try await wait(m)

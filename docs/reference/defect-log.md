@@ -2795,3 +2795,25 @@ read_when:
   global and fixed-catalog regressions fail. The full roster generator must reproduce the
   checked-in catalog. Existing checkpoints retain old items; a reviewed compatible catalog
   changes only subsequent encounter creation.
+
+
+## A removed battle view must not leave the challenge shop animation-locked
+
+- Live 3.0.1 showed 100 points in the first intermission and an affordable HP-20% card,
+  but all six damaged/fainted targets and Buy were disabled. The saved run had valid HP,
+  offers, no purchases and a 100-point balance. No live purchase or state edit was made.
+- BattleEffectsLayer calls `onFinished()` before its defer resets the busy binding. That
+  callback settles the terminal frame and removes BattleView. Its `.onChange` forwarding
+  of `busy = false` is not guaranteed after removal, leaving the model's mirror true.
+  Shop eligibility used that stale UI flag in addition to the otherwise valid run checks.
+- Finish/close synchronously clears the mirror; callbacks from non-battle screens cannot
+  restore it. Shop eligibility uses the reward screen and authoritative presentation
+  completion, plus the existing affordability/need/state checks. Live battles and unfinished
+  final presentations stay blocked. Sweep found this shop predicate and QA-next predicate
+  as the only model mirror gates; QA-next retains the active-battle animation lock.
+- Prior shop tests manually completed presentations or created the reward view after combat;
+  the end-only surrender test had no final hit animation. Neither covered removed-view
+  callback delivery. A new real-engine end-frame regression failed 14 assertions before
+  the fix, tests reward/intermission purchases with a stale mirror and delayed callbacks,
+  and verifies debit, recovery, price inflation and disk persistence. A mounted actual
+  animated-victory test makes no manual presentation completion calls before purchase.

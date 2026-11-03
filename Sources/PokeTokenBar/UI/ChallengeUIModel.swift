@@ -153,16 +153,20 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
             if let encounter{intro.reset(encounter:encounter.id)}
         }catch{report(error)}
     }
+    func playbackBusyChanged(_ busy:Bool){
+        // A removed battle view can deliver a deferred busy notification after rewards appear.
+        effectsBusy = screen == .battle && busy
+    }
     func didFinishPresentation(){
         session.completePresentation()
-        if session.frame?.ended==true {sceneSettled=true;synchronizeChampionAward()}
+        if session.frame?.ended==true {effectsBusy=false;sceneSettled=true;synchronizeChampionAward()}
     }
     func synchronizeChampionAward(){
         guard let run,run.phase == .cleared else{return}
         do{try store.markChallengeChampions(ids:Set(run.team.map(\.id)))}catch{report(error)}
     }
-    func runningDidEnd(){running=false;sceneSettled=true;intro.finish()}
-    func close(){isOpen=false;preparing=false;running=false;intro.finish();session.stop();sceneSettled=true}
+    func runningDidEnd(){running=false;effectsBusy=false;sceneSettled=true;intro.finish()}
+    func close(){isOpen=false;preparing=false;running=false;effectsBusy=false;intro.finish();session.stop();sceneSettled=true}
     func newChallenge(){guard run?.phase == .lost || (run?.phase == .cleared && run?.championReward?.claimed==true) else{return};newSetup=true;selectedIDs=[];overrides=[:];restoreItems()}
     var canClaimChampionShiny:Bool {
         guard let run,run.phase == .cleared,run.championReward?.claimed==false,!building else{return false}
@@ -205,7 +209,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     func shopPrice(_ item:ChallengeShopItem)->Int {run?.shopPrice(item) ?? item.price}
     var shopBalance:Int {run?.pointBalance ?? 0}
     func canPurchase(_ item:ChallengeShopItem,targetID:String,moveIndex:Int?=nil)->Bool {
-        !building && !effectsBusy && run?.canPurchase(item,targetID:targetID,moveIndex:moveIndex)==true
+        !building && screen == .reward && !session.presentation.pending && run?.canPurchase(item,targetID:targetID,moveIndex:moveIndex)==true
     }
     @discardableResult func purchase(_ item:ChallengeShopItem,targetID:String,moveIndex:Int?=nil)->Bool {
         guard canPurchase(item,targetID:targetID,moveIndex:moveIndex) else{return false}

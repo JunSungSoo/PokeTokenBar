@@ -25,7 +25,7 @@ import SwiftUI
                     onTestWin:model.session.testControlsEnabled ? {do{try model.session.winForTesting()}catch{model.report(error)}}:nil,
                     onTestNextTrainer:model.session.testControlsEnabled ? {model.nextTrainerForTesting()}:nil,
                     canTestNextTrainer:model.canTestNextTrainer,
-                    onPlaybackBusy:{model.effectsBusy=$0})
+                    onPlaybackBusy:{model.playbackBusyChanged($0)})
                     .id(model.run?.encounterIndex)
             } else if model.screen == .championReward {
                 ChallengeShinyRewardView(model:model,onClose:onClose)
