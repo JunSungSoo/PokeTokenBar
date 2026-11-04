@@ -36,7 +36,25 @@ struct BattleOwnStats: View {
                         .accessibilityElement(children: .combine)
                 }
             }
+            heldItemDetails
         }.padding(8).frame(maxWidth: .infinity, alignment: .leading)
             .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var heldItemDetails: some View {
+        let l = L(language)
+        let item = BattleHeldItems.item(pokemon.item)
+        return VStack(alignment: .leading, spacing: 3) {
+            Text(l.battleHeldItem + ": " + (item?.name(language) ?? l.battleNoItem))
+                .font(.caption.weight(.semibold))
+            if let item, let description = item.descriptions[language.rawValue] {
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.top, 2)
+        .accessibilityElement(children: .combine)
     }
 }

@@ -864,6 +864,26 @@
       "sha256": "af95835d51d3a40dada7efac5ede75ea36251cd64e7cfeb25ca8f074dc02f7d2",
       "bytes": 126292442,
       "packagedAt": "2026-11-04T17:21:26+09:00"
+    },
+    {
+      "date": "2026-11-04",
+      "time": "17:29:14",
+      "archive": "PokeTokenBar-3.0.6-261104(2).zip",
+      "version": "3.0.6",
+      "evidence": "User-requested second Desktop ZIP. ARM64 bundle signature and resources verified. All 153 engine tests passed. ZIP integrity, version, release notes and bundled bytes verified.",
+      "turn": null,
+      "title": "Show held items and effects in battle stats",
+      "commit": null,
+      "sourceBaseCommit": "2b0842325168a8483533333c5a70d94a8db1a560",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "배틀과 챌린지의 스탯 현황 창에서 현재 출전 중인 내 포켓몬의 스탯 아래에 지닌 도구 이름과 효과 설명을 표시하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.6-261104(2).zip",
+      "sha256": "71b9d6bc4c6272ec8a142ad5c43ac54cf9f4cfc4c6b3c93663cc2cb54e93b9a6",
+      "bytes": 126294847,
+      "packagedAt": "2026-11-04T17:29:14+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",
