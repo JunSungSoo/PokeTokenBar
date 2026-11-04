@@ -4,6 +4,10 @@ const {fixtures}=require('./fixtures/targetless-moves.cjs');
 test('Explosion and Self-Destruct do not animate a queued attack with no living target',()=>{
  const cases=fixtures();assert.equal(Object.keys(cases).length,12);
  for(const [key,{frames,pp}]of Object.entries(cases))for(const [player,frame]of frames.entries()){
+  const opposing = frames[1-player].own;
+  assert.deepEqual(frame.foeTeamStatus, {
+   selected: opposing.length, fainted: opposing.filter(pokemon => pokemon.fainted).length
+  }, key);
   const ownSource=effect=>effect.source.own===(player===0)&&effect.source.slot===0;
   if(key.endsWith('-retarget')){
    const attack=frame.effects.find(e=>e.moveID==='thunderbolt'&&ownSource(e));

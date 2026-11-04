@@ -250,7 +250,11 @@ class OwnedBattle {
       conditionTimings:Object.fromEntries([...Object.entries(b.field.pseudoWeather),...(b.field.terrain?[[b.field.terrain,b.field.terrainState]]:[])].flatMap(([id,state])=>timing(state)?[[id,timing(state)]]:[])),
       ownSide:sideEffects(side), foeSide:sideEffects(side.foe)};
     for(const id of ['mudsport','watersport'])if(b.getAllActive().some(p=>p.volatiles[id]))field.conditions.push(id);
-    return {turn:b.turn,own:side.pokemon.map(p=>mon(p,true)),foe:side.foe.active.filter(Boolean).map(p=>mon(p,false)),field};
+    const foeTeamStatus = {
+      selected: side.foe.pokemon.length,
+      fainted: side.foe.pokemon.filter(p => p.fainted || p.hp === 0).length,
+    };
+    return {turn:b.turn,own:side.pokemon.map(p=>mon(p,true)),foe:side.foe.active.filter(Boolean).map(p=>mon(p,false)),field,foeTeamStatus};
   }
   frame(player) {
     const b=this.battle, side=b.sides[player], request=side.activeRequest || {};

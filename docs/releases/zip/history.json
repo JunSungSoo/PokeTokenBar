@@ -842,6 +842,28 @@
       "sha256": "7c0d9e0e4a47720565fe90f3347b3831228878322dabf2e1283b51453e2f58f3",
       "bytes": 126286979,
       "packagedAt": "2026-11-03T17:35:07+09:00"
+    },
+    {
+      "date": "2026-11-04",
+      "time": "17:21:26",
+      "archive": "PokeTokenBar-3.0.6-261104(1).zip",
+      "version": "3.0.6",
+      "evidence": "Explicit user-requested Desktop ZIP and release notes. Battle sprite geometry, animation, party status and packaging regressions passed. All 153 engine tests passed. ARM64 bundle signature and resources verified, including party status through bundled engine smoke checks. ZIP integrity, version, release notes and bundled bytes verified.",
+      "turn": null,
+      "title": "Stabilize battle sprite ground placement and show party availability",
+      "commit": null,
+      "sourceBaseCommit": "82dc12fb39f178ab77ae65b2826ebd98e9ba6b0c",
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "배틀에서 포켓몬을 교체해도 타원형 지면의 크기와 위치가 바뀌지 않도록 고정했습니다.",
+        "포켓몬 이미지의 실제 윤곽을 기준으로 좌우 위치를 보정해 지면 중앙에 정렬되도록 했습니다.",
+        "배틀과 챌린지에서 양쪽 HP 표시 위에 포켓볼 6개를 배치해 출전 가능, 기절(X), 미선발 상태를 구분하도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.6-261104(1).zip",
+      "sha256": "af95835d51d3a40dada7efac5ede75ea36251cd64e7cfeb25ca8f074dc02f7d2",
+      "bytes": 126292442,
+      "packagedAt": "2026-11-04T17:21:26+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

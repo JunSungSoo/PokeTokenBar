@@ -13,6 +13,8 @@ test('actual HP, PP, dead members, status and consumed items survive a new encou
  const e=setup();turn(e);const before=e.frame(0).resources;
  before[0].hp=0;before[1].hp=179;before[1].status='brn';before[1].moves[0].pp=0;before[2].item='';
  const next=setup([before,null]),f=next.frame(0);
+ assert.deepEqual(f.foeTeamStatus,{selected:6,fainted:0});
+ assert.deepEqual(next.frame(1).foeTeamStatus,{selected:6,fainted:1});
  assert.equal(f.own.length,6);assert.equal(f.own.find(p=>p.active).id,'a1');assert.equal(f.own.find(p=>p.id==='a0').hp,0);
  assert.equal(f.own.find(p=>p.id==='a1').hp,179);assert.equal(f.slots[0].moves[0].pp,0);assert.equal(f.slots[0].moves[0].disabled,true);
  assert.equal(f.resources.find(p=>p.id==='a1').status,'brn');assert.equal(f.own[0].stats.atk,120);

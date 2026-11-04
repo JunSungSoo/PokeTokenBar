@@ -120,25 +120,14 @@ import XCTest
         try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-battle-size-comparison.png"))
     }
 
-    func testGroundFootprintFollowsEachPokemonRatherThanTheLargestTeamMember() {
-        for mode in BattleMode.allCases {
-            let sizes=[25,321].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:$0,form:nil,back:true)}
-            let camera=BattleSpriteSizing.make(mode:mode,sizes:sizes)
-            let small=BattleSpriteGeometry.groundSize(spriteWidth:sizes[0].width*camera.pixelScale,stageWidth:camera.stageWidth)
-            let large=BattleSpriteGeometry.groundSize(spriteWidth:sizes[1].width*camera.pixelScale,stageWidth:camera.stageWidth)
-            XCTAssertGreaterThan(large.width,small.width*1.4)
-            XCTAssertLessThanOrEqual(large.width,camera.stageWidth)
-            XCTAssertLessThanOrEqual(large.height,BattleSpriteGeometry.shadowHeight)
-            XCTAssertEqual(BattleSpriteGeometry.feetAboveShadowCenter,0)
-        }
-    }
-    func testNativeStageUsesOriginalSizesAndKeepsFeetOnGround() async throws {
+    func testNativeStageKeepsGroundFixedAcrossSpeciesChanges() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer{try? FileManager.default.removeItem(at:directory)}
         let original=directory.appendingPathComponent("back-25-a.gif")
         try FileManager.default.copyItem(at:original,to:directory.appendingPathComponent("back-321-a.gif"))
         let sizing=BattleSpriteSizing.make(mode:.singles,sizes:[25,321].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:$0,form:nil,back:true)})
         var heights:[Double]=[]
+        var groundWidths:[Double]=[]
         for id in [25,321] {
             let pokemon=BattleCombatant(id:String(id),speciesID:id,name:"",level:50,shiny:false,active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
             let host=NSHostingController(rootView:BattlePokemonStage(pokemon:pokemon,back:true,stageSize:108,sizing:sizing,spriteStore:store))
@@ -146,6 +135,7 @@ import XCTest
             window.contentViewController=host;window.setContentSize(NSSize(width:sizing.stageWidth,height:sizing.stageHeight));window.orderFront(nil)
             defer{window.orderOut(nil);window.contentViewController=nil}
             var top=Int.max,bottom = -1,rasterScale=1.0
+            var groundLeft=Int.max,groundRight = -1
             for _ in 0..<40 {
                 try await Task.sleep(for:.milliseconds(25));host.view.layoutSubtreeIfNeeded()
                 let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
@@ -155,6 +145,10 @@ import XCTest
                     for x in 0..<bitmap.pixelsWide {
                         guard let color=bitmap.colorAt(x:x,y:y)?.usingColorSpace(.deviceRGB) else{continue}
                         if color.redComponent>0.8 && color.blueComponent<0.3 {top=min(top,y);bottom=max(bottom,y)}
+                        if color.redComponent > color.greenComponent, color.greenComponent > color.blueComponent,
+                           color.redComponent < 0.6, color.redComponent - color.blueComponent > 0.08 {
+                            groundLeft=min(groundLeft,x);groundRight=max(groundRight,x)
+                        }
                     }
                 }
                 if bottom>=0 {break}
@@ -166,8 +160,11 @@ import XCTest
             XCTAssertEqual(height,expected,accuracy:2)
             XCTAssertEqual(host.view.bounds.height-Double(bottom+1)/rasterScale,BattleSpriteGeometry.footInset,accuracy:1.5)
             heights.append(height)
+            XCTAssertGreaterThan(groundRight,groundLeft,"The ground oval must render")
+            groundWidths.append(Double(groundRight-groundLeft+1)/rasterScale)
         }
         XCTAssertGreaterThan(heights[1],heights[0]*1.4,"Native display must not normalize both species to the same square")
+        XCTAssertEqual(groundWidths[0],groundWidths[1],accuracy:1,"Switching species must not resize the ground")
     }
     func testActualGIFsKeepDifferentNativeSizesDuringOriginalMoveAndEntry() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()

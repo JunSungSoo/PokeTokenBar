@@ -14,14 +14,20 @@ import XCTest
     func testDamageAndHealingInterpolateBothSidesBeforeCommittingFaint() async throws {
         let state=BattleScenePlayback()
         let own=[pokemon("own",hp:20),pokemon("bench",hp:10,active:false)],foe=[pokemon("foe")]
-        state.accept(frame(own:own,foe:foe))
-        let target=BattleScene(id:1,turn:2,own:[pokemon("own",hp:80),pokemon("bench",hp:90,active:false)],foe:[pokemon("foe",hp:0,fainted:true)],field:field)
+        var initial = frame(own: own, foe: foe)
+        initial.foeTeamStatus = BattlePartyStatus(selected: 3, fainted: 0)
+        state.accept(initial)
+        let target=BattleScene(id:1,turn:2,own:[pokemon("own",hp:80),pokemon("bench",hp:90,active:false)],foe:[pokemon("foe",hp:0,fainted:true)],field:field,
+            foeTeamStatus:BattlePartyStatus(selected:3,fainted:1))
         var done=false,samples:[Int]=[],healing:[Int]=[]
         let started=Date(),task=Task{await state.animate(target);done=true}
         while !done {
             if let f=state.frame {
                 samples.append(f.foe[0].hp);healing.append(f.own[0].hp)
-                if f.foe[0].hp>0 {XCTAssertFalse(f.foe[0].fainted);XCTAssertEqual(f.own[1].hp,10)}
+                if f.foe[0].hp>0 {
+                    XCTAssertFalse(f.foe[0].fainted);XCTAssertEqual(f.own[1].hp,10)
+                    XCTAssertEqual(f.foeTeamStatus?.fainted,0)
+                }
             }
             try await Task.sleep(for:.milliseconds(12))
         }
@@ -29,6 +35,7 @@ import XCTest
         XCTAssertTrue(samples.contains{$0>0 && $0<100});XCTAssertTrue(healing.contains{$0>20 && $0<80})
         XCTAssertEqual(samples,samples.sorted(by:>));XCTAssertEqual(healing,healing.sorted())
         XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(started),0.75)
+        XCTAssertEqual(state.frame?.foeTeamStatus,BattlePartyStatus(selected:3,fainted:1))
         XCTAssertEqual(state.frame?.foe[0].hp,0);XCTAssertTrue(state.frame!.foe[0].fainted)
         XCTAssertEqual(state.frame?.own[0].hp,80);XCTAssertEqual(state.frame?.own[1].hp,90)
     }

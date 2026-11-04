@@ -157,6 +157,11 @@ struct BattleFieldState: Codable, Sendable, Equatable {
     var conditionTimings: [String: BattleFieldTiming]? = nil
     var isEmpty: Bool { weather.isEmpty && conditions.isEmpty && ownSide.isEmpty && foeSide.isEmpty }
 }
+struct BattlePartyStatus: Codable, Sendable, Equatable {
+    let selected: Int
+    let fainted: Int
+}
+
 /// Immutable public state at an executed protocol event, never the opponent's private team.
 struct BattleScene: Codable, Sendable, Identifiable {
     let id: Int
@@ -164,6 +169,7 @@ struct BattleScene: Codable, Sendable, Identifiable {
     let own: [BattleCombatant]
     let foe: [BattleCombatant]
     let field: BattleFieldState
+    var foeTeamStatus: BattlePartyStatus? = nil
 }
 struct BattleFrame: Codable, Sendable {
     let revision: String
@@ -182,6 +188,7 @@ struct BattleFrame: Codable, Sendable {
     let ended: Bool
     let winner: Int?
     var resources: [ChallengePokemonState]? = nil
+    var foeTeamStatus: BattlePartyStatus? = nil
 }
 struct BattleAction: Codable, Sendable, Hashable {
     let kind: String

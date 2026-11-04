@@ -26,7 +26,8 @@ final class BattleScenePlayback {
             decisionID: previous.decisionID, preview: previous.preview, waiting: previous.waiting,
             own: scene.own, foe: scene.foe, slots: previous.slots, log: previous.log,
             effects: previous.effects, field: scene.field, logOffset: previous.logOffset,
-            scenes: previous.scenes, ended: false, winner: nil)
+            scenes: previous.scenes, ended: false, winner: nil,
+            foeTeamStatus: scene.foeTeamStatus ?? previous.foeTeamStatus)
     }
     /// Animate only the currently visible individual; switching/max-HP changes snap.
     func animate(_ scene: BattleScene) async {
@@ -56,7 +57,8 @@ final class BattleScenePlayback {
             else {
                 let progress=Double(step)/Double(steps)
                 apply(BattleScene(id:scene.id,turn:scene.turn,own:interpolate(previous.own,scene.own,progress),
-                    foe:interpolate(previous.foe,scene.foe,progress),field:previous.field ?? scene.field))
+                    foe:interpolate(previous.foe,scene.foe,progress),field:previous.field ?? scene.field,
+                    foeTeamStatus:previous.foeTeamStatus))
             }
         }
     }

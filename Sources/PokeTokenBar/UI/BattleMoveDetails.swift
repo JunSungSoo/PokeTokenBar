@@ -137,8 +137,7 @@ struct BattlePokemonStage: View {
     var animated = true
     var body: some View {
         let width=sizing?.stageWidth ?? (stageSize+20)
-        let rendered=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
-        let footprint=BattleSpriteGeometry.groundSize(spriteWidth:rendered.width*(sizing?.pixelScale ?? BattleSpriteGeometry.imageBox(stageSize:stageSize)/max(rendered.width,rendered.height)),stageWidth:width)
+        let footprint = BattleSpriteGeometry.groundSize(stageWidth: width)
         ZStack(alignment:.bottom) {
             Ellipse().fill(LinearGradient(colors:[Color(red:0.39,green:0.26,blue:0.17),Color(red:0.18,green:0.12,blue:0.08)],startPoint:.top,endPoint:.bottom))
                 .overlay(Ellipse().fill(.black.opacity(0.24)).scaleEffect(x:0.72,y:0.48))

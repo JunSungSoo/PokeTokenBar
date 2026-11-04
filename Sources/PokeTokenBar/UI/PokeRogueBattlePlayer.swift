@@ -113,6 +113,7 @@ struct PokeRogueActor:Sendable {
     private func sprite(_ pokemon:BattleCombatant,back:Bool,reduced:Bool) async throws -> (String,[String:Any]) {
         let key=SpriteStore.cacheKey(speciesID:pokemon.speciesID,animated:!reduced,shiny:pokemon.shiny,form:pokemon.form,back:back)
         if let cached=payloads[key]{return(key,cached)}
+        let run = generation
         var frames:[(image:NSImage,delay:TimeInterval)]=[]
         if !reduced {
             frames=BattleSpriteGeometry.croppedFrames(await SpriteLoader.recoveringAnimationFrames(speciesID:pokemon.speciesID,shiny:pokemon.shiny,store:spriteStore,form:pokemon.form,back:back,onUnavailable:{}))
@@ -120,8 +121,15 @@ struct PokeRogueActor:Sendable {
         if frames.isEmpty,let data=await spriteStore.data(speciesID:pokemon.speciesID,animated:false,shiny:pokemon.shiny,form:pokemon.form,back:back),let image=NSImage(data:data){frames=[(BattleSpriteGeometry.cropped(image),1)]}
         guard !frames.isEmpty else{throw BattleFailure.unavailableEngine}
         let center=BattleSpriteGeometry.horizontalCenter(frames)
-        let encoded=try frames.map{ frame -> String in
-            let target=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+        let target = PokeRogueSpriteSizes.shared.battleSize(speciesID: pokemon.speciesID, form: pokemon.form, back: back)
+        var encoded: [String] = []
+        encoded.reserveCapacity(frames.count)
+        for (index, frame) in frames.enumerated() {
+            if index.isMultiple(of: 8) {
+                await Task.yield()
+                try Task.checkCancellation()
+                guard run == generation else { throw CancellationError() }
+            }
             let fit=SpriteFit.size(for:frame.image.size,width:target.width,height:target.height)
             // Reserve both sides of the stance so tails/wings are not clipped by the atlas.
             let width=ceil(max(target.width,2*max(center,1-center)*fit.width))
@@ -132,7 +140,7 @@ struct PokeRogueActor:Sendable {
             frame.image.draw(in:NSRect(x:width/2-center*fit.width,y:0,width:fit.width,height:fit.height),from:.zero,operation:.sourceOver,fraction:1)
             NSGraphicsContext.restoreGraphicsState()
             guard let bytes=bitmap.representation(using:.png,properties:[:]) else{throw BattleFailure.invalidMessage}
-            return "data:image/png;base64,"+bytes.base64EncodedString()
+            encoded.append("data:image/png;base64," + bytes.base64EncodedString())
         }
         let value:[String:Any]=["frames":encoded,"delays":frames.map(\.delay)]
         payloads[key]=value;order.append(key)

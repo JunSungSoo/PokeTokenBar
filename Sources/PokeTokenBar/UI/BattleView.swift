@@ -156,15 +156,16 @@ struct BattleView: View {
         }.padding(12)
     }
     private func battlefield(_ frame: BattleFrame) -> some View {
-        ZStack {
+        let ownParty = BattlePartyStatus(selected: frame.own.count, fainted: frame.own.filter(\.fainted).count)
+        return ZStack {
             VStack {
                 HStack(spacing: 14) {
                     Spacer(minLength: 0)
-                    ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot).opacity(trainerIntro?.active == true ? 0:1) }
+                    ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot,party:frame.foeTeamStatus).opacity(trainerIntro?.active == true ? 0:1) }
                 }
                 Spacer(minLength: 8)
                 HStack(spacing: 14) {
-                    ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot) }
+                    ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot,party:ownParty) }
                     Spacer(minLength: 0)
                 }
             }.padding(18).measureBattleContent("battlers")
@@ -207,9 +208,9 @@ struct BattleView: View {
         }
         return result
     }
-    private func combatant(_ pokemon: BattleCombatant, own: Bool, slot: Int) -> some View {
+    private func combatant(_ pokemon: BattleCombatant, own: Bool, slot: Int, party: BattlePartyStatus?) -> some View {
         HStack(spacing: 4) {
-            if own { battleSprite(pokemon,own:true,slot:slot) }
+            if own { battleSprite(pokemon,own:true,slot:slot).opacity(pokemon.fainted ? 0.35 : 1) }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(.headline).lineLimit(1)
@@ -235,9 +236,18 @@ struct BattleView: View {
                 .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
                 .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
                 .foregroundStyle(.black)
+                .opacity(pokemon.fainted ? 0.35 : 1)
+                .overlay(alignment: .topLeading) {
+                    if slot == 0 {
+                        BattlePartyIndicators(status: party,
+                            expectedCount: battle.isChallenge ? 6 : battle.mode.battleSize,
+                            language: store.language)
+                            .offset(y: -17)
+                    }
+                }
                 .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
-            if !own { battleSprite(pokemon,own:false,slot:slot) }
-        }.opacity(pokemon.fainted ? 0.35 : 1)
+            if !own { battleSprite(pokemon,own:false,slot:slot).opacity(pokemon.fainted ? 0.35 : 1) }
+        }
     }
     private var spriteSizing:BattleSpriteSizing {
         let catalog=PokeRogueSpriteSizes.shared

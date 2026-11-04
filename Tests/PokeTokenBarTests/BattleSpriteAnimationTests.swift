@@ -121,6 +121,17 @@ final class BattleSpriteAnimationTests: XCTestCase {
         let fainted = try await sample(BattlePokemonStage(pokemon:pokemon(fainted:true),back:true,stageSize:128,spriteStore:store))
         XCTAssertEqual(fainted.count,1)
     }
+    func testFloatingSpriteCentersItsBodyRatherThanAnOffCenterPuff() throws {
+        let context = try XCTUnwrap(CGContext(data: nil, width: 64, height: 64, bitsPerComponent: 8,
+            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.setFillColor(NSColor.white.cgColor)
+        context.fill(CGRect(x: 20, y: 23, width: 24, height: 32))
+        context.fill(CGRect(x: 50, y: 0, width: 4, height: 4))
+        let image = NSImage(cgImage: try XCTUnwrap(context.makeImage()), size: NSSize(width: 64, height: 64))
+        XCTAssertEqual(BattleSpriteGeometry.horizontalCenter([(image, 0.1)]), 0.5, accuracy: 0.02)
+    }
+
     func testSharedCropRetainsNativePoseMovementAndFrameDelays() throws {
         let frames = try [CGRect(x:5,y:9,width:20,height:35),CGRect(x:15,y:4,width:20,height:35)].enumerated().map { index, rect in
             (image:NSImage(cgImage:try pixels(.red,rect:rect),size:NSSize(width:64,height:64)),delay:Double(index+1)/10)

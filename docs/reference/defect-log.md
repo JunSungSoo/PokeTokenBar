@@ -2913,3 +2913,34 @@ read_when:
   Charizard into a temporary directory. It checks actual cropped GIF proportions and
   exports an offscreen production-stage comparison; it never fetches or changes user
   sprites. The deterministic catalog/camera regression still runs without local artwork.
+
+## A battle slot's ground must remain stable through a switch
+
+- The ground took its width and height from each incoming species. A large size
+  difference made the oval jump on reveal. The previous sizing test explicitly
+  required different ground widths, so it protected the old presentation rule.
+  Use the shared stage width for the oval and retain the established foot inset.
+- A new sprite also repeats its animation crop and stance calculation. Read alpha
+  from a packed bitmap instead of creating a color object for every pixel, and
+  reuse existing bitmap representations. The original player calculates the target
+  size once per animation and yields between encoding batches. Cancelled or stopped
+  playback cannot resume encoding into a newer player's cache.
+- The rendered small/large stages showed 53pt and 184pt ground widths before the
+  fix. The regression requires matching oval widths while checking that the two
+  sprites still differ in size and their feet land on the same baseline. Existing
+  crop and recall tests cover pose offsets, frame timing and the reveal handoff.
+
+## Sparse lower pixels can pull a floating sprite off the ground center
+
+- The original anchor treated the bottom quarter of the shared GIF crop as feet.
+  In Koffing's actual front GIF that band accounts for about 5% of the opaque area
+  and is biased to the right by detached smoke. Its anchor was 62.17% of the crop
+  width, while the complete silhouette is centered at 49.29%. Earlier regressions
+  used grounded sprites with a substantial lower body and missed this case.
+- The shared native/original-player anchor uses the complete silhouette when the
+  lower quarter contributes less than 10% of the duration-weighted alpha mass.
+  Otherwise the stance remains the anchor. One anchor for the full GIF keeps
+  pose motion and hovering intact. Compute row moments from packed alpha bytes.
+- A centered body with an offset bottom puff fails the old rule at 81.25% and
+  passes with the silhouette anchor. The actual cached Koffing GIF also resolves
+  to 49.29% with the new rule. Grounded tail and GIF pose tests cover the other path.
