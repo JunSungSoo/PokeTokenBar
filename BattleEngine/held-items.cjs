@@ -11,6 +11,21 @@ function battleDex(){
  const parent=Dex.mod('gen5'),d=new Dex.ModdedDex(id);
  d.gen=5;d.parentMod='gen5';
  d.dataCache={...parent.data,Pokedex:{...parent.data.Pokedex},Items:{...parent.data.Items},Abilities:{...parent.data.Abilities},Scripts:{...parent.data.Scripts},Moves:{...parent.data.Moves},TypeChart:{...parent.data.TypeChart}};
+ // Gen V shares this condition across Protect, Detect, Endure, Quick Guard and Wide Guard.
+ d.dataCache.Conditions = {
+  ...parent.data.Conditions,
+  stall: {
+   duration: 2,
+   onStallMove() {
+    // A failed roll still counts as a consecutive attempt.
+    this.effectState.duration = 2;
+    return this.randomChance(3, 10);
+   },
+   onRestart() {
+    this.effectState.duration = 2;
+   }
+  }
+ };
  // Import only the requested modern type booster; leave the shared BW2 dex intact.
  d.dataCache.Items.fairyfeather=Dex.mod('gen9').data.Items.fairyfeather;
  for(const id of allowedFairyMoves)d.dataCache.Moves[id]=fairyDex.data.Moves[id];

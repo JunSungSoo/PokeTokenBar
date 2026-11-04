@@ -30,15 +30,19 @@ import XCTest
         let large=PokeRogueSpriteSizes.shared.battleSize(speciesID:321,form:nil,back:true)
         for mode in BattleMode.allCases {
             let sizing=BattleSpriteSizing.make(mode:mode,sizes:[small,large])
+            let originalScale = min(mode == .singles ? 1.5 : 1.25,
+                                    (mode == .singles ? 180 : 118) / max(small.width, large.width),
+                                    (mode == .singles ? 150 : 110) / max(small.height, large.height))
+            XCTAssertEqual(sizing.pixelScale, originalScale * 1.5, accuracy: 0.0001)
             XCTAssertEqual((large.width*sizing.pixelScale)/(small.width*sizing.pixelScale),large.width/small.width,accuracy:0.0001)
-            XCTAssertLessThanOrEqual(sizing.stageWidth,mode == .singles ? 192:130)
-            XCTAssertLessThanOrEqual(sizing.stageHeight,mode == .singles ? 166:126)
+            XCTAssertLessThanOrEqual(sizing.stageWidth,(mode == .singles ? 282 : 189) + 0.0001)
+            XCTAssertLessThanOrEqual(sizing.stageHeight,mode == .singles ? 241:181)
             XCTAssertGreaterThan(sizing.pixelScale,0)
         }
     }
     func testSmallSpeciesRemainDistinctFromCharizardAndLugiaInBothModesAndFacings() {
         let catalog=PokeRogueSpriteSizes.shared
-        let ids=[25,151,6,249,321]
+        let ids=[74,151,6,249,321]
         var measurements:[String:Double]=[:]
         for mode in BattleMode.allCases {
             let camera=BattleSpriteSizing.make(mode:mode,sizes:ids.flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
@@ -48,7 +52,7 @@ import XCTest
                     let fit=SpriteFit.size(for:catalog.size(speciesID:id,form:nil,back:back),width:target.width,height:target.height)
                     return CGSize(width:fit.width*camera.pixelScale,height:fit.height*camera.pixelScale)
                 }
-                for small in [25,151] {
+                for small in [74,151] {
                     XCTAssertGreaterThan(visible(6).height,visible(small).height*1.75,"Charizard versus \(small), \(mode), back=\(back)")
                     XCTAssertGreaterThan(visible(249).height,visible(small).height*2.0,"Lugia versus \(small), \(mode), back=\(back)")
                     XCTAssertGreaterThan(visible(249).width,visible(small).width*2.8)

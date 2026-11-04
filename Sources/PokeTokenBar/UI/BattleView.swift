@@ -209,8 +209,11 @@ struct BattleView: View {
         return result
     }
     private func combatant(_ pokemon: BattleCombatant, own: Bool, slot: Int, party: BattlePartyStatus?) -> some View {
-        HStack(spacing: 4) {
-            if own { battleSprite(pokemon,own:true,slot:slot).opacity(pokemon.fainted ? 0.35 : 1) }
+        let sizing = spriteSizing
+        // The doubles row has 303 points per combatant after window padding and row spacing.
+        let cardWidth: CGFloat = battle.mode == .singles ? 205 : min(148, 299 - sizing.stageWidth)
+        return HStack(spacing: 4) {
+            if own { battleSprite(pokemon,own:true,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(.headline).lineLimit(1)
@@ -232,7 +235,7 @@ struct BattleView: View {
                 Text(own ? "\(pokemon.hp) / \(pokemon.maxHP)" : "\(pokemon.hp)%")
                     .font(.caption.monospacedDigit()).frame(maxWidth:.infinity,alignment:.trailing)
                 if !pokemon.status.isEmpty { Text(l.battleStatus(pokemon.status)).font(.caption.bold()).foregroundStyle(.orange) }
-            }.padding(10).frame(width: battle.mode == .singles ? 205 : 148)
+            }.padding(10).frame(width: cardWidth)
                 .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
                 .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
                 .foregroundStyle(.black)
@@ -246,7 +249,7 @@ struct BattleView: View {
                     }
                 }
                 .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
-            if !own { battleSprite(pokemon,own:false,slot:slot).opacity(pokemon.fainted ? 0.35 : 1) }
+            if !own { battleSprite(pokemon,own:false,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
         }
     }
     private var spriteSizing:BattleSpriteSizing {
@@ -261,9 +264,9 @@ struct BattleView: View {
         }
         return BattleSpriteSizing.make(mode:battle.mode,sizes:sizes)
     }
-    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int) -> some View {
+    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:spriteSizing)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 

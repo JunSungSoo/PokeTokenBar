@@ -5,6 +5,27 @@ function team(p,lead,second){const mons=[lead,second||member(p+'1','Blissey'),me
 function make(item='',moves=['tackle'],mode='singles'){return new OwnedBattle(mode,[team('a',member('a','Smeargle',item,moves)),team('b',member('b','Mew','',['splash']))],[1,2,3,4]);}
 function turn(e,a=[{kind:'move',index:1,target:0}],b=[{kind:'move',index:1,target:0}]){for(const [p,actions]of [[0,a],[1,b]])e.choose(p,e.frame(p).decisionID,actions);}
 function firstDamage(e){const line=e.frame(0).log.find(l=>l.startsWith('|-damage|p2a:'));return 100-Number(line.split('|')[3].split('/')[0]);}
+test('consecutive protection attempts roll 30% even after failure or changing guard moves', () => {
+ const engine = make('', ['protect', 'detect', 'splash']);
+ const rolls = [];
+ const randomChance = engine.battle.randomChance.bind(engine.battle);
+ engine.battle.randomChance = (numerator, denominator) => {
+  if (engine.battle.event?.id !== 'StallMove') return randomChance(numerator, denominator);
+  rolls.push([numerator, denominator]);
+  return rolls.length !== 1;
+ };
+ const use = index => turn(engine, [{kind:'move', index, target:0}]);
+ use(1);
+ assert.deepEqual(rolls, []);
+ use(2);
+ assert.ok(engine.frame(0).log.some(line => line.startsWith('|-fail|p1a:')));
+ use(1);
+ use(1);
+ assert.deepEqual(rolls, [[3, 10], [3, 10], [3, 10]]);
+ use(3);
+ use(2);
+ assert.equal(rolls.length, 3);
+});
 const types=['tackle','flamethrower','surf','thunderbolt','energyball','icebeam','brickbreak','sludgebomb','earthquake','aerialace','psychic','bugbuzz','rockslide','shadowball','dragonpulse','darkpulse','flashcannon','moonblast'];
 for(const [index,item]of catalog.items.filter(i=>i.group==='type').entries())test(item.id+' increases its matching attack in the real BW2 simulation',()=>{const base=make('',[types[index]]),boosted=make(item.id,[types[index]]);turn(base);turn(boosted);assert.ok(firstDamage(boosted)>firstDamage(base));});
 for(const [item,move]of [['lifeorb','tackle'],['expertbelt','shadowball'],['muscleband','tackle'],['wiseglasses','psychic'],['normalgem','tackle']])test(item+' power and consumption/recoil',()=>{const base=make('',[move]),e=make(item,[move]);turn(base);turn(e);assert.ok(firstDamage(e)>firstDamage(base));const p=e.battle.sides[0].active[0];if(item==='lifeorb')assert.equal(p.hp,450);if(item==='normalgem'){assert.equal(p.item,'');assert.ok((500-e.battle.sides[1].pokemon[0].hp)/(500-base.battle.sides[1].pokemon[0].hp)>1.4);assert.match(battleDex().items.get(item).desc,/1\.5x/);}});

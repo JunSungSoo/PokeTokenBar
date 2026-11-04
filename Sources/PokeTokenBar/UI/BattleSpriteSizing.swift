@@ -56,7 +56,11 @@ struct BattleSpriteSizing:Equatable {
     let stageHeight:CGFloat
     @MainActor static func make(mode:BattleMode,sizes:[CGSize])->Self {
         let width=sizes.map(\.width).max() ?? 64,height=sizes.map(\.height).max() ?? 64
-        let scale=min(mode == .singles ? 1.5:1.25,(mode == .singles ? 180:118)/max(1,width),(mode == .singles ? 150:110)/max(1,height))
+        let singles = mode == .singles
+        let originalScale = min(singles ? 1.5 : 1.25,
+                                (singles ? 180 : 118) / max(1, width),
+                                (singles ? 150 : 110) / max(1, height))
+        let scale = originalScale * 1.5
         return Self(pixelScale:scale,stageWidth:max(72,width*scale+12),stageHeight:max(mode == .singles ? 113:95,height*scale+BattleSpriteGeometry.footInset))
     }
 }
