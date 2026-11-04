@@ -5,7 +5,7 @@ function team(p,lead,second){const mons=[lead,second||member(p+'1','Blissey'),me
 function make(item='',moves=['tackle'],mode='singles'){return new OwnedBattle(mode,[team('a',member('a','Smeargle',item,moves)),team('b',member('b','Mew','',['splash']))],[1,2,3,4]);}
 function turn(e,a=[{kind:'move',index:1,target:0}],b=[{kind:'move',index:1,target:0}]){for(const [p,actions]of [[0,a],[1,b]])e.choose(p,e.frame(p).decisionID,actions);}
 function firstDamage(e){const line=e.frame(0).log.find(l=>l.startsWith('|-damage|p2a:'));return 100-Number(line.split('|')[3].split('/')[0]);}
-test('consecutive protection attempts roll 30% even after failure or changing guard moves', () => {
+test('protection rolls 30% after success and resets after failure', () => {
  const engine = make('', ['protect', 'detect', 'splash']);
  const rolls = [];
  const randomChance = engine.battle.randomChance.bind(engine.battle);
@@ -20,7 +20,9 @@ test('consecutive protection attempts roll 30% even after failure or changing gu
  use(2);
  assert.ok(engine.frame(0).log.some(line => line.startsWith('|-fail|p1a:')));
  use(1);
+ assert.deepEqual(rolls, [[3, 10]]);
  use(1);
+ use(2);
  assert.deepEqual(rolls, [[3, 10], [3, 10], [3, 10]]);
  use(3);
  use(2);

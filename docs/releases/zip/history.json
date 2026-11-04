@@ -905,6 +905,27 @@
       "sha256": "5e54ba98fb749095cc585df8c9e669e0031360d74d321f855cef0c338b6ada0e",
       "bytes": 126296058,
       "packagedAt": "2026-11-04T18:10:51+09:00"
+    },
+    {
+      "date": "2026-11-04",
+      "time": "18:37:50",
+      "archive": "PokeTokenBar-3.0.7-261104(4).zip",
+      "version": "3.0.7",
+      "evidence": "User-requested fourth Desktop ZIP. ARM64 bundle signature and resources verified. All 154 engine tests passed. ZIP integrity, version, release notes and bundled bytes verified.",
+      "turn": null,
+      "title": "Align opposing combatants and reset guard odds after failure",
+      "commit": null,
+      "sourceBaseCommit": "00568da35ef64555c8964ca8f865d7f42342ae28",
+      "artifactAvailable": true,
+      "releaseNumber": 4,
+      "changes": [
+        "배틀과 챌린지의 전투 영역에서 상대 포켓몬과 HP 카드를 위쪽에 정렬하고, 상대 포켓몬 위에 남던 빈 공간을 줄였습니다.",
+        "방어·판별 등 방어 계열 기술은 직전 시도가 성공했을 때 다음 시도의 성공률을 30%로 적용하고, 실패하면 다음 시도의 기본 성공률을 100%로 되돌리도록 수정했습니다. 기술 설명에도 변경을 반영했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.7-261104(4).zip",
+      "sha256": "5ea5aedfb49d85b47b29151204339be361307ba3e304b581b3ba5e21aec1e541",
+      "bytes": 126296416,
+      "packagedAt": "2026-11-04T18:37:50+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

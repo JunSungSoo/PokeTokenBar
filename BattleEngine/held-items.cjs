@@ -17,8 +17,6 @@ function battleDex(){
   stall: {
    duration: 2,
    onStallMove() {
-    // A failed roll still counts as a consecutive attempt.
-    this.effectState.duration = 2;
     return this.randomChance(3, 10);
    },
    onRestart() {

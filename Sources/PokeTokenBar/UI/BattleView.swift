@@ -66,7 +66,7 @@ struct BattleView: View {
                         }
                         if roguePlayer.error != nil{Text(l.battleEffectsUnavailable).font(.caption).foregroundStyle(.orange)}
                         if let error = battle.error { Text(l.battleUserError(error)).font(.caption).foregroundStyle(.red).textSelection(.enabled) }
-                    }.padding(.horizontal, 12).padding(.top, 12)
+                    }.padding(.horizontal, 12).padding(.top, 5)
                         .frame(maxWidth: .infinity, alignment: .top)
                     Divider().measureBattleContent("footer")
                     if showsResultClose && battle.outcome != nil && !battle.presentation.pending && !effectsBusy {
@@ -159,22 +159,24 @@ struct BattleView: View {
         let ownParty = BattlePartyStatus(selected: frame.own.count, fainted: frame.own.filter(\.fainted).count)
         return ZStack {
             VStack {
-                HStack(spacing: 14) {
-                    Spacer(minLength: 0)
+                HStack(alignment: .top, spacing: 14) {
                     ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot,party:frame.foeTeamStatus).opacity(trainerIntro?.active == true ? 0:1) }
-                }
+                }.frame(maxWidth: .infinity, alignment: .trailing)
                 Spacer(minLength: 8)
                 HStack(spacing: 14) {
                     ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot,party:ownParty) }
-                    Spacer(minLength: 0)
-                }
-            }.padding(18).measureBattleContent("battlers")
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 5)
+            .padding(.bottom, 18)
+            .measureBattleContent("battlers")
             if frame.preview { Image(systemName:"bolt.shield").font(.system(size:50)).foregroundStyle(.black.opacity(0.3)) }
         }
         // Fix the viewport after the native battlers have chosen their required height.
         // An outer fixed-height frame only centers an oversized child; it does not constrain drawing.
         .fixedSize(horizontal:false,vertical:true)
-        .frame(minHeight:battle.mode == .doubles ? 260:310)
+        .frame(minHeight: battle.mode == .doubles ? 247 : 297, alignment: .top)
         .modifier(PokeRogueBattlefieldLayers(player:roguePlayer,arena:battle.arena))
         .overlay(alignment:.topTrailing) {
             if let trainerIntro,trainerIntro.active {
@@ -212,7 +214,7 @@ struct BattleView: View {
         let sizing = spriteSizing
         // The doubles row has 303 points per combatant after window padding and row spacing.
         let cardWidth: CGFloat = battle.mode == .singles ? 205 : min(148, 299 - sizing.stageWidth)
-        return HStack(spacing: 4) {
+        return HStack(alignment: own ? .center : .top, spacing: 4) {
             if own { battleSprite(pokemon,own:true,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
@@ -249,6 +251,7 @@ struct BattleView: View {
                     }
                 }
                 .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
+                .padding(.top, !own || slot == 0 ? 17 : 0)
             if !own { battleSprite(pokemon,own:false,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
         }
     }
@@ -266,7 +269,14 @@ struct BattleView: View {
     }
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing)
+        // The opposing row starts at the visible sprite rather than reserving height for the tallest reserve.
+        let spriteHeight = PokeRogueSpriteSizes.shared.battleSize(speciesID: pokemon.speciesID, form: pokemon.form, back: own).height
+        let stageSizing = own ? sizing : BattleSpriteSizing(
+            pixelScale: sizing.pixelScale,
+            stageWidth: sizing.stageWidth,
+            stageHeight: spriteHeight * sizing.pixelScale + BattleSpriteGeometry.footInset
+        )
+        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:stageSizing)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 
