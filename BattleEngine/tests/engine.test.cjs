@@ -193,7 +193,8 @@ test('visual events distinguish charge turns and suppress failed status effects'
  // Gen V logs a capped stat increase as |-boost|...|0, not |-fail|. Full-HP Rest reaches -fail.
  const fail=setup('singles',['splash'],[1,2,3,4],['rest']);lead(fail);
  for(let p=0;p<2;p++)fail.choose(p,fail.frame(p).decisionID,[{kind:'move',index:1,target:0}]);
- assert.equal(fail.frame(0).effects.find(v=>v.moveID==='rest').targets[0].hit,false);
+ assert.ok(fail.frame(0).log.some(line => line.startsWith('|-fail|')));
+ assert.ok(!fail.frame(0).effects.some(event => event.moveID === 'rest'));
 });
 test('spread visual effects include the actual doubles ally and both foes',()=>{
  const teams=[0,1].map(p=>Array.from({length:6},(_,i)=>({...member(`${p}-${i}`,i),moves:['growl','protect']})));

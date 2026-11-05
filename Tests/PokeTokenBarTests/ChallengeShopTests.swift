@@ -2,7 +2,7 @@ import XCTest
 @testable import PokeTokenBar
 
 @MainActor final class ChallengeShopTests:XCTestCase {
-    private func ready(wins:Int=1)throws->ChallengeRunStore {
+    private func ready(wins:Int=1, claimPoints:Bool=false)throws->ChallengeRunStore {
         let helper=ChallengeRunTests(),temporary=try helper.store(),save=ChallengeRunStore(url:temporary.url,roll:{.attack})
         var team=helper.team();team[0].item="leftovers"
         try save.start(team:team,catalogVersion:"shop-test")
@@ -12,11 +12,11 @@ import XCTest
             r[0].hp=0;r[0].item="";r[1].hp=1;r[1].status="psn";r[2].hp=0;r[3].hp=1
             for i in r.indices{for j in r[i].moves.indices{r[i].moves[j].pp=0}}
             try save.accept(resources:r,decision:nil,winner:0)
-            if index+1<wins{try save.apply(.buff(.attack));try save.advance()}
+            if index+1<wins{try save.apply(claimPoints ? .points : .buff(.attack));try save.advance()}
         }
         return save
     }
-    func testOneHundredPointsPerActualWinNoDoubleAwardAndNewRunResets()throws {
+    func testNewRunStartsWithOneHundredAndWinsDoNotGrantPoints()throws {
         let save=try ready();XCTAssertEqual(save.run?.pointBalance,100)
         XCTAssertThrowsError(try save.accept(resources:save.run!.resources,decision:nil,winner:0))
         XCTAssertEqual(save.run?.pointBalance,100)
@@ -29,7 +29,7 @@ import XCTest
         try save.accept(resources:save.run!.resources,decision:nil,winner:1)
         XCTAssertEqual(save.run?.pointBalance,100);XCTAssertThrowsError(try save.purchase(.fullRecovery,targetID:"a1"))
         try save.start(team:ChallengeRunTests().team(),catalogVersion:"shop-test")
-        XCTAssertEqual(save.run?.pointBalance,0)
+        XCTAssertEqual(save.run?.pointBalance,100)
     }
     func testFullRecoveryRevivesEntireTeamWithoutClaimingRequiredReward()throws {
         let save=try ready()
@@ -44,7 +44,7 @@ import XCTest
         try save.apply(.buff(.attack));try save.advance()
     }
     func testUnlimitedRepeatedPurchasesCorrectPricesRoundingAndNoOverheal()throws {
-        let save=try ready(wins:2)
+        let save=try ready(wins:3,claimPoints:true)
         try save.purchase(.ppRecovery,targetID:"a3")
         for expectedHP in [101,201]{try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.resources[1].hp,expectedHP)}
         try save.purchase(.heal40,targetID:"a1");XCTAssertEqual(save.run?.resources[1].hp,401)
@@ -133,13 +133,13 @@ import XCTest
         let save=try ready(wins:3)
         let before=save.run!.resources
         try save.purchase(.teamHeal50,targetID:"")
-        XCTAssertEqual(save.run?.pointBalance,250)
+        XCTAssertEqual(save.run?.pointBalance,50)
         for (i,r) in save.run!.resources.enumerated() {
             XCTAssertEqual(r.hp,min(500,before[i].hp+250))
             XCTAssertEqual(r.moves,before[i].moves);XCTAssertEqual(r.status,before[i].hp==0 ? "":before[i].status)
         }
         try save.purchase(.statusCure,targetID:"a1")
-        XCTAssertEqual(save.run?.pointBalance,240);XCTAssertEqual(save.run?.resources[1].hp,251)
+        XCTAssertEqual(save.run?.pointBalance,40);XCTAssertEqual(save.run?.resources[1].hp,251)
         XCTAssertEqual(save.run?.resources[1].status,"");XCTAssertEqual(save.run?.resources[1].moves[0].pp,0)
         XCTAssertThrowsError(try save.purchase(.statusCure,targetID:"a1"))
         XCTAssertEqual(save.run?.phase,.reward);XCTAssertThrowsError(try save.advance())
@@ -211,18 +211,18 @@ import XCTest
         let before=save.run!.resources
         for bad in [nil,-1,2] as [Int?] {
             XCTAssertThrowsError(try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:bad))
-            XCTAssertEqual(save.run?.resources,before);XCTAssertEqual(save.run?.pointBalance,300)
+            XCTAssertEqual(save.run?.resources,before);XCTAssertEqual(save.run?.pointBalance,100)
             XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),10)
         }
         try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:1)
         XCTAssertEqual(save.run?.resources[0].hp,0)
         XCTAssertEqual(save.run?.resources[0].moves.map(\.pp),[0,10])
         XCTAssertEqual(save.run?.resources[1],before[1])
-        XCTAssertEqual(save.run?.pointBalance,290);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),15)
+        XCTAssertEqual(save.run?.pointBalance,90);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),15)
         XCTAssertEqual(save.run?.shopPrice(.ppRecovery),30);XCTAssertEqual(save.run?.shopPrice(.heal20),10)
         XCTAssertThrowsError(try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:1))
         try save.purchase(.ppMoveRecovery,targetID:"a0",moveIndex:0)
-        XCTAssertEqual(save.run?.pointBalance,275);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),20)
+        XCTAssertEqual(save.run?.pointBalance,75);XCTAssertEqual(save.run?.shopPrice(.ppMoveRecovery),20)
         let loaded=ChallengeRunStore(url:save.url)
         XCTAssertEqual(loaded.run?.shopPrice(.ppMoveRecovery),20)
         try save.apply(.buff(.attack));try save.advance()
@@ -245,28 +245,35 @@ import XCTest
         }
     }
 
-    func testVictoryPointsIncreaseEveryThreeEncountersThroughRedAndPersistWithoutDoubleCredit()throws {
+    func testPointsRewardEndsSelectionAndPersistsWithoutDoubleCredit()throws {
         let helper=ChallengeRunTests(),save=try helper.store()
         try save.start(team:helper.team(),catalogVersion:"tiered-points")
-        let tiers=[100,120,140,160,180,200,220,240,260]
-        var total=0
+        var total=100
+        XCTAssertEqual(save.run?.pointBalance,total)
         for index in 0..<27 {
             try save.beginEncounter(opponent:helper.team("b"),seed:[1,2,3,4],policyRevision:"test")
             let resources=save.run!.resources
             try save.accept(resources:resources,decision:nil,winner:0)
-            total+=tiers[index/3]
             XCTAssertEqual(save.run?.pointBalance,total,"Victory \(index+1)")
             XCTAssertThrowsError(try save.accept(resources:resources,decision:nil,winner:0))
             XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,total)
-            if index<26{try save.apply(.buff(try XCTUnwrap(save.run?.rewardRoll)));try save.advance()}
+            if index<26 {
+                try save.apply(.points)
+                total += 50
+                XCTAssertEqual(save.run?.phase,.intermission)
+                XCTAssertEqual(save.run?.pointBalance,total)
+                XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,total)
+                XCTAssertThrowsError(try save.apply(.points))
+                try save.advance()
+            }
         }
-        XCTAssertEqual(total,4860);XCTAssertEqual(save.run?.phase,.cleared)
+        XCTAssertEqual(total,1400);XCTAssertEqual(save.run?.phase,.cleared)
     }
     func testLegacyMissingPointsUseTieredTotalButSavedSpentBalanceIsNotRecalculated()throws {
         let save=try ready(wins:4)
-        XCTAssertEqual(save.run?.pointBalance,420)
-        try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.pointBalance,410)
-        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,410)
+        XCTAssertEqual(save.run?.pointBalance,100)
+        try save.purchase(.heal20,targetID:"a1");XCTAssertEqual(save.run?.pointBalance,90)
+        XCTAssertEqual(ChallengeRunStore(url:save.url).run?.pointBalance,90)
         var json=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:save.url)) as? [String:Any])
         json.removeValue(forKey:"challengePoints")
         try JSONSerialization.data(withJSONObject:json).write(to:save.url)

@@ -158,25 +158,21 @@ struct BattleView: View {
     private func battlefield(_ frame: BattleFrame) -> some View {
         let ownParty = BattlePartyStatus(selected: frame.own.count, fainted: frame.own.filter(\.fainted).count)
         return ZStack {
-            VStack {
+            VStack(spacing: BattleSpriteSizing.battlefieldRowSpacing) {
                 HStack(alignment: .top, spacing: 14) {
                     ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot,party:frame.foeTeamStatus).opacity(trainerIntro?.active == true ? 0:1) }
                 }.frame(maxWidth: .infinity, alignment: .trailing)
-                Spacer(minLength: 8)
                 HStack(spacing: 14) {
                     ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot,party:ownParty) }
                 }.frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal, 18)
-            .padding(.top, 5)
-            .padding(.bottom, 18)
             .measureBattleContent("battlers")
+            .padding(.top, BattleSpriteSizing.battlefieldTopInset)
             if frame.preview { Image(systemName:"bolt.shield").font(.system(size:50)).foregroundStyle(.black.opacity(0.3)) }
         }
-        // Fix the viewport after the native battlers have chosen their required height.
-        // An outer fixed-height frame only centers an oversized child; it does not constrain drawing.
         .fixedSize(horizontal:false,vertical:true)
-        .frame(minHeight: battle.mode == .doubles ? 247 : 297, alignment: .top)
+        .frame(height: BattleSpriteSizing.battlefieldHeight(for: battle.mode), alignment: .top)
         .modifier(PokeRogueBattlefieldLayers(player:roguePlayer,arena:battle.arena))
         .overlay(alignment:.topTrailing) {
             if let trainerIntro,trainerIntro.active {
@@ -265,13 +261,17 @@ struct BattleView: View {
                 [false,true].map{catalog.battleSize(speciesID:id,form:form,back:$0)}
             }
         }
-        return BattleSpriteSizing.make(mode:battle.mode,sizes:sizes)
+        return BattleSpriteSizing.make(
+            mode: battle.mode,
+            sizes: sizes,
+            rowHeightLimit: BattleSpriteSizing.battlefieldRowHeightLimit(for: battle.mode)
+        )
     }
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        // The opposing row starts at the visible sprite rather than reserving height for the tallest reserve.
+        // Pack the visible rows together inside the fixed viewport.
         let spriteHeight = PokeRogueSpriteSizes.shared.battleSize(speciesID: pokemon.speciesID, form: pokemon.form, back: own).height
-        let stageSizing = own ? sizing : BattleSpriteSizing(
+        let stageSizing = BattleSpriteSizing(
             pixelScale: sizing.pixelScale,
             stageWidth: sizing.stageWidth,
             stageHeight: spriteHeight * sizing.pixelScale + BattleSpriteGeometry.footInset

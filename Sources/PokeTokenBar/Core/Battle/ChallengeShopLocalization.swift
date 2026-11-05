@@ -2,7 +2,16 @@ import Foundation
 
 extension L {
     var challengeShop:String {t("챌린지 상점","Challenge shop","チャレンジショップ","Tienda del desafío","Boutique du défi","Loja do desafio","Herausforderungs-Shop","Магазин испытания")}
-    var challengeShopHint:String {t("승리 시 100포인트부터 · 3전마다 +20포인트 · 구매는 선택사항 · 구매한 상품만 매번 5포인트 인상됩니다.","Win points start at 100, +20 every 3 battles · Optional purchases · Each purchased product costs 5 more next time.","勝利100ポイントから、3戦ごとに+20・購入は任意・購入した商品のみ毎回5ポイント値上げ。","Victorias desde 100 puntos, +20 cada 3 combates · Compra opcional · El producto comprado sube 5 puntos.","Victoires dès 100 points, +20 tous les 3 combats · Achats facultatifs · Le produit acheté augmente de 5 points.","Vitórias desde 100 pontos, +20 a cada 3 batalhas · Compra opcional · O produto comprado aumenta 5 pontos.","Siege ab 100 Punkten, +20 alle 3 Kämpfe · Optionale Käufe · Das gekaufte Produkt wird um 5 Punkte teurer.","Победы от 100 очков, +20 каждые 3 боя · Покупки необязательны · Купленный товар дорожает на 5 очков.")}
+    var challengeShopHint: String {
+        t("시작 시 100포인트 · 승리 보상으로 50포인트 선택 가능 · 구매한 상품은 다음 구매 시 5포인트 인상",
+          "Start with 100 points · Choose 50 points as a victory reward · Each purchased product costs 5 more next time",
+          "開始時に100ポイント・勝利報酬で50ポイントを選択可能・購入した商品は次回5ポイント値上げ",
+          "Empiezas con 100 puntos · Puedes elegir 50 puntos como recompensa · El producto comprado cuesta 5 más la próxima vez",
+          "Départ avec 100 points · Récompense de victoire au choix de 50 points · Chaque produit acheté coûte 5 points de plus la prochaine fois",
+          "Comece com 100 pontos · Escolha 50 pontos como recompensa de vitória · O produto comprado custa 5 pontos a mais na próxima vez",
+          "Start mit 100 Punkten · 50 Punkte als Siegesbelohnung wählbar · Gekaufte Produkte kosten beim nächsten Kauf 5 Punkte mehr",
+          "На старте 100 очков · За победу можно выбрать 50 очков · Купленный товар в следующий раз стоит на 5 очков дороже")
+    }
     func challengePoints(_ amount:Int)->String {t("\(amount)포인트","\(amount) points","\(amount)ポイント","\(amount) puntos","\(amount) points","\(amount) pontos","\(amount) Punkte","\(amount) очков")}
     var challengeShopTarget:String {t("사용할 포켓몬을 선택하세요","Choose a Pokémon","使うポケモンを選んでください","Elige un Pokémon","Choisis un Pokémon","Escolha um Pokémon","Wähle ein Pokémon","Выберите покемона")}
     func challengeShopBuy(_ price:Int)->String {t("\(price)포인트로 구매·사용","Buy and use · \(price) points","\(price)ポイントで購入・使用","Comprar y usar · \(price) puntos","Acheter et utiliser · \(price) points","Comprar e usar · \(price) pontos","Kaufen und nutzen · \(price) Punkte","Купить и применить · \(price) очков")}

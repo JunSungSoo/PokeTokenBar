@@ -926,6 +926,28 @@
       "sha256": "5ea5aedfb49d85b47b29151204339be361307ba3e304b581b3ba5e21aec1e541",
       "bytes": 126296416,
       "packagedAt": "2026-11-04T18:37:50+09:00"
+    },
+    {
+      "date": "2026-11-05",
+      "time": "10:54:15",
+      "archive": "PokeTokenBar-3.0.7-261105(1).zip",
+      "version": "3.0.7",
+      "evidence": "User-requested November 5 Desktop ZIP. ARM64 bundle signature and resources verified. All 155 engine tests passed. ZIP integrity, version, release notes and bundled bytes verified.",
+      "turn": null,
+      "title": "Compact battle arenas and rebalance challenge shop points",
+      "commit": null,
+      "sourceBaseCommit": "f4f53dce0bfbb2357b602390fb4e2473130a2ed1",
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "싱글·더블 배틀과 챌린지의 전투 영역 높이를 모드별로 고정하고, 상단 여백 45pt를 유지하면서 포켓몬 사이 간격과 하단 공간을 줄였습니다.",
+        "이미 적용된 날씨나 상태이상 등으로 변화 기술이 실패하면 PP를 차감하고 실패 메시지를 표시하되, 포켓몬이 사라지던 기술 연출은 재생하지 않도록 수정했습니다.",
+        "새 챌린지를 상점 포인트 100점으로 시작하도록 변경했습니다. 승리 시 자동 지급을 제거하고, 승리 보상으로 50점을 선택해 받으면 보상 선택이 종료되도록 했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.0.7-261105(1).zip",
+      "sha256": "b24374d093dac4786cb9bc7cb560f593d37880fbd2ba7c13d0864a03689d4107",
+      "bytes": 126298448,
+      "packagedAt": "2026-11-05T10:54:15+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

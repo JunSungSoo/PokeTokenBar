@@ -6,6 +6,12 @@ const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/specie
 const {validateResources,initializeResources,resourcesFor}=require('./challenge-state.cjs');
 const challengeBuffs=require('./challenge-buffs.cjs');
 const keys = ['hp','atk','def','spa','spd','spe'];
+const statusApplicationEvents = new Set([
+  '-status', '-curestatus', '-cureteam', '-start', '-end', '-sidestart', '-sideend',
+  '-fieldstart', '-fieldend', '-weather', '-singleturn', '-singlemove',
+  '-boost', '-unboost', '-setboost', '-clearboost', '-clearallboost',
+  '-heal', '-damage', '-item', '-enditem', 'switch', 'drag'
+]);
 function validateTeam(team, count, carried = false, npc = false) {
   if (!Array.isArray(team) || team.length !== count) throw Error(`Select exactly ${count} Pokémon`);
   const ids = new Set(), speciesIDs = new Set(), items=new Set();
@@ -310,8 +316,12 @@ class OwnedBattle {
       const move=b.dex.moves.get(parts[3]);
       const spread=parts.find(p=>p.startsWith('[spread] '));
       const tokens=spread ? spread.slice(9).split(',') : [parts[4] || parts[2]];
-      let next=index+1;while(next<log.length && !log[next].startsWith('|move|') && !log[next].startsWith('|turn|')) next++;
+      let next=index+1;while(next<log.length && log[next]!=='|' && !log[next].startsWith('|move|') && !log[next].startsWith('|turn|')) next++;
       const following=log.slice(index+1,next);
+      // Failed status moves keep their PP cost and failure notice, but never hide a battler for playback.
+      // A spread move can fail on one target while still applying its effect to another.
+      if (move.category === 'Status' && following.some(line => line.startsWith('|-fail|')) &&
+          !following.some(line => statusApplicationEvents.has(line.split('|')[1]))) return [];
       const targets=tokens.flatMap(token=>{
         const target=position(token.trim());if(!target) return [];
         const blocked=following.some(line=>{

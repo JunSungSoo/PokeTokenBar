@@ -207,7 +207,9 @@ import SwiftUI
                     }
                 }
                 if model.rewardKind == .replace {Text(l.challengeReplaceHint).font(.caption).foregroundStyle(.secondary);Text(l.challengeOutgoing).font(.headline)}
-                roster(selectable:model.rewardKind != .allHeal && model.rewardKind != .buff)
+                if model.rewardKind != .points {
+                    roster(selectable:model.rewardKind != .allHeal && model.rewardKind != .buff)
+                }
                 if model.rewardKind == .pp,model.run?.enhancedReward != true,let resource=model.run?.resources.first(where:{$0.id==model.rewardPokemonID}) {
                     VStack(alignment:.leading,spacing:6) {
                         ForEach(Array(resource.moves.enumerated()),id:\.offset){index,move in
@@ -286,6 +288,7 @@ import SwiftUI
         case .replace:l.challengeReplace
         case .allHeal:l.challengeAllHeal
         case .buff:l.challengeBuffReward(model.run?.rewardRoll ?? .attack)+" · "+l.challengeBuffDuration
+        case .points:"+" + l.challengePoints(ChallengeRun.rewardPoints)
         }
     }
 }

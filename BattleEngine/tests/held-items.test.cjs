@@ -5,6 +5,22 @@ function team(p,lead,second){const mons=[lead,second||member(p+'1','Blissey'),me
 function make(item='',moves=['tackle'],mode='singles'){return new OwnedBattle(mode,[team('a',member('a','Smeargle',item,moves)),team('b',member('b','Mew','',['splash']))],[1,2,3,4]);}
 function turn(e,a=[{kind:'move',index:1,target:0}],b=[{kind:'move',index:1,target:0}]){for(const [p,actions]of [[0,a],[1,b]])e.choose(p,e.frame(p).decisionID,actions);}
 function firstDamage(e){const line=e.frame(0).log.find(l=>l.startsWith('|-damage|p2a:'));return 100-Number(line.split('|')[3].split('/')[0]);}
+test('reapplying an active status or weather costs PP without playing its effect', () => {
+ for (const move of ['thunderwave', 'sunnyday', 'substitute']) {
+  const engine = make('', [move]);
+  turn(engine);
+  const first = engine.frame(0);
+  assert.equal(first.effects.filter(effect => effect.moveID === move).length, 1, move);
+  const pp = first.slots[0].moves[0].pp;
+  turn(engine);
+  for (const player of [0, 1]) {
+   const frame = engine.frame(player);
+   assert.equal(frame.effects.filter(effect => effect.moveID === move).length, 1, move);
+   assert.ok(frame.log.some(line => line.startsWith('|-fail|')), move);
+  }
+  assert.equal(engine.frame(0).slots[0].moves[0].pp, pp - 1, move);
+ }
+});
 test('protection rolls 30% after success and resets after failure', () => {
  const engine = make('', ['protect', 'detect', 'splash']);
  const rolls = [];

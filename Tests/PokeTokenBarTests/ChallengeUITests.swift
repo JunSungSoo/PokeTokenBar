@@ -473,7 +473,7 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
             try save.accept(resources:resources,decision:nil,winner:0)
             m.configureRewardSelection()
             XCTAssertEqual(m.screen,.reward);XCTAssertFalse(m.canTestNextTrainer)
-            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.buff]:[.heal,.pp,.replace,.buff])
+            XCTAssertEqual(m.rewardOptions,(index+1)%3==0 ? [.allHeal,.replace,.buff,.points]:[.heal,.pp,.replace,.buff,.points])
             m.next();m.nextTrainerForTesting();XCTAssertEqual(save.run?.encounterIndex,index)
             XCTAssertEqual(save.run?.phase,.reward)
             if index==2 {

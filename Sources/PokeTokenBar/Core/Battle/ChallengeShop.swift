@@ -56,8 +56,11 @@ enum ChallengeShopItem:String,Codable,CaseIterable,Identifiable,Sendable {
 }
 
 extension ChallengeRun {
-    static func victoryPoints(encounterIndex:Int)->Int {100+20*(encounterIndex/3)}
-    static func totalVictoryPoints(_ count:Int)->Int {(0..<count).reduce(0){$0+victoryPoints(encounterIndex:$1)}}
+    static let startingPoints = 100
+    static let rewardPoints = 50
+    static func legacyVictoryPoints(_ count: Int) -> Int {
+        (0..<count).reduce(0) { total, encounter in total + 100 + 20 * (encounter / 3) }
+    }
     func shopPrice(_ item:ChallengeShopItem)->Int {item.price+5*(shopPurchaseCounts?[item.rawValue] ?? 0)}
     var pointBalance:Int {challengePoints ?? 0}
     var completedVictories:Int {

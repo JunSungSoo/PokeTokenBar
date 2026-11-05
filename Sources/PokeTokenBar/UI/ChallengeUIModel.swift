@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 @MainActor @Observable final class ChallengeActivity {static let shared=ChallengeActivity();var isOpen=false}
-enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace,allHeal,buff}
+enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace,allHeal,buff,points}
 enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result,championReward}
 
 @MainActor @Observable final class ChallengeUIModel {
@@ -207,7 +207,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     }
     var rewardOptions:[ChallengeRewardKind] {
         guard let run else{return []}
-        return (run.milestoneReward ? [.allHeal,.replace]:[.heal,.pp,.replace])+(run.rewardRoll==nil ? []:[.buff])
+        return (run.milestoneReward ? [.allHeal,.replace]:[.heal,.pp,.replace])+(run.rewardRoll==nil ? []:[.buff])+[.points]
     }
     var buffSummary:String? {
         guard ![ChallengeScreen.setup,.result,.championReward].contains(screen) else{return nil}
@@ -235,13 +235,16 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
         if !replacements.contains(where:{$0.id==incomingID}){incomingID=replacements.first?.id ?? ""}
     }
     var canApplyReward:Bool {
-        guard let run,run.phase == .reward,!building,rewardOptions.contains(rewardKind),let r=run.resources.first(where:{$0.id==rewardPokemonID}) else{return false}
+        guard let run,run.phase == .reward,!building,rewardOptions.contains(rewardKind) else{return false}
+        if rewardKind == .points { return true }
+        guard let r=run.resources.first(where:{$0.id==rewardPokemonID}) else{return false}
         switch rewardKind {
         case .heal:return r.hp < (run.team.first{$0.id==r.id}?.stats["hp"] ?? 0)
         case .pp:return (run.enhancedReward ? r.moves.contains{$0.pp<$0.maxPP}:(r.moves.indices.contains(rewardMove) && r.moves[rewardMove].pp<r.moves[rewardMove].maxPP))
         case .replace:return replacements.contains{$0.id==incomingID}
         case .allHeal:return run.needsFullRecovery
         case .buff:return run.rewardRoll != nil
+        case .points:return true
         }
     }
     func applyReward()async {
@@ -249,6 +252,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
         do {
             let outgoing=rewardPokemonID
             switch rewardKind {
+            case .points:try session.applyReward(.points)
             case .heal:try session.applyReward(.heal(outgoing))
             case .pp:try session.applyReward(.pp(outgoing,rewardMove))
             case .allHeal:try session.applyReward(.allHeal)

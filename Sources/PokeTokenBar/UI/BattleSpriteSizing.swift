@@ -54,13 +54,31 @@ struct BattleSpriteSizing:Equatable {
     let pixelScale:CGFloat
     let stageWidth:CGFloat
     let stageHeight:CGFloat
-    @MainActor static func make(mode:BattleMode,sizes:[CGSize])->Self {
+    static let battlefieldTopInset: CGFloat = 45
+    static let battlefieldRowSpacing: CGFloat = 4
+
+    @MainActor static func gyaradosRowHeight(for mode: BattleMode) -> CGFloat {
+        let catalog = PokeRogueSpriteSizes.shared
+        let sizes = [false, true].map { catalog.battleSize(speciesID: 130, form: nil, back: $0) }
+        return make(mode: mode, sizes: sizes).stageHeight
+    }
+
+    @MainActor static func battlefieldHeight(for mode: BattleMode) -> CGFloat {
+        let heightReduction: CGFloat = mode == .singles ? 110 : 52
+        return ceil(2 * gyaradosRowHeight(for: mode) + 15 + battlefieldRowSpacing) - heightReduction
+    }
+
+    @MainActor static func battlefieldRowHeightLimit(for mode: BattleMode) -> CGFloat {
+        (battlefieldHeight(for: mode) - battlefieldTopInset - battlefieldRowSpacing) / 2
+    }
+    @MainActor static func make(mode:BattleMode,sizes:[CGSize], rowHeightLimit: CGFloat? = nil)->Self {
         let width=sizes.map(\.width).max() ?? 64,height=sizes.map(\.height).max() ?? 64
         let singles = mode == .singles
         let originalScale = min(singles ? 1.5 : 1.25,
                                 (singles ? 180 : 118) / max(1, width),
                                 (singles ? 150 : 110) / max(1, height))
-        let scale = originalScale * 1.5
+        let heightScale = rowHeightLimit.map { ($0 - BattleSpriteGeometry.footInset) / max(1, height) }
+        let scale = min(originalScale * 1.5, heightScale ?? .infinity)
         return Self(pixelScale:scale,stageWidth:max(72,width*scale+12),stageHeight:max(mode == .singles ? 113:95,height*scale+BattleSpriteGeometry.footInset))
     }
 }

@@ -74,7 +74,7 @@ struct ChallengeRun: Codable, Sendable, Identifiable {
     var championReward:ChallengeChampionReward? = nil
     var shopOffers:[ChallengeShopItem]? = nil
     var shopPurchaseCounts:[String:Int]? = nil
-    var challengePoints:Int? = 0
+    var challengePoints:Int? = ChallengeRun.startingPoints
     var teamBuffs:[ChallengeTeamBuff]? = nil
     var rewardRoll:ChallengeBuffKind? = nil
     var schemaVersion=1
@@ -99,6 +99,7 @@ enum ChallengeReward {
     case replace(String,BattlePokemon)
     case allHeal
     case buff(ChallengeBuffKind)
+    case points
 }
 
 /// Mutations are committed to disk before becoming visible. An unreadable save is never overwritten.
@@ -121,7 +122,7 @@ enum ChallengeReward {
             if changedShop{saved.shopOffers=ChallengeShopItem.allCases}
             let missingPoints=saved.challengePoints==nil
             let missingOffer=saved.phase == .reward && (saved.rewardRoll==nil || saved.rewardRoll == .power)
-            if missingPoints{saved.challengePoints=ChallengeRun.totalVictoryPoints(saved.completedVictories)}
+            if missingPoints{saved.challengePoints=max(ChallengeRun.startingPoints,ChallengeRun.legacyVictoryPoints(saved.completedVictories))}
             if missingOffer{saved.rewardRoll=roll()}
             if missingPoints || missingOffer || changedShop{try commit(saved)}else{run=saved}
         } catch {self.error=error.localizedDescription;unreadable=true}
@@ -142,9 +143,11 @@ enum ChallengeReward {
         if let rewards=run.cashVictoryRewards {
             guard rewards.count<=run.completedVictories,rewards.allSatisfy({[0,10,30,50].contains($0)}),rewards.reduce(0,+)<=500 else{throw ChallengeFailure.invalidState}
         }
-        guard run.pointBalance>=0,run.pointBalance<=ChallengeRun.totalVictoryPoints(run.encounterCount) else{throw ChallengeFailure.invalidState}
+        let maximumPoints = ChallengeRun.legacyVictoryPoints(run.encounterCount)
+            + ChallengeRun.startingPoints + ChallengeRun.rewardPoints * run.encounterCount
+        guard run.pointBalance>=0,run.pointBalance<=maximumPoints else{throw ChallengeFailure.invalidState}
         if let counts=run.shopPurchaseCounts {
-            guard counts.allSatisfy({ChallengeShopItem(rawValue:$0.key) != nil && $0.value>=0 && $0.value<=ChallengeRun.totalVictoryPoints(run.encounterCount)/10}) else{throw ChallengeFailure.invalidState}
+            guard counts.allSatisfy({ChallengeShopItem(rawValue:$0.key) != nil && $0.value>=0 && $0.value<=maximumPoints/10}) else{throw ChallengeFailure.invalidState}
         }
         if let offers=run.shopOffers {guard [4,ChallengeShopItem.allCases.count].contains(offers.count),Set(offers).count==offers.count else{throw ChallengeFailure.invalidState}}
         let buffs=run.teamBuffs ?? []
@@ -231,7 +234,6 @@ enum ChallengeReward {
         if let decision {next.checkpoint?.decisions.append(decision);next.checkpoint?.pendingDecision=nil}
         if let winner {
             if winner==0{next.cashVictoryRewards=next.completedCashRewards+[ChallengeRun.cashReward(encounterIndex:next.encounterIndex)]}
-            if winner==0{next.challengePoints=next.pointBalance+ChallengeRun.victoryPoints(encounterIndex:next.encounterIndex)}
             next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
             next.phase=winner==0 ? (next.encounterIndex==next.encounterCount-1 ? .cleared:.reward):.lost
             next.rewardRoll=next.phase == .reward ? roll():nil
@@ -250,6 +252,8 @@ enum ChallengeReward {
     func apply(_ reward:ChallengeReward,eligible:[DexEntry]=[])throws {
         guard var next=run,next.phase == .reward else{throw ChallengeFailure.invalidReward}
         switch reward {
+        case .points:
+            next.challengePoints = next.pointBalance + ChallengeRun.rewardPoints
         case .heal(let id):
             guard !next.milestoneReward else{throw ChallengeFailure.invalidReward}
             guard let index=next.resources.firstIndex(where:{$0.id==id}),let p=next.team.first(where:{$0.id==id}),let maxHP=p.stats["hp"],next.resources[index].hp<maxHP else{throw ChallengeFailure.invalidReward}
