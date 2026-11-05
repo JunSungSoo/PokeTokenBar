@@ -43,10 +43,10 @@ python3 scripts/package-zip.py --app build/PokeTokenBar.app \
 ### Drive 배포 버전
 
 Drive 업데이트는 날짜·회차가 아니라 앱의 `CFBundleShortVersionString`과 공유 ZIP 파일명의
-`MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.0.7이며 새 Drive 배포마다 앱 버전과 파일명
+`MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.0.8이며 새 Drive 배포마다 앱 버전과 파일명
 버전을 함께 올린다. 빌드 스크립트가 앱 내부 버전을 기록하고 ZIP 메타데이터에도 같은 값이
 포함된다. 파일명에 인식 가능한 버전이 있으면 패키저는 앱 버전 불일치를 거부한다.
-`PokeTokenBar-3.0.7.zip` 또는 `PokeTokenBar-3.0.7-261104.zip` 형식을 사용한다.
+`PokeTokenBar-3.0.8.zip` 또는 `PokeTokenBar-3.0.8-261105.zip` 형식을 사용한다.
 날짜·회차만 바꿔서는 업데이트 알림이 발생하지 않는다. 자동 배포 회차 기록은 사용하지 않는다.
 구현/검증 범위는 `docs/reference/drive-updates.md`를 참고한다.
 
