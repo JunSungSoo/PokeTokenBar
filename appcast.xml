@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>PokeTokenBar Updates</title>
+    <link>https://junsungsoo.github.io/PokeTokenBar/appcast.xml</link>
+    <description>Signed PokeTokenBar ZIP updates</description>
+    <language>en</language>
+  </channel>
+</rss>
