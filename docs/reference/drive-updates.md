@@ -3,6 +3,10 @@
 The current app version is 3.1.0. `scripts/build-app.sh` writes that version into both
 `CFBundleShortVersionString` and `CFBundleVersion`; the QA builder uses the same short version.
 Every subsequent Drive distribution must raise the app version and ZIP filename version.
+Package Drive releases with `scripts/package-zip.py --install-on-launch`.
+Users open `Install PokeTokenBar.app` after extracting the ZIP. It installs the signed
+payload at `/Applications/PokeTokenBar.app` and opens that copy. An equal or newer
+installed version is opened as-is. Drive continues to host the ZIP for manual download.
 
 The existing Home update banner and Settings check now use only this fixed public share:
 https://drive.google.com/file/d/1NYVOMV8fMqf-UGM-dIfKZ3wKV4PtITrN/view

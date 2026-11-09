@@ -29,11 +29,18 @@ ZIP 생성·갱신, 빌드, 커밋·푸시 또는 기존 노트 포함 요청만
 ```bash
 PTB_NATIVE_ARCH_ONLY=1 PTB_SKIP_INSTALL=1 bash scripts/build-app.sh
 python3 scripts/package-zip.py --app build/PokeTokenBar.app \
+  --install-on-launch \
   --notes "docs/releases/zip/00-Release History.txt" \
   --output "$HOME/Desktop/PokeTokenBar-VERSION-arm64-YYYYMMDD.zip"
 ```
 
-압축 최상위는 `PokeTokenBar.app`, `Release Notes.txt`, `Release Metadata.json`이다.
+Drive·Desktop ZIP의 최상위에는 `Install PokeTokenBar.app`, `Release Notes.txt`,
+`Release Metadata.json`을 넣는다. 사용자가 ZIP을 풀고 설치 앱을 열면
+`/Applications/PokeTokenBar.app`을 설치하거나 새 버전으로 교체해 실행한다.
+설치 앱은 실제 앱과 다른 번들 식별자를 사용하므로 기존 앱이 열려 있어도 실행된다.
+기존 앱이 정상 종료를 거부하거나 설치 권한이 없으면 기존 앱을 보존한다.
+권한이 필요한 경우 설치 앱에서 실제 앱을 Finder로 열고 macOS의 승인 절차를 통해 복사한다.
+Homebrew 배포 ZIP은 기존처럼 실제 `PokeTokenBar.app`을 최상위에 둔다.
 패키징 시각, 버전, 소스 HEAD, 작업 트리 변경 여부, 실행 파일 해시는 JSON에만 저장한다.
 노트 부재, 잘못된 날짜/회차, 변경사항 없는 항목,
 기존 출력 덮어쓰기, ZIP 손상, 실행 파일 변경을 거부한다. 원본 `.app`은 수정하지 않는다.

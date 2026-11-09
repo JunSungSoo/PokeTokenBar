@@ -43,7 +43,53 @@ def read_notes(path):
     return text.rstrip() + "\n"
 
 
-def package_zip(app, notes, output):
+def make_installer(app, info, directory):
+    """Wrap the signed payload with a separate launch identity for Finder."""
+    wrapper = directory / "Install PokeTokenBar.app"
+    contents = wrapper / "Contents"
+    (contents / "MacOS").mkdir(parents=True)
+    (contents / "Resources").mkdir()
+    (contents / "Helpers").mkdir()
+    subprocess.run(["codesign", "--verify", "--deep", "--strict", str(app)], check=True)
+    subprocess.run(["ditto", str(app), str(contents / "Helpers/PokeTokenBar.app")], check=True)
+    icon = app / "Contents/Resources/AppIcon.icns"
+    if icon.is_file():
+        (contents / "Resources/AppIcon.icns").write_bytes(icon.read_bytes())
+    launcher_info = {
+        "CFBundleIdentifier": "io.github.chattymin.poketokenbar.zip-installer",
+        "CFBundleExecutable": "PokeTokenBarInstaller",
+        "CFBundleName": "Install PokeTokenBar",
+        "CFBundlePackageType": "APPL",
+        "CFBundleShortVersionString": info["CFBundleShortVersionString"],
+        "CFBundleVersion": info["CFBundleVersion"],
+        "LSMinimumSystemVersion": "14.0",
+        "LSUIElement": True,
+        "CFBundleIconFile": "AppIcon",
+    }
+    (contents / "Info.plist").write_bytes(plistlib.dumps(launcher_info))
+    payload_binary = app / "Contents/MacOS" / info["CFBundleExecutable"]
+    archs = subprocess.check_output(["lipo", "-archs", str(payload_binary)], text=True).split()
+    if not archs or any(arch not in {"arm64", "x86_64"} for arch in archs):
+        raise ValueError("Unsupported PokeTokenBar architecture")
+    slices = []
+    sources = ROOT / "scripts/zip-installer"
+    for arch in archs:
+        binary = directory / ("launcher-" + arch)
+        subprocess.run(["xcrun", "swiftc", "-O", "-parse-as-library", "-target",
+                        f"{arch}-apple-macos14.0", "-module-cache-path", str(directory / "modules"),
+                        str(sources / "BundleInstallation.swift"), str(sources / "Launcher.swift"),
+                        "-o", str(binary)], check=True)
+        slices.append(str(binary))
+    executable = contents / "MacOS/PokeTokenBarInstaller"
+    subprocess.run(["lipo", "-create", *slices, "-output", str(executable)], check=True)
+    identity = os.environ.get("CODESIGN_IDENTITY") or "-"
+    flags = ["--timestamp", "--options", "runtime"] if identity.startswith("Developer ID Application: ") else []
+    subprocess.run(["codesign", "--force", *flags, "-s", identity, str(wrapper)], check=True)
+    subprocess.run(["codesign", "--verify", "--deep", "--strict", str(wrapper)], check=True)
+    return wrapper, hashlib.sha256(executable.read_bytes()).hexdigest()
+
+
+def package_zip(app, notes, output, install_on_launch=False):
     app, output = Path(app).resolve(), Path(output).resolve()
     text = read_notes(notes)
     if output.suffix.lower() != ".zip":
@@ -71,7 +117,15 @@ def package_zip(app, notes, output):
     temporary = Path(temporary)
     temporary.unlink()
     try:
-        subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(app), str(temporary)], check=True)
+        with tempfile.TemporaryDirectory(prefix="ptb-zip-app-") as folder:
+            archive_app = app
+            payload_path = app.name
+            if install_on_launch:
+                archive_app, installer_sha = make_installer(app, info, Path(folder))
+                payload_path = f"{archive_app.name}/Contents/Helpers/PokeTokenBar.app"
+                metadata["installerExecutableSHA256"] = installer_sha
+            subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent",
+                            str(archive_app), str(temporary)], check=True)
         with zipfile.ZipFile(temporary, "a", compression=zipfile.ZIP_DEFLATED) as archive:
             archive.writestr("Release Notes.txt", text.encode("utf-8"))
             archive.writestr("Release Metadata.json", json.dumps(metadata, ensure_ascii=False, indent=2).encode("utf-8"))
@@ -80,9 +134,13 @@ def package_zip(app, notes, output):
                 raise ValueError("ZIP integrity check failed")
             if archive.read("Release Notes.txt").decode("utf-8") != text:
                 raise ValueError("Release notes verification failed")
-            packaged = archive.read(f"{app.name}/Contents/MacOS/{info['CFBundleExecutable']}")
+            packaged = archive.read(f"{payload_path}/Contents/MacOS/{info['CFBundleExecutable']}")
             if hashlib.sha256(packaged).hexdigest() != executable_sha:
                 raise ValueError("Packaged executable differs from the built app")
+            if install_on_launch:
+                installer = archive.read(f"{archive_app.name}/Contents/MacOS/PokeTokenBarInstaller")
+                if hashlib.sha256(installer).hexdigest() != installer_sha:
+                    raise ValueError("Packaged installer differs from the built installer")
         # Same-directory hard-link publication is atomic and refuses an existing destination.
         os.link(temporary, output)
     finally:
@@ -96,6 +154,8 @@ def main():
     parser.add_argument("--app", default="build/PokeTokenBar.app")
     parser.add_argument("--notes", required=True, help="Finished UTF-8 release notes; required for every ZIP")
     parser.add_argument("--output")
+    parser.add_argument("--install-on-launch", action="store_true",
+                        help="Wrap the app in a Finder launcher for Drive ZIP distribution")
     parser.add_argument("--check-notes", action="store_true", help="Validate note format without creating an archive")
     args = parser.parse_args()
     try:
@@ -105,7 +165,7 @@ def main():
             return
         if not args.output:
             parser.error("--output is required for packaging")
-        print(json.dumps(package_zip(args.app, args.notes, args.output), ensure_ascii=False))
+        print(json.dumps(package_zip(args.app, args.notes, args.output, args.install_on_launch), ensure_ascii=False))
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError, zipfile.BadZipFile) as error:
         parser.exit(1, f"ZIP packaging: {error}\n")
 

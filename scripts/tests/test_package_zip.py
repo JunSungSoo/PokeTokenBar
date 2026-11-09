@@ -80,6 +80,31 @@ class PackageZipTests(unittest.TestCase):
             package.package_zip(self.app, self.notes, self.output)
         self.assertEqual(self.output.read_bytes(), b'keep original')
 
+    @unittest.skipUnless(shutil.which('ditto') and shutil.which('xcrun'), 'macOS tools required')
+    def test_drive_zip_wraps_the_signed_app_with_a_distinct_launch_identity(self):
+        plist = self.app / 'Contents/Info.plist'
+        info = plistlib.loads(plist.read_bytes())
+        info.update(CFBundleIdentifier='io.github.chattymin.poketokenbar',
+                    CFBundlePackageType='APPL', CFBundleVersion='2.5.6')
+        plist.write_bytes(plistlib.dumps(info))
+        source = self.root / 'fixture.c'
+        source.write_text('int main(void) { return 0; }')
+        subprocess.run(['xcrun', 'clang', str(source), '-o', str(self.exe)], check=True)
+        subprocess.run(['codesign', '--force', '-s', '-', str(self.app)], check=True)
+        with patch.dict(package.os.environ, {'CODESIGN_IDENTITY': '-'}):
+            package.package_zip(self.app, self.notes, self.output, install_on_launch=True)
+        with zipfile.ZipFile(self.output) as archive:
+            root = 'Install PokeTokenBar.app/Contents/'
+            outer = plistlib.loads(archive.read(root + 'Info.plist'))
+            inner = plistlib.loads(archive.read(root + 'Helpers/PokeTokenBar.app/Contents/Info.plist'))
+            self.assertNotEqual(outer['CFBundleIdentifier'], inner['CFBundleIdentifier'])
+            self.assertEqual(outer['CFBundleVersion'], inner['CFBundleVersion'])
+            self.assertEqual(archive.read(root + 'Helpers/PokeTokenBar.app/Contents/MacOS/PokeTokenBar'),
+                             self.exe.read_bytes())
+            metadata = json.loads(archive.read('Release Metadata.json'))
+            installer = archive.read(root + 'MacOS/' + outer['CFBundleExecutable'])
+            self.assertEqual(metadata['installerExecutableSHA256'], hashlib.sha256(installer).hexdigest())
+
     def test_invalid_output_path_is_rejected_before_packaging(self):
         for output in (self.root / 'not-a-zip.txt', self.app / 'recursive.zip'):
             with self.subTest(output=output):

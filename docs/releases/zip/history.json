@@ -995,6 +995,27 @@
       "sha256": "707b46a67d17a51b3388d7461043dea8825f565de2d88e2862e263fdaeaee3cb",
       "bytes": 126352294,
       "packagedAt": "2026-11-09T13:28:42+09:00"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "14:43:06",
+      "archive": "PokeTokenBar-3.1.0-261109-installer.zip",
+      "version": "3.1.0",
+      "evidence": "Desktop Apple Silicon ZIP with an install-on-launch wrapper. Inner executable matches the verified 5abf4d2 release. Both signatures, ZIP integrity and notes verified; nine packaging tests passed. Isolated macOS test covered replacement, relaunch, save and login preservation, and downgrade prevention.",
+      "turn": null,
+      "title": "Package a Finder launcher for Drive ZIP installs",
+      "commit": null,
+      "sourceBaseCommit": "5abf4d23b0424e4dadaf3adaee767e6f2ccd7278",
+      "artifactAvailable": true,
+      "releaseNumber": 3,
+      "changes": [
+        "ZIP을 풀고 Install PokeTokenBar.app을 실행하면 구버전을 정상 종료한 뒤 응용 프로그램 폴더의 앱을 새 버전으로 교체하고 다시 실행합니다.",
+        "같은 버전이나 더 최신 버전이 이미 설치돼 있으면 해당 앱을 엽니다. 설치 권한이 필요한 경우 Finder에서 실제 앱을 열어 복사할 수 있습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.1.0-261109-installer.zip",
+      "sha256": "ed21b3971021f1835944d3843384a97163de93971a0d7bdc96cb635ba3d78f30",
+      "bytes": 127821937,
+      "packagedAt": "2026-11-09T14:43:06+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",
