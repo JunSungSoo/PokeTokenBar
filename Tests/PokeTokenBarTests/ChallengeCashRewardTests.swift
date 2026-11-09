@@ -67,6 +67,51 @@ private struct CashNoProvider:PokeProviding {
         pending.newChallenge();XCTAssertTrue(pending.newSetup)
         XCTAssertEqual(blocked.availableTokens,10_000_000)
     }
+    func testStartupRepairsOnlyMissingCashReceiptsAfterAnOlderAppRewritesSave() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let file = dir.appendingPathComponent("companion-state.json")
+        var historical = CompanionState()
+        historical.challengeCashClaims = ["retained": 70_000_000, "older": 20_000_000]
+        historical.challengeShinyClaims = ["unrelated": "pokemon"]
+        let oldDate = Date(timeIntervalSince1970: 1_700_000_000)
+        try SaveSnapshotManager.createSnapshot(state: historical, for: file, date: oldDate)
+        historical.challengeCashClaims = ["older": 30_000_000, "newer": 80_000_000, "invalid": -10]
+        try SaveSnapshotManager.createSnapshot(state: historical, for: file, date: oldDate.addingTimeInterval(60))
+        historical.challengeCashClaims = nil
+        try SaveSnapshotManager.createSnapshot(state: historical, for: file, date: oldDate.addingTimeInterval(120))
+
+        let original: [String: Any] = [
+            "usedSinceInstall": 150_000_000, "spentTokens": 190_000_000,
+            "eggUsage": 12_345, "inventory": ["rareCandy": 2],
+            "futureProgress": ["value": "must survive"]
+        ]
+        let suite = "CashRecovery.\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        try JSONSerialization.data(withJSONObject: original).write(to: file)
+        let recovered = CompanionStore(provider: CashNoProvider(), fileURL: file, defaults: defaults)
+        XCTAssertEqual(recovered.availableTokens, 140_000_000)
+        XCTAssertNil(recovered.state.challengeShinyClaims)
+        let bytes = try Data(contentsOf: file)
+        var document = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
+        XCTAssertEqual(document.removeValue(forKey: "challengeCashClaims") as? [String: Int],
+                       ["retained": 70_000_000, "older": 30_000_000, "newer": 80_000_000])
+        XCTAssertEqual(document as NSDictionary, original as NSDictionary)
+
+        let reopened = CompanionStore(provider: CashNoProvider(), fileURL: file, defaults: defaults)
+        XCTAssertEqual(reopened.availableTokens, recovered.availableTokens)
+        XCTAssertEqual(try Data(contentsOf: file), bytes)
+
+        // A partial current ledger wins on conflicting amounts, while gaps still get filled.
+        document["challengeCashClaims"] = ["retained": 40_000_000]
+        try JSONSerialization.data(withJSONObject: document).write(to: file)
+        let partial = CompanionStore(provider: CashNoProvider(), fileURL: file, defaults: defaults)
+        XCTAssertEqual(partial.state.challengeCashClaims?["retained"], 40_000_000)
+        XCTAssertEqual(partial.availableTokens, 110_000_000)
+    }
+
     func testImportRetainsReceiptsAndMalformedCreditsAreDiscarded() {
         var current=CompanionState(),imported=CompanionState()
         current.challengeCashClaims=["same":30_000_000,"local":50_000_000]

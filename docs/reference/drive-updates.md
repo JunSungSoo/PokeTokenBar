@@ -1,6 +1,6 @@
 # Drive version updates
 
-The current app version is 3.0.9. `scripts/build-app.sh` writes that version into both
+The current app version is 3.1.0. `scripts/build-app.sh` writes that version into both
 `CFBundleShortVersionString` and `CFBundleVersion`; the QA builder uses the same short version.
 Every subsequent Drive distribution must raise the app version and ZIP filename version.
 

@@ -93,6 +93,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             challengeTestWindow=window;window.center();NSApp.activate(ignoringOtherApps:true);window.makeKeyAndOrderFront(nil)
             return
         }
+        let older = SingleInstance.olderRunningInstances()
+        if !older.isEmpty || SingleInstance.shouldYieldToRunningInstance() {
+            for app in older { app.terminate() }
+            Task { @MainActor in
+                // A replacement login job may start before unregistering the old job
+                // finishes terminating its process. Give that handoff time to finish.
+                for _ in 0..<30 {
+                    if older.allSatisfy(\.isTerminated), !SingleInstance.shouldYieldToRunningInstance() {
+                        finishLaunching()
+                        return
+                    }
+                    try? await Task.sleep(for: .milliseconds(100))
+                }
+                if older.allSatisfy(\.isTerminated) {
+                    finishLaunching()
+                } else {
+                    AppLog.writeAndFlush("older app did not quit; shared save left unopened")
+                    NSApp.terminate(nil)
+                }
+            }
+            return
+        }
+        finishLaunching()
+    }
+
+    private func finishLaunching() {
         // 로그인 에이전트 등록(plist 의 RunAtLoad)이 이미 떠 있는 앱을 한 번 더 실행한다 — 나중에 뜬
         // 쪽이 물러난다. 메뉴바 항목을 만들기 전에 판정해 아이콘이 떴다 사라지는 깜빡임을 없애고,
         // **`CrashReporter.install` 보다도 앞**에 둔다: 뒤면 물러나는 인스턴스가 running 마커를 덮어쓰고

@@ -2384,6 +2384,40 @@ final class CompanionStore {
         // 극단값은 그대로 남아, 앱이 매 기동마다 같은 값을 읽어 산술 트랩으로 죽는 상태를 못 벗어난다
         // (디코드는 *성공*하므로 위의 .corrupt 복구도 발동하지 않는다). 여기서 걸면 자가 복구된다.
         state = SaveTransfer.sanitized(s)
+        recoverChallengeCashClaims(from: data)
+    }
+
+    /// A downgrade can rewrite a valid save while dropping the newer receipt field.
+    /// Keep the current save as the source of truth and fill only missing run IDs.
+    private func recoverChallengeCashClaims(from currentData: Data) {
+        let existing = state.challengeCashClaims ?? [:]
+        var merged = existing
+        let snapshots = SaveSnapshotManager.listSnapshots(for: fileURL).map(\.fileURL)
+        let backups = (try? FileManager.default.contentsOfDirectory(at: stateDirectory,
+                                                                    includingPropertiesForKeys: nil)) ?? []
+        let localBackups = backups.filter { url in
+            url.pathExtension == "json" && [SaveTransfer.backupFilePrefix, SaveTransfer.tradeBackupFilePrefix]
+                .contains { url.lastPathComponent.hasPrefix($0) }
+        }.sorted { $0.lastPathComponent > $1.lastPathComponent }
+        for backup in snapshots + localBackups {
+            guard let receipts = SaveSnapshotManager.loadState(from: backup)?.challengeCashClaims else {
+                continue
+            }
+            merged.merge(receipts) { current, _ in current }
+        }
+        guard merged.count > existing.count else { return }
+        do {
+            // Keep fields the current decoder does not know about, too.
+            guard var document = try JSONSerialization.jsonObject(with: currentData) as? [String: Any],
+                  try Data(contentsOf: fileURL) == currentData else { return }
+            document["challengeCashClaims"] = merged
+            let data = try JSONSerialization.data(withJSONObject: document)
+            try data.write(to: fileURL, options: .atomic)
+            state.challengeCashClaims = merged
+            AppLog.write("recovered \(merged.count - existing.count) challenge cash receipts from local snapshots")
+        } catch {
+            AppLog.write("challenge cash receipt recovery failed: \(error)")
+        }
     }
     /// The wallet credit and per-run receipt share one atomic write; growth is unchanged.
     func claimChallengeCash(_ run:ChallengeRun)throws {

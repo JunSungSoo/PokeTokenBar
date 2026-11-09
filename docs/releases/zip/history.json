@@ -974,6 +974,27 @@
       "sha256": "c838b5d9738a6e9e6708da720ceac9de1b937b40afb9034265c79816245a9d4f",
       "bytes": 126341886,
       "packagedAt": "2026-11-09T11:48:31+09:00"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "13:28:42",
+      "archive": "PokeTokenBar-3.1.0-261109.zip",
+      "version": "3.1.0",
+      "evidence": "User-authorized Desktop ZIP. 113 targeted Swift tests, 21 packaging tests, and 174 engine tests passed. ARM64 bundle signature, bundle-relative login agents, release notes, and ZIP integrity verified.",
+      "turn": null,
+      "title": "Migrate login agents and recover missing challenge reward receipts",
+      "commit": null,
+      "sourceBaseCommit": "53bacf4d23403000da286701d5b22461ab12f2bf",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "로그인 시 자동 실행이 등록된 앱 번들을 사용하도록 수정했습니다. 기존에 고정 경로를 사용하던 등록을 이관해 구버전이 자동으로 실행되는 문제를 방지합니다.",
+        "앱 시작 시 로컬 백업에서 누락된 챌린지 재화 지급 기록을 자동 복구합니다. 현재 진행 상황과 기존 지급 기록을 유지하며, 같은 보상은 한 번만 반영합니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.1.0-261109.zip",
+      "sha256": "707b46a67d17a51b3388d7461043dea8825f565de2d88e2862e263fdaeaee3cb",
+      "bytes": 126352294,
+      "packagedAt": "2026-11-09T13:28:42+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

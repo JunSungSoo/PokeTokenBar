@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-VERSION="3.0.9"
+VERSION="3.1.0"
 APP_NAME="PokeTokenBar"
 BUILD_DIR="build"
 APP="$BUILD_DIR/$APP_NAME.app"
@@ -90,18 +90,15 @@ PLIST
 
 # 크래시/OOM(exit≠0) 시 자동 재실행 LaunchAgent(KeepAlive) — SMAppService.agent 가 등록해 launchd 가
 # 워치독으로 동작. 정상 종료(exit 0: 사용자 종료·업데이트)엔 재실행 안 함(SuccessfulExit=false).
-# ProgramArguments 는 brew 설치 경로(/Applications) 고정. codesign 전에 생성해 서명 seal 에 포함.
+# Bind the service to the bundle that registered it, including copies outside /Applications.
 mkdir -p "$APP/Contents/Library/LaunchAgents"
-cat > "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login.plist" <<AGENT
+cat > "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login.bundle.plist" <<AGENT
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Label</key><string>io.github.chattymin.poketokenbar.login</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/Applications/$APP_NAME.app/Contents/MacOS/$APP_NAME</string>
-    </array>
+    <key>Label</key><string>io.github.chattymin.poketokenbar.login.bundle</string>
+    <key>BundleProgram</key><string>Contents/MacOS/$APP_NAME</string>
     <key>RunAtLoad</key><true/>
     <key>KeepAlive</key>
     <dict>
@@ -113,6 +110,11 @@ cat > "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login
 </dict>
 </plist>
 AGENT
+# Retain the old plist name so ServiceManagement can resolve and unregister that job.
+# If macOS reads this plist from an in-place upgrade before migration, it also starts this bundle.
+sed 's/poketokenbar\.login\.bundle</poketokenbar.login</' \
+    "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login.bundle.plist" \
+    > "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login.plist"
 
 echo "==> codesign"
 SIGN_IDENTITY="${CODESIGN_IDENTITY:-PokeTokenBar Local}"

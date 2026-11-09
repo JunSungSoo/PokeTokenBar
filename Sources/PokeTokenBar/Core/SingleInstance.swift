@@ -34,6 +34,27 @@ enum SingleInstance {
         return otherStartTimes.compactMap { $0 }.contains { $0 < mine }
     }
 
+    static func isOlderVersion(_ running: String?, than current: String?) -> Bool {
+        guard let running, let current else { return false }
+        return running.compare(current, options: .numeric) == .orderedAscending
+    }
+
+    /// A stale login job may already have started the older copy. Ask it to quit cleanly
+    /// before reading the shared save; ordinary duplicate launches keep their existing behavior.
+    @MainActor
+    static func olderRunningInstances() -> [NSRunningApplication] {
+        guard AppEnv.isBundledApp, let bundleID = Bundle.main.bundleIdentifier else { return [] }
+        let key = "CFBundleShortVersionString"
+        let current = Bundle.main.object(forInfoDictionaryKey: key) as? String
+        let me = NSRunningApplication.current.processIdentifier
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).filter { app in
+            guard app.processIdentifier != me, let url = app.bundleURL, url != Bundle.main.bundleURL else {
+                return false
+            }
+            return isOlderVersion(Bundle(url: url)?.object(forInfoDictionaryKey: key) as? String, than: current)
+        }
+    }
+
     /// 프로세스 시작 시각(커널 `p_starttime`).
     ///
     /// `NSRunningApplication.launchDate` 를 쓰지 않는다 — 그 값은 LaunchServices 가 띄운 프로세스에만

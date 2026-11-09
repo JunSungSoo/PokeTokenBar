@@ -15,6 +15,17 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Login agents must follow the registered bundle
+
+- An absolute executable path let an older copy in `/Applications` launch at login
+  after a newer copy had been opened elsewhere. The older writer retained purchases but
+  dropped challenge cash receipts it did not recognize. Use a bundle-relative agent and
+  retire the absolute-path registration, including when the replacement needs approval.
+- Save import tests already covered receipt merging, but did not exercise normal startup
+  with a valid save rewritten by the older encoder. Recover only missing receipt IDs
+  from local backups before normal snapshots can rotate. Existing amounts and the rest of
+  the save take precedence, and reopening must not credit the same run twice.
+
 ## Release-wide battle assertions must follow approved UI and catalog changes
 
 - The old height-fit test counted the new visible turn log as empty command clearance.
