@@ -12,6 +12,12 @@ read_when:
 
 # 결함 대응 축적 규칙
 
+A square crop for a static animation placeholder must never be smaller than the
+sprite's opaque bounds. Wide static Mega sprites such as Raichu X and Y need a
+rectangular crop when the source canvas is too short for a square. Fit that
+result to the view using its original aspect ratio. Verify opaque pixel counts
+for both forms and their shiny variants, in addition to rendering the sheet.
+
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 

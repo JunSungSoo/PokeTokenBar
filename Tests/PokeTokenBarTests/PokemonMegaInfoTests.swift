@@ -36,10 +36,35 @@ import XCTest
             }
         }
     }
+    func testWideRaichuMegaFallbackPreservesEveryVisiblePixel() throws {
+        func visiblePixels(_ image: NSImage) throws -> Int {
+            let data = try XCTUnwrap(image.tiffRepresentation)
+            let bitmap = try XCTUnwrap(NSBitmapImageRep(data: data))
+            var count = 0
+            for y in 0..<bitmap.pixelsHigh {
+                for x in 0..<bitmap.pixelsWide where (bitmap.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0.01 {
+                    count += 1
+                }
+            }
+            return count
+        }
+
+        for form in ["mega-x", "mega-y"] {
+            for shiny in [false, true] {
+                let record = try XCTUnwrap(BattleMegaSprites.record(
+                    speciesID: 26, form: PokemonForm(form), back: false, shiny: shiny))
+                let image = try XCTUnwrap(NSImage(contentsOf: BattleMegaSprites.directory.appendingPathComponent(record.file)))
+                let preview = SpriteLoader.animationPlaceholder(image)
+                XCTAssertGreaterThan(preview.size.width, preview.size.height)
+                XCTAssertEqual(try visiblePixels(preview), try visiblePixels(image), "\(form), shiny=\(shiny)")
+            }
+        }
+    }
+
     func testReadOnlyMegaInformationFitsOffscreen() async throws {
         _ = NSApplication.shared
-        for id in [6,80] {
-            let base=id==6 ? ["hp":78,"attack":84,"defense":78,"special-attack":109,"special-defense":85,"speed":100]:["hp":95,"attack":75,"defense":110,"special-attack":100,"special-defense":80,"speed":30]
+        for id in [6,80,26] {
+            let base=id==26 ? [:] : id==6 ? ["hp":78,"attack":84,"defense":78,"special-attack":109,"special-defense":85,"speed":100]:["hp":95,"attack":75,"defense":110,"special-attack":100,"special-defense":80,"speed":30]
             var profile=PokemonProfile.generate(seed:42);profile.level=100
             let view=PokemonMegaInfoView(speciesID:id,language:.ko,baseStats:base,profile:id==6 ? profile:nil,nature:.adamant,onClose:{XCTFail("Rendering must not close or edit data")})
                 .background(Color(nsColor:.windowBackgroundColor)).environment(\.colorScheme,.dark)

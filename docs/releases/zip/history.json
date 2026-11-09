@@ -1016,6 +1016,26 @@
       "sha256": "ed21b3971021f1835944d3843384a97163de93971a0d7bdc96cb635ba3d78f30",
       "bytes": 127821937,
       "packagedAt": "2026-11-09T14:43:06+09:00"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "17:02:55",
+      "archive": "PokeTokenBar-3.1.1-261109-installer.zip",
+      "version": "3.1.1",
+      "evidence": "Desktop Apple Silicon ZIP with install-on-launch wrapper. Thirteen targeted Swift tests, nine packaging tests and 174 engine tests passed. Both signatures, executable hashes, ZIP integrity, version and release notes verified.",
+      "turn": null,
+      "title": "Preserve the full Mega Evolution sprite in previews",
+      "commit": null,
+      "sourceBaseCommit": "c9eff272306233683f763f0502d0d045dfcf999d",
+      "artifactAvailable": true,
+      "releaseNumber": 4,
+      "changes": [
+        "메가진화 정보에서 라이츄 X·Y처럼 가로로 긴 포켓몬 이미지의 일부가 잘리던 문제를 수정했습니다. 일반색과 이로치 모두 원본 비율과 전체 모습이 유지됩니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.1.1-261109-installer.zip",
+      "sha256": "267cb7546642ec4979d97c7daa2ff96757b5e845384bfd1904dd83f510886740",
+      "bytes": 127822020,
+      "packagedAt": "2026-11-09T17:02:55+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

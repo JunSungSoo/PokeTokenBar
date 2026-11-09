@@ -347,13 +347,16 @@ enum SpriteLoader {
             }
         }
         guard maxX >= minX, maxY >= minY else { return image }
-        // 콘텐츠 bbox 를 정사각(긴 변 기준)으로 확장해 중앙 정렬 — 알 콘텐츠는 28×30(세로가 김)이라 그대로
-        // 크롭하면 SpriteView 의 size×size 정사각 프레임에서 가로로 늘어나 뚱뚱해진다. 정사각 크롭이면 비율 보존.
-        let bw = maxX - minX + 1, bh = maxY - minY + 1
-        let side = min(max(bw, bh), min(w, h))
-        let sx = max(0, min(minX - (side - bw) / 2, w - side))
-        let sy = max(0, min(minY - (side - bh) / 2, h - side))
-        guard let cg = rep.cgImage?.cropping(to: CGRect(x: sx, y: sy, width: side, height: side))
+        // Expand toward a square only where the source canvas permits it.
+        // A rectangular canvas must never force the crop through opaque pixels.
+        let contentWidth = maxX - minX + 1
+        let contentHeight = maxY - minY + 1
+        let preferredSide = max(contentWidth, contentHeight)
+        let cropWidth = min(preferredSide, w)
+        let cropHeight = min(preferredSide, h)
+        let sx = max(0, min(minX - (cropWidth - contentWidth) / 2, w - cropWidth))
+        let sy = max(0, min(minY - (cropHeight - contentHeight) / 2, h - cropHeight))
+        guard let cg = rep.cgImage?.cropping(to: CGRect(x: sx, y: sy, width: cropWidth, height: cropHeight))
         else { return image }
         return NSImage(cgImage: cg, size: NSSize(width: cg.width, height: cg.height))
     }
