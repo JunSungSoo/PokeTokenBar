@@ -1,9 +1,9 @@
 // Offline engine adaptation/evaluation. It never contacts the public battle ladder.
 const fs=require('fs'),{OwnedBattle}=require('../../BattleEngine/engine.cjs');
-const {features,observation,candidates,loadPolicy}=require('../../BattleEngine/challenge-policy.cjs');
 const {encounters}=require('../../BattleEngine/challenge-opponents.json'),allowed=new Set(require('../../BattleEngine/held-items.json').items.map(i=>i.id));
 const args=process.argv.slice(2),arg=(k,d)=>{const i=args.indexOf(k);return i<0?d:args[i+1];};
 const model=JSON.parse(fs.readFileSync(arg('--weights','BattleEngine/challenge-policy.json'))),episodes=Number(arg('--episodes','40')),pairShift=Number(arg('--pair-shift','13')),offset=Number(arg('--offset','0')),stochastic=args.includes('--stochastic'),output=arg('--output','build/challenge-training/rollouts.json');
+const {features,observation,candidates,chooseCPU}=require('../../BattleEngine/'+(model.featureVersion==='bw-public-action-v1'?'challenge-policy-v1.cjs':'challenge-policy.cjs'));
 let randomState=123456+offset;function random(){randomState=(Math.imul(randomState,1664525)+1013904223)>>>0;return randomState/4294967296;}
 const trajectories=[];let wins=0,losses=0,draws=0,truncated=0,decisions=0;
 for(let episode=0;episode<episodes;episode++){
@@ -16,16 +16,16 @@ for(let episode=0;episode<episodes;episode++){
    const f=e.frame(side);if(f.waiting||f.ended)continue;
    const choices=candidates(f);if(!choices.length)throw Error('No rollout choices');
    const o=observation(f),x=choices.map(c=>features(e.battle.dex,o,c));
-   let selected=0;
+   let selected=0,runtimeAction;
    if(side===1){
     const scores=x.map(v=>v.reduce((s,a,i)=>s+a*model.weights[i],0));
     if(stochastic){const max=Math.max(...scores),p=scores.map(s=>Math.exp(s-max)),total=p.reduce((a,b)=>a+b,0);let pick=random()*total;for(let i=0;i<p.length;i++){pick-=p[i];if(pick<=0){selected=i;break;}}}
-    else selected=scores.indexOf(Math.max(...scores));
+    else {runtimeAction=chooseCPU(e.battle.dex,f,model);selected=choices.findIndex(c=>c.kind===runtimeAction.kind&&c.index===runtimeAction.index);if(selected<0)throw Error('Policy returned an unavailable action');}
     if(stochastic&&choices.length>1)steps.push({x,y:selected});
    }else{
     const scores=x.map(v=>v[16]+.05*v[29]-.1*v[1]);selected=scores.indexOf(Math.max(...scores));
    }
-   const c=choices[selected];e.choose(side,f.decisionID,[{kind:c.kind,index:c.index,target:0}]);accepted++;decisions++;
+   const c=choices[selected];e.choose(side,f.decisionID,[runtimeAction??{kind:c.kind,index:c.index,target:0,...(c.kind==='move'&&f.slots[0]?.canMegaEvo?{mega:true}:{})}]);accepted++;decisions++;
   }
   if(!accepted)throw Error('Rollout stalled');
  }

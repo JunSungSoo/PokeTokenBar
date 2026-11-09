@@ -79,6 +79,8 @@ struct BattleMove: Codable, Sendable, Identifiable {
     let targets: [BattleTarget]
     var targetScope: String? = nil
     var accuracy: BattleMoveAccuracy? = nil
+    var ignoresTypeMatchup: Bool? = nil
+    var disableReason: String? = nil
 }
 struct BattleSlot: Codable, Sendable, Identifiable {
     var id: Int { slot }
@@ -106,6 +108,7 @@ struct BattleCombatant: Codable, Sendable, Identifiable {
     var ability: String? = nil
     var item: String? = nil
     var mega: Bool? = nil
+    var effects: [String]? = nil
 }
 struct BattleEffectPosition: Codable, Sendable, Hashable {
     let own: Bool
@@ -126,6 +129,7 @@ struct BattleVisualEvent: Codable, Sendable, Identifiable, Hashable {
     let targets: [BattleEffectTarget]
     var moveID: String? = nil
     var phase: String? = nil
+    var healthGroup: Int? = nil
 }
 /// Seeded from the current frame so reopening/reconnecting does not replay old turns.
 struct BattleEffectCursor {

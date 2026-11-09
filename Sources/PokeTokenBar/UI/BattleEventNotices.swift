@@ -75,7 +75,9 @@ struct BattlePresentationEvents {
                 messages[scene.id] = BattleLogText.describe(line, language: language, ownPlayer: ownPlayer)
                 let token=line.split(separator:"|",omittingEmptySubsequences:false)[2].prefix(3)
                 let source=BattleEffectPosition(own:token.hasPrefix("p\(ownPlayer+1)"),slot:token.hasSuffix("b") ? 1:0)
-                return BattleVisualEvent(id:scene.id,move:"",type:"",category:"Status",source:source,targets:[],phase:"health")
+                let context=BattleHealthEffects.context(log:frame.log,index:index,offset:offset)
+                return BattleVisualEvent(id:scene.id,move:context.repeatedHit ? "hit":"",type:"",category:"Status",source:source,
+                    targets:context.repeatedHit ? [.init(position:source,hit:true)]:[],phase:context.repeatedHit ? "hit":"health",healthGroup:context.group)
             }
             let visible = ["-item", "-enditem", "-mega", "switch", "drag", "replace", "faint", "cant", "-miss", "-crit", "-supereffective", "-resisted", "-immune", "-fail", "-status", "-curestatus", "-activate", "-weather", "-fieldstart", "-fieldactivate", "-fieldend", "-sidestart", "-sideend", "-start", "-end"].contains(String(kind))
             if visible {

@@ -2,11 +2,6 @@ import CryptoKit
 import Foundation
 import Observation
 
-/// Enabled only by an explicitly marked local test app or developer launch environment.
-enum ChallengeTestMode {
-    static var enabled:Bool {ProcessInfo.processInfo.environment["PTB_CHALLENGE_TEST_MODE"]=="1" || Bundle.main.object(forInfoDictionaryKey:"PTBChallengeTestMode") as? Bool==true}
-}
-
 struct ChallengeEncounterCatalog: Decodable, Sendable {
     struct Encounter: Decodable, Sendable, Identifiable {
         let id: String
@@ -24,6 +19,14 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
         guard catalog.encounters.count==27,Set(catalog.encounters.map(\.id)).count==27,
               catalog.encounters.enumerated().allSatisfy({$0.offset==$0.element.index && $0.element.team.count==6}) else{throw ChallengeFailure.invalidState}
         return Self(version:catalog.version+"/"+SHA256.hash(data:try Data(contentsOf:url)).map{String(format:"%02x",$0)}.joined(),encounters:catalog.encounters,compatiblePreviousVersions:catalog.compatiblePreviousVersions)
+    }
+    @MainActor static func supportsPolicyRevision(_ revision:String)throws->Bool {
+        for name in ["challenge-policy.json","challenge-policy-v1.json"] {
+            let url=BattleEngineProcess.resourceDirectory.appendingPathComponent(name)
+            guard FileManager.default.fileExists(atPath:url.path) else{continue}
+            if SHA256.hash(data:try Data(contentsOf:url)).map({String(format:"%02x",$0)}).joined()==revision{return true}
+        }
+        return false
     }
     @MainActor static func policyRevision()throws->String {
         let data=try Data(contentsOf:BattleEngineProcess.resourceDirectory.appendingPathComponent("challenge-policy.json"))
@@ -67,13 +70,13 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
     private func launch(replay:Bool)throws {
         guard let run=save.run,run.phase == .battling,let checkpoint=run.checkpoint,
               (checkpoint.engineRevision==BattleEngineProcess.revision || checkpoint.engineRevision==BattleEngineProcess.previousRewardRevision || (checkpoint.engineRevision==BattleEngineProcess.previousChallengeRevision && (checkpoint.initialBuffs ?? []).isEmpty)),
-              checkpoint.policyRevision == (try ChallengeEncounterCatalog.policyRevision()) else{throw ChallengeFailure.incompatibleVersion}
+              try ChallengeEncounterCatalog.supportsPolicyRevision(checkpoint.policyRevision) else{throw ChallengeFailure.incompatibleVersion}
         stop();frame=nil;error=nil;submitted=false
         replayQueue=replay ? checkpoint.decisions + (checkpoint.pendingDecision.map{[$0]} ?? []):[]
         replaying=replay && !replayQueue.isEmpty
         let process=BattleEngineProcess();engine=process
         try process.start(mode:.singles,teams:[checkpoint.initialTeam,checkpoint.opponent],profile:"challenge",
-                          resources:[checkpoint.initialResources,nil],challengeBoosts:ChallengeTeamBuff.stages(checkpoint.initialBuffs ?? []),seed:checkpoint.seed,automaticOpponent:true)
+                          resources:[checkpoint.initialResources,nil],challengeBoosts:ChallengeTeamBuff.stages(checkpoint.initialBuffs ?? []),seed:checkpoint.seed,automaticOpponent:true,policyRevision:checkpoint.policyRevision)
         process.onFrames={ [weak self] frames in self?.receive(frames[0]) }
         process.onFailure={ [weak self] reason in
             guard let self else{return}

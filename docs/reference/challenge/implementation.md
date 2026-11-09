@@ -1,5 +1,7 @@
 # Challenge implementation — engine and interactive UI
 
+Current AI input/model audit: [2026-11-06 review](ai-input-review.md). The original v1 training history below is retained for archived checkpoint compatibility.
+
 Implemented 2026-10-30. The Battle tab now opens the native challenge window: select six owned graduates and their held items, fight the automatic CPU, claim a reward, save and exit, or continue to the next fixed encounter.
 
 ## Implemented

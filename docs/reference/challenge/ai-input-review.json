@@ -1,0 +1,109 @@
+{
+  "date": "2026-11-06",
+  "featureVersion": "bw-public-action-v2",
+  "featureCount": 48,
+  "modelSHA256": "02bc7a49e2b6208e0adaaf4e626b56dd9244ff0e676c6c39060bb0098c3bb1e6",
+  "legacyModelSHA256": "ec2abf1febe9e7da3015fae2b7b8d2bcd37765cccbf9c0c96aa5a416e1c00ec7",
+  "dataset": {
+    "games": 191,
+    "actions": 6967,
+    "trainGames": 159,
+    "evaluationGames": 32,
+    "evaluationDecisions": 1138,
+    "examplesSHA256": "b40b9b5e48aa1dd24095a3b0d4fc4571d49f7135439b94ced5f3ad0c74d6d583"
+  },
+  "replayAgreement": {
+    "legacy": 0.40597539543058,
+    "selected": 0.4112478031634446
+  },
+  "development": {
+    "legacyWins": 49,
+    "selectedWins": 50,
+    "episodes": 81,
+    "selectedAlpha": 0.1
+  },
+  "freshAudit": {
+    "legacy": {
+      "episodes": 54,
+      "wins": 33,
+      "losses": 21,
+      "draws": 0,
+      "truncated": 0,
+      "decisions": 2557,
+      "winRate": 0.6111111111111112,
+      "opponent": "maximum public type-adjusted base power baseline",
+      "offset": 12000,
+      "pairShift": 11,
+      "stochastic": false,
+      "note": "Fixed synthetic matchup evaluation, not human ladder strength."
+    },
+    "selected": {
+      "episodes": 54,
+      "wins": 32,
+      "losses": 22,
+      "draws": 0,
+      "truncated": 0,
+      "decisions": 2623,
+      "winRate": 0.5925925925925926,
+      "opponent": "maximum public type-adjusted base power baseline",
+      "offset": 12000,
+      "pairShift": 11,
+      "stochastic": false,
+      "note": "Fixed synthetic matchup evaluation, not human ladder strength."
+    },
+    "usedForSelection": false
+  },
+  "inputSensitivity": {
+    "comparisons": 7290,
+    "counts": {
+      "speed": 6,
+      "status": 0,
+      "survivors": 10
+    },
+    "scoreChanges": {
+      "speed": 2430,
+      "status": 1395,
+      "survivors": 1146
+    },
+    "examples": {
+      "survivors": {
+        "trainer": "falkner",
+        "species": "Skarmory",
+        "hpFraction": 0.5,
+        "before": {
+          "kind": "move",
+          "index": 1,
+          "target": 0
+        },
+        "after": {
+          "kind": "move",
+          "index": 2,
+          "target": 0
+        }
+      },
+      "speed": {
+        "trainer": "sabrina",
+        "species": "Mr. Mime",
+        "hpFraction": 0.25,
+        "before": {
+          "kind": "move",
+          "index": 2,
+          "target": 0
+        },
+        "after": {
+          "kind": "move",
+          "index": 4,
+          "target": 0
+        }
+      }
+    },
+    "note": "Legal-candidate counterfactual sensitivity checks, not independent match wins."
+  },
+  "limitations": [
+    "Opponent speed is a public neutral-stat estimate; no hidden IV/EV/nature/item/ability access.",
+    "Fixed independent battles against a public-damage baseline are not human ladder or 27-fight campaign performance.",
+    "Fresh 54-game audit: 33 legacy wins, 32 selected wins. This does not establish a win-rate improvement.",
+    "Legacy checkpoints retain the v1 module and exact original model bytes until that encounter ends."
+  ],
+  "selection": "Rejected fully updated candidates with lower development performance; freeze original 32 learned priors, fit 16 state/action interactions to public replays, then choose a conservative blend using development seeds 2000/4000. Fresh audit uses seeds 12000, shift 11."
+}

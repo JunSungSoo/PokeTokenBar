@@ -1444,6 +1444,103 @@ final class BattleTests: XCTestCase {
             popup.orderOut(nil);a.shutdown();b.shutdown()
         }
     }
+    func testTurnLogFitsBothProductionBattleWindowsOffscreen() async throws {
+        defer { cleanup() }
+        let output=URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("build/battle-turn-log")
+        try FileManager.default.createDirectory(at:output,withIntermediateDirectories:true)
+        for mode in BattleMode.allCases {
+            let (a,b,_,_) = try await connectedPair(mode:mode)
+            let own=team("a",mode:mode),foe=team("b",mode:mode)
+            try await registerPair(a,b,own,foe);a.ready(team:own);b.ready(team:foe)
+            try await wait { a.frame != nil && b.frame != nil }
+            for turn in 1...2 {
+                for coordinator in [a,b] {
+                    coordinator.choose(BattleDecision(decisionID:coordinator.frame!.decisionID,
+                        actions:coordinator.frame!.slots.map { slot in BattleAction(kind:"move",index:turn == 1 ? 2:3,target:turn == 1 || mode == .singles ? 0:slot.slot+1) },order:[]))
+                }
+                try await wait { a.frame!.turn == turn+1 && b.frame!.turn == turn+1 }
+                a.completePresentation();b.completePresentation()
+            }
+            let store=CompanionStore(fileURL:temporaryFile(),defaults:try defaults(code:"turn-log-layout"));store.setLanguage(.ko)
+            var collapsed:BattleContentMeasurement?
+            for expanded in [false,true] {
+                var measurement:BattleContentMeasurement?
+                let width=BattleWindowLayout.preferredWidth(for:mode)
+                let root=BattleView(battle:a,store:store,onSurrender:{},onMusic:{},onPlayMusic:{},allowsEffectsAudio:false,
+                    replayOpening:false,onLayout:{measurement=$0},turnLogExpanded:expanded).frame(width:width)
+                let host=NSHostingController(rootView:root)
+                let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:width,height:950),styleMask:[.borderless],backing:.buffered,defer:false)
+                XCTAssertTrue(NSScreen.screens.allSatisfy { !$0.frame.intersects(window.frame) })
+                window.contentViewController=host;window.orderFront(nil)
+                defer { window.orderOut(nil);window.contentViewController=nil }
+                try await wait { measurement != nil };try await Task.sleep(for:.milliseconds(500))
+                let bounds=try XCTUnwrap(measurement)
+                XCTAssertEqual(bounds.content.width,width,accuracy:0.5)
+                XCTAssertLessThan(bounds.content.height,950)
+                XCTAssertLessThanOrEqual(try XCTUnwrap(bounds.commands).maxY,try XCTUnwrap(bounds.footer).minY)
+                if let collapsed {
+                    XCTAssertEqual(bounds.battlefield,collapsed.battlefield)
+                    XCTAssertEqual(bounds.commands,collapsed.commands)
+                    XCTAssertEqual(bounds.content.height-collapsed.content.height,126,accuracy:1)
+                } else { collapsed=bounds }
+                window.setContentSize(NSSize(width:width,height:bounds.content.height));host.view.layoutSubtreeIfNeeded()
+                try await Task.sleep(for:.milliseconds(200))
+                let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
+                host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+                try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:output.appendingPathComponent("turn-log-\(mode.rawValue)-\(expanded ? "expanded":"collapsed").png"))
+            }
+            a.shutdown();b.shutdown()
+        }
+    }
+
+    func testGiantReservesBattleLayoutOffscreen() async throws {
+        defer { cleanup() }
+        let phase = ProcessInfo.processInfo.environment["PTB_RESERVE_COMPARISON_PHASE"] ?? "after"
+        for mode in BattleMode.allCases {
+            let (a,b,_,_) = try await connectedPair(mode: mode)
+            let species: [(Int,String,String)] = [(26,"Raichu","static"),(151,"Mew","synchronize"),(321,"Wailord","water-veil"),(208,"Steelix","sturdy"),(249,"Lugia","pressure"),(130,"Gyarados","intimidate")]
+            func lineup(_ prefix: String) -> [BattlePokemon] {
+                species.enumerated().map { index, entry in
+                    BattlePokemon(id: prefix + String(index), speciesID: entry.0, species: entry.1, displayName: entry.1,
+                        level: 100, ability: entry.2, nature: "hardy", gender: "", shiny: false, form: nil,
+                        ivs: ["hp":31,"atk":31,"def":31,"spa":31,"spd":31,"spe":31],
+                        stats: ["hp":300,"atk":150,"def":150,"spa":150,"spd":150,"spe":150], moves: ["protect","psychic"])
+                }
+            }
+            let own = lineup("a"), foe = lineup("b")
+            try await registerPair(a,b,own,foe); a.ready(team: own); b.ready(team: foe)
+            try await wait { a.frame != nil && b.frame != nil }
+            for coordinator in [a,b] {
+                coordinator.choose(BattleDecision(decisionID: coordinator.frame!.decisionID,
+                    actions: coordinator.frame!.slots.map { _ in .init(kind:"move",index:1,target:0) }, order: []))
+            }
+            try await wait { a.frame!.turn == 2 && b.frame!.turn == 2 }
+            a.completePresentation(); b.completePresentation()
+            let store = CompanionStore(fileURL: temporaryFile(), defaults: try defaults(code:"reserve-layout")); store.setLanguage(.ko)
+            var measurement: BattleContentMeasurement?
+            let width = BattleWindowLayout.preferredWidth(for: mode)
+            let root = BattleView(battle:a,store:store,onSurrender:{},onMusic:{},onPlayMusic:{},allowsEffectsAudio:false,
+                replayOpening:false,onLayout:{measurement=$0}).frame(width:width)
+            let host = NSHostingController(rootView:root)
+            let window = NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:width,height:850),styleMask:[.borderless],backing:.buffered,defer:false)
+            XCTAssertTrue(NSScreen.screens.allSatisfy { !$0.frame.intersects(window.frame) })
+            window.contentViewController=host;window.orderFront(nil)
+            defer { window.orderOut(nil);window.contentViewController=nil }
+            try await wait { measurement != nil }
+            try await Task.sleep(for:.milliseconds(750))
+            let bounds=try XCTUnwrap(measurement)
+            XCTAssertEqual(bounds.content.width,width,accuracy:0.5)
+            XCTAssertEqual(try XCTUnwrap(bounds.battlefield).height,BattleSpriteSizing.battlefieldHeight(for:mode),accuracy:0.5)
+            XCTAssertLessThanOrEqual(try XCTUnwrap(bounds.battlers).maxY,try XCTUnwrap(bounds.battlefield).maxY+0.5)
+            window.setContentSize(NSSize(width:width,height:bounds.content.height));host.view.layoutSubtreeIfNeeded()
+            try await Task.sleep(for:.milliseconds(150))
+            let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
+            host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
+            try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-reserve-\(phase)-\(mode.rawValue).png"))
+            a.shutdown();b.shutdown()
+        }
+    }
+
     func testHeldItemAndMegaControlsFitProductionSinglesAndDoublesOffscreen() async throws {
         defer{cleanup()}
         for mode in BattleMode.allCases {
@@ -1484,6 +1581,7 @@ final class BattleTests: XCTestCase {
             XCTAssertLessThanOrEqual(field.maxY,roster.minY)
             XCTAssertLessThanOrEqual(roster.maxY,title.minY)
             window.setContentSize(NSSize(width:width,height:bounds.content.height));host.view.layoutSubtreeIfNeeded()
+            try await Task.sleep(for:.milliseconds(150))
             if let bitmap=host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds){
                 host.view.cacheDisplay(in:host.view.bounds,to:bitmap)
                 let file=URL(fileURLWithPath:"/tmp/ptb-held-battle-\(mode.rawValue).png")

@@ -43,7 +43,14 @@ import XCTest
             for move in PokemonFairyMoves.shared.moves.keys.sorted() {
                 let engine=BattleEngineProcess()
                 var frames:[BattleFrame]=[]
-                try engine.start(mode:mode,teams:[team("a",move:move),team("b",move:"splash")])
+                var own=team("a",move:move)
+                if move=="flowershield" {
+                    let original=own[0]
+                    own[0]=BattlePokemon(id:original.id,speciesID:547,species:"Whimsicott",displayName:"Whimsicott",level:50,
+                        ability:"Prankster",nature:original.nature,gender:original.gender,shiny:false,form:nil,
+                        ivs:original.ivs,stats:original.stats,moves:[move])
+                }
+                try engine.start(mode:mode,teams:[own,team("b",move:"splash")])
                 engine.onFrames={frames=$0}
                 engine.onFailure={XCTFail($0)}
                 engine.onExit={XCTFail($0)}
@@ -67,7 +74,12 @@ import XCTest
                 XCTAssertGreaterThan(frames[0].turn,turn)
                 let presentation=BattlePresentationEvents(frame:frames[0],language:.ko,ownPlayer:0)
                 let matching=presentation.events.filter{BattleTextCatalog.key($0.moveID ?? "")==move}
-                XCTAssertEqual(matching.count,1,"\(mode) \(move): \(frames[0].log)")
+                let lacksAlly=mode == .singles && move=="aromaticmist"
+                XCTAssertEqual(matching.count,lacksAlly ? 0:1,"\(mode) \(move): \(frames[0].log)")
+                if lacksAlly {
+                    XCTAssertTrue(frames[0].log.contains{$0.hasPrefix("|-fail|") || $0.contains("[notarget]")})
+                    continue
+                }
                 if let event=matching.first {
                     XCTAssertNotNil(PokeRogueOriginalCatalog.shared.entry(event),move)
                     if move=="geomancy" {XCTAssertEqual(event.phase,"charge")}

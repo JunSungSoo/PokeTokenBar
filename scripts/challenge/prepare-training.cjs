@@ -21,7 +21,7 @@ for(const file of fs.readdirSync(directory).filter(n=>n.endsWith('.json')).sort(
   const leader=first?.[3].split(',')[0],y=teams[side].indexOf(leader);
   if(y>=0)leadSamples.push({game:replay.id,x:teams[side].map(s=>leadFeatures(dex,s,teams[1-side].slice().sort())),y});
  }
- const members=teams.map(t=>new Map(t.map(s=>[s,{species:s,hp:1,status:'',boosts:{}}])));let active=[null,null],weather='',trickRoom=false,turn=0,start=null,chosen=[null,null],combat=false;
+ const members=teams.map(t=>new Map(t.map(s=>[s,{species:s,level:100,hp:1,status:'',boosts:{}}])));let active=[null,null],tailwind=[false,false],weather='',trickRoom=false,turn=0,start=null,chosen=[null,null],combat=false;
  const flush=()=>{
   if(!start)return;
   for(const side of [0,1]){
@@ -41,21 +41,23 @@ for(const file of fs.readdirSync(directory).filter(n=>n.endsWith('.json')).sort(
    start=[0,1].map(i=>{
     const a=members[i].get(active[i]),b=members[1-i].get(active[1-i]);
     if(!a||!b)return null;
-    return {own:structuredClone(a),foe:structuredClone(b),weather,trickRoom,ownSurvivors:[...members[i].values()].filter(p=>p.hp>0).length,foeSurvivors:[...members[1-i].values()].filter(p=>p.hp>0).length,bench:[...members[i].values()].filter(p=>p.species!==active[i]&&p.hp>0).map(p=>({...p}))};
+    return {own:structuredClone(a),foe:structuredClone(b),weather,trickRoom,ownTailwind:tailwind[i],foeTailwind:tailwind[1-i],ownSurvivors:[...members[i].values()].filter(p=>p.hp>0).length,foeSurvivors:[...members[1-i].values()].filter(p=>p.hp>0).length,bench:[...members[i].values()].filter(p=>p.species!==active[i]&&p.hp>0).map(p=>({...p}))};
    });continue;
   }
   if(p[1]==='-clearallboost'){for(const roster of members)for(const mon of roster.values())mon.boosts={};continue;}
   if(p[1]==='-weather'){weather=p[2]==='none'?'':p[2];continue;}
   if(['-fieldstart','-fieldend'].includes(p[1])&&p[2]==='move: Trick Room'){trickRoom=p[1]==='-fieldstart';continue;}
   if(side<0)continue;
+  if(['-sidestart','-sideend'].includes(p[1])&&p[3]==='move: Tailwind'){tailwind[side]=p[1]==='-sidestart';continue;}
   if(['switch','drag','replace'].includes(p[1])){
    const species=p[3].split(',')[0];
    if(p[1]==='switch'&&!combat&&start?.[side]?.own.hp>0&&!chosen[side]&&start[side].own.species!==species)chosen[side]={kind:'switch',species};
    active[side]=species;
    if(!members[side].has(species))members[side].set(species,{species,hp:1,status:'',boosts:{}});
-   const mon=members[side].get(species);mon.boosts={};updateHP(mon,p[4]);
+   const mon=members[side].get(species);mon.level=Number(/, L(\d+)/.exec(p[3])?.[1]||100);mon.boosts={};updateHP(mon,p[4]);
   }else{
    const mon=members[side].get(active[side]);if(!mon)continue;
+   if(p[1]==='-ability')mon.ability=p[3];
    if(p[1]==='move')combat=true;
    if(p[1]==='move'&&!chosen[side]&&!p.slice(5).some(x=>x.startsWith('[from]')))chosen[side]={kind:'move',move:dex.moves.get(p[3]).name};
    if(['-damage','-heal'].includes(p[1]))updateHP(mon,p[3]);

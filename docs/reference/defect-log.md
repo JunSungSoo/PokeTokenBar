@@ -15,6 +15,141 @@ read_when:
 `CLAUDE.md` §결함 대응 프로토콜의 4단계(근본원인 → 부류 스윕 → 회귀 테스트 → 영구 캡처)를 거쳐
 남은 규칙들이다. 각 항목은 실제로 확인한 결함·회귀·표시 공백에 묶여 있다.
 
+## Release-wide battle assertions must follow approved UI and catalog changes
+
+- The old height-fit test counted the new visible turn log as empty command clearance.
+  Measure that panel and check the actual unoccupied gap after it. Do not remove the
+  panel or increase a magic height to satisfy the old assertion.
+- A legacy Fairy test cast Flower Shield with no Grass targets and Aromatic Mist with
+  no ally, then required a successful animation. Supply a real Grass target for the
+  successful cast; require no effect for the legitimate no-ally failure. Keep the PP
+  and failure-event production rules unchanged.
+- Held-item assertions still excluded the already approved Fairy Feather and counted
+  100/36 items. Update the catalog assertions to 101/37 and require its presence while
+  preserving the unsupported Mega-stone exclusion and all localization checks.
+
+- Reserve the native scroller lane inside vertical panel content so it does not overlap
+  controls. Declare new SwiftUI view boundaries as main-actor isolated.
+- Keep challenge shiny claims with the imported Dex snapshot and cash claims in the
+  account ledger. Keep direct reads of developer-only launch flags in AppEnv.
+
+## AI context must change action differences, not just add a shared constant
+
+- Runtime speed used species base Speed, foe survivors were hard-coded to six, and
+  several context-only values (status, survivors, Trick Room) contributed the same
+  additive value to every action in the linear ranker. Such terms cancel when actions
+  are compared. Earlier tests checked finite vectors, legal actions and privacy, not
+  effective stats, KO-count flow or state-dependent score margins.
+- Preserve the original learned priors explicitly as priors. Add separately learned
+  state/action interactions using owned effective Speed, BW paralysis/stages/field/item/
+  ability effects, public foe speed estimates, status applicability/physical burn and
+  endgame counts. Public KO totals replace the constant six. Opponent hidden stats,
+  items, abilities and bench move availability remain excluded.
+- New schema requires actual replay retraining; never relabel old weights as a newly
+  trained model. Split by entire games, audit frozen seeds, and report lower-performing
+  candidates honestly. Keep new evaluation seeds outside model selection. Synthetic
+  battle results are not human or full-campaign win rates.
+- Existing in-flight checkpoints must select the archived exact v1 weights AND v1
+  feature/scoring implementation by the saved digest. New encounters use v2. Package
+  both files, pass the requested revision through Swift/Node and reject unknown digests
+  without writing the save. Replay combat logs exclude only real-time `|t:|` stamps.
+- Real-engine regressions cover effective Speed, speed abilities/weather, Trick Room,
+  actual knockout counts, nonconstant learned score margins and hidden-data/RNG isolation.
+  Restoring stale Speed and constant-six inputs fails them. Native regressions replay
+  a saved legacy encounter and compare decisions, HP, PP and combat records.
+
+## Health queues must distinguish spread damage from drain, recoil and repeated hits
+
+- The queue coalesced consecutive health events whenever their source slots differed.
+  That condition merged defender damage with attacker drain recovery/recoil and could
+  merge unrelated recovery on different battlers. Earlier mounted tests constructed
+  only same-target repeats and distinct-target spread damage, without real drain or
+  recoil protocol frames, so both misleading paths passed.
+- Give only direct damage from one explicitly `[spread]` move a local health-group ID.
+  Batch matching groups with distinct targets; recovery, recoil and residual damage
+  remain sequential. Optional group IDs keep older engine events decodable.
+- A real five-hit Skill Link turn previously emitted one move animation followed by
+  five health-only events. Preserve the authored move, then use the original common
+  normal-hit blink/sound before each subsequent strike's HP drain. Passive hit timing
+  is not multiplied by move speed. Keep the native GIF mounted underneath playback.
+- Real seeded singles/doubles fixtures cover both perspectives, five separate strikes,
+  drain, recoil (including user KO), Protect, direct KO, spread damage, poison/burn/weather
+  residuals and residual KO. Mounted queue tests assert every event starts with the prior
+  checkpoint's HP, HP animation never overlaps the next action, and replacement requests
+  wait for completion. Original-player tests verify the common-hit route and volume.
+- Mutation check: restoring broad health batching fails eight assertions against real
+  drain/recoil frames; restore the explicit-group predicate before final validation.
+
+## Turn logs must follow the presented public frame
+
+- The engine sends a bounded 160-line public window while the authoritative frame
+  can already contain the next turn's results. Logging `battle.frame` directly would
+  reveal moves and knockouts ahead of playback; replacing history on each frame
+  would discard earlier turns and appending every frame would duplicate actions.
+- Feed only `presentation.frame ?? frame`, retain raw public records by absolute
+  `logOffset` ID, and translate when rendering. Preserve repeated identical actions
+  at different IDs, reset on a new/rewound stream, and bound retained records to 1000.
+  A truncated reconnect prefix is labelled as earlier records, not an invented turn.
+- Regressions cover pending/finished playback, overlapping frames, same-length stream
+  replacement, a sliding source window, repeated moves, bounded accumulation through
+  real-sized windows, misses, statuses, abilities, perspective and every app language.
+- The default collapsed panel and fixed-height expanded viewport must leave battlefield
+  and commands unchanged. Capture both production modes offscreen and ensure the footer
+  remains below the controls. Scroll only the log's contents.
+
+## Battle camera scale must not include the reserve roster
+
+- The camera measured every registered species, both facings and all potential Mega
+  forms. A giant on the bench reduced the scale of every visible sprite. Earlier
+  size tests asserted relative ordering under that shared roster scale and a minimum
+  Charizard height, so they did not check that adding a reserve leaves the camera
+  unchanged. The production view was the only roster-based camera call site.
+- Use the presented active forms and actual facings for scale. Keep mode-specific
+  slot width, row height, ground and battlefield bounds fixed independently of scale.
+  Compare full native battle windows before/after with the same giant-reserve team.
+- Queued original-player actors must resolve both Pokémon and scale from each scene.
+  Keeping the initial actor scale would make entry/Mega playback disagree with the
+  native GIF revealed afterward. Recall keeps its previous scene's scale.
+- Full release validation also found a legacy physical-height test still calling
+  the old atlas-only sizing helper with pre-enlargement caps. It now checks the
+  production visible-combatant camera, both facings and fixed viewport bounds.
+- Fixed slots exposed a doubles item card exceeding the lower edge. Keep held-item
+  names to one line with full help text, use compact doubles padding, and put status
+  alongside the HP number so it does not add a row. Native layout regressions check
+  both item-bearing teams and the giant-reserve team offscreen.
+- Regressions compare cameras with/without reserves in either team, cover all pinned
+  species/forms in both modes, preserve slot/ground size on switch/Mega, and verify
+  the original player's old/new scene scales. Removing the active filter must fail.
+
+## Doubles command summaries must not resize on selection
+
+- A three-line summary grew when the selected checkmark and Mega icon changed
+  the first row's intrinsic height. Text-only and initial-state layout checks
+  did not exercise those symbol combinations.
+- Reserve a fixed three-line card height and keep full truncated text available
+  through help/accessibility. Test both selected states, Mega, ally/foe/spread
+  summaries in every app language. The regression failed in all eight languages
+  before the height reservation was added.
+- Resolve target markers from the current request's legal target locations.
+  Random and scripted targets must not be presented as a guaranteed recipient;
+  spread attacks include allies only when the request's scope includes them.
+
+## Battle inspection must follow current mechanics without running an action
+
+- Static move data described Weather Ball as Normal regardless of public weather and
+  displayed resistance/immunity for typeless Struggle. The prior accuracy/target
+  tests covered static metadata without these dynamic branches.
+- Resolve supported type-changing move callbacks on a copy, respecting suppressed
+  weather and the current ability. Never run the complete action or consume RNG to
+  populate an inspector. Struggle gets an explicit typeless presentation flag.
+- Regressions cover weather, Cloud Nine, Normalize, Ghost immunity, Curse targets,
+  unchanged log/RNG, disabled reasons, effect expiry and own-only disclosures.
+  Restoring static lookup and ordinary type matchups makes these tests fail.
+- Additional native fields are optional for older frames. Preserve ongoing effects
+  through HP interpolation and clear them only with the authoritative next scene.
+  Switch summaries expose the owned team's HP/status/item, while opponent private
+  items and volatile state stay outside public combatants.
+
 ## Shop migration arithmetic must follow validation, and debit must share the recovery commit
 
 - Legacy challenge saves lack a points field. Deriving `completedVictories * 100`

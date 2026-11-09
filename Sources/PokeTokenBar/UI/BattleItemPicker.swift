@@ -45,7 +45,7 @@ import SwiftUI
                 VStack(alignment:.leading,spacing:10) {
                     if let item=BattleHeldItems.item(pending) {
                         Text(item.name(language)).font(.title3.bold()).accessibilityIdentifier("battle-item-description-title")
-                        ScrollView {Text(item.descriptions[language.rawValue]!).frame(maxWidth:.infinity,alignment:.leading).fixedSize(horizontal:false,vertical:true)}
+                        ScrollView {Text(item.descriptions[language.rawValue]!).frame(maxWidth:.infinity,alignment:.leading).fixedSize(horizontal:false,vertical:true).reservesScrollerLane()}
                     } else {
                         Text(l.battleNoItem).font(.title3.bold())
                         Text(l.battleItemPreviewHint).foregroundStyle(.secondary)

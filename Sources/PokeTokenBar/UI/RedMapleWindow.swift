@@ -64,7 +64,7 @@ struct RedMapleSelectionView:View {
                             .clipShape(RoundedRectangle(cornerRadius:10))
                         }.buttonStyle(.plain).accessibilityIdentifier("red-maple-target-"+entry.id)
                     }
-                }
+                }.reservesScrollerLane()
             }
             Divider()
             HStack {

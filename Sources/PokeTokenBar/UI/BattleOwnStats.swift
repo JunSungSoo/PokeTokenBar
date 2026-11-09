@@ -37,6 +37,10 @@ struct BattleOwnStats: View {
                 }
             }
             heldItemDetails
+            ForEach(pokemon.effects ?? [], id: \.self) { effect in
+                Label(L(language).battleActiveEffect(effect), systemImage: "info.circle")
+                    .font(.caption).foregroundStyle(.orange)
+            }
         }.padding(8).frame(maxWidth: .infinity, alignment: .leading)
             .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))
     }

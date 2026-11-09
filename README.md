@@ -26,7 +26,7 @@ PokeTokenBar turns the AI coding tokens you're already burning — Claude Code, 
 
 ## Why
 
-- **Local Pokémon battles.** Register six stored Pokémon per side, then select three for singles or four for doubles, with both six-member rosters visible before private lineup selection and selection-order leads, using BW2 mechanics and current stats. Includes a separate battle window, Gold/Silver wild battle BGM, surrender confirmation and opponent-filtered local history. [Battle details](docs/reference/local-battles.md).
+- **Local Pokémon battles.** Register six stored Pokémon per side, then select three for singles or four for doubles, with both six-member rosters visible before private lineup selection and selection-order leads, using BW2 mechanics and current stats. Includes a separate battle window, Gold/Silver wild battle BGM, surrender confirmation and opponent-filtered local history. [Battle details](docs/reference/local-battles.md). Battle controls include simultaneous doubles choices and targets, current move inspection, a collapsible turn log and fixed battle slots unaffected by giant reserves. Multi-hit, drain and recoil playback waits for the corresponding HP animation. [Battle screen](assets/battle/turn-log-singles.png).
 - **The usage tracker you actually enjoy opening.** Your spend raises a Pokémon that hatches, evolves, graduates, and fills a Pokédex — and every shiny is a reason to check back.
 - See today's token spend & cost at a glance — no dashboard, no browser tab.
 - Track official **5-hour / weekly** limits with reset countdowns and a burn-rate forecast for when you'll hit them.

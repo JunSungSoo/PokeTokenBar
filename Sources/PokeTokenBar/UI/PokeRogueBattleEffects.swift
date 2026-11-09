@@ -76,7 +76,8 @@ struct BattleEffectPlayback {
         PokeRogueBattleCatalog.shared.entry(event)?.duration ?? PikachuMoveProfile.resolve(event)?.duration ?? BattleEffectCatalog.shared.duration(for:event)
     }
     @MainActor static func animationDuration(_ event: BattleVisualEvent) -> Double {
-        max(2.2, duration(event) / 0.65) / playbackRate(event)
+        if event.phase == "hit" { return 0.5 }
+        return max(2.2, duration(event) / 0.65) / playbackRate(event)
     }
     @MainActor func progress(at date: Date) -> Double {
         max(0, min(1, date.timeIntervalSince(began) / Self.animationDuration(event)))

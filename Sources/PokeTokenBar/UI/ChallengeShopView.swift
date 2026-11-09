@@ -50,7 +50,7 @@ import SwiftUI
             ScrollView {
                 LazyVGrid(columns:Array(repeating:GridItem(.flexible()),count:3),spacing:8) {
                     ForEach(model.run?.team ?? []){pokemon in target(pokemon)}
-                }
+                }.reservesScrollerLane()
             }
             if item == .ppMoveRecovery,let resource=model.run?.resources.first(where:{$0.id==targetID}) {
                 Picker(l.challengeShopName(item),selection:$moveIndex) {

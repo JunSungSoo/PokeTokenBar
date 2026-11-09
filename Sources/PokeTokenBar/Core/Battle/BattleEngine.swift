@@ -50,7 +50,7 @@ final class BattleEngineProcess {
         }.value
     }
 
-    func start(mode: BattleMode, teams: [[BattlePokemon]], profile:String?=nil, resources:[[ChallengePokemonState]?]?=nil, challengeBoosts:[String:Int]?=nil, seed:[UInt16]?=nil, automaticOpponent:Bool=false) throws {
+    func start(mode: BattleMode, teams: [[BattlePokemon]], profile:String?=nil, resources:[[ChallengePokemonState]?]?=nil, challengeBoosts:[String:Int]?=nil, seed:[UInt16]?=nil, automaticOpponent:Bool=false, policyRevision:String?=nil) throws {
         stop()
         expectedStop = false
         let node = Self.runtimeURL
@@ -92,7 +92,7 @@ final class BattleEngineProcess {
                 }
             } catch { await self?.fail(error.localizedDescription) }
         }
-        try send(StartCommand(kind: "start", mode: mode, teams: teams,profile:profile,resources:resources,challengeBoosts:challengeBoosts,seed:seed,automaticOpponent:automaticOpponent,expectedPolicyRevision:automaticOpponent ? try ChallengeEncounterCatalog.policyRevision():nil))
+        try send(StartCommand(kind: "start", mode: mode, teams: teams,profile:profile,resources:resources,challengeBoosts:challengeBoosts,seed:seed,automaticOpponent:automaticOpponent,expectedPolicyRevision:automaticOpponent ? try policyRevision ?? ChallengeEncounterCatalog.policyRevision():nil))
     }
     private struct StartCommand: Encodable { let kind: String; let mode: BattleMode; let teams: [[BattlePokemon]]; let profile:String?; let resources:[[ChallengePokemonState]?]?; let challengeBoosts:[String:Int]?; let seed:[UInt16]?; let automaticOpponent:Bool; let expectedPolicyRevision:String? }
     private struct ChoiceCommand: Encodable { let kind = "choose"; let player: Int; let decisionID: String; let actions: [BattleAction]; let order: [Int] }

@@ -32,6 +32,8 @@ struct BattleView: View {
     @State private var roguePlayer=PokeRogueBattlePlayer()
     @State private var effectPlayback: BattleEffectPlayback?
     @State private var reconnectCode = ""
+    @State private var turnLog = BattleTurnLog()
+    @State var turnLogExpanded = false
     private var l: L { store.l }
 
     var body: some View {
@@ -64,6 +66,7 @@ struct BattleView: View {
                             commands(frame, detailWidth: max(300, min(420, layoutWidth * 0.45)))
                                 .measureBattleContent("commands")
                         }
+                        BattleTurnLogView(log:turnLog,language:store.language,ownPlayer:battle.isHost ? 0 : 1,expanded:$turnLogExpanded).measureBattleContent("turn-log")
                         if roguePlayer.error != nil{Text(l.battleEffectsUnavailable).font(.caption).foregroundStyle(.orange)}
                         if let error = battle.error { Text(l.battleUserError(error)).font(.caption).foregroundStyle(.red).textSelection(.enabled) }
                     }.padding(.horizontal, 12).padding(.top, 5)
@@ -79,6 +82,8 @@ struct BattleView: View {
                         Divider()
                     }
                 }
+                .onChange(of: frame.log, initial: true) { _, _ in turnLog.receive(frame) }
+                .onChange(of: frame.logOffset) { _, _ in turnLog.receive(frame) }
                 .onChange(of: frame.decisionID, initial: true) { _, _ in
                     choices = [:]; editingSlot = 0; megaSelection=BattleMegaSelection()
                     for slot in frame.slots where slot.canPass { choices[slot.slot] = .pass }
@@ -96,7 +101,7 @@ struct BattleView: View {
         .onPreferenceChange(BattleContentBoundsKey.self) { regions in
             guard let content = regions["content"], content.width > 0, content.height > 0 else { return }
             if abs(layoutWidth - content.width) > 0.5 { layoutWidth = content.width }
-            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"], header:regions["header"],battlefield:regions["battlefield"],battlers:regions["battlers"],roster:regions["roster"],commandTitle:regions["command-title"]))
+            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"], header:regions["header"],battlefield:regions["battlefield"],battlers:regions["battlers"],roster:regions["roster"],commandTitle:regions["command-title"],turnLog:regions["turn-log"]))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -107,7 +112,7 @@ struct BattleView: View {
         .onChange(of:effectsBusy,initial:true){_,busy in onPlaybackBusy(busy)}
         .onAppear { battle.completePresentation() }
         .onDisappear{roguePlayer.stop()}
-        .onChange(of:battle.frame == nil){_,empty in if empty{roguePlayer.stop()}}
+        .onChange(of:battle.frame == nil){_,empty in if empty{roguePlayer.stop();turnLog=BattleTurnLog();turnLogExpanded=false}}
         .onChange(of: battle.phase, initial: true) { _, phase in if phase == .playing { onPlayMusic() } }
     }
     private var header: some View {
@@ -190,7 +195,7 @@ struct BattleView: View {
                     onScene:{ battle.presentation.apply($0) },onFinished:{ battle.completePresentation() },onAnimatedScene:{ await battle.presentation.animate($0) },originalPlayer:roguePlayer,
                     actors:renderActors(frame,rects:anchors.mapValues{geometry[$0]}),viewport:geometry.size,
                     beforeEvent:{event in await trainerIntro?.before(event)},
-                    hideActor:{position in trainerIntro?.active == true && !position.own},completionToken:latest.decisionID)
+                    hideActor:{position in trainerIntro?.active == true && !position.own},completionToken:latest.decisionID,battleMode:battle.mode)
             }.allowsHitTesting(false)
         }.clipShape(RoundedRectangle(cornerRadius:8))
     }
@@ -212,14 +217,14 @@ struct BattleView: View {
         let cardWidth: CGFloat = battle.mode == .singles ? 205 : min(148, 299 - sizing.stageWidth)
         return HStack(alignment: own ? .center : .top, spacing: 4) {
             if own { battleSprite(pokemon,own:true,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: battle.mode == .doubles ? 5 : 6) {
                 HStack {
                     Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(.headline).lineLimit(1)
                     Spacer(minLength: 2)
                     Text("\(l.level) \(pokemon.level)").font(.caption.monospacedDigit())
                 }
                 if own,let item=BattleHeldItems.item(pokemon.item) {
-                    Text(item.name(store.language)).font(.caption2).foregroundStyle(.secondary).help(item.tooltip(store.language))
+                    Text(item.name(store.language)).font(.caption2).lineLimit(1).foregroundStyle(.secondary).help(item.tooltip(store.language))
                 }
                 HStack(spacing: 5) {
                     Text(l.battleHP).font(.caption2.bold()).foregroundStyle(.orange)
@@ -230,12 +235,20 @@ struct BattleView: View {
                         }
                     }.frame(height: 8)
                 }
-                Text(own ? "\(pokemon.hp) / \(pokemon.maxHP)" : "\(pokemon.hp)%")
-                    .font(.caption.monospacedDigit()).frame(maxWidth:.infinity,alignment:.trailing)
-                if !pokemon.status.isEmpty { Text(l.battleStatus(pokemon.status)).font(.caption.bold()).foregroundStyle(.orange) }
-            }.padding(10).frame(width: cardWidth)
+                HStack(spacing: 4) {
+                    if !pokemon.status.isEmpty { Text(l.battleStatus(pokemon.status)).font(.caption.bold()).foregroundStyle(.orange).lineLimit(1) }
+                    Spacer(minLength: 0)
+                    Text(own ? "\(pokemon.hp) / \(pokemon.maxHP)" : "\(pokemon.hp)%").font(.caption.monospacedDigit()).lineLimit(1)
+                }
+            }.padding(battle.mode == .doubles ? 8 : 10).frame(width: cardWidth)
                 .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
                 .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
+                .overlay {
+                    if isSelectedTarget(own: own, slot: slot) {
+                        RoundedRectangle(cornerRadius: 6).stroke(Color.accentColor, lineWidth: 3)
+                            .padding(-3).allowsHitTesting(false)
+                    }
+                }
                 .foregroundStyle(.black)
                 .opacity(pokemon.fainted ? 0.35 : 1)
                 .overlay(alignment: .topLeading) {
@@ -251,43 +264,41 @@ struct BattleView: View {
             if !own { battleSprite(pokemon,own:false,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
         }
     }
-    private var spriteSizing:BattleSpriteSizing {
-        let catalog=PokeRogueSpriteSizes.shared
-        var ids=Set(battle.registeredTeam.map(\.speciesID)+battle.opponentRoster.map(\.speciesID))
-        if let frame=battle.presentation.frame ?? battle.frame { ids.formUnion(frame.own.map(\.speciesID)+frame.foe.map(\.speciesID)) }
-        // Include both facings and form changes up front so switching/Transform cannot pop the camera.
-        let sizes=ids.flatMap { id in
-            return BattleHeldItems.sizingForms(speciesID:id).flatMap { form in
-                [false,true].map{catalog.battleSize(speciesID:id,form:form,back:$0)}
-            }
-        }
-        return BattleSpriteSizing.make(
-            mode: battle.mode,
-            sizes: sizes,
-            rowHeightLimit: BattleSpriteSizing.battlefieldRowHeightLimit(for: battle.mode)
-        )
+    private func isSelectedTarget(own: Bool, slot: Int) -> Bool {
+        guard battle.mode == .doubles, !battle.submitted, !effectsBusy, !battle.presentation.pending,
+              let frame = battle.presentation.frame ?? battle.frame, !frame.waiting,
+              let commandSlot = frame.slots.first(where: { $0.slot == editingSlot }) else { return false }
+        return BattleChoiceSummary(slot: commandSlot, choice: choices[editingSlot], own: frame.own, foe: frame.foe,
+                                   language: store.language).positions.contains(.init(own: own, slot: slot))
     }
+    private var spriteSizing:BattleSpriteSizing {
+        let frame = battle.presentation.frame ?? battle.frame
+        return BattleSpriteSizing.forBattle(mode: battle.mode, own: frame?.own ?? [], foe: frame?.foe ?? [])
+    }
+
     private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        // Pack the visible rows together inside the fixed viewport.
-        let spriteHeight = PokeRogueSpriteSizes.shared.battleSize(speciesID: pokemon.speciesID, form: pokemon.form, back: own).height
-        let stageSizing = BattleSpriteSizing(
-            pixelScale: sizing.pixelScale,
-            stageWidth: sizing.stageWidth,
-            stageHeight: spriteHeight * sizing.pixelScale + BattleSpriteGeometry.footInset
-        )
-        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:stageSizing)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 
     private func commands(_ frame: BattleFrame, detailWidth: CGFloat) -> some View {
         VStack(spacing: 10) {
             if frame.slots.count > 1 {
-                Picker(l.battleTeam, selection: $editingSlot) {
+                HStack(spacing: 8) {
                     ForEach(frame.slots) { slot in
-                        Text("\(slot.slot + 1) · " + (choices[slot.slot] == nil ? l.battleFight : l.battleSelected)).tag(slot.slot)
+                        let member = frame.own.filter(\.active).dropFirst(slot.slot).first
+                        let summary = BattleChoiceSummary(slot: slot, choice: choices[slot.slot], own: frame.own, foe: frame.foe, language: store.language)
+                        Button { editingSlot = slot.slot } label: {
+                            BattleChoiceSummaryView(
+                                name: "\(slot.slot + 1) · " + (member.map { BattleTextCatalog.shared.speciesName($0.speciesID, language: store.language) } ?? l.battleUnknownPokemon),
+                                summary: summary, selected: editingSlot == slot.slot,
+                                mega: megaSelection.slot == slot.slot && choices[slot.slot]?.kind == "move", language: store.language)
+                        }.buttonStyle(.plain)
+                            .accessibilityIdentifier("battle-choice-summary-\(slot.slot)")
+                            .accessibilityValue(summary.action + " · " + summary.target)
                     }
-                }.pickerStyle(.segmented)
+                }.disabled(battle.submitted || frame.waiting || effectsBusy || battle.presentation.pending)
             }
             HStack(alignment: .top, spacing: 12) {
                 ForEach(frame.slots.filter { $0.slot == editingSlot }) { slot in
@@ -311,6 +322,8 @@ struct BattleView: View {
                                             .accessibilityIdentifier("battle-move-\(slot.slot)-\(move.index)")
                                             .accessibilityValue(choices[slot.slot]?.kind == "move" && choices[slot.slot]?.index == move.index ? l.battleSelected : "")
                                             .disabled(move.disabled || move.pp == 0)
+                                            .help(l.battleDisabledReason(move) ?? l.battleMoveDescription(move))
+                                            .accessibilityHint(l.battleDisabledReason(move) ?? "")
                                     }
                                 }
                                 if let action = choices[slot.slot], action.kind == "move",
@@ -324,11 +337,16 @@ struct BattleView: View {
                             }
                             Menu(l.battleSwitch) {
                                 ForEach(Array(frame.own.enumerated()), id: \.element.id) { index, pokemon in
-                                    if !pokemon.active && !pokemon.fainted {
-                                        Button(BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.state.language)) { choices[slot.slot] = BattleAction(kind: "switch", index: index + 1, target: 0) }
-                                    }
+                                    Button(l.battleSwitchSummary(pokemon)) { choices[slot.slot] = BattleAction(kind: "switch", index: index + 1, target: 0) }
+                                        .disabled(pokemon.active || pokemon.fainted || choices.contains(where: {
+                                            $0.key != slot.slot && $0.value.kind == "switch" && $0.value.index == index + 1
+                                        }))
                                 }
                             }.disabled(slot.trapped && !slot.mustSwitch)
+                                .help(slot.trapped && !slot.mustSwitch ? l.battleTrappedNotice : l.battleSwitch)
+                            if slot.trapped && !slot.mustSwitch {
+                                Text(l.battleTrappedNotice).font(.caption).foregroundStyle(.orange)
+                            }
                             if let selected = choices[slot.slot], selected.kind == "switch", frame.own.indices.contains(selected.index - 1) {
                                 Label(BattleTextCatalog.shared.speciesName(frame.own[selected.index - 1].speciesID,language:store.state.language), systemImage: "arrow.left.arrow.right").font(.caption)
                             }
@@ -364,11 +382,7 @@ struct BattleView: View {
     }
 
     private func targetLabel(_ target: BattleTarget, frame: BattleFrame) -> String {
-        let allies = frame.own.filter(\.active)
-        let members = target.location < 0 ? allies : frame.foe
-        let number = abs(target.location)
-        let name = members.indices.contains(number-1) ? BattleTextCatalog.shared.speciesName(members[number-1].speciesID,language:store.state.language) : l.battleUnknownPokemon
-        return "\(l.battleSide(ally:target.location < 0)) \(number) · \(name)"
+        l.battleChoiceTarget(target.location, own: frame.own, foe: frame.foe)
     }
     private func validChoices(_ frame: BattleFrame) -> Bool {
         guard frame.slots.allSatisfy({ choices[$0.slot] != nil }) else { return false }

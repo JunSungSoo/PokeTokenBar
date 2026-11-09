@@ -38,3 +38,11 @@ enum AppEnv {
         injectedFileURL != nil || isBundledApp
     }
 }
+
+/// Enabled only by an explicitly marked local test app or developer launch environment.
+enum ChallengeTestMode {
+    static var enabled: Bool {
+        ProcessInfo.processInfo.environment["PTB_CHALLENGE_TEST_MODE"] == "1"
+            || Bundle.main.object(forInfoDictionaryKey: "PTBChallengeTestMode") as? Bool == true
+    }
+}

@@ -6,13 +6,13 @@ import XCTest
 
 @MainActor final class BattleHeldItemTests:XCTestCase {
     func testCatalogAndNativeMenusAreLocalizedAndSpeciesBound() throws {
-        XCTAssertEqual(BattleHeldItems.all.count,100)
+        XCTAssertEqual(BattleHeldItems.all.count,101)
         XCTAssertEqual(BattleHeldItems.all.filter{$0.mega != nil}.count,64)
-        XCTAssertEqual(BattleHeldItems.choices(speciesID:25,form:nil).count,36)
+        XCTAssertEqual(BattleHeldItems.choices(speciesID:25,form:nil).count,37)
         XCTAssertEqual(Set(BattleHeldItems.choices(speciesID:6,form:nil).compactMap{$0.mega == nil ? nil:$0.id}),["charizarditex","charizarditey"])
         XCTAssertTrue(BattleHeldItems.sizingForms(speciesID:479).contains(PokemonForm("wash")))
         XCTAssertEqual(BattleHeldItems.sizingForms(speciesID:479).count,6)
-        XCTAssertNil(BattleHeldItems.item("fairyfeather"));XCTAssertNil(BattleHeldItems.item("mewtwonitex"))
+        XCTAssertNotNil(BattleHeldItems.item("fairyfeather"));XCTAssertNil(BattleHeldItems.item("mewtwonitex"))
         _ = NSApplication.shared
         for language in AppLanguage.allCases {
             let button=NSPopUpButton(frame:.zero,pullsDown:true),coordinator=PokemonLoadoutPicker.Coordinator{_ in}

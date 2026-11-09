@@ -47,7 +47,7 @@ import SwiftUI
                             case .result:result
                             case .battle,.championReward:EmptyView()
                             }
-                        }.padding(20).frame(maxWidth:.infinity,alignment:.leading)
+                        }.padding(20).frame(maxWidth:.infinity,alignment:.leading).reservesScrollerLane()
                     }
                 }
             }

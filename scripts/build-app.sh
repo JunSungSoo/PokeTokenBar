@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-VERSION="3.0.8"
+VERSION="3.0.9"
 APP_NAME="PokeTokenBar"
 BUILD_DIR="build"
 APP="$BUILD_DIR/$APP_NAME.app"
@@ -41,7 +41,7 @@ cp -R Sources/PokeTokenBar/Resources/PokeRogue "$APP/Contents/Resources/PokeRogu
 cp -R Sources/PokeTokenBar/Resources/PokeRoguePlayer "$APP/Contents/Resources/PokeRoguePlayer"
 ENGINE="$APP/Contents/Resources/BattleEngine"
 mkdir -p "$ENGINE/node_modules/pokemon-showdown/dist"
-cp BattleEngine/challenge-buffs.cjs BattleEngine/challenge-state.cjs BattleEngine/challenge-policy.cjs BattleEngine/challenge-policy.json BattleEngine/challenge-opponents.json BattleEngine/engine.cjs BattleEngine/held-items.cjs BattleEngine/held-items.json BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav BattleEngine/GoldSilverTrainerVictoryIntro.wav BattleEngine/GoldSilverTrainerVictoryLoop.wav BattleEngine/BattleRevolutionPlayerLost.wav BattleEngine/RubySapphireChampionVictory.wav BattleEngine/RubySapphireChampionBattle.wav "$ENGINE/"
+cp BattleEngine/challenge-buffs.cjs BattleEngine/challenge-state.cjs BattleEngine/challenge-policy.cjs BattleEngine/challenge-policy.json BattleEngine/challenge-policy-v1.cjs BattleEngine/challenge-policy-v1.json BattleEngine/challenge-opponents.json BattleEngine/engine.cjs BattleEngine/held-items.cjs BattleEngine/held-items.json BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav BattleEngine/GoldSilverTrainerVictoryIntro.wav BattleEngine/GoldSilverTrainerVictoryLoop.wav BattleEngine/BattleRevolutionPlayerLost.wav BattleEngine/RubySapphireChampionVictory.wav BattleEngine/RubySapphireChampionBattle.wav "$ENGINE/"
 cp BattleEngine/music/wild-battle-source.json BattleEngine/music/trainer-victory-source.json BattleEngine/music/player-lost-source.json BattleEngine/music/champion-victory-source.json BattleEngine/music/champion-battle-source.json "$ENGINE/"
 if [[ ${#ARCHS[@]} -eq 1 ]]; then
     # Development builds only ship the requested CPU slice, including the helper runtime.

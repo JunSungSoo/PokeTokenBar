@@ -6,6 +6,29 @@ const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/specie
 const {validateResources,initializeResources,resourcesFor}=require('./challenge-state.cjs');
 const challengeBuffs=require('./challenge-buffs.cjs');
 const keys = ['hp','atk','def','spa','spd','spe'];
+const inspectedVolatiles = [
+  'confusion', 'taunt', 'encore', 'disable', 'substitute', 'leechseed', 'curse',
+  'torment', 'healblock', 'embargo', 'perishsong', 'yawn', 'ingrain', 'aquaring',
+  'attract', 'partiallytrapped', 'trapped', 'recharge', 'choicelock'
+];
+function inspectedMove(battle, pokemon, move) {
+  const current = {...move};
+  // These type callbacks only inspect the user's own state and public weather.
+  if (['weatherball', 'hiddenpower', 'judgment', 'technoblast', 'naturalgift'].includes(move.id)) {
+    move.onModifyType?.call(battle, current, pokemon);
+  }
+  if (move.id === 'hiddenpower') current.basePower = pokemon.hpPower;
+  if (move.id === 'weatherball' && ['sunnyday', 'raindance', 'sandstorm', 'hail'].includes(pokemon.effectiveWeather())) {
+    current.basePower *= 2;
+  }
+  const ability = pokemon.getAbility();
+  if (['normalize', 'pixilate', 'aerilate', 'refrigerate', 'dragonize'].includes(ability.id) && pokemon.hasAbility(ability.id)) {
+    ability.onModifyType?.call(battle, current, pokemon);
+    // BW Normalize runs after the move's own type change.
+    if (ability.id === 'normalize') ability.onModifyMove?.call(battle, current, pokemon);
+  }
+  return current;
+}
 const statusApplicationEvents = new Set([
   '-status', '-curestatus', '-cureteam', '-start', '-end', '-sidestart', '-sideend',
   '-fieldstart', '-fieldend', '-weather', '-singleturn', '-singlemove',
@@ -80,8 +103,9 @@ class OwnedBattle {
     this.profile=options.profile || 'peer';
     if(!['peer','challenge'].includes(this.profile)||this.profile==='challenge'&&mode!=='singles')throw Error('Invalid battle profile');
     if(this.profile==='peer'&&options.resources!=null)throw Error('Persistent state is only available in challenge');
+    if(this.profile==='challenge')this.cpuPolicy=require('./challenge-policy.cjs').resolvePolicy(options.expectedPolicyRevision);
     if(this.profile==='challenge'&&options.automaticOpponent){
-      teams=teams.map(t=>t.slice());const index=require('./challenge-policy.cjs').chooseLead(battleDex(),teams[1],teams[0]);
+      teams=teams.map(t=>t.slice());const index=this.cpuPolicy.chooseLead(battleDex(),teams[1],teams[0],this.cpuPolicy.model);
       teams[1]=[teams[1][index],...teams[1].filter((_,i)=>i!==index)];
     }
     const count = 6;
@@ -208,10 +232,10 @@ class OwnedBattle {
   }
   runCPU() {
     if(this.profile!=='challenge')throw Error('CPU is only available in challenge');
-    const {chooseCPU}=require('./challenge-policy.cjs');
+    const {chooseCPU,model}=this.cpuPolicy;
     for(let i=0;i<12;i++){
       const frame=this.frame(1);if(frame.waiting||frame.ended)return;
-      const action=chooseCPU(this.battle.dex,frame);
+      const action=chooseCPU(this.battle.dex,frame,model);
       this.choose(1,frame.decisionID,[action]);
     }
     throw Error('CPU action loop did not settle');
@@ -244,7 +268,13 @@ class OwnedBattle {
       hp:own ? p.hp : Math.ceil(p.hp / p.maxhp * 100), maxHP:own ? p.maxhp : 100,
       status:p.status || '', stats:own ? {hp:p.maxhp,...p.storedStats} : undefined,
       cpuRecoveryThreshold:own ? p.set.ptbCPURecoveryThreshold:undefined,
-      boosts:own ? challengeBuffs.combinedBoosts(p) : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega};
+      effectiveSpeed:this.profile==='challenge'&&own ? p.getStat('spe'):undefined,
+      speedStage:this.profile==='challenge'&&!own ? challengeBuffs.combinedBoosts(p).spe:undefined,
+      boosts:own ? challengeBuffs.combinedBoosts(p) : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega,
+      effects:own ? [...new Set([
+        ...inspectedVolatiles.filter(id => p.volatiles[id]),
+        ...(p.trapped === true ? ['trapped'] : [])
+      ])] : undefined};
     };
     // Only public battlefield conditions and their actual finite durations.
     const visibleSide = new Set(['reflect','lightscreen','safeguard','mist','tailwind','stealthrock','spikes','toxicspikes','luckychant','rainbow','swamp','seaoffire']);
@@ -285,14 +315,13 @@ class OwnedBattle {
       return {slot:i, mustSwitch:force, canPass: request.forceSwitch ? !force : !p || p.fainted,
         trapped:!!data?.trapped,canMegaEvo:!!data?.canMegaEvo,
         moves:(data?.moves || []).map((m,j) => {
-          const move=b.dex.moves.get(m.id);
-          let type = move.id === 'hiddenpower' ? p.hpType : move.type;
-          if(type==='Normal')for(const [ability,converted]of Object.entries({pixilate:'Fairy',aerilate:'Flying',refrigerate:'Ice',dragonize:'Dragon'})){
-            if(p.hasAbility(ability)){type=converted;break;}
-          }
+          const move=inspectedMove(b,p,b.dex.moves.get(m.id)), type=move.type;
+          const ignoresTypeMatchup = move.id === 'struggle';
+          const stored = p.moveSlots.find(slot => slot.id === m.id);
+          const disableReason = m.pp === 0 ? 'pp' : m.disabled ? Dex.toID(stored?.disabledSource || 'unavailable') : undefined;
           const matchups = side.foe.active.filter(t=>t && !t.fainted).map(t=>({
             location:p.getLocOf(t), name:appearance(t).species.name,
-            multiplier:move.category==='Status' ? null : b.dex.getImmunity(type,visibleTypes(t)) ? 2 ** b.dex.getEffectiveness(type,visibleTypes(t)) : 0
+            multiplier:move.category==='Status' ? null : ignoresTypeMatchup ? 1 : b.dex.getImmunity(type,visibleTypes(t)) ? 2 ** b.dex.getEffectiveness(type,visibleTypes(t)) : 0
           }));
           const selectable = ['normal','any','adjacentAlly','adjacentAllyOrSelf','adjacentFoe'].includes(m.target);
           const targets = selectable && b.gameType === 'doubles' ? [...side.foe.active,...side.active]
@@ -300,7 +329,7 @@ class OwnedBattle {
             .map(t => ({location:p.getLocOf(t),name:`${t.side===side ? 'Ally' : 'Foe'} ${Math.abs(p.getLocOf(t))} · ${appearance(t).species.name}`})) : [];
           return {index:j+1,name:m.move,apiName:(p.set.ptbMoves || []).find(n=>b.dex.moves.get(n).id===m.id) || move.name.toLowerCase().replace(/ /g,'-'),pp:m.pp ?? 1,maxPP:m.maxpp ?? 1,disabled:!!m.disabled,type,
             power:move.basePower,accuracy:move.accuracy,category:move.category,description:move.desc || move.shortDesc || '',matchups,
-            targetRequired:selectable && b.gameType==='doubles',targets,targetScope:m.target};
+            targetRequired:selectable && b.gameType==='doubles',targets,targetScope:m.target,ignoresTypeMatchup,disableReason};
         })};
     });
     const allLog=publicLog(b.log,player,false), logOffset=Math.max(0,allLog.length-160);
@@ -361,8 +390,7 @@ if (require.main === module) {
       }
       if (input.kind==='start') {
         if(input.automaticOpponent===true&&input.profile!=='challenge')throw Error('CPU requires challenge profile');
-        if(input.expectedPolicyRevision&&require('./challenge-policy.cjs').loadPolicy().revision!==input.expectedPolicyRevision)throw Error('Challenge policy version changed');
-        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,challengeBoosts:input.challengeBoosts,automaticOpponent:input.automaticOpponent});
+        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,challengeBoosts:input.challengeBoosts,automaticOpponent:input.automaticOpponent,expectedPolicyRevision:input.expectedPolicyRevision});
         automaticOpponent=input.automaticOpponent===true;
       }
       else if (!engine) throw Error('Engine not started');

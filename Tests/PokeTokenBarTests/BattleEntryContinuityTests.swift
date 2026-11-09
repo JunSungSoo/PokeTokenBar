@@ -23,8 +23,10 @@ import XCTest
     }
     func testGiantReserveCannotMakeCharizardTinyAndHeightOrderingRemains() {
         let catalog=PokeRogueSpriteSizes.shared
-        let sizes=[6,25,321,384].flatMap{id in BattleHeldItems.sizingForms(speciesID:id).flatMap{form in [false,true].map{catalog.battleSize(speciesID:id,form:form,back:$0)}}}
-        let camera=BattleSpriteSizing.make(mode:.singles,sizes:sizes)
+        func member(_ id:Int,active:Bool)->BattleCombatant {
+            BattleCombatant(id:String(id),speciesID:id,name:"",level:100,shiny:false,active:active,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
+        }
+        let camera=BattleSpriteSizing.forBattle(mode:.singles,own:[member(6,active:true),member(321,active:false),member(384,active:false)],foe:[member(25,active:true)])
         let charizard=catalog.battleSize(speciesID:6,form:nil,back:true),pikachu=catalog.battleSize(speciesID:25,form:nil,back:true),wailord=catalog.battleSize(speciesID:321,form:nil,back:true)
         XCTAssertGreaterThanOrEqual(charizard.height*camera.pixelScale,85)
         XCTAssertGreaterThan(charizard.height,pikachu.height)

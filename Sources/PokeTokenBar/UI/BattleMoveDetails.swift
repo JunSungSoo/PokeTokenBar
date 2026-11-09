@@ -10,7 +10,7 @@ struct BattleMoveDetails: View {
     var body: some View {
         VStack(alignment:.leading,spacing:compact ? 6 : 10) {
             Label(l.battleSelected,systemImage:"checkmark.circle.fill").font(.caption.bold()).foregroundStyle(Color.accentColor)
-            let description = BattleTextCatalog.shared.description(move.apiName ?? move.name,language:language)
+            let description = l.battleMoveDescription(move)
             HStack(alignment: .top) {
                 Text(description).font(compact ? .caption : .callout)
                     .lineLimit(compact ? 4 : nil).fixedSize(horizontal:false,vertical:true)
@@ -34,7 +34,7 @@ struct BattleMoveDetails: View {
             HStack {
                 Text(l.battleCategory(move.category ?? "Status"))
                 Text("·")
-                Text(BattleTextCatalog.shared.typeName(move.type,language:language))
+                Text(l.battleMoveType(move))
             }.font(.callout.bold())
             Text(l.battleTarget + ": " + l.battleMoveTarget(move)).font(.callout.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true).accessibilityIdentifier("battle-move-scope")
@@ -47,7 +47,7 @@ struct BattleMoveDetails: View {
                         .foregroundStyle(matchup.multiplier == 0 ? Color.red : (matchup.multiplier ?? 1) > 1 ? Color.green : Color.secondary)
                 }.font(.caption)
             }
-            Text(l.battleTypeOnly).font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text(move.ignoresTypeMatchup == true ? l.battleTypelessMove : l.battleTypeOnly).font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
         }.padding(12).background(.quaternary.opacity(0.3),in:RoundedRectangle(cornerRadius:8))
 
     }

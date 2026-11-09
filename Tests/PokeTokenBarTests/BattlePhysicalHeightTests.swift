@@ -26,11 +26,20 @@ import XCTest
             let raw=catalog.size(speciesID:id,form:nil,back:back),scaled=catalog.battleSize(speciesID:id,form:nil,back:back)
             XCTAssertEqual(scaled.width/scaled.height,raw.width/raw.height,accuracy:0.000001)
         }}
-        for mode in BattleMode.allCases {
-            let camera=BattleSpriteSizing.make(mode:mode,sizes:sizes.flatMap{$0})
-            XCTAssertLessThanOrEqual(camera.stageWidth,mode == .singles ? 192:130)
-            XCTAssertLessThanOrEqual(camera.stageHeight,mode == .singles ? 166:126)
-        }
+        for mode in BattleMode.allCases { for id in ids {
+            func member(_ side:String)->BattleCombatant {
+                BattleCombatant(id:side+String(id),speciesID:id,name:"",level:100,shiny:false,active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
+            }
+            let camera=BattleSpriteSizing.forBattle(mode:mode,own:[member("own")],foe:[member("foe")])
+            XCTAssertLessThanOrEqual(camera.stageWidth,mode == .singles ? 282:189)
+            XCTAssertEqual(2*camera.stageHeight+BattleSpriteSizing.battlefieldTopInset+BattleSpriteSizing.battlefieldRowSpacing,
+                           BattleSpriteSizing.battlefieldHeight(for:mode),accuracy:0.001)
+            for back in [false,true] {
+                let visible=catalog.battleSize(speciesID:id,form:nil,back:back)
+                XCTAssertLessThanOrEqual(visible.width*camera.pixelScale,camera.stageWidth-12+0.001)
+                XCTAssertLessThanOrEqual(visible.height*camera.pixelScale+BattleSpriteGeometry.footInset,camera.stageHeight+0.001)
+            }
+        }}
         let base=catalog.battleSize(speciesID:3,form:nil,back:false),mega=catalog.battleSize(speciesID:3,form:PokemonForm(rawValue:"mega"),back:false)
         XCTAssertGreaterThan(max(mega.width,mega.height),max(base.width,base.height))
     }

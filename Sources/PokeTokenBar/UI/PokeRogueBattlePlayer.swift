@@ -11,6 +11,12 @@ struct PokeRogueActor:Sendable {
     init(pokemon:BattleCombatant,position:BattleEffectPosition,rect:CGRect,pixelScale:CGFloat=1.5) {
         self.pokemon=pokemon;self.position=position;self.rect=rect;self.pixelScale=pixelScale
     }
+    @MainActor func inScene(_ scene: BattleScene, mode: BattleMode?) -> Self? {
+        let members = position.own ? scene.own.filter(\.active) : scene.foe
+        guard members.indices.contains(position.slot) else { return nil }
+        let scale = mode.map { BattleSpriteSizing.forBattle(mode:$0,own:scene.own,foe:scene.foe).pixelScale } ?? pixelScale
+        return Self(pokemon:members[position.slot],position:position,rect:rect,pixelScale:scale)
+    }
 }
 @MainActor final class PokeRogueOriginalCatalog {
     struct Entry:Decodable {let file:String;let frames:[Int];let graphics:[String];let backgrounds:[String];let sounds:[String]}
@@ -33,7 +39,7 @@ struct PokeRogueActor:Sendable {
     func estimatedDuration(_ event:BattleVisualEvent)->Double {
         if event.phase == "entry" { return 6 }
         if event.phase == "mega" { return 12 }
-        if event.phase == "weather-hit" { return 1 }
+        if ["weather-hit","hit"].contains(event.phase ?? "") { return 1 }
         guard let entry=entry(event) else{return 0}
         // Include authored tails and loading margin; the real player completion remains authoritative.
         return Double(entry.frames.max() ?? 0)*0.05+4
@@ -167,7 +173,7 @@ struct PokeRogueActor:Sendable {
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets
             var payload:[String:Any]=["move":PokeRogueOriginalCatalog.shared.key(event),"actors":members,"source":event.source.key,
-                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event),"weatherHit":event.phase == "weather-hit","reducedMotion":reducedMotion]
+                "targets":targets.map{["key":$0.position.key]},"hit":!hitTargets.isEmpty,"width":max(1,size.width),"height":max(1,size.height),"scale":scale,"effectsVolume":effectsVolume,"globalField":BattleFieldEffects.isGlobal(event),"weatherHit":["weather-hit","hit"].contains(event.phase ?? ""),"reducedMotion":reducedMotion]
             if ["entry","mega"].contains(event.phase ?? "") {
                 payload[event.phase == "mega" ? "mega":"transition"]=true
                 payload["entrySources"]=(entrySources.isEmpty ? [event.source]:entrySources).map(\.key)
@@ -187,7 +193,7 @@ struct PokeRogueActor:Sendable {
             isPlaying=true
             if reducedMotion {
                 let entry=PokeRogueOriginalCatalog.shared.entry(event)
-                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":(["entry","mega","weather-hit"].contains(event.phase ?? "") ? 30000 : Double(entry?.frames.max() ?? 1)*25)])
+                _ = try await evaluateLayers("return window.ptbAdvance(delta)",arguments:["delta":(["entry","mega","weather-hit","hit"].contains(event.phase ?? "") ? 30000 : Double(entry?.frames.max() ?? 1)*25)])
                 try await Task.sleep(for:.seconds(max(1.4,prepared["audioTail"] as? Double ?? 0)))
             }else{
                 var previous=Date();let deadline=previous.addingTimeInterval(60)

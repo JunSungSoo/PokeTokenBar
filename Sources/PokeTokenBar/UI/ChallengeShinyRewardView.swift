@@ -35,7 +35,7 @@ import SwiftUI
                                         .background(model.shinyRewardSelection==entry.id ? Color.accentColor.opacity(0.16):Color.secondary.opacity(0.06),in:RoundedRectangle(cornerRadius:8))
                                 }.buttonStyle(.plain).accessibilityIdentifier("challenge-shiny-target-\(entry.id)")
                             }
-                        }
+                        }.reservesScrollerLane()
                     }
                     if let entry=model.store.state.dex.first(where:{$0.id==model.shinyRewardSelection}) {
                         VStack(spacing:12) {

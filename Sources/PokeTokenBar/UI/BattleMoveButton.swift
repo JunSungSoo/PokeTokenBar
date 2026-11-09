@@ -16,7 +16,7 @@ struct BattleMoveButtonLabel: View {
                 Text(BattleTextCatalog.shared.moveName(move.apiName ?? move.name,language:language))
                     .font(.callout.bold()).lineLimit(1)
             }
-            Text("\(BattleTextCatalog.shared.typeName(move.type,language:language)) · \(move.pp)/\(move.maxPP) \(L(language).battlePP)")
+            Text(L(language).battleDisabledReason(move) ?? "\(L(language).battleMoveType(move)) · \(move.pp)/\(move.maxPP) \(L(language).battlePP)")
                 .font(.caption2).lineLimit(1).padding(.leading,20)
         }.frame(maxWidth:.infinity,alignment:.leading)
             .padding(.horizontal,10).frame(height:64)

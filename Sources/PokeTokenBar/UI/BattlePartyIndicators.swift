@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 struct BattlePartyIndicators: View {
     let status: BattlePartyStatus?
     let expectedCount: Int
@@ -43,15 +44,6 @@ struct BattlePartyIndicators: View {
     }
 
     private var summary: String {
-        let l = L(language)
-        guard status != nil else {
-            return l.t("상대 출전 상태 확인 불가", "Opponent party status unavailable", "相手の出場状況は不明",
-                       "Estado del equipo rival no disponible", "État de l’équipe adverse indisponible",
-                       "Estado da equipe adversária indisponível", "Gegnerischer Teamstatus unbekannt", "Статус команды соперника неизвестен")
-        }
-        return l.t("출전 가능 \(available)마리, 기절 \(fainted)마리", "\(available) available, \(fainted) fainted",
-                   "出場可能 \(available)匹、ひんし \(fainted)匹", "\(available) disponibles, \(fainted) debilitados",
-                   "\(available) disponibles, \(fainted) K.O.", "\(available) disponíveis, \(fainted) desmaiados",
-                   "\(available) kampfbereit, \(fainted) besiegt", "Готовы к бою: \(available), без сознания: \(fainted)")
+        L(language).battlePartySummary(available: available, fainted: fainted, known: status != nil)
     }
 }

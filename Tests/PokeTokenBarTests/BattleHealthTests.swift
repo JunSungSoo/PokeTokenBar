@@ -130,8 +130,8 @@ import XCTest
                 try? await Task.sleep(for:.milliseconds(100))
                 let own=BattleEffectPosition(own:true,slot:0),foe=BattleEffectPosition(own:false,slot:0)
                 events=[BattleVisualEvent(id:1,move:"Tackle",type:"normal",category:"Physical",source:own,targets:[.init(position:foe,hit:true)]),
-                    BattleVisualEvent(id:2,move:"",type:"",category:"Status",source:foe,targets:[],phase:"health")]
-                if let second { events.append(BattleVisualEvent(id:3,move:"",type:"",category:"Status",source:.init(own:false,slot:second.foe.count>1 ? 1:0),targets:[],phase:"health")) }
+                    BattleVisualEvent(id:2,move:"",type:"",category:"Status",source:foe,targets:[],phase:"health",healthGroup:(second?.foe.count ?? 0) > 1 ? 1:nil)]
+                if let second { events.append(BattleVisualEvent(id:3,move:"",type:"",category:"Status",source:.init(own:false,slot:second.foe.count>1 ? 1:0),targets:[],phase:"health",healthGroup:second.foe.count > 1 ? 1:nil)) }
                 events.append(BattleVisualEvent(id:second == nil ? 3:4,move:"Tackle",type:"normal",category:"Physical",source:foe,targets:[.init(position:own,hit:true)]))
             }
     }

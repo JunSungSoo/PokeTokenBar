@@ -9,9 +9,10 @@ struct BattleContentMeasurement: Equatable {
     let battlers:CGRect?
     let roster:CGRect?
     let commandTitle:CGRect?
+    var turnLog: CGRect? = nil
     var commandClearance: CGFloat? {
         guard let commands, let footer else { return nil }
-        return footer.minY - commands.maxY
+        return footer.minY - (turnLog?.maxY ?? commands.maxY)
     }
 }
 

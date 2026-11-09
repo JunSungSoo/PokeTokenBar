@@ -24,9 +24,9 @@ struct PokeRogueSpriteSizes:Decodable,Sendable {
         let front=size(speciesID:speciesID,form:form,back:false),rear=size(speciesID:speciesID,form:form,back:true)
         let reference=max(1,[front.width,front.height,rear.width,rear.height].max() ?? 1)
         let physicalExtent=90*sqrt(PokemonDisplayHeights.shared.metres(speciesID:speciesID,form:form))
-        // Compress extreme heights smoothly so one giant reserve does not shrink both teams.
+        // Compress extreme heights smoothly to fit the fixed battle viewport.
         // A square-root curve separates small species from large ones without life-size giants.
-        // The shared camera still bounds both teams and preserves original atlas proportions.
+        // The visible camera still bounds both teams and preserves original atlas proportions.
         let extent=physicalExtent<=180 ? physicalExtent:180+20*(1-exp(-(physicalExtent-180)/50))
         let factor=extent/reference
         return CGSize(width:raw.width*factor,height:raw.height*factor)
@@ -71,6 +71,17 @@ struct BattleSpriteSizing:Equatable {
     @MainActor static func battlefieldRowHeightLimit(for mode: BattleMode) -> CGFloat {
         (battlefieldHeight(for: mode) - battlefieldTopInset - battlefieldRowSpacing) / 2
     }
+    /// Scale from the presented active forms only. Reserves and possible future Megas
+    /// cannot change the camera. Slot geometry stays fixed when the visible scale changes.
+    @MainActor static func forBattle(mode: BattleMode, own: [BattleCombatant], foe: [BattleCombatant]) -> Self {
+        let catalog = PokeRogueSpriteSizes.shared
+        let sizes = own.filter(\.active).map { catalog.battleSize(speciesID: $0.speciesID, form: $0.form, back: true) }
+            + foe.filter(\.active).map { catalog.battleSize(speciesID: $0.speciesID, form: $0.form, back: false) }
+        let height = battlefieldRowHeightLimit(for: mode)
+        let visible = make(mode: mode, sizes: sizes, rowHeightLimit: height)
+        return Self(pixelScale: visible.pixelScale, stageWidth: mode == .singles ? 282 : 189, stageHeight: height)
+    }
+
     @MainActor static func make(mode:BattleMode,sizes:[CGSize], rowHeightLimit: CGFloat? = nil)->Self {
         let width=sizes.map(\.width).max() ?? 64,height=sizes.map(\.height).max() ?? 64
         let singles = mode == .singles

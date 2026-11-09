@@ -28,6 +28,7 @@ struct BattleEffectsLayer: View {
     let originalPlayer:PokeRogueBattlePlayer?
     let actors:[PokeRogueActor]
     let viewport:CGSize
+    let battleMode:BattleMode?
     var scenes: [Int: BattleScene] = [:]
     var onScene: (BattleScene) -> Void = { _ in }
     var onFinished: () -> Void = {}
@@ -51,7 +52,8 @@ struct BattleEffectsLayer: View {
     @State private var lastPresentedScene: BattleScene?
     @State private var draining = false
     @State private var runID = 0
-    init(events: [BattleVisualEvent],rects: [String:CGRect],busy: Binding<Bool>,playback: Binding<BattleEffectPlayback?> = .constant(nil),messages: [Int: String] = [:],presentOpeningAbilities: Bool = false,reducedMotionOverride: Bool? = nil,scenes: [Int: BattleScene] = [:],onScene: @escaping (BattleScene) -> Void = { _ in },onFinished: @escaping () -> Void = {},onAnimatedScene: ((BattleScene) async -> Void)? = nil,originalPlayer:PokeRogueBattlePlayer?=nil,actors:[PokeRogueActor]=[],viewport:CGSize = .zero,beforeEvent:((BattleVisualEvent) async -> Void)?=nil,hideActor:((BattleEffectPosition)->Bool)?=nil,completionToken:String?=nil) {
+    init(events: [BattleVisualEvent],rects: [String:CGRect],busy: Binding<Bool>,playback: Binding<BattleEffectPlayback?> = .constant(nil),messages: [Int: String] = [:],presentOpeningAbilities: Bool = false,reducedMotionOverride: Bool? = nil,scenes: [Int: BattleScene] = [:],onScene: @escaping (BattleScene) -> Void = { _ in },onFinished: @escaping () -> Void = {},onAnimatedScene: ((BattleScene) async -> Void)? = nil,originalPlayer:PokeRogueBattlePlayer?=nil,actors:[PokeRogueActor]=[],viewport:CGSize = .zero,beforeEvent:((BattleVisualEvent) async -> Void)?=nil,hideActor:((BattleEffectPosition)->Bool)?=nil,completionToken:String?=nil,battleMode:BattleMode?=nil) {
+        self.battleMode=battleMode
         self.completionToken=completionToken
         self.beforeEvent=beforeEvent;self.hideActor=hideActor
         self.originalPlayer=originalPlayer;self.actors=actors;self.viewport=viewport
@@ -59,7 +61,7 @@ struct BattleEffectsLayer: View {
         self.scenes=scenes;self.onScene=onScene;self.onFinished=onFinished;self.onAnimatedScene=onAnimatedScene
         self.reducedMotionOverride=reducedMotionOverride
         _playback=playback
-        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition", "field", "entry", "status", "health", "weather-hit"].contains($0.phase ?? "") } : events))
+        _cursor=State(initialValue:BattleEffectCursor(events:presentOpeningAbilities ? events.filter { !["ability", "state", "transition", "field", "entry", "status", "health", "weather-hit", "hit"].contains($0.phase ?? "") } : events))
     }
     var body: some View {
         ZStack {
@@ -111,7 +113,7 @@ struct BattleEffectsLayer: View {
                 var batch=[item]
                 if let next=pending.first,BattleEntryEffects.canAppearTogether(event,next.event) { batch.append(pending.removeFirst()) }
                 if event.phase == "health" {
-                    while let next=pending.first,next.event.phase=="health",!batch.contains(where:{$0.event.source==next.event.source}) {
+                    while let next=pending.first,BattleHealthEffects.canBatch(event,next.event),!batch.contains(where:{$0.event.source==next.event.source}) {
                         batch.append(pending.removeFirst())
                     }
                 }
@@ -142,7 +144,7 @@ struct BattleEffectsLayer: View {
                 }
                 // Announce the move before its animation starts, then keep the same notice
                 // throughout both background and foreground playback.
-                do { if event.phase != "weather-hit" { try await Task.sleep(for:.seconds(BattleEffectPlayback.announcementLeadIn)) } }
+                do { if !["weather-hit","hit"].contains(event.phase ?? "") { try await Task.sleep(for:.seconds(BattleEffectPlayback.announcementLeadIn)) } }
                 catch { return }
                 started=Date();active=event
                 playback=BattleEffectPlayback(event:event,began:started)
@@ -151,15 +153,11 @@ struct BattleEffectsLayer: View {
                     let eventActors=actors.compactMap { actor -> PokeRogueActor? in
                         if hideActor?(actor.position)==true{return nil}
                         guard let scene=finalScene else{return actor}
-                        let members=actor.position.own ? scene.own.filter(\.active):scene.foe
-                        guard members.indices.contains(actor.position.slot) else{return isOpening ? actor:nil}
-                        return PokeRogueActor(pokemon:members[actor.position.slot],position:actor.position,rect:actor.rect,pixelScale:actor.pixelScale)
+                        return actor.inScene(scene,mode:battleMode) ?? (isOpening ? actor:nil)
                     }
                     if event.phase == "mega" {
                         let actor=actors.first{$0.position==event.source}
-                        let prior=event.source.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
-                        let pokemon=prior.flatMap{$0.indices.contains(event.source.slot) ? $0[event.source.slot]:nil} ?? actor?.pokemon
-                        let old=actor.flatMap { actor in pokemon.map{PokeRogueActor(pokemon:$0,position:actor.position,rect:actor.rect,pixelScale:actor.pixelScale)} }
+                        let old=actor.flatMap { actor in lastPresentedScene.flatMap { actor.inScene($0,mode:battleMode) } ?? actor }
                         var revealed=false
                         let reveal={
                             guard !revealed else{return};revealed=true
@@ -171,10 +169,8 @@ struct BattleEffectsLayer: View {
                     } else if event.phase == "entry" {
                         let old:[PokeRogueActor]=isOpening ? []:batch.compactMap { member in
                             let position=member.event.source
-                            let priorMembers=position.own ? lastPresentedScene?.own.filter(\.active):lastPresentedScene?.foe
                             guard let actor=actors.first(where:{$0.position==position}) else{return nil}
-                            let pokemon=priorMembers.flatMap { $0.indices.contains(position.slot) ? $0[position.slot]:nil } ?? actor.pokemon
-                            return PokeRogueActor(pokemon:pokemon,position:position,rect:actor.rect,pixelScale:actor.pixelScale)
+                            return lastPresentedScene.flatMap { actor.inScene($0,mode:battleMode) } ?? actor
                         }
                         var revealed=false
                         let reveal={
@@ -235,7 +231,7 @@ struct BattleEffectsLayer: View {
         if event.phase == "entry" { return 5 }
         if event.phase == "mega" { return 10 }
         if event.phase == "health" { return 0.9 }
-        if event.phase == "weather-hit" { return 0.5 + BattleEffectPlayback.interEventPause }
+        if ["weather-hit","hit"].contains(event.phase ?? "") { return 0.5 + BattleEffectPlayback.interEventPause }
         if event.phase == "state" { return 0.25 }
         if event.phase == "transition" { return 1.2 }
         if event.phase == "ability" { return 1.8 + BattleEffectPlayback.interEventPause }
