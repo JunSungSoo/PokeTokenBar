@@ -84,13 +84,19 @@ cat > "$APP/Contents/Info.plist" <<PLIST
         <string>_ptb-battle._tcp</string>
         <string>_ptb-battle._udp</string>
     </array>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>io.github.chattymin.poketokenbar.agent</string>
+            <key>CFBundleURLSchemes</key><array><string>poketokenbar</string></array>
+        </dict>
+    </array>
 </dict>
 </plist>
 PLIST
 
-# 크래시/OOM(exit≠0) 시 자동 재실행 LaunchAgent(KeepAlive) — SMAppService.agent 가 등록해 launchd 가
-# 워치독으로 동작. 정상 종료(exit 0: 사용자 종료·업데이트)엔 재실행 안 함(SuccessfulExit=false).
-# Bind the service to the bundle that registered it, including copies outside /Applications.
+# Keep the old LaunchAgent definition so SMAppService can query and unregister it
+# when upgrading. New login items register the main app.
 mkdir -p "$APP/Contents/Library/LaunchAgents"
 cat > "$APP/Contents/Library/LaunchAgents/io.github.chattymin.poketokenbar.login.bundle.plist" <<AGENT
 <?xml version="1.0" encoding="UTF-8"?>

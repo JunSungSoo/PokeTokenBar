@@ -1,64 +1,117 @@
 import Foundation
 import ServiceManagement
 
-/// Login launch and crash restart are managed together by a bundle-local LaunchAgent.
 @MainActor
-enum LoginItem {
-    static let plistName = "io.github.chattymin.poketokenbar.login.bundle.plist"
-    static let legacyPlistName = "io.github.chattymin.poketokenbar.login.plist"
-    private static var agent: SMAppService { SMAppService.agent(plistName: plistName) }
-    private static var legacyAgent: SMAppService { SMAppService.agent(plistName: legacyPlistName) }
+protocol LoginItemService {
+    var status: SMAppService.Status { get }
+    func register() throws
+    func unregister() throws
+}
 
-    static var isEnabled: Bool { agent.status == .enabled }
+extension SMAppService: LoginItemService {}
 
-    static func setEnabled(_ on: Bool) throws {
-        if on {
-            try agent.register()
-        } else {
-            // Turning off login launch must also remove any stale registration.
-            for service in [legacyAgent, .mainApp, agent] where isRegistered(service.status) {
-                try service.unregister()
+@MainActor
+struct LoginItem {
+    private static let legacyLabel = "io.github.chattymin.poketokenbar.login"
+    private static let bundleAgentLabel = "\(legacyLabel).bundle"
+
+    let mainApp: any LoginItemService
+    let legacyAgent: any LoginItemService
+    let bundleAgent: (any LoginItemService)?
+    let launchedByLegacyAgent: Bool
+    let launchedByBundleAgent: Bool
+    let openLoginItemsSettings: () -> Void
+
+    init(mainApp: any LoginItemService, legacyAgent: any LoginItemService,
+         launchedByLegacyAgent: Bool, bundleAgent: (any LoginItemService)? = nil,
+         launchedByBundleAgent: Bool = false, openLoginItemsSettings: @escaping () -> Void) {
+        self.mainApp = mainApp
+        self.legacyAgent = legacyAgent
+        self.bundleAgent = bundleAgent
+        self.launchedByLegacyAgent = launchedByLegacyAgent
+        self.launchedByBundleAgent = launchedByBundleAgent
+        self.openLoginItemsSettings = openLoginItemsSettings
+    }
+
+    static var system: LoginItem {
+        LoginItem(
+            mainApp: SMAppService.mainApp,
+            legacyAgent: SMAppService.agent(plistName: "\(legacyLabel).plist"),
+            launchedByLegacyAgent: AppEnv.xpcServiceName == legacyLabel,
+            bundleAgent: SMAppService.agent(plistName: "\(bundleAgentLabel).plist"),
+            launchedByBundleAgent: AppEnv.xpcServiceName == bundleAgentLabel,
+            openLoginItemsSettings: SMAppService.openSystemSettingsLoginItems
+        )
+    }
+
+    var status: SMAppService.Status { mainApp.status }
+    var isEnabled: Bool {
+        status == .enabled || legacyAgent.status == .enabled || bundleAgent?.status == .enabled
+    }
+
+    func setEnabled(_ enabled: Bool) throws {
+        if !enabled {
+            // Unregister the owner last because launchd can terminate this process.
+            if !launchedByLegacyAgent { try unregisterIfNeeded(legacyAgent) }
+            if let bundleAgent, !launchedByBundleAgent { try unregisterIfNeeded(bundleAgent) }
+            try unregisterIfNeeded(mainApp)
+            if launchedByLegacyAgent { try unregisterIfNeeded(legacyAgent) }
+            if let bundleAgent, launchedByBundleAgent { try unregisterIfNeeded(bundleAgent) }
+            return
+        }
+
+        do {
+            try registerMainAppIfNeeded()
+        } catch {
+            guard status == .requiresApproval else {
+                try? retireAbsolutePathAgent()
+                throw error
             }
+        }
+        try retireAbsolutePathAgent()
+        if status == .requiresApproval {
+            openLoginItemsSettings()
+        } else {
+            try removeLegacyAgentAfterActivation()
         }
     }
 
-    static func migrateFromLegacyLoginItemIfNeeded() {
-        guard AppEnv.isBundledApp,
-              FileManager.default.fileExists(atPath: Bundle.main.bundleURL
-                .appendingPathComponent("Contents/Library/LaunchAgents")
-                .appendingPathComponent(plistName).path) else { return }
-        let current = agent
-        let legacy = [legacyAgent, SMAppService.mainApp]
-        let errors = migrate(
-            current: current.status,
-            legacy: legacy.map(\.status),
-            register: { try current.register() },
-            unregister: { try legacy[$0].unregister() }
-        )
-        for error in errors {
+    func migrateFromLegacyAgentIfNeeded() {
+        let absolutePathWasEnabled = legacyAgent.status == .enabled
+        if absolutePathWasEnabled || bundleAgent?.status == .enabled {
+            do { try registerMainAppIfNeeded() }
+            catch { AppLog.write("login item registration failed: \(error)") }
+        }
+        do {
+            // The old absolute-path job can start an obsolete app even while macOS
+            // is waiting for approval or after direct registration fails.
+            if absolutePathWasEnabled { try retireAbsolutePathAgent() }
+            try removeLegacyAgentAfterActivation()
+        } catch {
             AppLog.write("login item migration failed: \(error)")
         }
     }
 
-    /// A failed registration must not leave an enabled job pointing at an obsolete executable.
-    /// Disabled or pending approval legacy entries do not opt the user in to the replacement.
-    static func migrate(
-        current: SMAppService.Status,
-        legacy: [SMAppService.Status],
-        register: () throws -> Void,
-        unregister: (Int) throws -> Void
-    ) -> [Error] {
-        var errors: [Error] = []
-        if current == .notRegistered, legacy.contains(.enabled) {
-            do { try register() } catch { errors.append(error) }
-        }
-        for (index, status) in legacy.enumerated() where isRegistered(status) {
-            do { try unregister(index) } catch { errors.append(error) }
-        }
-        return errors
+    func removeLegacyAgentAfterActivation() throws {
+        guard status == .enabled else { return }
+        try retireAbsolutePathAgent()
+        if let bundleAgent, !launchedByBundleAgent { try unregisterIfNeeded(bundleAgent) }
     }
 
-    private static func isRegistered(_ status: SMAppService.Status) -> Bool {
+    private func registerMainAppIfNeeded() throws {
+        if !isRegistered(status) { try mainApp.register() }
+    }
+
+    private func retireAbsolutePathAgent() throws {
+        // Removing the job that owns this process would kill it mid-launch.
+        if !launchedByLegacyAgent { try unregisterIfNeeded(legacyAgent) }
+    }
+
+    private func unregisterIfNeeded(_ service: any LoginItemService) throws {
+        if isRegistered(service.status) { try service.unregister() }
+    }
+
+    private func isRegistered(_ status: SMAppService.Status) -> Bool {
         status == .enabled || status == .requiresApproval
     }
 }
