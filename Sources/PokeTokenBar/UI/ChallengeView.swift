@@ -7,6 +7,7 @@ import SwiftUI
     let auxiliary:BattleAuxiliaryState
     var allowsAudio=true
     var onClose:()->Void
+    var onSaveExit: (()->Void)? = nil
     var onSurrender:()->Void
     var onMusic:()->Void
     var onShowField:()->Void
@@ -21,7 +22,7 @@ import SwiftUI
                 BattleView(battle:battle,store:model.store,onSurrender:onSurrender,onMusic:onMusic,onPlayMusic:onState,
                     audioSettings:audioSettings,allowsEffectsAudio:allowsAudio,trainerIntro:model.intro,showsResultClose:false,
                     replayOpening:!model.resuming,musicActive:model.musicEnabled,challengeBuffSummary:model.buffSummary,auxiliaryState:auxiliary,
-                    onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onLayout:onLayout,
+                    onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onSaveExit:onSaveExit,onLayout:onLayout,
                     onTestWin:model.session.testControlsEnabled ? {do{try model.session.winForTesting()}catch{model.report(error)}}:nil,
                     onTestNextTrainer:model.session.testControlsEnabled ? {model.nextTrainerForTesting()}:nil,
                     canTestNextTrainer:model.canTestNextTrainer,
@@ -99,21 +100,28 @@ import SwiftUI
     private var header:some View {
         HStack {
             Label(l.challengeTitle,systemImage:"flag.checkered").font(.title2.bold())
+            Text(l.challengeMode(battle.mode)).font(.callout).foregroundStyle(.secondary)
             Spacer()
             if let run=model.run,model.screen != .setup {Text(l.challengeRound((model.preparing ? model.preparationOpponent?.index:run.encounterIndex).map{$0+1} ?? run.encounterIndex+1,run.encounterCount)).font(.callout.monospacedDigit())}
         }.padding(18)
     }
     private var setup:some View {
         VStack(alignment:.leading,spacing:14) {
-            Text(l.challengeRules).font(.headline)
+            Text(l.challengeRules(battle.mode)).font(.headline)
             Text(l.challengeSetupHint).font(.callout).foregroundStyle(.secondary)
+            BattleRosterPresetMenu(l: l, mode: model.save.mode, candidates: model.candidates,
+                                  apply: model.applyRosterPreset).disabled(model.building)
             Text(l.battleDuplicateItem).font(.caption).foregroundStyle(.secondary)
             HStack {Text(l.battleRegisteredTeam).font(.headline);Spacer();Text("\(model.selectedIDs.count)/6").monospacedDigit()}
             LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:8),count:3),spacing:8) {
                 ForEach(Array(model.selectedIDs.enumerated()),id:\.element){index,id in
                     if let entry=model.candidates.first(where:{$0.id==id}) {
                         VStack(spacing:5) {
-                            HStack{Text(index==0 ? "LEAD":"\(index+1)").font(.caption2.bold());Spacer()}
+                            HStack {
+                                Text(index == 0 ? "LEAD" : (index == 1 && battle.mode == .doubles ? "LEAD 2" : "\(index+1)"))
+                                    .font(.caption2.bold())
+                                Spacer()
+                            }
                             SpriteView(speciesID:entry.finalID,size:55,shiny:entry.isShiny,form:entry.form).frame(height:60)
                             Text(name(entry.finalID)).font(.caption).lineLimit(1)
                             Button(BattleHeldItems.item(model.itemLoadout.items[id])?.name(model.store.language) ?? l.battleNoItem){editingItem=entry}
@@ -149,12 +157,16 @@ import SwiftUI
                     Text(l.challengeRound(encounter.index+1,model.session.catalog.encounters.count)).font(.caption)
                 }
             }
-            Text(l.challengePreparationHint).font(.callout).foregroundStyle(.secondary)
+            Text(battle.mode == .doubles ? l.challengeDoublesPreparationHint : l.challengePreparationHint).font(.callout).foregroundStyle(.secondary)
+            if battle.mode == .doubles {
+                Text(l.challengeDoubleLeadHint).font(.caption).foregroundStyle(.secondary)
+            }
             BattleTeamPreview(own:(model.run?.team ?? []).map(BattleRosterMember.init),
                 opponent:(model.preparationOpponent?.team ?? []).map(BattleRosterMember.init),
-                selected:model.preparationOrder,mode:.singles,language:model.store.language,enabled:!model.building,
-                onSelect:{model.selectPrepared($0)},selectionLimit:6)
-            Text("\(model.preparationOrder.count)/6").font(.caption.monospacedDigit())
+                selected:model.preparationOrder,mode:battle.mode,language:model.store.language,enabled:!model.building,
+                onSelect:{model.selectPrepared($0)},selectionLimit:model.preparationLimit,
+                leadIDs:battle.mode == .doubles ? model.preparedDoublesLeadIDs : nil)
+            Text("\(model.preparationOrder.count)/\(model.preparationLimit)").font(.caption.monospacedDigit())
             LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:8),count:3),spacing:8) {
                 ForEach(model.run?.team ?? []){p in
                     if let entry=model.preparationEntries.first(where:{$0.id==p.id}) {

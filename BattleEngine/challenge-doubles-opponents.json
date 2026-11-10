@@ -1,0 +1,114 @@
+{
+  "brock": [
+    {"speciesID": 142, "ability": "Pressure", "item": "focussash", "moves": ["rockslide", "tailwind", "taunt", "protect"]},
+    {"speciesID": 76, "ability": "Sturdy", "item": "custapberry", "moves": ["earthquake", "rockslide", "firepunch", "protect"]},
+    {"speciesID": 139, "ability": "Swift Swim", "item": "whiteherb", "moves": ["muddywater", "icebeam", "shellsmash", "protect"]},
+    {"speciesID": 141, "ability": "Swift Swim", "item": "lifeorb", "moves": ["waterfall", "rockslide", "aquajet", "protect"]},
+    {"speciesID": 95, "ability": "Sturdy", "item": "eviolite", "moves": ["rockslide", "earthquake", "taunt", "protect"]},
+    {"speciesID": 74, "ability": "Sturdy", "item": "sitrusberry", "moves": ["rockslide", "earthquake", "firepunch", "protect"]}
+  ],
+  "misty": [
+    {"speciesID": 131, "ability": "Water Absorb", "item": "damprock", "moves": ["raindance", "icebeam", "thunderbolt", "protect"]},
+    {"speciesID": 121, "ability": "Natural Cure", "item": "lifeorb", "moves": ["surf", "psychic", "icebeam", "protect"]},
+    {"speciesID": 134, "ability": "Water Absorb", "item": "leftovers", "moves": ["muddywater", "helpinghand", "icebeam", "protect"]},
+    {"speciesID": 55, "ability": "Swift Swim", "item": "expertbelt", "moves": ["scald", "icebeam", "focusblast", "protect"]},
+    {"speciesID": 195, "ability": "Water Absorb", "item": "sitrusberry", "moves": ["earthquake", "rockslide", "recover", "protect"]},
+    {"speciesID": 120, "ability": "Natural Cure", "item": "eviolite", "moves": ["scald", "thunderbolt", "recover", "protect"]}
+  ],
+  "ltsurge": [
+    {"speciesID": 25, "ability": "Lightning Rod", "item": "lightball", "moves": ["fakeout", "thunderbolt", "grassknot", "protect"]},
+    {"speciesID": 135, "ability": "Volt Absorb", "item": "magnet", "moves": ["discharge", "shadowball", "thunderbolt", "protect"]},
+    {"speciesID": 26, "ability": "Lightning Rod", "item": "focussash", "moves": ["fakeout", "thunderbolt", "encore", "protect"]},
+    {"speciesID": 181, "ability": "Static", "item": "sitrusberry", "moves": ["thunderbolt", "powergem", "thunderwave", "protect"]},
+    {"speciesID": 125, "ability": "Vital Spirit", "item": "eviolite", "moves": ["thunderbolt", "focusblast", "lightscreen", "protect"]},
+    {"speciesID": 100, "ability": "Static", "item": "lightclay", "moves": ["thunderbolt", "thunderwave", "lightscreen", "taunt"]}
+  ],
+  "erika": [
+    {"speciesID": 182, "ability": "Chlorophyll", "item": "heatrock", "moves": ["sunnyday", "gigadrain", "sleeppowder", "protect"]},
+    {"speciesID": 71, "ability": "Chlorophyll", "item": "lifeorb", "moves": ["solarbeam", "weatherball", "sludgebomb", "protect"]},
+    {"speciesID": 189, "ability": "Chlorophyll", "item": "focussash", "moves": ["sleeppowder", "helpinghand", "seedbomb", "protect"]},
+    {"speciesID": 103, "ability": "Harvest", "item": "sitrusberry", "moves": ["psychic", "gigadrain", "sleeppowder", "protect"]},
+    {"speciesID": 45, "ability": "Effect Spore", "item": "blacksludge", "moves": ["gigadrain", "sludgebomb", "sleeppowder", "protect"]},
+    {"speciesID": 114, "ability": "Regenerator", "item": "eviolite", "moves": ["gigadrain", "sleeppowder", "ragepowder", "protect"]}
+  ],
+  "koga1": [
+    {"speciesID": 169, "ability": "Inner Focus", "item": "sharpbeak", "moves": ["tailwind", "bravebird", "taunt", "protect"]},
+    {"speciesID": 34, "ability": "Sheer Force", "item": "lifeorb", "moves": ["earthpower", "sludgewave", "icebeam", "protect"]},
+    {"speciesID": 110, "ability": "Levitate", "item": "blacksludge", "moves": ["willowisp", "sludgebomb", "thunderbolt", "protect"]},
+    {"speciesID": 89, "ability": "Sticky Hold", "item": "sitrusberry", "moves": ["poisonjab", "shadowsneak", "icepunch", "protect"]},
+    {"speciesID": 49, "ability": "Tinted Lens", "item": "focussash", "moves": ["bugbuzz", "sleeppowder", "quiverdance", "protect"]},
+    {"speciesID": 109, "ability": "Levitate", "item": "eviolite", "moves": ["willowisp", "sludgebomb", "fireblast", "protect"]}
+  ],
+  "sabrina": [
+    {"speciesID": 122, "ability": "Filter", "item": "lightclay", "moves": ["fakeout", "reflect", "lightscreen", "psychic"]},
+    {"speciesID": 65, "ability": "Magic Guard", "item": "lifeorb", "moves": ["psychic", "focusblast", "shadowball", "protect"]},
+    {"speciesID": 196, "ability": "Magic Bounce", "item": "twistedspoon", "moves": ["psychic", "helpinghand", "grassknot", "protect"]},
+    {"speciesID": 97, "ability": "Insomnia", "item": "sitrusberry", "moves": ["trickroom", "psychic", "thunderwave", "protect"]},
+    {"speciesID": 64, "ability": "Magic Guard", "item": "focussash", "moves": ["psychic", "shadowball", "encore", "protect"]},
+    {"speciesID": 49, "ability": "Tinted Lens", "item": "blacksludge", "moves": ["bugbuzz", "sleeppowder", "quiverdance", "protect"]}
+  ],
+  "blaine": [
+    {"speciesID": 38, "ability": "Drought", "item": "heatrock", "moves": ["heatwave", "solarbeam", "willowisp", "protect"]},
+    {"speciesID": 59, "ability": "Flash Fire", "item": "lifeorb", "moves": ["heatwave", "extremespeed", "closecombat", "protect"]},
+    {"speciesID": 58, "ability": "Intimidate", "item": "eviolite", "moves": ["heatwave", "willowisp", "wildcharge", "protect"]},
+    {"speciesID": 78, "ability": "Flash Fire", "item": "charcoal", "moves": ["flareblitz", "wildcharge", "drillrun", "protect"]},
+    {"speciesID": 126, "ability": "Vital Spirit", "item": "focussash", "moves": ["heatwave", "focusblast", "thunderpunch", "protect"]},
+    {"speciesID": 77, "ability": "Flame Body", "item": "sitrusberry", "moves": ["flareblitz", "wildcharge", "willowisp", "protect"]}
+  ],
+  "giovanni": [
+    {"speciesID": 51, "ability": "Sand Force", "item": "focussash", "moves": ["sandstorm", "earthquake", "rockslide", "protect"]},
+    {"speciesID": 31, "ability": "Sheer Force", "item": "expertbelt", "moves": ["earthpower", "icebeam", "thunderbolt", "protect"]},
+    {"speciesID": 34, "ability": "Sheer Force", "item": "lifeorb", "moves": ["earthpower", "icebeam", "flamethrower", "protect"]},
+    {"speciesID": 112, "ability": "Rock Head", "item": "eviolite", "moves": ["earthquake", "rockslide", "megahorn", "protect"]},
+    {"speciesID": 232, "ability": "Sturdy", "item": "sitrusberry", "moves": ["earthquake", "rockslide", "iceshard", "protect"]},
+    {"speciesID": 111, "ability": "Rock Head", "item": "hardstone", "moves": ["earthquake", "rockslide", "doubleedge", "protect"]}
+  ],
+  "lorelei": [
+    {"speciesID": 124, "ability": "Dry Skin", "item": "focussash", "moves": ["fakeout", "icebeam", "lovelykiss", "protect"]},
+    {"speciesID": 131, "ability": "Water Absorb", "item": "damprock", "moves": ["raindance", "surf", "thunderbolt", "protect"]},
+    {"speciesID": 80, "ability": "Regenerator", "item": "sitrusberry", "moves": ["trickroom", "scald", "psychic", "slackoff"]},
+    {"speciesID": 221, "ability": "Thick Fat", "item": "eviolite", "moves": ["earthquake", "iciclespear", "iceshard", "protect"]},
+    {"speciesID": 91, "ability": "Skill Link", "item": "whiteherb", "moves": ["iciclespear", "rockblast", "shellsmash", "protect"]},
+    {"speciesID": 87, "ability": "Hydration", "item": "leftovers", "moves": ["surf", "icebeam", "rest", "protect"]}
+  ],
+  "bruno1": [
+    {"speciesID": 107, "ability": "Iron Fist", "item": "lifeorb", "moves": ["fakeout", "drainpunch", "icepunch", "protect"]},
+    {"speciesID": 68, "ability": "No Guard", "item": "sitrusberry", "moves": ["dynamicpunch", "rockslide", "wideguard", "protect"]},
+    {"speciesID": 106, "ability": "Unburden", "item": "fightinggem", "moves": ["fakeout", "closecombat", "stoneedge", "protect"]},
+    {"speciesID": 62, "ability": "Water Absorb", "item": "leftovers", "moves": ["scald", "brickbreak", "helpinghand", "protect"]},
+    {"speciesID": 95, "ability": "Sturdy", "item": "eviolite", "moves": ["rockslide", "earthquake", "taunt", "protect"]},
+    {"speciesID": 57, "ability": "Vital Spirit", "item": "expertbelt", "moves": ["closecombat", "rockslide", "icepunch", "protect"]}
+  ],
+  "agatha": [
+    {"speciesID": 94, "ability": "Levitate", "item": "blacksludge", "moves": ["shadowball", "sludgebomb", "taunt", "protect"]},
+    {"speciesID": 24, "ability": "Intimidate", "item": "sitrusberry", "moves": ["gunkshot", "earthquake", "suckerpunch", "protect"]},
+    {"speciesID": 42, "ability": "Inner Focus", "item": "eviolite", "moves": ["tailwind", "bravebird", "taunt", "protect"]},
+    {"speciesID": 93, "ability": "Levitate", "item": "lifeorb", "moves": ["shadowball", "sludgebomb", "thunderbolt", "protect"]},
+    {"speciesID": 200, "ability": "Levitate", "item": "focussash", "moves": ["willowisp", "shadowball", "painsplit", "protect"]},
+    {"speciesID": 442, "ability": "Pressure", "item": "blackglasses", "moves": ["suckerpunch", "shadowball", "willowisp", "protect"]}
+  ],
+  "lance1": [
+    {"speciesID": 230, "ability": "Swift Swim", "item": "lifeorb", "moves": ["muddywater", "dracometeor", "icebeam", "protect"]},
+    {"speciesID": 130, "ability": "Intimidate", "item": "damprock", "moves": ["raindance", "waterfall", "icefang", "protect"]},
+    {"speciesID": 149, "ability": "Multiscale", "item": "leftovers", "moves": ["dragonclaw", "extremespeed", "earthquake", "protect"]},
+    {"speciesID": 142, "ability": "Pressure", "item": "focussash", "moves": ["tailwind", "rockslide", "taunt", "protect"]},
+    {"speciesID": 330, "ability": "Levitate", "item": "expertbelt", "moves": ["earthquake", "rockslide", "dragonclaw", "protect"]},
+    {"speciesID": 148, "ability": "Marvel Scale", "item": "eviolite", "moves": ["dragonrush", "thunderwave", "aquatail", "protect"]}
+  ],
+  "blue": [
+    {"speciesID": 130, "ability": "Intimidate", "item": "sitrusberry", "moves": ["waterfall", "icefang", "earthquake", "protect"]},
+    {"speciesID": 18, "ability": "Tangled Feet", "item": "sharpbeak", "moves": ["tailwind", "bravebird", "uturn", "protect"]},
+    {"speciesID": 65, "ability": "Magic Guard", "item": "lifeorb", "moves": ["psychic", "focusblast", "shadowball", "protect"]},
+    {"speciesID": 112, "ability": "Rock Head", "item": "eviolite", "moves": ["earthquake", "rockslide", "megahorn", "protect"]},
+    {"speciesID": 103, "ability": "Harvest", "item": "lumberry", "moves": ["psychic", "gigadrain", "sleeppowder", "protect"]},
+    {"speciesID": 59, "ability": "Intimidate", "item": "leftovers", "moves": ["flareblitz", "extremespeed", "closecombat", "protect"]}
+  ],
+  "red": [
+    {"speciesID": 6, "ability": "Solar Power", "item": "charizarditey", "moves": ["weatherball", "solarbeam", "heatwave", "protect"]},
+    {"speciesID": 3, "ability": "Chlorophyll", "item": "blacksludge", "moves": ["gigadrain", "sludgebomb", "sleeppowder", "protect"]},
+    {"speciesID": 150, "ability": "Pressure", "item": "lifeorb", "moves": ["psystrike", "shadowball", "recover", "flamethrower"]},
+    {"speciesID": 25, "ability": "Static", "item": "lightball", "moves": ["fakeout", "wildcharge", "grassknot", "protect"]},
+    {"speciesID": 9, "ability": "Torrent", "item": "leftovers", "moves": ["fakeout", "scald", "icebeam", "protect"]},
+    {"speciesID": 143, "ability": "Thick Fat", "item": "chestoberry", "moves": ["bodyslam", "earthquake", "crunch", "rest"]}
+  ]
+}

@@ -25,6 +25,72 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
 }
 
 @MainActor final class ChallengeUITests:XCTestCase {
+    func testRosterPresetRestoresItemsAndExplicitEmptyOverCollectionDefaults() throws {
+        let model = try fixture()
+        let ids = (0..<6).map { "owned-\($0)" }
+        let legacy = try JSONSerialization.data(withJSONObject: ["rosters": ["singles-1": ids]])
+        var presets = BattleRosterPresets(data: legacy)
+        XCTAssertEqual(presets.roster(mode: .singles, slot: 1), ids)
+        XCTAssertTrue(presets.itemOverrides(mode: .singles, slot: 1).isEmpty)
+        XCTAssertTrue(model.store.setPokemonBattleDefaultItem(entryID: ids[1], itemID: "lifeorb"))
+        let data = try XCTUnwrap(presets.save(ids, mode: .singles, slot: 2, candidates: model.candidates,
+                                              items: [ids[0]: "leftovers"]))
+        let reloaded = BattleRosterPresets(data: data)
+        XCTAssertTrue(reloaded.itemOverrides(mode: .singles, slot: 1).isEmpty)
+        model.applyRosterPreset(ids, items: reloaded.itemOverrides(mode: .singles, slot: 2))
+        XCTAssertEqual(model.itemLoadout.items, [ids[0]: "leftovers"])
+        XCTAssertNil(try presets.save(ids, mode: .singles, slot: 2, candidates: model.candidates,
+                                      items: [ids[0]: "leftovers", ids[1]: "leftovers"]))
+    }
+
+    func testPresetRepeatedClicksToggleAndCannotExceedSix() throws {
+        let candidates = try fixture().candidates
+        var ids: [String] = []
+        let select: (String) -> Void = { id in
+            BattleRosterPresets.toggle(id, in: &ids, mode: .singles, candidates: candidates)
+        }
+        for _ in 0..<16 { select("owned-0") }
+        XCTAssertTrue(ids.isEmpty)
+        select("owned-0")
+        select("duplicate")
+        XCTAssertEqual(ids, ["owned-0"])
+        for index in 1...6 { select("owned-\(index)") }
+        XCTAssertEqual(ids, (0..<6).map { "owned-\($0)" })
+        select("owned-0")
+        select("owned-6")
+        XCTAssertEqual(ids, (1...6).map { "owned-\($0)" })
+    }
+
+    func testRosterPresetsKeepFourIndependentSlotsAndApplyInSavedOrder() throws {
+        let model = try fixture()
+        let candidates = model.candidates
+        let ids = (0..<7).map { "owned-\($0)" }
+        let rosters = (0..<4).map { offset in
+            Array((ids.dropFirst(offset) + ids.prefix(offset)).prefix(6))
+        }
+        var presets = BattleRosterPresets(data: Data())
+        for (index, mode) in BattleMode.allCases.enumerated() {
+            for slot in BattleRosterPresets.slots {
+                let data = try XCTUnwrap(presets.save(rosters[index * 2 + slot - 1], mode: mode,
+                                                     slot: slot, candidates: candidates))
+                presets = BattleRosterPresets(data: data)
+            }
+        }
+        for (index, mode) in BattleMode.allCases.enumerated() {
+            for slot in BattleRosterPresets.slots {
+                XCTAssertEqual(presets.roster(mode: mode, slot: slot), rosters[index * 2 + slot - 1])
+            }
+        }
+        let roster = presets.roster(mode: .singles, slot: 2)
+        model.select(ids[0])
+        model.applyRosterPreset(roster)
+        XCTAssertEqual(model.selectedIDs, roster)
+        model.applyRosterPreset(Array(roster.dropLast()) + ["missing"])
+        XCTAssertEqual(model.selectedIDs, roster)
+        XCTAssertNil(try presets.save(Array(ids.prefix(5)) + ["duplicate"], mode: .singles,
+                                      slot: 2, candidates: candidates))
+    }
+
     private func fixture(testControls:Bool=false,rewardFixtures:Bool=false)throws->ChallengeUIModel {
         let dir=FileManager.default.temporaryDirectory.appendingPathComponent("challenge-ui-\(UUID())")
         try FileManager.default.createDirectory(at:dir,withIntermediateDirectories:true)
@@ -67,6 +133,78 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
     private func beginPrepared(_ m:ChallengeUIModel) {
         if m.preparationOrder.isEmpty {for p in m.run?.team ?? []{m.selectPrepared(p.id)}}
         m.beginPreparedEncounter()
+    }
+    func testDoublesEntryBuildsSixWithItemsAndResumesFirstGymWithoutAWindow() async throws {
+        let fixture = try fixture()
+        let directory = fixture.save.url.deletingLastPathComponent()
+        let identity = BattleIdentity(nickname:"Test",code:"test",nonce:"test")
+        let singles = try ChallengeWindowController.makeSession(mode:.singles,directory:directory,testControlsEnabled:false)
+        let doubles = try ChallengeWindowController.makeSession(mode:.doubles,directory:directory,testControlsEnabled:false)
+        XCTAssertEqual(singles.catalog.encounters.count,27)
+        XCTAssertEqual(doubles.catalog.encounters.count,14)
+        let owned = ChallengeRunTests().team()
+        try singles.save.start(team:owned,catalogVersion:singles.catalog.version)
+        let singlesData = try Data(contentsOf:singles.save.url)
+        XCTAssertNotEqual(singles.save.url,doubles.save.url)
+
+        let model = ChallengeUIModel(store:fixture.store,session:doubles,provider:fixture.provider,
+                                     itemMemory:fixture.itemMemory,itemUsage:fixture.itemUsage)
+        let adapter = ChallengeBattleAdapter(model:model,identity:identity)
+        model.isOpen=true
+        defer {model.close()}
+        XCTAssertEqual(adapter.mode,.doubles)
+        for index in 0..<6 {model.select("owned-\(index)")}
+        XCTAssertTrue(model.applyItem("leftovers",to:"owned-0"))
+        XCTAssertFalse(model.applyItem("leftovers",to:"owned-1"))
+        await model.start()
+        XCTAssertEqual(model.screen,.preparation)
+        XCTAssertEqual(model.preparationOpponent?.id,"brock")
+        XCTAssertEqual(model.preparationOpponent?.team.count,6)
+        XCTAssertTrue(model.applyPreparedItem("lifeorb",to:"owned-1"))
+        let order = [5,4,1,0].map{"owned-\($0)"}
+        for id in order {model.selectPrepared(id)}
+        model.selectPrepared("owned-2")
+        XCTAssertEqual(model.preparationOrder,order)
+        let reservesBefore = model.run?.resources.filter{!order.contains($0.id)}
+        XCTAssertEqual(model.preparedDoublesLeadIDs,Set(order.prefix(2)))
+        model.beginPreparedEncounter()
+        let first = try await wait(model)
+        XCTAssertEqual(model.screen,.battle)
+        XCTAssertEqual(first.own.filter(\.active).map(\.id),Array(order.prefix(2)))
+        XCTAssertEqual(Set(first.own.map(\.id)),Set(order))
+        XCTAssertEqual(first.foeTeamStatus?.selected,4)
+        XCTAssertEqual(model.run?.resources.count,6)
+        XCTAssertEqual(adapter.opponentRoster.count,6)
+        XCTAssertEqual(first.foe.count,2)
+        XCTAssertTrue(Set(first.foe.map(\.speciesID)).isSubset(of:Set(adapter.opponentRoster.map(\.speciesID))))
+        XCTAssertEqual(first.own.first{$0.id=="owned-0"}?.item,"leftovers")
+        XCTAssertEqual(first.own.first{$0.id=="owned-1"}?.item,"lifeorb")
+        model.didFinishPresentation()
+        let actions = try first.slots.enumerated().map { index,slot in
+            let move = try XCTUnwrap(slot.moves.first{!$0.disabled})
+            let target = try XCTUnwrap(move.targets.filter{$0.location>0}.dropFirst(index).first)
+            return BattleAction(kind:"move",index:move.index,target:target.location)
+        }
+        adapter.choose(.init(decisionID:first.decisionID,actions:actions,order:[]))
+        let played = try await wait(model,after:first.decisionID)
+        XCTAssertEqual(model.run?.checkpoint?.decisions.last?.actions,actions)
+        XCTAssertEqual(model.run?.resources.filter{!order.contains($0.id)},reservesBefore)
+        model.close()
+
+        let reopened = try ChallengeWindowController.makeSession(mode:.doubles,directory:directory,testControlsEnabled:false)
+        let resume = ChallengeUIModel(store:fixture.store,session:reopened,provider:fixture.provider,
+                                      itemMemory:fixture.itemMemory,itemUsage:fixture.itemUsage)
+        defer {resume.close()}
+        XCTAssertEqual(resume.screen,.resume)
+        resume.isOpen=true
+        resume.resume()
+        let restored = try await wait(resume)
+        XCTAssertEqual(resume.screen,.battle)
+        XCTAssertEqual(restored.decisionID,played.decisionID)
+        XCTAssertEqual(restored.resources,played.resources)
+        XCTAssertEqual(restored.foe.map(\.speciesID),played.foe.map(\.speciesID))
+        XCTAssertEqual(restored.own.filter(\.active).map(\.id),played.own.filter(\.active).map(\.id))
+        XCTAssertEqual(try Data(contentsOf:singles.save.url),singlesData)
     }
     private func win(_ m:ChallengeUIModel)async throws {
         var f=try await wait(m)

@@ -1,7 +1,11 @@
 import Foundation
 import Observation
 
-@MainActor @Observable final class ChallengeActivity {static let shared=ChallengeActivity();var isOpen=false}
+@MainActor @Observable final class ChallengeActivity {
+    static let shared = ChallengeActivity()
+    var mode: BattleMode?
+    var isOpen: Bool { mode != nil }
+}
 enum ChallengeRewardKind:String,CaseIterable {case heal,pp,replace,allHeal,buff,points}
 enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result,championReward}
 
@@ -32,16 +36,24 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     }}
     func prepare() {
         guard let run,run.phase == .ready || run.phase == .intermission else{return}
-        preparationOrder=[]
+        preparationOrder=run.preparedLineup ?? []
         preparationItems=Dictionary(uniqueKeysWithValues:run.resources.map{($0.id,$0.item)})
         preparing=true;running=false
     }
     func selectPrepared(_ id:String) {
         guard preparing,run?.team.contains(where:{$0.id==id})==true else{return}
         if preparationOrder.contains(id){preparationOrder.removeAll{$0==id}}
-        else if preparationOrder.count<6{preparationOrder.append(id)}
+        else if preparationOrder.count<preparationLimit{preparationOrder.append(id)}
     }
-    var canStartPrepared:Bool {preparing && preparationOrder.count==6 && !building && save.canWrite}
+    var preparationLimit: Int { save.mode == .doubles ? save.mode.battleSize : save.mode.teamSize }
+    var canStartPrepared:Bool {
+        preparing && preparationOrder.count==preparationLimit && !building && save.canWrite
+            && (save.mode == .singles || !preparedDoublesLeadIDs.isEmpty)
+    }
+    var preparedDoublesLeadIDs: Set<String> {
+        let available = Set((run?.resources ?? []).filter { $0.hp > 0 }.map(\.id))
+        return Set(preparationOrder.filter { available.contains($0) }.prefix(2))
+    }
     func applyPreparedItem(_ item:String,to id:String)->Bool {
         guard preparing,let p=run?.team.first(where:{$0.id==id}),
               item.isEmpty || BattleHeldItems.choices(speciesID:p.speciesID,form:p.form).contains(where:{$0.id==item}),
@@ -112,6 +124,13 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
         else if selectedIDs.count<6 && !BattleTeamBuilder.hasSelectedSpecies(p,selectedIDs:selectedIDs,entries:candidates){selectedIDs.append(id)}
         restoreItems()
     }
+    func applyRosterPreset(_ ids: [String], items: [String: String] = [:]) {
+        guard screen == .setup, !building,
+              BattleRosterPresets.isValid(ids, mode: save.mode, candidates: candidates) else { return }
+        selectedIDs = ids
+        overrides = items
+        restoreItems()
+    }
     func reconcileSelection(){selectedIDs.removeAll{id in !candidates.contains{$0.id==id}};restoreItems()}
     func restoreItems(){itemLoadout.restore(roster:selectedIDs.compactMap{id in candidates.first{$0.id==id}},remembered:itemMemory.items,overrides:overrides)}
     func applyItem(_ item:String,to id:String)->Bool {
@@ -123,7 +142,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
         building=true;problem=false;defer{building=false}
         let ids=selectedIDs,items=itemLoadout.items
         do {
-            let team=try await BattleTeamBuilder.build(ids:ids,entries:candidates,mode:.singles,language:store.language,provider:provider,heldItems:items)
+            let team=try await BattleTeamBuilder.build(ids:ids,entries:candidates,mode:save.mode,language:store.language,provider:provider,heldItems:items)
             guard isOpen,selectedIDs==ids,itemLoadout.items==items,ids.allSatisfy({id in candidates.contains{$0.id==id}}) else{return}
             try save.start(team:team,catalogVersion:session.catalog.version,encounterCount:session.catalog.encounters.count)
             newSetup=false;prepare()
@@ -278,10 +297,13 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     var presentation:BattleScenePlayback {model.session.presentation}
     var frame:BattleFrame? {model.session.frame}
     var phase:BattleCoordinator.Phase {frame==nil ? .preparing:frame?.ended==true ? .ended:.playing}
-    var mode:BattleMode {.singles}
+    var mode:BattleMode {model.save.mode}
     var arena:BattleArena {BattleArena.forChallenge(encounterID:model.encounter?.id,roster:opponentRoster)}
     var registeredTeam:[BattlePokemon] {model.run?.team ?? []}
-    var opponentRoster:[BattleRosterMember] {model.encounter?.team.map(BattleRosterMember.init) ?? []}
+    var opponentRoster:[BattleRosterMember] {
+        let team=model.run?.checkpoint?.opponent ?? model.encounter?.team ?? []
+        return team.map(BattleRosterMember.init)
+    }
     var decisionDeadline:Date? {nil}
     var submitted:Bool {model.session.submitted || model.intro.active}
     var outcome:String? {guard frame?.ended==true else{return nil};return frame?.winner==0 ? "win":"loss"}

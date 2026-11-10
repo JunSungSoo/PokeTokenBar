@@ -18,6 +18,7 @@ struct BattleView: View {
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
     var onClose: () -> Void = {}
+    var onSaveExit: (() -> Void)? = nil
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
     var onTestWin:(()->Void)? = nil
     var onTestNextTrainer:(()->Void)? = nil
@@ -121,16 +122,21 @@ struct BattleView: View {
             Image(systemName: "bolt.shield.fill").font(.title2).foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 3) {
                 Text("\(battle.identity.nickname)  ×  \(battle.opponent?.nickname ?? "…")").font(.headline)
-                Text(battle.isChallenge ? l.challengeRules:l.battleRules).font(.caption).foregroundStyle(.secondary)
+                Text(battle.isChallenge ? l.challengeRules(battle.mode):l.battleRules).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(battle.isChallenge ? l.challengeMode:(battle.mode == .singles ? l.battleSingles:l.battleDoubles)).font(.callout)
+            Text(battle.isChallenge ? l.challengeMode(battle.mode):(battle.mode == .singles ? l.battleSingles:l.battleDoubles)).font(.callout)
             if let deadline = battle.decisionDeadline { Text(timerInterval: Date()...max(Date(), deadline), countsDown: true).font(.caption.monospacedDigit()).frame(width: 45) }
             if let frame = battle.presentation.frame ?? battle.frame { Text("\(frame.turn)").font(.title2.monospacedDigit()).accessibilityLabel(l.battleTurn(frame.turn)) }
             Button { if musicActive == nil {musicEnabled.toggle()}; onMusic() } label: {
                 Image(systemName: (musicActive ?? musicEnabled) ? "speaker.wave.2.fill" : "speaker.slash.fill")
             }.help(l.battleMusic).accessibilityLabel(l.battleMusic)
             if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
+        }
+        if let onSaveExit, battle.frame?.ended == false {
+            Button(l.challengeSaveExit, action: onSaveExit)
+                .disabled(battle.submitted)
+                .accessibilityIdentifier("challenge-battle-save-exit")
         }
         if let challengeBuffSummary {
             Text(challengeBuffSummary).font(.caption).foregroundStyle(.orange).accessibilityIdentifier("challenge-team-buffs")

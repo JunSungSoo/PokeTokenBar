@@ -11,6 +11,7 @@ struct BattleTeamPreview: View {
     let enabled: Bool
     let onSelect: (String) -> Void
     var selectionLimit:Int? = nil
+    var leadIDs: Set<String>? = nil
     private var l: L { L(language) }
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
@@ -68,7 +69,8 @@ struct BattleTeamPreview: View {
             .background(position == nil ? Color.secondary.opacity(0.08) : Color.accentColor.opacity(0.2), in: RoundedRectangle(cornerRadius: 6))
             .overlay(alignment: .topLeading) {
                 if let position {
-                    Text(position == 0 ? "LEAD" : "\(position + 1)")
+                    let lead = leadIDs?.contains(member.id) ?? (position == 0)
+                    Text(lead ? (leadIDs == nil ? "LEAD" : "LEAD \(position + 1)") : "\(position + 1)")
                         .font(.system(size: 8, weight: .heavy)).padding(3)
                         .foregroundStyle(.white).background(Color.accentColor, in: RoundedRectangle(cornerRadius: 3))
                 }

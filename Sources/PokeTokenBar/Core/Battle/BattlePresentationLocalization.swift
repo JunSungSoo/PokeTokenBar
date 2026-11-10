@@ -1,6 +1,14 @@
 import Foundation
 
 extension L {
+    var battleRosterPresets: String { t("선발 프리셋", "Roster Presets", "選出プリセット", "Equipos guardados", "Équipes enregistrées", "Equipes salvas", "Teamvorlagen", "Шаблоны команд") }
+    var battleLoadPreset: String { t("프리셋 불러오기", "Load Preset", "プリセットを読み込む", "Cargar equipo", "Charger une équipe", "Carregar equipe", "Vorlage laden", "Загрузить шаблон") }
+    var battleSavePreset: String { t("프리셋 저장", "Save Preset", "プリセットを保存", "Guardar equipo", "Enregistrer l’équipe", "Salvar equipe", "Vorlage speichern", "Сохранить шаблон") }
+    func battlePresetSlot(_ number: Int) -> String {
+        t("프리셋 \(number)", "Preset \(number)", "プリセット \(number)", "Equipo \(number)", "Équipe \(number)", "Equipe \(number)", "Vorlage \(number)", "Шаблон \(number)")
+    }
+    var battlePresetEmpty: String { t("비어 있음", "Empty", "未登録", "Vacío", "Vide", "Vazio", "Leer", "Пусто") }
+    var battlePresetUnavailable: String { t("사용 불가", "Unavailable", "使用不可", "No disponible", "Indisponible", "Indisponível", "Nicht verfügbar", "Недоступно") }
     var battleRegisterTeam: String { t("6마리 등록", "Register six", "6匹を登録", "Registrar seis", "Inscrire six", "Registrar seis", "Sechs registrieren", "Заявить шесть") }
     var battleWaitingForRoster: String { t("상대방이 6마리를 등록하면 양쪽 팀을 보고 출전 포켓몬을 선택할 수 있습니다.", "Once your opponent registers six, choose your lineup while viewing both teams.", "相手が6匹を登録すると両チームを見て出場ポケモンを選べます。", "Cuando tu rival registre seis, elige viendo ambos equipos.", "Après l’inscription adverse, choisis en regardant les deux équipes.", "Quando o rival registrar seis, escolha vendo as duas equipes.", "Sobald der Gegner sechs registriert, wählst du mit Blick auf beide Teams.", "Когда соперник заявит шесть, выберите участников, видя обе команды.") }
     var battleOwnRoster: String { t("나의 포켓몬 · 6마리", "Your Pokémon · Six", "自分のポケモン・6匹", "Tus Pokémon · Seis", "Tes Pokémon · Six", "Seus Pokémon · Seis", "Deine Pokémon · Sechs", "Ваши покемоны · Шесть") }

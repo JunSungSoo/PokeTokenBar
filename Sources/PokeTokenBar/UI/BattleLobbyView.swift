@@ -177,6 +177,12 @@ struct BattleLobbyView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack { Text(l.battleRegisteredTeam).font(.headline); Spacer(); Text("\(selectedIDs.count)/6").monospacedDigit() }
             Text(l.battleRegisterHint).font(.caption).foregroundStyle(.secondary)
+            BattleRosterPresetMenu(l: l, mode: battle.mode, candidates: entries) { ids, items in
+                resetSelection()
+                selectedIDs = ids
+                itemOverrides = items
+                restoreItems(ids)
+            }.disabled(building || battle.phase != .connected)
             Text(l.battleDuplicateItem).font(.caption).foregroundStyle(.secondary)
             selectedRoster
             Text(l.battleFinalOnly).font(.caption).foregroundStyle(.secondary)

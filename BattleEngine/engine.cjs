@@ -5,6 +5,8 @@ const {battleDex,heldItem,allowed:allowedItems,allowedFairyMoves}=require('./hel
 const REVISION = 'ptb-bw2-owned-stats-v1/showdown-0.11.11/move-details-v1/species-clause-v1/effects-v2/stats-stages-v1/move-targets-v1/final-team-v1/six-hidden-order-v1/field-state-v1/event-notices-v1/field-timers-v1/move-accuracy-v1/bring-six-pick-three-four-v1/public-roster-preview-v1/locked-roster-v1/action-scenes-v1/held-items-mega-v1/item-clause-v1/gen6-fairy-moves-v1/stage-modifier-notices-v1/fairy-feather-v1/challenge-state-v1/challenge-mega-cpu-v1/challenge-rewards-v3';
 const {validateResources,initializeResources,resourcesFor}=require('./challenge-state.cjs');
 const challengeBuffs=require('./challenge-buffs.cjs');
+const doublesPolicy=require('./challenge-doubles-policy.cjs');
+const doublesLineup=require('./challenge-doubles-lineup.cjs');
 const keys = ['hp','atk','def','spa','spd','spe'];
 const inspectedVolatiles = [
   'confusion', 'taunt', 'encore', 'disable', 'substitute', 'leechseed', 'curse',
@@ -101,18 +103,27 @@ class OwnedBattle {
   constructor(mode, teams, seed = Array.from({length:4}, () => crypto.randomInt(65536)), options = {}) {
     if (!['singles','doubles'].includes(mode)) throw Error('Invalid mode');
     this.profile=options.profile || 'peer';
-    if(!['peer','challenge'].includes(this.profile)||this.profile==='challenge'&&mode!=='singles')throw Error('Invalid battle profile');
+    if(!['peer','challenge'].includes(this.profile))throw Error('Invalid battle profile');
     if(this.profile==='peer'&&options.resources!=null)throw Error('Persistent state is only available in challenge');
-    if(this.profile==='challenge')this.cpuPolicy=require('./challenge-policy.cjs').resolvePolicy(options.expectedPolicyRevision);
-    if(this.profile==='challenge'&&options.automaticOpponent){
+    if(this.profile==='challenge'&&mode==='doubles'){
+      this.doublesPolicyRevision=options.expectedPolicyRevision || doublesPolicy.REVISION;
+      if(![doublesLineup.REVISION,doublesPolicy.REVISION,doublesPolicy.PREVIOUS_REVISION].includes(this.doublesPolicyRevision))throw Error('Challenge policy version changed');
+    }else if(this.profile==='challenge'){
+      this.cpuPolicy=require('./challenge-policy.cjs').resolvePolicy(options.expectedPolicyRevision);
+    }
+    if(this.cpuPolicy&&options.automaticOpponent){
       teams=teams.map(t=>t.slice());const index=this.cpuPolicy.chooseLead(battleDex(),teams[1],teams[0],this.cpuPolicy.model);
       teams[1]=[teams[1][index],...teams[1].filter((_,i)=>i!==index)];
     }
     const count = 6;
-    // Register six; only the ordered first three/four enter the simulation.
-    // Unselected reserves cannot switch in, receive effects or prevent a loss.
-    const battleSize = this.profile==='challenge'?6:mode === 'singles' ? 3 : 4;
-    const sets = teams.map((t,i) => validateTeam(t, count, this.profile==='challenge'&&!!options.resources?.[i],this.profile==='challenge'&&i===1).slice(0, battleSize));
+    // Old checkpoints omit the size and keep their original six-member battle.
+    if(options.challengeBattleSize!=null && (this.profile!=='challenge'||mode!=='doubles'||options.challengeBattleSize!==4))throw Error('Invalid challenge battle size');
+    const battleSize = this.profile==='challenge'?(options.challengeBattleSize ?? 6):mode === 'singles' ? 3 : 4;
+    const registered = teams.map((t,i) => validateTeam(t, count, this.profile==='challenge'&&!!options.resources?.[i],this.profile==='challenge'&&i===1));
+    if(this.doublesPolicyRevision===doublesLineup.REVISION && options.automaticOpponent && battleSize===4){
+      registered[1]=doublesLineup.chooseLineup(battleDex(),registered[1],registered[0]);
+    }
+    const sets = registered.map(t=>t.slice(0,battleSize));
     const rewardBoosts=challengeBuffs.validateBoosts(options.challengeBoosts,this.profile);
     for(const set of sets[0])set.ptbRewardBoosts=rewardBoosts;
     const states=[0,1].map(i=>validateResources(options.resources?.[i],sets[i],battleDex()));
@@ -217,6 +228,9 @@ class OwnedBattle {
         throw Error('Invalid action');
       }).join(', ');
     }
+    this.submitCommand(player,command);
+  }
+  submitCommand(player, command) {
     this.errors = [];
     const regenerators = this.battle.getAllActive().filter(p=>p.getAbility().id==='regenerator')
       .map(p=>({pokemon:p,hp:p.hp,label:p.toString()}));
@@ -232,11 +246,18 @@ class OwnedBattle {
   }
   runCPU() {
     if(this.profile!=='challenge')throw Error('CPU is only available in challenge');
-    const {chooseCPU,model}=this.cpuPolicy;
     for(let i=0;i<12;i++){
       const frame=this.frame(1);if(frame.waiting||frame.ended)return;
-      const action=chooseCPU(this.battle.dex,frame,model);
-      this.choose(1,frame.decisionID,[action]);
+      if(this.battle.gameType==='doubles'){
+        const actions=this.doublesPolicyRevision!==doublesPolicy.PREVIOUS_REVISION ?
+          doublesPolicy.chooseActions(this.battle.dex,frame) : null;
+        if(actions)this.choose(1,frame.decisionID,actions);
+        else this.submitCommand(1,'default');
+      }else{
+        const {chooseCPU,model}=this.cpuPolicy;
+        const action=chooseCPU(this.battle.dex,frame,model);
+        this.choose(1,frame.decisionID,[action]);
+      }
     }
     throw Error('CPU action loop did not settle');
   }
@@ -268,6 +289,10 @@ class OwnedBattle {
       hp:own ? p.hp : Math.ceil(p.hp / p.maxhp * 100), maxHP:own ? p.maxhp : 100,
       status:p.status || '', stats:own ? {hp:p.maxhp,...p.storedStats} : undefined,
       cpuRecoveryThreshold:own ? p.set.ptbCPURecoveryThreshold:undefined,
+      ...(this.profile==='challenge' && b.gameType==='doubles' ? {
+        position:p.position+1,
+        ...(own ? {activeMoveActions:p.activeMoveActions,guardStreak:!!p.volatiles.stall} : {})
+      } : {}),
       effectiveSpeed:this.profile==='challenge'&&own ? p.getStat('spe'):undefined,
       speedStage:this.profile==='challenge'&&!own ? challengeBuffs.combinedBoosts(p).spe:undefined,
       boosts:own ? challengeBuffs.combinedBoosts(p) : undefined, ability:own ? p.getAbility().name : undefined, item:own ? p.item:undefined, mega:!!appearance.species.isMega,
@@ -390,7 +415,7 @@ if (require.main === module) {
       }
       if (input.kind==='start') {
         if(input.automaticOpponent===true&&input.profile!=='challenge')throw Error('CPU requires challenge profile');
-        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,challengeBoosts:input.challengeBoosts,automaticOpponent:input.automaticOpponent,expectedPolicyRevision:input.expectedPolicyRevision});
+        engine=new OwnedBattle(input.mode,input.teams,input.seed,{profile:input.profile,resources:input.resources,challengeBoosts:input.challengeBoosts,automaticOpponent:input.automaticOpponent,expectedPolicyRevision:input.expectedPolicyRevision,challengeBattleSize:input.challengeBattleSize});
         automaticOpponent=input.automaticOpponent===true;
       }
       else if (!engine) throw Error('Engine not started');

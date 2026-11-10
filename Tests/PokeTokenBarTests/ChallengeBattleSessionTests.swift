@@ -18,6 +18,108 @@ import XCTest
         else {a=BattleAction(kind:"move",index:slot.moves.first(where:{!$0.disabled && $0.pp>0})!.index,target:0)}
         return BattleDecision(decisionID:f.decisionID,actions:[a],order:[])
     }
+
+    func testDoublesReplaysTwoCommandsAndCarriesHPAndPPIntoNextEncounter() async throws {
+        let helper = ChallengeRunTests()
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let singles = ChallengeRunStore(url: directory.appendingPathComponent("challenge-run-v1.json"))
+        try singles.start(team: helper.team(), catalogVersion: "legacy-singles")
+        let singlesBytes = try Data(contentsOf: singles.url)
+        XCTAssertNil(singles.run?.mode)
+        let wrongMode = ChallengeRunStore(url: singles.url, mode: .doubles)
+        XCTAssertFalse(wrongMode.canWrite)
+        XCTAssertEqual(try Data(contentsOf: singles.url), singlesBytes)
+
+        let doubles = ChallengeRunStore(url: directory.appendingPathComponent("challenge-doubles-run-v1.json"),
+                                        mode: .doubles, roll: { .attack })
+        var team = helper.team(), opponent = helper.team("b")
+        for index in team.indices {
+            team[index].moves = ["splash"]
+            opponent[index].moves = ["tackle"]
+        }
+        let catalog = ChallengeEncounterCatalog(version: "doubles-fixture", encounters: [
+            .init(id: "brock", index: 0, nameKo: "웅", phase: "gym", team: opponent),
+            .init(id: "misty", index: 1, nameKo: "이슬", phase: "gym", team: opponent)
+        ], mode: .doubles)
+        let session = try ChallengeBattleSession(save: doubles, catalog: catalog, testControlsEnabled: true)
+        defer { session.stop() }
+        try doubles.start(team: team, catalogVersion: catalog.version, encounterCount: 2)
+        try doubles.beginEncounter(opponent: opponent, seed: [1, 2, 3, 4],
+                                   policyRevision: ChallengeEncounterCatalog.policyRevision(mode: .doubles))
+        try session.resume()
+        let opening = try await wait(session)
+        XCTAssertEqual(opening.own.filter(\.active).map(\.id), ["a0", "a1"])
+        XCTAssertEqual(opening.own.count, 6)
+        XCTAssertEqual(opening.foeTeamStatus?.selected, 6)
+        let splash = BattleAction(kind: "move", index: 1, target: 0)
+        XCTAssertThrowsError(try session.choose(.init(decisionID: opening.decisionID, actions: [splash], order: [])))
+        XCTAssertNil(doubles.run?.checkpoint?.pendingDecision)
+        try session.choose(.init(decisionID: opening.decisionID, actions: [splash, splash], order: []))
+        let played = try await wait(session, after: opening.decisionID)
+        let carried = try XCTUnwrap(played.resources)
+        XCTAssertTrue(carried.prefix(2).allSatisfy { $0.moves[0].pp == $0.moves[0].maxPP - 1 })
+        XCTAssertTrue(carried.prefix(2).contains { $0.hp < 500 })
+        session.stop()
+
+        let loaded = ChallengeRunStore(url: doubles.url, mode: .doubles, roll: { .attack })
+        let resumed = try ChallengeBattleSession(save: loaded, catalog: catalog, testControlsEnabled: true)
+        defer { resumed.stop() }
+        try resumed.resume()
+        let replay = try await wait(resumed)
+        XCTAssertEqual(replay.decisionID, played.decisionID)
+        XCTAssertEqual(replay.resources, carried)
+        XCTAssertEqual(loaded.run?.checkpoint?.decisions.first?.actions.count, 2)
+        resumed.completePresentation()
+        try resumed.winForTesting()
+        let victory = try await wait(resumed, after: replay.decisionID)
+        XCTAssertTrue(victory.ended)
+        resumed.completePresentation()
+        try resumed.applyReward(.buff(.attack))
+        try resumed.startEncounter()
+        let next = try await wait(resumed, after: victory.decisionID)
+        XCTAssertEqual(next.resources, Array(carried.prefix(4)))
+        XCTAssertEqual(loaded.run?.resources,carried)
+        XCTAssertEqual(loaded.run?.encounterIndex, 1)
+        XCTAssertEqual(try Data(contentsOf: singles.url), singlesBytes)
+        XCTAssertEqual(ChallengeRunStore(url: singles.url).run?.battleMode, .singles)
+    }
+
+    func testDoublesCatalogUsesKantoRouteAndSinglesLevels() throws {
+        let catalog = try ChallengeEncounterCatalog.load(mode: .doubles)
+        XCTAssertEqual(catalog.encounters.map(\.id), [
+            "brock", "misty", "ltsurge", "erika", "koga1", "sabrina", "blaine", "giovanni",
+            "lorelei", "bruno1", "agatha", "lance1", "blue", "red"
+        ])
+        XCTAssertTrue(catalog.encounters.enumerated().allSatisfy { index, encounter in
+            encounter.index == index && encounter.team.count == 6
+                && encounter.team.allSatisfy { $0.level == (index < 12 ? 95 : 100) }
+        })
+        let singles = try ChallengeEncounterCatalog.load()
+        XCTAssertNotEqual(catalog.version, singles.version)
+        XCTAssertEqual(catalog.encounters[0].team.prefix(2).map(\.species), ["Aerodactyl", "Golem"])
+        XCTAssertEqual(singles.encounters[0].team.prefix(2).map(\.species), ["Geodude", "Onix"])
+        XCTAssertEqual(catalog.encounters.last?.team.prefix(2).map(\.species), ["Charizard", "Venusaur"])
+    }
+
+    func testPreviousDoublesCheckpointKeepsItsOpponentAndPolicyAfterCatalogUpgrade() async throws {
+        let catalog = try ChallengeEncounterCatalog.load(mode: .doubles)
+        let previousVersion = try XCTUnwrap(catalog.compatiblePreviousVersions?.first)
+        let oldOpponent = try ChallengeEncounterCatalog.load().encounters[0].team
+        let temp = try ChallengeRunTests().store()
+        defer { try? FileManager.default.removeItem(at: temp.url.deletingLastPathComponent()) }
+        let save = ChallengeRunStore(url: temp.url, mode: .doubles)
+        try save.start(team: ChallengeRunTests().team(), catalogVersion: previousVersion, encounterCount: 14)
+        try save.beginEncounter(opponent: oldOpponent, seed: [1, 2, 3, 4], policyRevision: "ptb-challenge-doubles-v1")
+        let session = try ChallengeBattleSession(save: save, catalog: catalog)
+        defer { session.stop() }
+        try session.resume()
+        let opening = try await wait(session)
+        XCTAssertEqual(save.run?.catalogVersion, catalog.version)
+        XCTAssertEqual(save.run?.checkpoint?.opponent, oldOpponent)
+        XCTAssertEqual(save.run?.checkpoint?.policyRevision, "ptb-challenge-doubles-v1")
+        XCTAssertEqual(opening.foe.map(\.name), ["Geodude", "Onix"])
+    }
     func testNextEncounterClearsOnlySleepAndMidbattleSleepSurvivesResume()async throws {
         let helper=ChallengeRunTests(),temporary=try helper.store()
         let save=ChallengeRunStore(url:temporary.url,roll:{.attack})

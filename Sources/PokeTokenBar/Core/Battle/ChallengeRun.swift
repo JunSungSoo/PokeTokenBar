@@ -61,6 +61,7 @@ struct ChallengeCheckpoint: Codable, Sendable {
     let seed: [UInt16]
     let engineRevision: String
     let policyRevision: String
+    var lineup: [String]? = nil
     var initialBuffs:[ChallengeTeamBuff]? = nil
     var decisions: [BattleDecision]=[]
     var pendingDecision: BattleDecision?
@@ -70,6 +71,9 @@ struct ChallengeChampionReward:Codable,Sendable {
     var claimed=false
 }
 struct ChallengeRun: Codable, Sendable, Identifiable {
+    /// Missing in existing singles saves.
+    var mode: BattleMode? = nil
+    var battleMode: BattleMode { mode ?? .singles }
     var cashVictoryRewards:[Int]? = []
     var championReward:ChallengeChampionReward? = nil
     var shopOffers:[ChallengeShopItem]? = nil
@@ -89,8 +93,9 @@ struct ChallengeRun: Codable, Sendable, Identifiable {
     var resources: [ChallengePokemonState]
     var retiredIDs: Set<String>=[]
     var checkpoint: ChallengeCheckpoint?
+    var preparedLineup: [String]? = nil
     var milestoneReward:Bool {(encounterIndex+1).isMultiple(of:3)}
-    var enhancedReward:Bool {encounterIndex>=15}
+    var enhancedReward:Bool {encounterIndex >= (battleMode == .singles ? 15 : 7)}
     var needsFullRecovery:Bool {resources.contains{r in r.hp < (team.first{$0.id==r.id}?.stats["hp"] ?? 0) || !r.status.isEmpty || r.moves.contains{$0.pp<$0.maxPP}}}
 }
 enum ChallengeReward {
@@ -108,14 +113,21 @@ enum ChallengeReward {
     private(set) var error: String?
     private var unreadable=false
     let url: URL
+    let mode: BattleMode
     private let roll:()->ChallengeBuffKind
-    init(url: URL?=nil,roll:@escaping ()->ChallengeBuffKind = {ChallengeBuffKind.allCases.randomElement()!}) {
+    static func saveFilename(mode: BattleMode, test: Bool = false) -> String {
+        "challenge" + (mode == .doubles ? "-doubles" : "") + (test ? "-test" : "") + "-run-v1.json"
+    }
+    init(url: URL?=nil,mode: BattleMode = .singles,
+         roll:@escaping ()->ChallengeBuffKind = {ChallengeBuffKind.allCases.randomElement()!}) {
         self.roll=roll
-        self.url=url ?? AppStatePaths.directory().appendingPathComponent("challenge-run-v1.json")
+        self.mode = mode
+        self.url=url ?? AppStatePaths.directory().appendingPathComponent(
+            Self.saveFilename(mode:mode))
         guard FileManager.default.fileExists(atPath:self.url.path) else{return}
         do {
             var saved=try JSONDecoder().decode(ChallengeRun.self,from:Data(contentsOf:self.url))
-            guard saved.schemaVersion==1 else{throw ChallengeFailure.incompatibleVersion}
+            guard saved.schemaVersion==1, saved.battleMode == mode else{throw ChallengeFailure.incompatibleVersion}
             try Self.validate(saved)
             let needsShop=saved.shopOffers != nil || [.reward,.intermission].contains(saved.phase)
             let changedShop=needsShop && saved.shopOffers != ChallengeShopItem.allCases
@@ -139,6 +151,12 @@ enum ChallengeReward {
                   ["","brn","par","psn","tox","slp","frz"].contains(r.status) else{throw ChallengeFailure.invalidState}
             let fresh=try ChallengePokemonState.fresh(pokemon)
             guard zip(fresh.moves,r.moves).allSatisfy({$0.id==$1.id && $0.maxPP==$1.maxPP}) else{throw ChallengeFailure.invalidState}
+        }
+        if let lineup=run.preparedLineup {
+            guard run.battleMode == .doubles, Self.validLineup(lineup, team:run.team, resources:run.resources) else{throw ChallengeFailure.invalidState}
+        }
+        if let checkpoint=run.checkpoint,let lineup=checkpoint.lineup {
+            guard run.battleMode == .doubles, Self.validLineup(lineup, team:checkpoint.initialTeam, resources:checkpoint.initialResources) else{throw ChallengeFailure.invalidState}
         }
         if let rewards=run.cashVictoryRewards {
             guard rewards.count<=run.completedVictories,rewards.allSatisfy({[0,10,30,50].contains($0)}),rewards.reduce(0,+)<=500 else{throw ChallengeFailure.invalidState}
@@ -173,22 +191,35 @@ enum ChallengeReward {
     func start(team:[BattlePokemon],catalogVersion:String,encounterCount:Int=27)throws {
         if let run,run.phase != .lost && !(run.phase == .cleared && run.championReward?.claimed==true){throw ChallengeFailure.activeRun}
         guard !BattleHeldItems.hasDuplicates(team) else{throw ChallengeFailure.invalidState}
-        try commit(ChallengeRun(id:UUID().uuidString,catalogVersion:catalogVersion,encounterCount:encounterCount,
+        try commit(ChallengeRun(mode:mode == .doubles ? .doubles : nil,
+                                id:UUID().uuidString,catalogVersion:catalogVersion,encounterCount:encounterCount,
                                 team:team,resources:try team.map(ChallengePokemonState.fresh)))
+    }
+    private static func validLineup(_ order:[String],team:[BattlePokemon],resources:[ChallengePokemonState])->Bool {
+        order.count==BattleMode.doubles.battleSize && Set(order).count==order.count
+            && Set(order).isSubset(of:Set(team.map(\.id))) && resources.contains{order.contains($0.id) && $0.hp>0}
     }
     /// Only order and held gear are editable between battles. Never rebuild owned profiles.
     func prepareEncounter(order:[String],items:[String:String])throws {
         guard var next=run,next.phase == .ready || next.phase == .intermission,
-              order.count==6,Set(order)==Set(next.team.map(\.id)),
-              Set(items.keys).isSubset(of:Set(order)) else{throw ChallengeFailure.invalidState}
-        next.team=try order.map { id in
+              Set(items.keys).isSubset(of:Set(next.team.map(\.id))) else{throw ChallengeFailure.invalidState}
+        let rosterOrder:[String]
+        if mode == .doubles {
+            guard Self.validLineup(order,team:next.team,resources:next.resources) else{throw ChallengeFailure.invalidState}
+            next.preparedLineup=order
+            rosterOrder=next.team.map(\.id)
+        } else {
+            guard order.count==6,Set(order)==Set(next.team.map(\.id)) else{throw ChallengeFailure.invalidState}
+            rosterOrder=order
+        }
+        next.team=try rosterOrder.map { id in
             guard var pokemon=next.team.first(where:{$0.id==id}) else{throw ChallengeFailure.invalidState}
             let item=items[id] ?? ""
             guard item.isEmpty || BattleHeldItems.choices(speciesID:pokemon.speciesID,form:pokemon.form).contains(where:{$0.id==item}) else{throw ChallengeFailure.invalidState}
             pokemon.item=item;return pokemon
         }
         guard !BattleHeldItems.hasDuplicates(next.team) else{throw ChallengeFailure.invalidState}
-        next.resources=try order.map {id in
+        next.resources=try rosterOrder.map {id in
             guard var resource=next.resources.first(where:{$0.id==id}) else{throw ChallengeFailure.invalidState}
             resource.item=items[id] ?? "";return resource
         }
@@ -199,25 +230,33 @@ enum ChallengeReward {
         guard var next=run,next.catalogVersion==previousVersion,next.encounterCount==encounterCount else{throw ChallengeFailure.incompatibleVersion}
         next.catalogVersion=version;try commit(next)
     }
-    func beginEncounter(opponent:[BattlePokemon],seed:[UInt16],policyRevision:String)throws {
+    func beginEncounter(opponent:[BattlePokemon],seed:[UInt16],policyRevision:String, useDoublesLineup:Bool=false)throws {
         guard var next=run,next.phase == .ready || next.phase == .intermission,
               next.resources.contains(where:{$0.hp>0}),opponent.count==6,seed.count==4 else{throw ChallengeFailure.invalidState}
         // Wake only between encounters, never while replaying an unfinished battle.
         for i in next.resources.indices where next.resources[i].status == "slp" {
             next.resources[i].status="";next.resources[i].sleepStart=nil;next.resources[i].sleepRemaining=nil
         }
+        var lineup: [String]?
+        if useDoublesLineup && mode == .doubles {
+            let livingFirst = next.resources.filter{$0.hp>0} + next.resources.filter{$0.hp==0}
+            lineup = next.preparedLineup ?? livingFirst.prefix(mode.battleSize).map(\.id)
+        }
+        next.preparedLineup=nil
         next.checkpoint=ChallengeCheckpoint(opponent:opponent,initialTeam:next.team,initialResources:next.resources,seed:seed,
-                                           engineRevision:BattleEngineProcess.revision,policyRevision:policyRevision,initialBuffs:next.teamBuffs)
+                                           engineRevision:BattleEngineProcess.revision,policyRevision:policyRevision,lineup:lineup,initialBuffs:next.teamBuffs)
         next.phase = .battling
         try commit(next)
     }
     func accept(resources:[ChallengePokemonState],decision:BattleDecision?,winner:Int?)throws {
         guard var next=run,next.phase == .battling else{throw ChallengeFailure.invalidState}
-        guard resources.count==6,Set(resources.map(\.id))==Set(next.team.map(\.id)) else{throw ChallengeFailure.invalidState}
+        let participants = next.checkpoint?.lineup ?? next.team.map(\.id)
+        guard resources.count==participants.count,Set(resources.map(\.id))==Set(participants) else{throw ChallengeFailure.invalidState}
+        let allResources = resources + next.resources.filter{!participants.contains($0.id)}
         // Sketch changes the original move slot; Transform/Mimic do not. Carry only an
         // actual supported Sketch replacement, without editing the collection's profile.
         for i in next.team.indices {
-            guard let r=resources.first(where:{$0.id==next.team[i].id}),r.moves.count==next.team[i].moves.count else{throw ChallengeFailure.invalidState}
+            guard let r=allResources.first(where:{$0.id==next.team[i].id}),r.moves.count==next.team[i].moves.count else{throw ChallengeFailure.invalidState}
             for j in next.team[i].moves.indices {
                 let old=BattleTextCatalog.key(next.team[i].moves[j])
                 let canonical=old.hasPrefix("hiddenpower") ? "hiddenpower":old
@@ -228,12 +267,12 @@ enum ChallengeReward {
             }
         }
         next.resources=try next.team.map { p in
-            guard let r=resources.first(where:{$0.id==p.id}) else{throw ChallengeFailure.invalidState}
+            guard let r=allResources.first(where:{$0.id==p.id}) else{throw ChallengeFailure.invalidState}
             return r
         }
         if let decision {next.checkpoint?.decisions.append(decision);next.checkpoint?.pendingDecision=nil}
         if let winner {
-            if winner==0{next.cashVictoryRewards=next.completedCashRewards+[ChallengeRun.cashReward(encounterIndex:next.encounterIndex)]}
+            if winner==0{next.cashVictoryRewards=next.completedCashRewards+[ChallengeRun.cashReward(encounterIndex:next.encounterIndex,mode:next.battleMode)]}
             next.teamBuffs=ChallengeTeamBuff.afterBattle(next.teamBuffs ?? [])
             next.phase=winner==0 ? (next.encounterIndex==next.encounterCount-1 ? .cleared:.reward):.lost
             next.rewardRoll=next.phase == .reward ? roll():nil

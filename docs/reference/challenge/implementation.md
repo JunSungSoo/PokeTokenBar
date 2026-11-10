@@ -638,3 +638,69 @@ owned stats, automatic recovery and both targetless cases. Version checks comple
 The fifth-release Desktop ZIP matches the verified executable, both version fields,
 source height/size catalogs, updated notice and exact newest-first full notes.
 Archive size/hash/time are in the release ledger; app installation was skipped.
+
+### Doubles engine and save foundation
+
+- The doubles challenge previews all six members on both sides. The player
+  and trainer field four each round. The trainer compares coverage and actual
+  move sets against all six registered player Pokémon and adds a learned lead
+  pair score. The player's selected four and their order do not affect the
+  trainer's choice. The first two surviving members of each lineup lead. The
+  two reserves stay in the run with their resources. In-flight checkpoints
+  preserve the original selection policy. The session records both slot actions in the
+  checkpoint and replays them with the original seed and doubles policy revision.
+  It shares encounter resource persistence with singles.
+- Doubles uses `challenge-doubles-run-v1.json`. The original singles file and
+  schema remain readable. The store rejects a save opened under the wrong mode.
+- The 14 Kanto encounters retain the original six species and their levels.
+  `BattleEngine/challenge-doubles-opponents.json` fixes each team's order,
+  four moves, ability and held item. Gym and Elite Four opponents are level
+  95, and Blue and Red are level 100. The doubles digest covers the resolved
+  roster. Existing doubles checkpoints retain their opponent snapshot and
+  default-choice policy, then use the new teams from the next encounter.
+- The doubles policy evaluates both active slots as a pair using its own
+  request and public opponent information. It accounts for overkill, accuracy,
+  spread attacks, allied immunities, Protect, speed and weather support, and
+  limits joint choices to distinct replacements and one Mega Evolution.
+  Showdown resolves the actual battle.
+- The Battle tab's Challenge button uses the selected Singles or Doubles tab
+  and opens that mode's catalog and save. Both modes
+  register six Pokémon and support held-item changes before an encounter.
+  Doubles highlights the first two available Pokémon in the chosen order.
+  During battle, Save and exit keeps the current checkpoint available through
+  Continue, while the window close control retains its surrender prompt.
+
+### Lead pair model
+
+`scripts/challenge/train-doubles-lineup.cjs` fits a conditional logit model
+using the two opening switches from Pokémon Showdown Gen 5 VGC 2012 and
+2013 replays with six previewed and four playable Pokémon. The bundled model
+contains the replay IDs. To reproduce training, fetch those IDs from the
+public replay JSON endpoint and pass the directory and output path to the
+script. Replay chat and player names are outside the feature set.
+
+The 400 accepted replays yielded 656 training and 144 holdout lead examples.
+Identical pairs of preview rosters stay in the same split. Holdout log loss
+was 2.621 versus 2.708 for a uniform choice among 15 pairs. The observed
+pair appeared in the top three 33.3% of the time. These metrics measure
+agreement with recorded choices. The matchup score also uses the exact
+sets available in the local challenge.
+
+### Headless doubles difficulty comparison
+
+Run `node scripts/challenge/compare-doubles.cjs` to reproduce this historical
+comparison from before the four-member lineup change. Three fixed player rosters face all 14 matched trainers
+under two seeds, using the same damage-and-support scoring policy in both
+formats. Each fight starts with full resources.
+
+| Opponent | Player wins | Mean turns | Mean player fainted | Player HP left on wins | Player PP spent on wins |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Singles | 43/84 | 19.4 | 4.87 | 31.0% | 15.6 |
+| Doubles with projected singles teams and default choices | 74/84 | 8.9 | 2.57 | 54.2% | 15.6 |
+| Doubles with fixed teams and joint choices | 39/84 | 6.9 | 4.89 | 31.4% | 10.4 |
+
+The new doubles encounters were slightly harder in this sample and ended
+faster. The biggest decreases in player wins versus singles were Brock
+(4 to 1), Lance (3 to 0), and Misty (3 to 1). Lt. Surge (3 to 5) moved in
+the other direction. This measures per-encounter difficulty for these bots
+and rosters. Full-route attrition and human difficulty are unmeasured.

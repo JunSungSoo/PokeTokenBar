@@ -23,22 +23,36 @@ import SwiftUI
         super.init()
         audioSettings.onVolumeChange={ [weak self] volume in self?.player?.volume=volume }
     }
-    static func open(store:CompanionStore,identity:BattleIdentity)throws {
-        if let current {current.show();return}
-        let save=ChallengeRunStore(url:ChallengeTestMode.enabled ? AppStatePaths.directory().appendingPathComponent("challenge-test-run-v1.json"):nil),session=try ChallengeBattleSession(save:save,catalog:ChallengeEncounterCatalog.load())
+    static func makeSession(mode: BattleMode, directory: URL = AppStatePaths.directory(),
+                            testControlsEnabled: Bool = ChallengeTestMode.enabled) throws -> ChallengeBattleSession {
+        let url = directory.appendingPathComponent(ChallengeRunStore.saveFilename(mode:mode,test:testControlsEnabled))
+        return try ChallengeBattleSession(save:ChallengeRunStore(url:url,mode:mode),
+                                          catalog:ChallengeEncounterCatalog.load(mode:mode),
+                                          testControlsEnabled:testControlsEnabled)
+    }
+    static func open(store:CompanionStore,identity:BattleIdentity,mode:BattleMode)throws {
+        if let current, current.model.isOpen {
+            guard current.battle.mode == mode else { return }
+            current.show()
+            return
+        }
+        let session=try makeSession(mode:mode)
         let controller=ChallengeWindowController(model:ChallengeUIModel(store:store,session:session),identity:identity)
         current=controller;controller.show()
     }
+    private var preferredWidth: CGFloat { BattleWindowLayout.preferredWidth(for:battle.mode) }
+    private var title: String { "PokeTokenBar · "+model.store.l.challengeTitle+" · "+model.store.l.challengeMode(battle.mode) }
     func show(present:Bool=true) {
-        visiblePresentation=present;model.isOpen=true;activity.isOpen=true
+        visiblePresentation=present;model.isOpen=true;activity.mode=battle.mode
         if window==nil {
-            let width=BattleWindowLayout.preferredWidth(for:.singles)
+            let width=preferredWidth
             let window=BattleViewportWindow(contentRect:NSRect(x:present ? 0:-10000,y:present ? 0:-10000,width:width,height:720),
                 styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
             window.minimumBattleWidth=width;window.minSize=NSSize(width:width,height:440)
             window.isReleasedWhenClosed=false;window.delegate=self
             let root=ChallengeRootView(model:model,battle:battle,audioSettings:audioSettings,auxiliary:auxiliary,allowsAudio:allowsAudio,
                 onClose:{ [weak self] in self?.window?.performClose(nil) },
+                onSaveExit:{ [weak self] in self?.saveAndExitBattle() },
                 onSurrender:{ [weak self] in self?.confirmSurrender() },
                 onMusic:{ [weak self] in guard let self else{return};self.model.musicEnabled.toggle();self.refreshMusic() },
                 onShowField:{ [weak self] in self?.showAuxiliary(.field) },onShowStats:{ [weak self] in self?.showAuxiliary(.stats) },
@@ -46,9 +60,9 @@ import SwiftUI
                 onState:{ [weak self] in Task{@MainActor [weak self] in self?.sync()} })
             let host=NSHostingController(rootView:root);host.sizingOptions=[]
             window.contentViewController=host;self.window=window
-            if present,let screen=NSScreen.main {window.setFrame(BattleWindowLayout(screen:screen.visibleFrame,mode:.singles).main,display:false)}
+            if present,let screen=NSScreen.main {window.setFrame(BattleWindowLayout(screen:screen.visibleFrame,mode:battle.mode).main,display:false)}
         }
-        window?.title="PokeTokenBar · "+model.store.l.challengeTitle
+        window?.title=title
         if present {NSApp.activate(ignoringOtherApps:true);window?.makeKeyAndOrderFront(nil)}
         else {window?.orderFront(nil)}
         sync()
@@ -59,7 +73,7 @@ import SwiftUI
         let title=window.frame.height-window.contentRect(forFrameRect:window.frame).height
         let visible=(window.screen ?? NSScreen.main)?.visibleFrame
         let height=min(ceil(measurement.content.height)+title,visible?.height ?? .greatestFiniteMagnitude)
-        window.minSize=NSSize(width:660,height:height)
+        window.minSize=NSSize(width:preferredWidth,height:height)
         if abs(window.frame.height-height)>0.5 {
             var rect=window.frame;rect.origin.y=max(visible?.minY ?? rect.minY,rect.maxY-height);rect.size.height=height
             window.setFrame(rect,display:true)
@@ -67,7 +81,7 @@ import SwiftUI
     }
     private func sync() {
         guard let window,model.isOpen else{return}
-        window.title="PokeTokenBar · "+model.store.l.challengeTitle
+        window.title=title
         model.synchronizeChampionAward()
         refreshMusic()
         if model.screen == .battle,visiblePresentation {
@@ -78,8 +92,8 @@ import SwiftUI
             if model.screen != .battle {
                 let title=window.frame.height-window.contentRect(forFrameRect:window.frame).height
                 let height=min(742.0,((window.screen ?? NSScreen.main)?.visibleFrame.height ?? 770)-title)
-                window.minSize=NSSize(width:660,height:440)
-                if abs(window.contentRect(forFrameRect:window.frame).height-height)>1 {window.setContentSize(NSSize(width:max(660,window.contentRect(forFrameRect:window.frame).width),height:height))}
+                window.minSize=NSSize(width:preferredWidth,height:440)
+                if abs(window.contentRect(forFrameRect:window.frame).height-height)>1 {window.setContentSize(NSSize(width:max(preferredWidth,window.contentRect(forFrameRect:window.frame).width),height:height))}
             }
         }
     }
@@ -94,7 +108,7 @@ import SwiftUI
         }
         if kind == .field{auxiliary.fieldVisible=true}else{auxiliary.statsVisible=true}
         panel?.title=kind == .field ? model.store.l.battleFieldWindow:model.store.l.battleStatsWindow
-        let layout=BattleWindowLayout(screen:(window.screen ?? NSScreen.main)?.visibleFrame ?? window.frame,mode:.singles,main:window.frame)
+        let layout=BattleWindowLayout(screen:(window.screen ?? NSScreen.main)?.visibleFrame ?? window.frame,mode:battle.mode,main:window.frame)
         panel?.setFrame(kind == .field ? layout.field:layout.stats,display:true)
         if let panel {if panel.parent==nil {window.addChildWindow(panel,ordered:.above)};panel.orderFront(nil)}
     }
@@ -102,7 +116,7 @@ import SwiftUI
     func windowDidResize(_ notification:Notification){if notification.object as? NSWindow === window {syncAuxiliaryPositions()}}
     private func syncAuxiliaryPositions(){
         guard let window else{return}
-        let layout=BattleWindowLayout(screen:(window.screen ?? NSScreen.main)?.visibleFrame ?? window.frame,mode:.singles,main:window.frame)
+        let layout=BattleWindowLayout(screen:(window.screen ?? NSScreen.main)?.visibleFrame ?? window.frame,mode:battle.mode,main:window.frame)
         if let fieldWindow,fieldWindow.isVisible{fieldWindow.setFrame(layout.field,display:true)}
         if let statsWindow,statsWindow.isVisible{statsWindow.setFrame(layout.stats,display:true)}
     }
@@ -115,6 +129,11 @@ import SwiftUI
         }
         if model.running && model.run?.phase == .battling {confirmSurrender();return false}
         return true
+    }
+    private func saveAndExitBattle() {
+        guard model.run?.phase == .battling, model.save.canWrite, !battle.submitted else { return }
+        // The current frame and any queued command have already been persisted by the session.
+        window?.close()
     }
     private func confirmSurrender() {
         guard let window,model.run?.phase == .battling,!confirming else{return}
@@ -131,7 +150,7 @@ import SwiftUI
     }
     func windowWillClose(_ notification:Notification) {
         guard notification.object as? NSWindow === window else{return}
-        model.close();activity.isOpen=false;stopMusic()
+        model.close();activity.mode=nil;stopMusic()
         for panel in [fieldWindow,statsWindow].compactMap({$0}){panel.orderOut(nil);panel.contentViewController=nil;if let parent=panel.parent{parent.removeChildWindow(panel)}}
         fieldWindow=nil;statsWindow=nil
         window?.contentViewController=nil;window=nil
@@ -160,17 +179,28 @@ import SwiftUI
     let battle:BattleCoordinator
     let tradeActive:Bool
     @State private var failed=false
+    @State private var editingPresets = false
     var body:some View {
         VStack(alignment:.leading,spacing:10) {
             BattleLobbyView(store:store,battle:battle,tradeActive:tradeActive).disabled(ChallengeActivity.shared.isOpen)
             Divider()
-            Button {
-                do {try ChallengeWindowController.open(store:store,identity:battle.identity)}
-                catch {AppLog.write("challenge launch failed: \(error)");failed=true}
-            } label:{Label(store.l.challengeEntry,systemImage:"flag.checkered")}
-                .buttonStyle(.borderedProminent).disabled(tradeActive || battle.isActive || ![.idle,.ended].contains(battle.phase))
+            HStack {
+                Button {
+                    do {try ChallengeWindowController.open(store:store,identity:battle.identity,mode:battle.mode)}
+                    catch {AppLog.write("challenge launch failed: \(error)");failed=true}
+                } label: {
+                    Label(store.l.challengeEntry,systemImage:"flag.checkered")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(tradeActive || battle.isActive || ![.idle,.ended].contains(battle.phase)
+                          || (ChallengeActivity.shared.isOpen && ChallengeActivity.shared.mode != battle.mode))
                 .accessibilityIdentifier("challenge-open")
-            Text(store.l.challengeRules).font(.caption).foregroundStyle(.secondary)
+                Spacer()
+                Button(store.l.battleRosterPresets) { editingPresets = true }
+                    .disabled(![.idle, .ended].contains(battle.phase) || ChallengeActivity.shared.isOpen)
+            }
+            Text(store.l.challengeRules(battle.mode)).font(.caption).foregroundStyle(.secondary)
         }.alert(store.l.challengeProblem,isPresented:$failed){Button(store.l.quit,role:.cancel){}}
+            .sheet(isPresented: $editingPresets) { BattleRosterPresetEditor(store: store, mode: battle.mode) }
     }
 }

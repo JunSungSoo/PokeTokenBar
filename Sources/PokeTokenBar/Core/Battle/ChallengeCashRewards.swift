@@ -1,8 +1,16 @@
 import Foundation
 
 extension ChallengeRun {
-    static func cashReward(encounterIndex:Int)->Int {
-        switch encounterIndex {
+    static func cashReward(encounterIndex:Int, mode: BattleMode = .singles)->Int {
+        if mode == .doubles {
+            switch encounterIndex {
+            case 0..<8: return 10
+            case 8..<12: return 30
+            case 12: return 50
+            default: return 0
+            }
+        }
+        return switch encounterIndex {
         case 0..<16:10
         case 16..<24:30
         case 24..<26:50
@@ -12,7 +20,7 @@ extension ChallengeRun {
     /// Old saves predate the explicit victory ledger. New runs record actual wins,
     /// so a developer's next-trainer skip never generates money.
     var completedCashRewards:[Int] {
-        cashVictoryRewards ?? (0..<completedVictories).map{Self.cashReward(encounterIndex:$0)}
+        cashVictoryRewards ?? (0..<completedVictories).map{Self.cashReward(encounterIndex:$0,mode:battleMode)}
     }
     var defeatCashTokens:Int {
         guard phase == .lost,completedCashRewards.count>=3 else{return 0}

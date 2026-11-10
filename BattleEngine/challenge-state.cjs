@@ -3,9 +3,9 @@
 function normalizeMove(id){return id.startsWith('hiddenpower')?'hiddenpower':id;}
 function validateResources(resources,sets,dex){
  if(resources==null)return null;
- if(!Array.isArray(resources)||resources.length!==6)throw Error('Challenge resources require six members');
+ if(!Array.isArray(resources)||resources.length!==sets.length)throw Error('Challenge resources must match the battle team');
  const byID=new Map(resources.map(r=>[r.id,r]));
- if(byID.size!==6)throw Error('Duplicate resource member');
+ if(byID.size!==sets.length)throw Error('Duplicate resource member');
  for(const set of sets){
   const r=byID.get(set.ptbID);
   if(!r||!Number.isInteger(r.hp)||r.hp<0||r.hp>set.ptbStats.hp)throw Error('Invalid challenge HP');

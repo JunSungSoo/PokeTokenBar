@@ -3260,3 +3260,12 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   On the same CI image, English-only recognition corrected the period label but still read
   the unrelated chart caption `Daily` as `Dally`; do not teach OCR that misspelling or relax
   the original chart guard to make a period-row regression pass.
+
+## Roster picker rows need stable identity during selection
+
+- The preset editor moved entries between two lazy lists on click. The visible row could
+  retain its append action and add the same ID repeatedly, driving the count past six.
+  The persistence test exercised valid input, so it missed this interaction.
+- Keep each candidate in the same list and derive its checkmark and order from the current
+  selection. Recheck uniqueness and capacity in the action, and test repeated toggles
+  and an attempted seventh pick.

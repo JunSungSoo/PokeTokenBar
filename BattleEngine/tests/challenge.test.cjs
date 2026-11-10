@@ -7,7 +7,50 @@ function turn(e){for(const p of [0,1]){const f=e.frame(p);e.choose(p,f.decisionI
 test('challenge has six combatants; ordinary singles/doubles retain three/four',()=>{
  assert.equal(setup().frame(0).own.length,6);
  for(const [mode,count]of [['singles',3],['doubles',4]]){const e=new OwnedBattle(mode,[team('a'),team('b')],[1,2,3,4]);assert.equal(e.frame(0).own.length,count);assert.equal(e.frame(0).resources,undefined);}
- assert.throws(()=>setup(undefined,'doubles'),/profile/);
+ const doubles=setup(undefined,'doubles');
+ assert.equal(doubles.frame(0).own.length,6);
+ assert.equal(doubles.frame(0).slots.length,2);
+ assert.deepEqual(doubles.frame(0).own.filter(p=>p.active).map(p=>p.id),['a0','a1']);
+ assert.equal(doubles.frame(0).foeTeamStatus.selected,6);
+});
+test('four-member doubles challenge rejects switches to either unselected member',()=>{
+ const legacy=setup(undefined,'doubles');
+ const resources=legacy.frame(0).resources.slice(0,4);
+ const e=new OwnedBattle('doubles',[team('a'),team('b')],[1,2,3,4],{
+  profile:'challenge',challengeBattleSize:4,resources:[resources,null]
+ });
+ const frame=e.frame(0);
+ assert.equal(frame.foeTeamStatus.selected,4);
+ assert.deepEqual(frame.resources.map(p=>p.id),['a0','a1','a2','a3']);
+ const move={kind:'move',index:1,target:1};
+ for(const index of [5,6]){
+  assert.throws(()=>e.choose(0,frame.decisionID,[{kind:'switch',index},move]),/Invalid action/i);
+ }
+ e.choose(0,frame.decisionID,[{kind:'switch',index:4},move]);
+ e.runCPU();
+ assert.ok(e.frame(0).own.find(p=>p.id==='a3').active);
+});
+test('learned doubles lead and four-member selection adapt to sets without seeing the player lineup',()=>{
+ const {REVISION,FEATURE_NAMES}=require('../challenge-doubles-lineup.cjs');
+ const model=require('../challenge-doubles-lineup-model.json');
+ const sets=require('../challenge-doubles-opponents.json');
+ const {encounters}=require('../challenge-opponents.json');
+ const roster=id=>sets[id].map(set=>({...encounters.find(e=>e.id===id).team.find(p=>p.speciesID===set.speciesID),...set}));
+ const preview=roster('misty').map(p=>({...p,item:'',moves:['surf']}));
+ const trainer=roster('brock');
+ const open=(player,revision=REVISION)=>new OwnedBattle('doubles',[player,trainer],[1,2,3,4],{
+  profile:'challenge',challengeBattleSize:4,automaticOpponent:true,expectedPolicyRevision:revision
+ });
+ const fields=e=>e.frame(1).own.map(p=>p.id);
+ const first=open(preview);
+ assert.equal(fields(first).length,4);
+ assert.notDeepEqual(fields(first),fields(open(preview.map(p=>({...p,moves:['earthquake']})))));
+ assert.deepEqual(fields(first),fields(open(preview.slice().reverse())));
+ assert.deepEqual(fields(open(preview,'ptb-challenge-doubles-v2')),trainer.slice(0,4).map(p=>p.id));
+ assert.deepEqual(model.featureNames,FEATURE_NAMES);
+ assert.ok(model.holdout.logLoss<Math.log(15));
+ first.runCPU();
+ assert.equal(first.frame(1).waiting,true);
 });
 test('actual HP, PP, dead members, status and consumed items survive a new encounter before entry',()=>{
  const e=setup();turn(e);const before=e.frame(0).resources;
@@ -19,6 +62,26 @@ test('actual HP, PP, dead members, status and consumed items survive a new encou
  assert.equal(f.own.find(p=>p.id==='a1').hp,179);assert.equal(f.slots[0].moves[0].pp,0);assert.equal(f.slots[0].moves[0].disabled,true);
  assert.equal(f.resources.find(p=>p.id==='a1').status,'brn');assert.equal(f.own[0].stats.atk,120);
  assert.ok(f.scenes.filter(s=>s.own.some(p=>p.active)).every(s=>s.own.find(p=>p.id==='a0').hp===0));
+});
+test('doubles CPU replaces two fainted slots and a one-survivor team can still act',()=>{
+ const initial=setup(undefined,'doubles');
+ const own=initial.frame(0).resources,foe=initial.frame(1).resources;
+ foe[0].hp=1;foe[1].hp=1;
+ const battle=setup([own,foe],'doubles');
+ battle.runCPU();
+ battle.choose(0,battle.frame(0).decisionID,[1,2].map(target=>({kind:'move',index:1,target})));
+ assert.deepEqual(battle.frame(1).slots.map(slot=>slot.mustSwitch),[true,true]);
+ battle.runCPU();
+ assert.deepEqual(battle.frame(1).own.filter(p=>p.active).map(p=>p.id),['b2','b3']);
+ assert.equal(battle.frame(0).resources.length,6);
+ for(let i=0;i<5;i++)own[i].hp=0;
+ const last=setup([own,null],'doubles');
+ const frame=last.frame(0);
+ assert.deepEqual(frame.own.filter(p=>p.active&&!p.fainted).map(p=>p.id),['a5']);
+ assert.equal(frame.slots[1].canPass,true);
+ last.runCPU();
+ last.choose(0,last.frame(0).decisionID,[{kind:'move',index:1,target:1},{kind:'pass'}]);
+ assert.equal(last.frame(0).turn,2);
 });
 test('malformed resources cannot heal, restore PP, duplicate members or start an all-dead run',()=>{
  const state=setup().frame(0).resources;
@@ -93,4 +156,69 @@ test('Red has six perfect-IV members and Charizard automatically Mega evolves to
  const offset=e.battle.log.length;
  e.choose(1,e.frame(1).decisionID,[{kind:'move',index:2,target:0}]);e.choose(0,e.frame(0).decisionID,[{kind:'move',index:1,target:0}]);
  assert.ok(e.battle.log.slice(offset).some(l=>l.includes('|Solar Beam|')));assert.ok(e.battle.log.slice(offset).some(l=>l.includes('|-anim|p2a: Charizard|Solar Beam|')),'Sun resolves the charged move immediately');assert.ok(e.battle.log.slice(offset).some(l=>l.startsWith('|-damage|p1')),'Solar Beam deals damage on the same turn');
+});
+
+test('all 14 doubles rosters preserve six species and levels with obtainable BW sets and fixed leads',()=>{
+ const {encounters}=require('../challenge-opponents.json'),doubles=require('../challenge-doubles-opponents.json');
+ const {Dex,TeamValidator}=require('pokemon-showdown');
+ const validator=new TeamValidator({...Dex.formats.get('gen5customgame'),id:'ptbdoubleslegality',name:'BW legality',ruleset:['Obtainable']});
+ assert.deepEqual(Object.keys(doubles),['brock','misty','ltsurge','erika','koga1','sabrina','blaine','giovanni',
+   'lorelei','bruno1','agatha','lance1','blue','red']);
+ for(const [index,[id,sets]] of Object.entries(doubles).entries()){
+  const original=encounters.find(e=>e.id===id).team;
+  const roster=sets.map(set=>({...original.find(p=>p.speciesID===set.speciesID),...set}));
+  assert.deepEqual(new Set(roster.map(p=>p.speciesID)),new Set(original.map(p=>p.speciesID)));
+  assert.equal(new Set(roster.map(p=>p.item)).size,6);
+  for(const p of roster){
+   assert.equal(p.level,index<12?95:100);
+   assert.equal(new Set(p.moves).size,4);
+   const megaY=id==='red'&&p.speciesID===6;
+   const bwSet=megaY?{...p,item:'',moves:p.moves.filter(m=>m!=='weatherball')}:p;
+   assert.equal(validator.validateSet(structuredClone(bwSet)),null,id+' '+p.species);
+   if(id==='red') assert.ok(Object.values(p.ivs).every(iv=>iv===31));
+  }
+  const e=new OwnedBattle('doubles',[team('a'),roster],[1,2,3,4],{profile:'challenge',automaticOpponent:true});
+  assert.deepEqual(e.frame(1).own.filter(p=>p.active).map(p=>p.id),roster.slice(0,2).map(p=>p.id));
+  e.runCPU();
+  e.choose(0,e.frame(0).decisionID,[1,2].map(target=>({kind:'move',index:1,target})));
+  assert.ok(e.frame(0).turn>1 || e.frame(0).slots.some(slot=>slot.mustSwitch));
+  if(id==='red') {
+   assert.equal(e.battle.sides[1].active[0].species.name,'Charizard-Mega-Y');
+   assert.equal(e.battle.field.weather,'sunnyday');
+   const mewtwo=roster.find(p=>p.speciesID===150);
+   assert.equal(mewtwo.item,'lifeorb');assert.equal(mewtwo.cpuRecoveryThreshold,.65);
+   assert.deepEqual(mewtwo.moves,['psystrike','shadowball','recover','flamethrower']);
+  }
+ }
+});
+
+test('doubles AI evaluates friendly fire and partner Protect in the same action pair',()=>{
+ const {chooseActions}=require('../challenge-doubles-policy.cjs');
+ const own=team('b');
+ own[0]={...own[0],species:'Golem',ability:'Sturdy',moves:['earthquake'],stats:{...own[0].stats,atk:270}};
+ own[1]={...own[1],species:'Jolteon',ability:'Volt Absorb',moves:['thunderbolt','protect'],stats:{...own[1].stats,hp:90}};
+ const e=new OwnedBattle('doubles',[team('a').map(p=>({...p,moves:['splash']})),own],[1,2,3,4],{profile:'challenge'});
+ const f=e.frame(1),seed=e.battle.prng.getSeed();
+ assert.deepEqual(chooseActions(e.battle.dex,f),[{kind:'move',index:1,target:0},{kind:'move',index:2,target:0}]);
+ assert.equal(e.battle.prng.getSeed(),seed);
+ e.runCPU();
+ e.choose(0,e.frame(0).decisionID,[{kind:'move',index:1,target:0},{kind:'move',index:1,target:0}]);
+ assert.equal(e.frame(1).resources.find(p=>p.id==='b1').hp,90);
+ assert.ok(e.frame(0).resources.slice(0,2).every(p=>p.hp<500));
+});
+
+test('doubles AI splits lethal attacks and ignores an unrevealed foe set or choice',()=>{
+ const {chooseActions}=require('../challenge-doubles-policy.cjs');
+ const initial=setup(undefined,'doubles'),foe=initial.frame(0).resources;
+ foe[0].hp=foe[1].hp=1;
+ const e=setup([foe,null],'doubles');
+ const choose=()=>chooseActions(e.battle.dex,e.frame(1));
+ const before=choose();
+ assert.deepEqual(before.map(a=>a.target).sort(),[1,2]);
+ e.battle.sides[0].pokemon[2].moveSlots[0].pp=0;
+ e.battle.sides[0].pokemon[2].ability='pressure';
+ e.choose(0,e.frame(0).decisionID,[1,1].map(target=>({kind:'move',index:1,target})));
+ assert.deepEqual(choose(),before);
+ e.runCPU();
+ assert.equal(e.frame(0).own.filter(p=>p.fainted).length,2);
 });

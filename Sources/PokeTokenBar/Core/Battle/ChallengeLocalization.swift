@@ -53,8 +53,20 @@ extension L {
 
     var challengeTitle:String {t("챌린지","Challenge","チャレンジ","Desafío","Défi","Desafio","Herausforderung","Испытание")}
     var challengeEntry:String {t("챌린지 도전","Enter challenge","チャレンジに挑む","Entrar al desafío","Commencer le défi","Entrar no desafio","Herausforderung starten","Начать испытание")}
-    var challengeMode:String {t("싱글 · 6마리","Singles · 6 Pokémon","シングル・6匹","Individual · 6 Pokémon","Solo · 6 Pokémon","Individual · 6 Pokémon","Einzel · 6 Pokémon","Одиночный · 6 покемонов")}
-    var challengeRules:String {t("6대6 싱글 · 27연전 · HP·PP 유지","6v6 singles · 27 battles · HP and PP carry over","6対6シングル・27連戦・HPとPPを引き継ぐ","Individuales 6 contra 6 · 27 combates · Conserva PS y PP","Solo 6 contre 6 · 27 combats · PV et PP conservés","Individual 6 contra 6 · 27 batalhas · PS e PP mantidos","6-gegen-6-Einzel · 27 Kämpfe · KP und AP bleiben erhalten","6 на 6 · 27 боёв · ОЗ и ОД сохраняются")}
+    func challengeMode(_ mode: BattleMode) -> String {
+        if mode == .doubles {
+            return t("더블 · 6마리","Doubles · 6 Pokémon","ダブル・6匹","Dobles · 6 Pokémon","Duo · 6 Pokémon","Duplas · 6 Pokémon","Doppel · 6 Pokémon","Парный · 6 покемонов")
+        }
+        return t("싱글 · 6마리","Singles · 6 Pokémon","シングル・6匹","Individual · 6 Pokémon","Solo · 6 Pokémon","Individual · 6 Pokémon","Einzel · 6 Pokémon","Одиночный · 6 покемонов")
+    }
+    func challengeRules(_ mode: BattleMode) -> String {
+        if mode == .doubles {
+            return t("더블 · 6마리 등록 · 4마리 출전 · 14연전 · HP·PP 유지","Doubles · register 6, field 4 · 14 battles · HP and PP carry over","ダブル・6匹登録、4匹出場・14連戦・HPとPPを引き継ぐ","Dobles · registra 6, elige 4 · 14 combates · Conserva PS y PP","Duo · inscris 6, choisis 4 · 14 combats · PV et PP conservés","Duplas · registre 6, escolha 4 · 14 batalhas · PS e PP mantidos","Doppel · 6 anmelden, 4 einsetzen · 14 Kämpfe · KP und AP bleiben erhalten","Парные · регистрация 6, выходят 4 · 14 боёв · ОЗ и ОД сохраняются")
+        }
+        return t("6대6 싱글 · 27연전 · HP·PP 유지","6v6 singles · 27 battles · HP and PP carry over","6対6シングル・27連戦・HPとPPを引き継ぐ","Individuales 6 contra 6 · 27 combates · Conserva PS y PP","Solo 6 contre 6 · 27 combats · PV et PP conservés","Individual 6 contra 6 · 27 batalhas · PS e PP mantidos","6-gegen-6-Einzel · 27 Kämpfe · KP und AP bleiben erhalten","6 на 6 · 27 боёв · ОЗ и ОД сохраняются")
+    }
+    var challengeDoublesPreparationHint:String {t("등록한 6마리 중 이번 경기에 출전할 4마리를 순서대로 선택하세요. 도구도 수정할 수 있습니다.","Choose four of your six registered Pokémon in deployment order. You can also change held items.","登録した6匹から今回出場する4匹を順に選んでください。持ち物も変更できます。","Elige cuatro de tus seis Pokémon registrados en orden de salida. Puedes cambiar sus objetos.","Choisis quatre Pokémon sur les six inscrits, dans leur ordre d’entrée. Tu peux modifier leurs objets.","Escolha quatro dos seis Pokémon registrados na ordem de entrada. Você pode mudar os itens.","Wähle vier der sechs registrierten Pokémon in Einsatzreihenfolge. Items können geändert werden.","Выберите четырёх из шести зарегистрированных покемонов в порядке выхода. Предметы можно менять.")}
+    var challengeDoubleLeadHint:String {t("첫 두 마리가 선발로 출전합니다. 기절한 포켓몬은 건너뜁니다.","The first two available Pokémon lead. Fainted Pokémon are skipped.","先頭の出場可能な2匹が先発します。ひんしのポケモンは飛ばします。","Salen los dos primeros Pokémon disponibles. Se omiten los debilitados.","Les deux premiers Pokémon disponibles ouvrent le combat. Les Pokémon K.O. sont ignorés.","Os dois primeiros Pokémon disponíveis saem primeiro. Pokémon desmaiados são ignorados.","Die ersten zwei einsatzfähigen Pokémon starten. Besiegte Pokémon werden übersprungen.","Первыми выходят два доступных покемона. Потерявшие сознание пропускаются.")}
     var challengeResume:String {t("이어하기","Continue","続きから","Continuar","Continuer","Continuar","Fortsetzen","Продолжить")}
     var challengeStart:String {t("시작","Start","開始","Empezar","Commencer","Iniciar","Starten","Начать")}
     var challengeNew:String {t("새 도전","New challenge","新しい挑戦","Nuevo desafío","Nouveau défi","Novo desafio","Neue Herausforderung","Новое испытание")}
