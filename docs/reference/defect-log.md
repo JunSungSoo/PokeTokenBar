@@ -3279,3 +3279,31 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   all reserves already fainted. Render both possible survivors and both living leads
   through production BattleView. Assert a smaller surface under the original surviving
   slot, full coverage in both facings and layout containment for two maximum-width actors.
+
+## In-battle challenge exits must forfeit, never save and hide
+
+- The combat save/exit callback called `NSWindow.close()` directly and bypassed the
+  delegate's surrender confirmation. App termination checked peer battles only, so
+  it also left a running challenge resumable. Existing save/replay tests verified
+  persistence and recovery, not the allowed user exit actions.
+- Running challenge UI exposes surrender only. Remove the combat save/exit callback
+  throughout the root/controller/view chain. Window close and app quit must confirm
+  surrender and persist `.lost`; cancellation keeps `.battling`. Preparation and
+  between-match saves are separate from this combat-only rule.
+- Render actual singles/doubles windows and require the Surrender label and absence
+  of Save and exit. Exercise cancelled and accepted app termination against a real
+  session and reopen the persisted save to verify that an accepted exit cannot resume.
+- Mutation check: allowing termination without calling surrender causes ten assertions
+  to fail across singles and doubles (live/persisted phase and repeated exit policy).
+  Restore the surrender call before the final test run.
+
+## Explicit same-version ZIP rebuilds must replace equal installed versions
+
+- The normal installer opens an equal or newer app unchanged. A requested rebuild
+  with the same version therefore needs an explicit archive flag, otherwise the
+  user opens the installer but continues running the unpatched executable.
+- `--reinstall-same-version` is valid only with the install-on-launch wrapper. The
+  signed launcher plist carries that choice; newer installed versions remain protected.
+- Packaging tests check the default and opted-in plist/metadata. A compiled Swift
+  policy test covers equal, older and newer versions with both choices. Restoring
+  the original `>=` skip policy makes the regression fail; the fixed policy passes.

@@ -52,7 +52,6 @@ import SwiftUI
             window.isReleasedWhenClosed=false;window.delegate=self
             let root=ChallengeRootView(model:model,battle:battle,audioSettings:audioSettings,auxiliary:auxiliary,allowsAudio:allowsAudio,
                 onClose:{ [weak self] in self?.window?.performClose(nil) },
-                onSaveExit:{ [weak self] in self?.saveAndExitBattle() },
                 onSurrender:{ [weak self] in self?.confirmSurrender() },
                 onMusic:{ [weak self] in guard let self else{return};self.model.musicEnabled.toggle();self.refreshMusic() },
                 onShowField:{ [weak self] in self?.showAuxiliary(.field) },onShowStats:{ [weak self] in self?.showAuxiliary(.stats) },
@@ -127,24 +126,49 @@ import SwiftUI
             do{try model.offerChampionReward();sync()}catch{model.report(error)}
             return false
         }
-        if model.running && model.run?.phase == .battling {confirmSurrender();return false}
+        if requiresSurrenderBeforeExit {confirmSurrender();return false}
         return true
     }
-    private func saveAndExitBattle() {
-        guard model.run?.phase == .battling, model.save.canWrite, !battle.submitted else { return }
-        // The current frame and any queued command have already been persisted by the session.
-        window?.close()
+    var requiresSurrenderBeforeExit: Bool { model.running && model.run?.phase == .battling }
+
+    static func allowApplicationTermination() -> Bool {
+        guard let current else { return true }
+        return current.prepareForTermination {
+            current.surrenderAlert().runModal() == .alertSecondButtonReturn
+        }
     }
+
+    func prepareForTermination(confirm: () -> Bool) -> Bool {
+        guard requiresSurrenderBeforeExit else { return true }
+        guard !confirming, confirm() else { return false }
+        return surrenderBattle()
+    }
+
+    private func surrenderAlert() -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = model.store.l.battleConfirmClose
+        alert.informativeText = model.store.l.challengeLost
+        alert.addButton(withTitle: model.store.l.cancel)
+        alert.addButton(withTitle: model.store.l.battleSurrender)
+        return alert
+    }
+
+    @discardableResult
+    private func surrenderBattle() -> Bool {
+        do {
+            try model.session.surrender(); model.runningDidEnd(); sync()
+            return true
+        } catch { model.report(error); return false }
+    }
+
     private func confirmSurrender() {
         guard let window,model.run?.phase == .battling,!confirming else{return}
         confirming=true
-        let alert=NSAlert();alert.messageText=model.store.l.battleConfirmClose;alert.informativeText=model.store.l.challengeLost
-        alert.addButton(withTitle:model.store.l.cancel);alert.addButton(withTitle:model.store.l.battleSurrender)
+        let alert = surrenderAlert()
         alert.beginSheetModal(for:window){ [weak self] response in Task{@MainActor [weak self] in
             guard let self else{return};self.confirming=false
             if response == .alertSecondButtonReturn {
-                do {try self.model.session.surrender();self.model.runningDidEnd();self.sync()}
-                catch {self.model.report(error)}
+                self.surrenderBattle()
             }
         }}
     }

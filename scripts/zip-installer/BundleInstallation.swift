@@ -35,6 +35,10 @@ enum BundleInstallation {
         }
     }
 
+    static func keepsInstalledVersion(_ installed: Version, incoming: Version, reinstallSameVersion: Bool) -> Bool {
+        installed > incoming || (installed == incoming && !reinstallSameVersion)
+    }
+
     static func version(at url: URL, identifier: String) throws -> Version {
         let file = url.appendingPathComponent("Contents/Info.plist")
         let info = try PropertyListSerialization.propertyList(from: Data(contentsOf: file), format: nil)

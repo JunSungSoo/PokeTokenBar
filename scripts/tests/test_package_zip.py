@@ -104,6 +104,41 @@ class PackageZipTests(unittest.TestCase):
             metadata = json.loads(archive.read('Release Metadata.json'))
             installer = archive.read(root + 'MacOS/' + outer['CFBundleExecutable'])
             self.assertEqual(metadata['installerExecutableSHA256'], hashlib.sha256(installer).hexdigest())
+            self.assertFalse(outer['PTBReinstallSameVersion'])
+        rebuilt = self.root / 'same-version.zip'
+        with patch.dict(package.os.environ, {'CODESIGN_IDENTITY': '-'}):
+            package.package_zip(self.app, self.notes, rebuilt, install_on_launch=True, reinstall_same_version=True)
+        with zipfile.ZipFile(rebuilt) as archive:
+            outer = plistlib.loads(archive.read('Install PokeTokenBar.app/Contents/Info.plist'))
+            self.assertTrue(outer['PTBReinstallSameVersion'])
+            self.assertTrue(json.loads(archive.read('Release Metadata.json'))['reinstallSameVersion'])
+
+
+    def test_same_version_replacement_requires_installer(self):
+        with self.assertRaisesRegex(ValueError, 'install-on-launch'):
+            package.package_zip(self.app, self.notes, self.output, reinstall_same_version=True)
+        self.assertFalse(self.output.exists())
+
+    @unittest.skipUnless(shutil.which('xcrun'), 'macOS Swift required')
+    def test_same_version_policy_keeps_newer_installs_and_defaults(self):
+        source = self.root / 'Policy.swift'
+        source.write_text('''@main struct Policy {
+          static func main() {
+            let same = BundleInstallation.Version("3.1.3")!
+            let newer = BundleInstallation.Version("3.1.4")!
+            let older = BundleInstallation.Version("3.1.2")!
+            precondition(BundleInstallation.keepsInstalledVersion(same, incoming: same, reinstallSameVersion: false))
+            precondition(!BundleInstallation.keepsInstalledVersion(same, incoming: same, reinstallSameVersion: true))
+            for reinstall in [false, true] {
+              precondition(BundleInstallation.keepsInstalledVersion(newer, incoming: same, reinstallSameVersion: reinstall))
+              precondition(!BundleInstallation.keepsInstalledVersion(older, incoming: same, reinstallSameVersion: reinstall))
+            }
+          }
+        }''')
+        binary = self.root / 'policy'
+        subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-module-cache-path', str(self.root / 'modules'),
+                        str(ROOT / 'scripts/zip-installer/BundleInstallation.swift'), str(source), '-o', str(binary)], check=True)
+        subprocess.run([str(binary)], check=True)
 
     def test_invalid_output_path_is_rejected_before_packaging(self):
         for output in (self.root / 'not-a-zip.txt', self.app / 'recursive.zip'):

@@ -30,6 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private let navigation = PopoverNavigation()
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard ChallengeWindowController.allowApplicationTermination() else { return .terminateCancel }
         guard battle?.isActive == true else { battle?.shutdown(); return .terminateNow }
         let alert = NSAlert()
         alert.messageText = companion.l.battleConfirmClose

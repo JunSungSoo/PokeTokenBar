@@ -7,7 +7,6 @@ import SwiftUI
     let auxiliary:BattleAuxiliaryState
     var allowsAudio=true
     var onClose:()->Void
-    var onSaveExit: (()->Void)? = nil
     var onSurrender:()->Void
     var onMusic:()->Void
     var onShowField:()->Void
@@ -22,7 +21,7 @@ import SwiftUI
                 BattleView(battle:battle,store:model.store,onSurrender:onSurrender,onMusic:onMusic,onPlayMusic:onState,
                     audioSettings:audioSettings,allowsEffectsAudio:allowsAudio,trainerIntro:model.intro,showsResultClose:false,
                     replayOpening:!model.resuming,musicActive:model.musicEnabled,challengeBuffSummary:model.buffSummary,auxiliaryState:auxiliary,
-                    onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onSaveExit:onSaveExit,onLayout:onLayout,
+                    onShowField:onShowField,onShowStats:onShowStats,onClose:onClose,onLayout:onLayout,
                     onTestWin:model.session.testControlsEnabled ? {do{try model.session.winForTesting()}catch{model.report(error)}}:nil,
                     onTestNextTrainer:model.session.testControlsEnabled ? {model.nextTrainerForTesting()}:nil,
                     canTestNextTrainer:model.canTestNextTrainer,

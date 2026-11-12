@@ -41,6 +41,9 @@ Drive·Desktop ZIP의 최상위에는 `Install PokeTokenBar.app`, `Release Notes
 기존 앱이 정상 종료를 거부하거나 설치 권한이 없으면 기존 앱을 보존한다.
 권한이 필요한 경우 설치 앱에서 실제 앱을 Finder로 열고 macOS의 승인 절차를 통해 복사한다.
 Homebrew 배포 ZIP은 기존처럼 실제 `PokeTokenBar.app`을 최상위에 둔다.
+사용자가 버전 유지를 요청한 수정본은 `--install-on-launch --reinstall-same-version`으로
+패키징한다. 해당 ZIP만 같은 버전의 앱도 교체하며, 더 높은 설치 버전은 교체하지 않는다.
+기본 설치 ZIP의 동일 버전 건너뛰기 동작은 유지한다.
 패키징 시각, 버전, 소스 HEAD, 작업 트리 변경 여부, 실행 파일 해시는 JSON에만 저장한다.
 노트 부재, 잘못된 날짜/회차, 변경사항 없는 항목,
 기존 출력 덮어쓰기, ZIP 손상, 실행 파일 변경을 거부한다. 원본 `.app`은 수정하지 않는다.

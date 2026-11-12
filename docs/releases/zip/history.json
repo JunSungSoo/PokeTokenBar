@@ -1082,6 +1082,27 @@
       "sha256": "5d89de2f56c318d79a863469cb957a2d02d1da944923fa1f2e9b61a46409cb1e",
       "bytes": 169316123,
       "packagedAt": "2026-11-12T09:43:45+09:00"
+    },
+    {
+      "date": "2026-11-12",
+      "time": "10:03:40",
+      "archive": "PokeTokenBar-3.1.3-261112-2-installer.zip",
+      "version": "3.1.3",
+      "evidence": "User-requested same-version universal installer ZIP. Three challenge exit/UI tests, 180 engine tests and 11 packaging/installer tests passed. App/helper/launcher architectures, signatures, 4,356 resource matches, note bytes, new surrender identifier and absence of combat save/exit identifier verified. Same-version replacement is explicitly enabled; newer installed versions are preserved.",
+      "turn": null,
+      "title": "Remove in-battle save and exit and require surrender",
+      "commit": null,
+      "sourceBaseCommit": "a4c830472267488ec5647f15263e08c79bd9c779",
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "챌린지 전투 중 세이브 후 종료를 제거하고 항복으로만 전투를 종료하도록 수정했습니다. 창 닫기와 앱 종료도 항복 확인을 거치며, 취소하면 배틀을 유지하고 항복하면 패배로 저장합니다.",
+        "설치 실행 파일에서 같은 버전의 앱도 이번 수정본으로 교체할 수 있도록 했습니다. 더 높은 버전이 설치돼 있으면 해당 버전을 유지합니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.1.3-261112-2-installer.zip",
+      "sha256": "8610e523bdd245f6ef8099271adaa95c63afca10d7d131b9c6f3f34207686e5d",
+      "bytes": 169317016,
+      "packagedAt": "2026-11-12T10:03:40+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

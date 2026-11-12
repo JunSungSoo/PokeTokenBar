@@ -787,6 +787,50 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         try FileManager.default.removeItem(at:file);try FileManager.default.moveItem(at:backup,to:file)
         XCTAssertTrue(m.claimChampionShiny());XCTAssertTrue(try XCTUnwrap(m.store.state.dex.first{$0.id=="owned-6"}).isShiny)
     }
+    func testBattleHasOnlySurrenderExitAndApplicationQuitRequiresForfeit() async throws {
+        for mode in BattleMode.allCases {
+            let seed = try fixture()
+            let session = try ChallengeWindowController.makeSession(mode: mode,
+                directory: seed.save.url.deletingLastPathComponent(), testControlsEnabled: false)
+            let model = ChallengeUIModel(store: seed.store, session: session, provider: seed.provider,
+                itemMemory: seed.itemMemory, itemUsage: seed.itemUsage)
+            model.store.setLanguage(.en); model.isOpen = true
+            let controller = ChallengeWindowController(model: model,
+                identity: .init(nickname: "Test", code: "test", nonce: "test"),
+                allowsAudio: false, activity: ChallengeActivity())
+            defer { model.close(); seed.close(); controller.window?.close() }
+            for i in 0..<6 { model.select("owned-\(i)") }
+            await model.start()
+            XCTAssertFalse(controller.requiresSurrenderBeforeExit)
+            XCTAssertTrue(controller.prepareForTermination(confirm: { XCTFail("Preparation is not a running match"); return false }))
+            beginPrepared(model); _ = try await wait(model)
+            XCTAssertTrue(controller.requiresSurrenderBeforeExit)
+            XCTAssertFalse(controller.prepareForTermination(confirm: { false }))
+            XCTAssertEqual(model.run?.phase, .battling, "Cancel must leave the match running")
+            controller.show(present: false)
+            try await Task.sleep(for: .milliseconds(650))
+            let view = try XCTUnwrap(controller.window?.contentView)
+            view.layoutSubtreeIfNeeded()
+            let bitmap = try XCTUnwrap(view.bitmapImageRepForCachingDisplay(in: view.bounds))
+            view.cacheDisplay(in: view.bounds, to: bitmap)
+            let request = VNRecognizeTextRequest()
+            request.recognitionLevel = .accurate; request.recognitionLanguages = ["en-US"]
+            try VNImageRequestHandler(cgImage: try XCTUnwrap(bitmap.cgImage)).perform([request])
+            let text = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: " ").lowercased().filter { !$0.isWhitespace }
+            XCTAssertTrue(text.contains("surrender"), "The combat header must expose surrender")
+            XCTAssertFalse(text.contains("saveandexit"), "No save/close bypass belongs in a running match")
+            try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                .write(to: URL(fileURLWithPath: "/tmp/ptb-challenge-surrender-only-\(mode.rawValue).png"))
+            XCTAssertTrue(controller.prepareForTermination(confirm: { true }))
+            XCTAssertEqual(model.run?.phase, .lost)
+            XCTAssertEqual(ChallengeRunStore(url: session.save.url, mode: mode).run?.phase, .lost,
+                           "Accepted quit must persist a loss rather than a resumable battle")
+            XCTAssertFalse(controller.requiresSurrenderBeforeExit)
+            XCTAssertTrue(controller.prepareForTermination(confirm: { XCTFail("Completed battle must not prompt again"); return false }))
+        }
+    }
+
     func testOffscreenWindowCloseReleasesHostingAndActivity()async throws {
         let m=try fixture(),activity=ChallengeActivity()
         let controller=ChallengeWindowController(model:m,identity:.init(nickname:"Test",code:"test",nonce:"test"),allowsAudio:false,activity:activity)

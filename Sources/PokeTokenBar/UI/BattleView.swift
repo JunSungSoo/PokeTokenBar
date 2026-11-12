@@ -18,7 +18,6 @@ struct BattleView: View {
     var onShowField: () -> Void = {}
     var onShowStats: () -> Void = {}
     var onClose: () -> Void = {}
-    var onSaveExit: (() -> Void)? = nil
     var onLayout: (BattleContentMeasurement) -> Void = { _ in }
     var onTestWin:(()->Void)? = nil
     var onTestNextTrainer:(()->Void)? = nil
@@ -133,10 +132,9 @@ struct BattleView: View {
             }.help(l.battleMusic).accessibilityLabel(l.battleMusic)
             if let audioSettings { BattleVolumeControl(settings:audioSettings,label:l.battleVolume,effectsLabel:l.battleEffectsVolume) }
         }
-        if let onSaveExit, battle.frame?.ended == false {
-            Button(l.challengeSaveExit, action: onSaveExit)
-                .disabled(battle.submitted)
-                .accessibilityIdentifier("challenge-battle-save-exit")
+        if battle.isChallenge, battle.frame?.ended == false {
+            Button(l.battleSurrender, action: onSurrender)
+                .accessibilityIdentifier("challenge-battle-surrender")
         }
         if let challengeBuffSummary {
             Text(challengeBuffSummary).font(.caption).foregroundStyle(.orange).accessibilityIdentifier("challenge-team-buffs")

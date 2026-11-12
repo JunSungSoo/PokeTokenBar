@@ -667,8 +667,10 @@ Archive size/hash/time are in the release ledger; app installation was skipped.
   and opens that mode's catalog and save. Both modes
   register six Pokémon and support held-item changes before an encounter.
   Doubles highlights the first two available Pokémon in the chosen order.
-  During battle, Save and exit keeps the current checkpoint available through
-  Continue, while the window close control retains its surrender prompt.
+  During battle, surrender is the only voluntary exit. The combat view has no
+  Save and exit action; its Surrender button, window close and application quit
+  require confirmation and persist a loss. Cancel keeps the battle running.
+  Checkpoints remain for interruption recovery, and between-match saves are separate.
 
 ### Lead pair model
 

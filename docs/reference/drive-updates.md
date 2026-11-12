@@ -122,3 +122,19 @@ survivor. The local app and launcher use ad-hoc signing; no certificate is regen
 
 Archive and hash are recorded in the ZIP release ledger. Drive distribution requires
 replacing the pinned shared file with the new archive.
+
+
+## November 12 second local 3.1.3 ZIP
+
+The user requested retaining 3.1.3 while removing the voluntary in-battle save/exit.
+The new installer archive explicitly replaces an equal-version app; a newer installed
+version is still opened unchanged. The default installer policy remains unchanged
+for archives without `--reinstall-same-version`. Version-based Drive checks do not
+announce equal-version rebuilds; this update is applied through the supplied ZIP.
+
+The combat header exposes surrender only. Window close and application termination
+require confirmation and persist a loss; cancellation keeps the battle running.
+Validation: three challenge UI/exit regressions, 180 engine tests and 11 packaging/
+installer tests pass. Both architectures, 4,356 resources, signatures, executable
+hashes, full release notes and the equal-version launcher setting are verified.
+The original first ZIP and its release-ledger hash remain unchanged.

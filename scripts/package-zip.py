@@ -43,7 +43,7 @@ def read_notes(path):
     return text.rstrip() + "\n"
 
 
-def make_installer(app, info, directory):
+def make_installer(app, info, directory, reinstall_same_version=False):
     """Wrap the signed payload with a separate launch identity for Finder."""
     wrapper = directory / "Install PokeTokenBar.app"
     contents = wrapper / "Contents"
@@ -56,6 +56,7 @@ def make_installer(app, info, directory):
     if icon.is_file():
         (contents / "Resources/AppIcon.icns").write_bytes(icon.read_bytes())
     launcher_info = {
+        "PTBReinstallSameVersion": reinstall_same_version,
         "CFBundleIdentifier": "io.github.chattymin.poketokenbar.zip-installer",
         "CFBundleExecutable": "PokeTokenBarInstaller",
         "CFBundleName": "Install PokeTokenBar",
@@ -89,7 +90,9 @@ def make_installer(app, info, directory):
     return wrapper, hashlib.sha256(executable.read_bytes()).hexdigest()
 
 
-def package_zip(app, notes, output, install_on_launch=False):
+def package_zip(app, notes, output, install_on_launch=False, reinstall_same_version=False):
+    if reinstall_same_version and not install_on_launch:
+        raise ValueError("Same-version replacement requires --install-on-launch")
     app, output = Path(app).resolve(), Path(output).resolve()
     text = read_notes(notes)
     if output.suffix.lower() != ".zip":
@@ -111,6 +114,8 @@ def package_zip(app, notes, output, install_on_launch=False):
     metadata = {"archive": output.name, "version": version, "packagedAt": now,
                 "timezone": "Asia/Seoul", "sourceHEAD": revision, "workingTreeModified": dirty,
                 "executableSHA256": executable_sha}
+    if reinstall_same_version:
+        metadata["reinstallSameVersion"] = True
     output.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=".ptb-package-", suffix=".zip", dir=output.parent)
     os.close(fd)
@@ -121,7 +126,7 @@ def package_zip(app, notes, output, install_on_launch=False):
             archive_app = app
             payload_path = app.name
             if install_on_launch:
-                archive_app, installer_sha = make_installer(app, info, Path(folder))
+                archive_app, installer_sha = make_installer(app, info, Path(folder), reinstall_same_version)
                 payload_path = f"{archive_app.name}/Contents/Helpers/PokeTokenBar.app"
                 metadata["installerExecutableSHA256"] = installer_sha
             subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent",
@@ -156,6 +161,7 @@ def main():
     parser.add_argument("--output")
     parser.add_argument("--install-on-launch", action="store_true",
                         help="Wrap the app in a Finder launcher for Drive ZIP distribution")
+    parser.add_argument("--reinstall-same-version", action="store_true", help="Replace an equal-version install for an explicit local rebuild")
     parser.add_argument("--check-notes", action="store_true", help="Validate note format without creating an archive")
     args = parser.parse_args()
     try:
@@ -165,7 +171,7 @@ def main():
             return
         if not args.output:
             parser.error("--output is required for packaging")
-        print(json.dumps(package_zip(args.app, args.notes, args.output, args.install_on_launch), ensure_ascii=False))
+        print(json.dumps(package_zip(args.app, args.notes, args.output, args.install_on_launch, args.reinstall_same_version), ensure_ascii=False))
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError, zipfile.BadZipFile) as error:
         parser.exit(1, f"ZIP packaging: {error}\n")
 

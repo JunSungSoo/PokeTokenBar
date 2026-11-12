@@ -3,7 +3,7 @@ import Darwin
 
 @MainActor
 enum ZipInstaller {
-    static func run(source: URL, target: URL, identifier: String) async throws {
+    static func run(source: URL, target: URL, identifier: String, reinstallSameVersion: Bool = false) async throws {
         let parent = target.deletingLastPathComponent()
         let lock = try BundleInstallation.lockDirectory(parent)
         defer { close(lock) }
@@ -12,7 +12,7 @@ enum ZipInstaller {
         let incoming = try BundleInstallation.version(at: source, identifier: identifier)
         let installed = try BundleInstallation.exists(target)
         let old = installed ? try BundleInstallation.version(at: target, identifier: identifier) : nil
-        if let old, old >= incoming {
+        if let old, BundleInstallation.keepsInstalledVersion(old, incoming: incoming, reinstallSameVersion: reinstallSameVersion) {
             try BundleInstallation.validateSignature(at: target)
             try await launch(target)
             return
@@ -83,7 +83,8 @@ final class Launcher: NSObject, NSApplicationDelegate {
             let target = URL(fileURLWithPath: "/Applications/PokeTokenBar.app", isDirectory: true)
             do {
                 try await ZipInstaller.run(source: payload, target: target,
-                                           identifier: "io.github.chattymin.poketokenbar")
+                                           identifier: "io.github.chattymin.poketokenbar",
+                                           reinstallSameVersion: Bundle.main.object(forInfoDictionaryKey: "PTBReinstallSameVersion") as? Bool ?? false)
             } catch {
                 NSApp.activate(ignoringOtherApps: true)
                 let alert = NSAlert()
