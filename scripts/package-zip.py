@@ -102,6 +102,11 @@ def package_zip(app, notes, output, install_on_launch=False, reinstall_same_vers
     if app in output.parents:
         raise ValueError("Output ZIP cannot be inside the app")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
+    resources = app / "Contents/Resources"
+    if (resources / "PokeRoguePlayer/base-sprites/manifest.json").exists():
+        module = resources / "PokeTokenBar_PokeTokenBar.bundle"
+        if not module.is_dir() or not (module / "PokeRoguePlayer/base-sprites/manifest.json").is_file():
+            raise ValueError("Missing packaged SwiftPM resource bundle; rebuild with build-app.sh")
     version = info["CFBundleShortVersionString"]
     named_version = re.match(r"^PokeTokenBar-([0-9]+\.[0-9]+\.[0-9]+)(?:-|\.zip$)", output.name)
     if named_version and named_version[1] != version:

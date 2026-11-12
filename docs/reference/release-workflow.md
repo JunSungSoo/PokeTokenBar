@@ -111,3 +111,16 @@ GitHub Release → cask → Pages를 순서대로 수행한다. 빌드 단계에
 ## 3. 검증
 
 완료 후 `brew upgrade --cask poke-token-bar` 로 실제 업그레이드 동작을 확인한다.
+
+
+## Standalone resource and installer validation
+
+The app embeds `PokeTokenBar_PokeTokenBar.bundle` inside `Contents/Resources`; the
+legacy resource directory names are relative aliases into it. Do not place a bundle
+alias in the app root: strict macOS signing rejects unsealed root content.
+`AppResources.module` resolves the shipped bundle before the SwiftPM checkout.
+
+Verify resource resolution with a standalone app, not just source-byte comparisons.
+App Translocation may give a correctly signed launched app a different URL: compare
+validated code identity for that mount rather than treating every path change as a
+concurrent installation. Never remove quarantine to make a verification pass.

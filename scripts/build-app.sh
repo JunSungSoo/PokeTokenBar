@@ -39,6 +39,13 @@ cp -R Sources/PokeTokenBar/Resources/BattleEffects "$APP/Contents/Resources/Batt
 cp -R Sources/PokeTokenBar/Resources/Showmotion "$APP/Contents/Resources/Showmotion"
 cp -R Sources/PokeTokenBar/Resources/PokeRogue "$APP/Contents/Resources/PokeRogue"
 cp -R Sources/PokeTokenBar/Resources/PokeRoguePlayer "$APP/Contents/Resources/PokeRoguePlayer"
+# Keep one physical resource copy in the standard signed resource-bundle location.
+MODULE="$APP/Contents/Resources/PokeTokenBar_PokeTokenBar.bundle"
+mkdir -p "$MODULE"
+for resource in BattleText BattleEffects Showmotion PokeRogue PokeRoguePlayer; do
+    mv "$APP/Contents/Resources/$resource" "$MODULE/$resource"
+    ln -s "PokeTokenBar_PokeTokenBar.bundle/$resource" "$APP/Contents/Resources/$resource"
+done
 ENGINE="$APP/Contents/Resources/BattleEngine"
 mkdir -p "$ENGINE/node_modules/pokemon-showdown/dist"
 cp BattleEngine/challenge-buffs.cjs BattleEngine/challenge-state.cjs BattleEngine/challenge-policy.cjs BattleEngine/challenge-policy.json BattleEngine/challenge-policy-v1.cjs BattleEngine/challenge-policy-v1.json BattleEngine/challenge-opponents.json BattleEngine/challenge-doubles-opponents.json BattleEngine/challenge-doubles-policy.cjs BattleEngine/challenge-doubles-lineup.cjs BattleEngine/challenge-doubles-lineup-model.json BattleEngine/engine.cjs BattleEngine/held-items.cjs BattleEngine/held-items.json BattleEngine/GoldSilverWildBattleIntro.wav BattleEngine/GoldSilverWildBattleLoop.wav BattleEngine/GoldSilverTrainerVictoryIntro.wav BattleEngine/GoldSilverTrainerVictoryLoop.wav BattleEngine/BattleRevolutionPlayerLost.wav BattleEngine/RubySapphireChampionVictory.wav BattleEngine/RubySapphireChampionBattle.wav "$ENGINE/"

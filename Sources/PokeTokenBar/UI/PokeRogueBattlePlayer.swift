@@ -24,7 +24,7 @@ struct PokeRogueActor:Sendable {
     static var directory:URL {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer")
         if let bundled,FileManager.default.fileExists(atPath:bundled.appendingPathComponent("manifest.json").path){return bundled}
-        return Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!
+        return AppResources.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!
     }
     static let shared=PokeRogueOriginalCatalog()
     let manifest:Manifest

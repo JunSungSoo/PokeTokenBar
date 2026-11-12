@@ -5,7 +5,7 @@ enum PokemonLoadout {
     static let abilities: [String: [PokemonAbilityOption]] = {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleText/ability-options.json")
         let url = bundled.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
-            ?? Bundle.module.url(forResource: "ability-options", withExtension: "json", subdirectory: "BattleText")!
+            ?? AppResources.module.url(forResource: "ability-options", withExtension: "json", subdirectory: "BattleText")!
         return try! JSONDecoder().decode([String: [PokemonAbilityOption]].self, from: Data(contentsOf: url))
     }()
 

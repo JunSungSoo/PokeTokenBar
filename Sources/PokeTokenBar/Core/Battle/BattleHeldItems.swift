@@ -45,7 +45,7 @@ enum BattleHeldItems {
     static let all:[BattleHeldItem] = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/held-items.json")
         let url=bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:"held-items",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"held-items",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode(Catalog.self,from:Data(contentsOf:url)).items
     }()
     private static let byID=Dictionary(uniqueKeysWithValues:all.map{($0.id,$0)})
@@ -90,7 +90,7 @@ enum BattleMegaSprites {
     static var directory:URL {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer/mega-sprites")
         if let bundled,FileManager.default.fileExists(atPath:bundled.appendingPathComponent("manifest.json").path){return bundled}
-        return Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("mega-sprites")
+        return AppResources.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("mega-sprites")
     }
     static let records:[String:Record] = {
         guard let data=try? Data(contentsOf:directory.appendingPathComponent("manifest.json")) else{return [:]}
@@ -108,7 +108,7 @@ enum BattleMegaText {
     static let catalog:Catalog = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/mega-text.json")
         let url=bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:"mega-text",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"mega-text",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode(Catalog.self,from:Data(contentsOf:url))
     }()
 }
@@ -118,7 +118,7 @@ enum BattleOriginalSprites {
     static var directory:URL {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer/base-sprites")
         if let bundled,FileManager.default.fileExists(atPath:bundled.appendingPathComponent("manifest.json").path){return bundled}
-        return Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("base-sprites")
+        return AppResources.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("base-sprites")
     }
     static let records:[String:BattleMegaSprites.Record] = {
         guard let data=try? Data(contentsOf:directory.appendingPathComponent("manifest.json")) else{return [:]}

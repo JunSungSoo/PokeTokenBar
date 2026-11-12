@@ -140,6 +140,70 @@ class PackageZipTests(unittest.TestCase):
                         str(ROOT / 'scripts/zip-installer/BundleInstallation.swift'), str(source), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
 
+    def test_runtime_resources_need_packaged_module_link(self):
+        resources = self.app / 'Contents/Resources'
+        manifest = resources / 'PokeRoguePlayer/base-sprites/manifest.json'
+        manifest.parent.mkdir(parents=True)
+        manifest.write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'SwiftPM resource bundle'):
+            package.package_zip(self.app, self.notes, self.output)
+        module = resources / 'PokeTokenBar_PokeTokenBar.bundle'
+        module.mkdir();shutil.move(str(resources/'PokeRoguePlayer'),str(module/'PokeRoguePlayer'))
+        (resources/'PokeRoguePlayer').symlink_to('PokeTokenBar_PokeTokenBar.bundle/PokeRoguePlayer',target_is_directory=True)
+        package.package_zip(self.app, self.notes, self.output)
+        with zipfile.ZipFile(self.output) as archive:
+            self.assertEqual(archive.read('PokeTokenBar.app/Contents/Resources/PokeRoguePlayer'), b'PokeTokenBar_PokeTokenBar.bundle/PokeRoguePlayer')
+
+    @unittest.skipUnless(shutil.which('xcrun'), 'macOS Swift required')
+    def test_module_resource_lookup_works_without_build_directory(self):
+        resources = self.app / 'Contents/Resources'
+        (resources / 'BattleText').mkdir(parents=True)
+        (resources / 'BattleText/fixture.json').write_text('{"ok":true}')
+        module = resources / 'PokeTokenBar_PokeTokenBar.bundle'
+        module.mkdir();shutil.move(str(resources/'BattleText'),str(module/'BattleText'))
+        source = self.root / 'main.swift'
+        source.write_text('import Foundation\nguard let resource = AppResources.module.url(forResource:"fixture",withExtension:"json",subdirectory:"BattleText"), let text = try? String(contentsOf:resource,encoding:.utf8), text.contains("true") else { exit(1) }')
+        subprocess.run(['xcrun','swiftc','-module-cache-path',str(self.root/'modules'),
+                        str(ROOT/'Sources/PokeTokenBar/Core/AppResources.swift'),str(source),'-o',str(self.exe)],check=True)
+        subprocess.run([str(self.exe)],check=True)
+        shutil.rmtree(module)
+        self.assertNotEqual(subprocess.run([str(self.exe)]).returncode, 0)
+
+    @unittest.skipUnless(shutil.which('xcrun'), 'macOS Swift required')
+    def test_launch_identity_accepts_only_matching_signed_translocations(self):
+        info = plistlib.loads((self.app/'Contents/Info.plist').read_bytes())
+        info.update(CFBundleIdentifier='dev.poketokenbar.installidentity',CFBundlePackageType='APPL')
+        (self.app/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
+        fixture = self.root/'fixture.c';fixture.write_text('int main(void) { return 0; }')
+        subprocess.run(['xcrun','clang',str(fixture),'-o',str(self.exe)],check=True)
+        subprocess.run(['codesign','--force','-s','-',str(self.app)],check=True)
+        moved = self.root/'AppTranslocation/unit/d/PokeTokenBar.app'
+        moved.parent.mkdir(parents=True);shutil.copytree(self.app,moved)
+        other = self.root/'different.app';shutil.copytree(self.app,other)
+        fixture.write_text('int main(void) { return 7; }')
+        subprocess.run(['xcrun','clang',str(fixture),'-o',str(other/'Contents/MacOS/PokeTokenBar')],check=True)
+        subprocess.run(['codesign','--force','-s','-',str(other)],check=True)
+        alias = self.root/'alias.app';alias.symlink_to(self.app,target_is_directory=True)
+        source = self.root/'Identity.swift'
+        source.write_text('''import Foundation
+        @main struct Identity {
+          static func main() throws {
+            let args = CommandLine.arguments.dropFirst().map { URL(fileURLWithPath:$0) }
+            let same = try BundleInstallation.matchesLaunchedBundle(args[0], target:args[1])
+            let alias = try BundleInstallation.matchesLaunchedBundle(args[2], target:args[1])
+            let different = try BundleInstallation.matchesLaunchedBundle(args[3], target:args[1])
+            let ordinaryCopy = try BundleInstallation.matchesLaunchedBundle(args[4], target:args[1])
+            precondition(same && alias && !different && !ordinaryCopy)
+          }
+        }''')
+        # A re-signed but different binary inside a translocation-looking path must also fail.
+        mismatch = self.root/'AppTranslocation/other/d/PokeTokenBar.app'
+        mismatch.parent.mkdir(parents=True);shutil.copytree(other,mismatch)
+        ordinary = self.root/'ordinary.app';shutil.copytree(self.app,ordinary)
+        binary=self.root/'identity'
+        subprocess.run(['xcrun','swiftc','-parse-as-library','-module-cache-path',str(self.root/'modules'),str(ROOT/'scripts/zip-installer/BundleInstallation.swift'),str(source),'-o',str(binary)],check=True)
+        subprocess.run([str(binary),str(moved),str(self.app),str(alias),str(mismatch),str(ordinary)],check=True)
+
     def test_invalid_output_path_is_rejected_before_packaging(self):
         for output in (self.root / 'not-a-zip.txt', self.app / 'recursive.zip'):
             with self.subTest(output=output):

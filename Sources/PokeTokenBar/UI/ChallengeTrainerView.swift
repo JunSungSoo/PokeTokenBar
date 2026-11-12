@@ -11,7 +11,7 @@ import SwiftUI
     static func resource(_ name:String,_ ext:String)->URL? {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/ChallengeTrainers/\(name).\(ext)")
         return bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:name,withExtension:ext,subdirectory:"BattleText/ChallengeTrainers")
+            ?? AppResources.module.url(forResource:name,withExtension:ext,subdirectory:"BattleText/ChallengeTrainers")
     }
     static let names:[String:[String:String]] = {
         guard let url=resource("names","json"),let data=try? Data(contentsOf:url),let names=try? JSONDecoder().decode([String:[String:String]].self,from:data) else{return [:]}

@@ -3307,3 +3307,25 @@ for both forms and their shiny variants, in addition to rendering the sheet.
 - Packaging tests check the default and opted-in plist/metadata. A compiled Swift
   policy test covers equal, older and newer versions with both choices. Restoring
   the original `>=` skip policy makes the regression fail; the fixed policy passes.
+
+## Installer launch identity and packaged resources must survive App Translocation
+
+- The installed payload launched from an AppTranslocation mount. Comparing its URL
+  string with `/Applications` misclassified the correct executable as a different app,
+  threw the generic busy error and rolled back. The log then showed a resource-bundle
+  fatal error while the new app's resource location was being removed/restored.
+- Validate file identity for normal path aliases; for AppTranslocation, validate both
+  complete signatures and require equal code identities. Reject different signed code
+  and unrelated copies. Use separate errors for concurrent installs, an installed app
+  changing, a newer running app and an unexpected launch path. Preserve quarantine.
+- The generated SwiftPM accessor expects a bundle beside the main app or in the build
+  checkout. A signed macOS app instead embeds it in Contents/Resources. AppResources
+  resolves that physical bundle; CLI/test runs retain the development fallback. Legacy
+  Contents/Resources paths are aliases into the one physical resource copy.
+- Earlier ZIP checks verified file bytes and executable architecture but never resolved
+  the resource bundle from an app without the checkout, or validated a virtual launch
+  path. Compiled regression probes now cover both; removing the resource bundle fails
+  the lookup probe, and accepting mismatched signed code fails the identity probe.
+- A separately signed QA app uses the packaged Node and resource tree, with private
+  data/cache directories and no main-app startup, to play an actual move successfully.
+  The package tool rejects shipping resource trees without their module bundle.

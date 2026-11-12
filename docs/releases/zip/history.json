@@ -1102,7 +1102,21 @@
       "currentFilename": "PokeTokenBar-3.1.3-261112-2-installer.zip",
       "sha256": "8610e523bdd245f6ef8099271adaa95c63afca10d7d131b9c6f3f34207686e5d",
       "bytes": 169317016,
-      "packagedAt": "2026-11-12T10:03:40+09:00"
+      "packagedAt": "2026-11-12T10:03:40+09:00",
+      "supersededBy": "PokeTokenBar-3.1.3-261112-installfix.zip",
+      "rebuilds": [
+        {
+          "archive": "PokeTokenBar-3.1.3-261112-installfix.zip",
+          "version": "3.1.3",
+          "packagedAt": "2026-11-12T14:55:28+09:00",
+          "sourceBaseCommit": "0f5dc80dec6e3ad872f556c7874cbe3f8fcd2ec3",
+          "sha256": "7554d8c18f9f944da174ca8b53207e46fb8d1ec4d69630ccaf203e51ab17a6a2",
+          "bytes": 169917033,
+          "reason": "Correct App Translocation launch validation and package SwiftPM resources without a checkout dependency.",
+          "validation": "14 packaging/identity/resource tests, 20 native regressions (one opt-in skipped), 180 engine tests; strict app signatures, both architectures, 4,356 resource matches and an isolated packaged-resource app playing an actual move.",
+          "releaseNotesUnchanged": true
+        }
+      ]
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

@@ -8,7 +8,7 @@ struct PokeRogueSpriteSizes:Decodable,Sendable {
     static let shared:Self = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer/pokemon-sizes.json")
         let url=bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("pokemon-sizes.json")
+            ?? AppResources.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("pokemon-sizes.json")
         return try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
     }()
     func size(speciesID:Int,form:PokemonForm?,back:Bool)->CGSize {
@@ -38,7 +38,7 @@ struct PokemonDisplayHeights:Decodable,Sendable {
     static let shared:Self = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("PokeRoguePlayer/pokemon-heights.json")
         let url=bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("pokemon-heights.json")
+            ?? AppResources.module.url(forResource:"PokeRoguePlayer",withExtension:nil)!.appendingPathComponent("pokemon-heights.json")
         return try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
     }()
     func metres(speciesID:Int,form:PokemonForm?)->Double {

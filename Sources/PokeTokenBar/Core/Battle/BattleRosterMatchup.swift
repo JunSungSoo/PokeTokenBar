@@ -9,7 +9,7 @@ struct BattleRosterMatchup {
     private static let chart:[String:[String:Double]] = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/type-chart.json")
         let url=bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0:nil }
-            ?? Bundle.module.url(forResource:"type-chart",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"type-chart",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode([String:[String:Double]].self,from:Data(contentsOf:url))
     }()
     static func evaluate(_ own:BattleRosterMember,against opponent:BattleRosterMember)->Self {

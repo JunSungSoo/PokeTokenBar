@@ -29,7 +29,7 @@ enum ZipInstaller {
         for app in running {
             if let location = app.bundleURL,
                let version = try? BundleInstallation.version(at: location, identifier: identifier),
-               version > incoming { throw BundleInstallation.Failure.busy }
+               version > incoming { throw BundleInstallation.Failure.newerVersionRunning }
         }
         for app in running { app.terminate() }
         for _ in 0..<100 where !running.allSatisfy(\.isTerminated) {
@@ -41,7 +41,7 @@ enum ZipInstaller {
         let stillInstalled = try BundleInstallation.exists(target)
         guard stillInstalled == installed,
               !installed || (try? BundleInstallation.version(at: target, identifier: identifier)) == old
-        else { throw BundleInstallation.Failure.busy }
+        else { throw BundleInstallation.Failure.installationChanged }
         try BundleInstallation.move(copy, target, replacing: installed)
         do {
             try await launch(target)
@@ -59,9 +59,11 @@ enum ZipInstaller {
     }
 
     private static func launch(_ target: URL) async throws {
-        let app = try await NSWorkspace.shared.openApplication(at: target, configuration: .init())
-        guard app.bundleURL?.resolvingSymlinksInPath().path == target.resolvingSymlinksInPath().path else {
-            throw BundleInstallation.Failure.busy
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        let app = try await NSWorkspace.shared.openApplication(at: target, configuration: configuration)
+        guard let actual = app.bundleURL, try BundleInstallation.matchesLaunchedBundle(actual, target: target) else {
+            throw BundleInstallation.Failure.unexpectedLaunch(target, app.bundleURL)
         }
     }
 }
@@ -91,8 +93,8 @@ final class Launcher: NSObject, NSApplicationDelegate {
                 let korean = Locale.preferredLanguages.first?.hasPrefix("ko") == true
                 alert.messageText = korean ? "PokeTokenBar 설치를 완료하지 못했습니다" : "Could not install PokeTokenBar"
                 alert.informativeText = error.localizedDescription + "\n\n" + (korean
-                    ? "권한이 필요한 경우 아래 버튼으로 실제 앱을 열어 응용 프로그램 폴더에 복사하세요."
-                    : "If permissions are required, reveal the app and copy it to Applications in Finder.")
+                    ? "아래 버튼으로 실제 앱 위치를 확인하고 응용 프로그램 폴더에 직접 복사할 수 있습니다."
+                    : "Reveal the app below to copy it to Applications in Finder.")
                 alert.addButton(withTitle: korean ? "확인" : "OK")
                 alert.addButton(withTitle: korean ? "앱 위치 보기" : "Reveal App")
                 if alert.runModal() == .alertSecondButtonReturn {

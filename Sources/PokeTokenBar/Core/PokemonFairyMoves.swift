@@ -9,7 +9,7 @@ struct PokemonFairyMoves:Decodable,Sendable {
     static let shared:Self = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/gen6-fairy.json")
         let url=bundled.flatMap{FileManager.default.fileExists(atPath:$0.path) ? $0:nil}
-            ?? Bundle.module.url(forResource:"gen6-fairy",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"gen6-fairy",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
     }()
     static func mergedMoves(details:PokemonDetails)->[PokemonMoveOption] {

@@ -13,7 +13,7 @@ final class ShowmotionPlayer {
     static var directory: URL {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("Showmotion")
         return bundled.flatMap { FileManager.default.fileExists(atPath:$0.appendingPathComponent("index.html").path) ? $0 : nil }
-            ?? Bundle.module.url(forResource:"Showmotion",withExtension:nil)!
+            ?? AppResources.module.url(forResource:"Showmotion",withExtension:nil)!
     }
     private(set) var ready=false
     private(set) var isPlaying=false

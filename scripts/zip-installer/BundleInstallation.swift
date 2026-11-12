@@ -5,12 +5,16 @@ import Security
 enum BundleInstallation {
     enum Failure: LocalizedError {
         case invalidBundle(URL), invalidSignature(URL), busy, didNotQuit, rollback(URL)
+        case newerVersionRunning, installationChanged, unexpectedLaunch(URL, URL?)
 
         var errorDescription: String? {
             switch self {
             case .invalidBundle(let url): "Invalid app bundle: \(url.path)"
             case .invalidSignature(let url): "App signature verification failed: \(url.path)"
             case .busy: "Another installation is in progress. Try again when it finishes."
+            case .newerVersionRunning: "A newer PokeTokenBar version is running. Quit it before installing this version."
+            case .installationChanged: "The installed app changed during installation. Please try again."
+            case .unexpectedLaunch(let expected, let actual): "macOS opened a different app. Expected: \(expected.path). Opened: \(actual?.path ?? "unknown")."
             case .didNotQuit: "PokeTokenBar is still running. Finish any active battle or trade, then try again."
             case .rollback(let backup): "Could not restore the previous app. It is available at \(backup.path)."
             }
@@ -56,6 +60,27 @@ enum BundleInstallation {
                 == errSecSuccess else { throw Failure.invalidSignature(url) }
     }
 
+    static func matchesLaunchedBundle(_ actual: URL, target: URL) throws -> Bool {
+        var actualInfo = stat(), targetInfo = stat()
+        if stat(actual.path, &actualInfo) == 0, stat(target.path, &targetInfo) == 0,
+           actualInfo.st_dev == targetInfo.st_dev, actualInfo.st_ino == targetInfo.st_ino { return true }
+        // Gatekeeper can virtualize a quarantined app into a read-only AppTranslocation mount.
+        // Accept that mount only when both full signatures validate and their code identities match.
+        guard actual.pathComponents.contains("AppTranslocation") else { return false }
+        try validateSignature(at: actual)
+        try validateSignature(at: target)
+        return try codeIdentity(at: actual) == codeIdentity(at: target)
+    }
+
+    private static func codeIdentity(at url: URL) throws -> Data {
+        var code: SecStaticCode?, information: CFDictionary?
+        guard SecStaticCodeCreateWithPath(url as CFURL, [], &code) == errSecSuccess, let code,
+              SecCodeCopySigningInformation(code, SecCSFlags(rawValue: kSecCSSigningInformation), &information) == errSecSuccess,
+              let info = information as? [String: Any], let identity = info[kSecCodeInfoUnique as String] as? Data
+        else { throw Failure.invalidSignature(url) }
+        return identity
+    }
+
     static func exists(_ url: URL) throws -> Bool {
         var info = stat()
         if lstat(url.path, &info) == 0 {
@@ -70,8 +95,10 @@ enum BundleInstallation {
         let fd = open(directory.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
         guard fd >= 0 else { throw posixError(directory) }
         guard flock(fd, LOCK_EX | LOCK_NB) == 0 else {
+            let failure = errno
             close(fd)
-            throw Failure.busy
+            if failure == EWOULDBLOCK || failure == EAGAIN { throw Failure.busy }
+            throw NSError(domain: NSPOSIXErrorDomain, code: Int(failure), userInfo: [NSFilePathErrorKey: directory.path])
         }
         return fd
     }

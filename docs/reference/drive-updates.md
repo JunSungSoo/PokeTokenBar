@@ -138,3 +138,20 @@ Validation: three challenge UI/exit regressions, 180 engine tests and 11 packagi
 installer tests pass. Both architectures, 4,356 resources, signatures, executable
 hashes, full release notes and the equal-version launcher setting are verified.
 The original first ZIP and its release-ledger hash remain unchanged.
+
+
+## 3.1.3 installer correction
+
+A downloaded installer reached app launch, then treated the AppTranslocation mount
+URL as a different app and rolled back under the misleading concurrent-install error.
+Launch matching now authenticates the mounted code and handles path aliases. Distinct
+failures have distinct messages. No quarantine attributes are removed.
+
+The app embeds its SwiftPM resource bundle in the standard Contents/Resources location.
+AppResources resolves it directly, while aliases preserve existing resource paths.
+The package tool rejects a runtime resource tree lacking the shipped module bundle.
+
+The installfix ZIP keeps 3.1.3 and the second release's note text. It supersedes the
+original second archive; both hashes remain in the artifact ledger. Fourteen packaging
+tests, twenty native regressions and 180 engine tests pass. An isolated app with its
+own Node, private cache/data and the packaged resources plays a real move successfully.

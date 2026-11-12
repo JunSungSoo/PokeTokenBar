@@ -246,7 +246,7 @@ enum BattleTeamBuilder {
     static let finalSpeciesIDs: Set<Int> = {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleText/final-species.json")
         let url = bundled.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
-            ?? Bundle.module.url(forResource: "final-species", withExtension: "json", subdirectory: "BattleText")!
+            ?? AppResources.module.url(forResource: "final-species", withExtension: "json", subdirectory: "BattleText")!
         return Set(try! JSONDecoder().decode([Int].self, from: Data(contentsOf: url)))
     }()
     static func isFinalEvolution(_ speciesID: Int) -> Bool { finalSpeciesIDs.contains(speciesID) }

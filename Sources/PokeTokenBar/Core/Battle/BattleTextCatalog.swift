@@ -21,7 +21,7 @@ struct BattleTextCatalog: Decodable, Sendable {
     static let shared: BattleTextCatalog = {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleText/catalog.json")
         let url = bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0 : nil }
-            ?? Bundle.module.url(forResource:"catalog",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"catalog",withExtension:"json",subdirectory:"BattleText")!
         // A missing/incomplete resource is a build error, caught by catalog/packaging tests.
         let base=try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
         return Self(moves:base.moves.merging(PokemonFairyMoves.shared.moves){_,new in new},
@@ -32,13 +32,13 @@ struct BattleTextCatalog: Decodable, Sendable {
     private static let speciesTypes: [String:[String]] = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/species-types.json")
         let url=bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0:nil }
-            ?? Bundle.module.url(forResource:"species-types",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"species-types",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode([String:[String]].self,from:Data(contentsOf:url))
     }()
     static let moveTargets: [String:String] = {
         let bundled=Bundle.main.resourceURL?.appendingPathComponent("BattleText/move-targets.json")
         let url=bundled.flatMap { FileManager.default.fileExists(atPath:$0.path) ? $0:nil }
-            ?? Bundle.module.url(forResource:"move-targets",withExtension:"json",subdirectory:"BattleText")!
+            ?? AppResources.module.url(forResource:"move-targets",withExtension:"json",subdirectory:"BattleText")!
         return try! JSONDecoder().decode([String:String].self,from:Data(contentsOf:url))
     }()
     func pokemonTypes(_ id:Int,form:PokemonForm?)->[String] {

@@ -29,7 +29,7 @@ struct BattleEffectCatalog: Decodable, Sendable {
     static var resourceDirectory: URL {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleEffects")
         return bundled.flatMap { FileManager.default.fileExists(atPath:$0.appendingPathComponent("catalog.json").path) ? $0 : nil }
-            ?? Bundle.module.url(forResource:"BattleEffects",withExtension:nil)!
+            ?? AppResources.module.url(forResource:"BattleEffects",withExtension:nil)!
     }
     static let shared = try! JSONDecoder().decode(Self.self,from:Data(contentsOf:resourceDirectory.appendingPathComponent("catalog.json")))
 

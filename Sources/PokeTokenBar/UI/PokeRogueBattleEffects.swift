@@ -18,7 +18,7 @@ final class PokeRogueBattleCatalog {
     static var directory: URL {
         let app=Bundle.main.resourceURL?.appendingPathComponent("PokeRogue")
         return app.flatMap { FileManager.default.fileExists(atPath:$0.appendingPathComponent("catalog.json").path) ? $0 : nil }
-            ?? Bundle.module.url(forResource:"PokeRogue",withExtension:nil)!
+            ?? AppResources.module.url(forResource:"PokeRogue",withExtension:nil)!
     }
     static let shared=PokeRogueBattleCatalog()
     let catalog: Catalog
