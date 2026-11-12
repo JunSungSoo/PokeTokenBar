@@ -168,7 +168,7 @@ struct PokeRogueActor:Sendable {
                 let (texture,data)=try await sprite(actor.pokemon,back:actor.position.own,reduced:reducedMotion)
                 members.append(["key":actor.position.key,"own":actor.position.own,"slot":actor.position.slot,"shiny":actor.pokemon.shiny,"texture":texture,"sprite":data,
                     "speciesID":actor.pokemon.speciesID,"form":actor.pokemon.form?.rawValue ?? "","hpRatio":Double(actor.pokemon.hp)/Double(max(1,actor.pokemon.maxHP)),
-                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset,"visible":!entryHiddenPositions.contains(actor.position.key) && (event.phase != "entry" || (entrySources.isEmpty ? [event.source]:entrySources).contains(actor.position))])
+                    "x":actor.rect.midX,"y":actor.rect.maxY-BattleSpriteGeometry.footInset,"visible":!actor.pokemon.fainted && !entryHiddenPositions.contains(actor.position.key) && (event.phase != "entry" || (entrySources.isEmpty ? [event.source]:entrySources).contains(actor.position))])
             }
             guard !Task.isCancelled,run==generation else{return false}
             let hitTargets=event.targets.filter(\.hit),targets=hitTargets.isEmpty ? event.targets:hitTargets

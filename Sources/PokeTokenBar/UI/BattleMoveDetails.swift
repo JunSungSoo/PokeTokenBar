@@ -135,17 +135,27 @@ struct BattlePokemonStage: View {
     var sizing:BattleSpriteSizing? = nil
     var spriteStore: SpriteStore = .shared
     var animated = true
+    var showsGround = true
     var body: some View {
         let width=sizing?.stageWidth ?? (stageSize+20)
         let footprint = BattleSpriteGeometry.groundSize(stageWidth: width)
         ZStack(alignment:.bottom) {
-            Ellipse().fill(LinearGradient(colors:[Color(red:0.39,green:0.26,blue:0.17),Color(red:0.18,green:0.12,blue:0.08)],startPoint:.top,endPoint:.bottom))
-                .overlay(Ellipse().fill(.black.opacity(0.24)).scaleEffect(x:0.72,y:0.48))
-                .overlay(Ellipse().stroke(.black.opacity(0.65),lineWidth:1))
-                .frame(width:footprint.width,height:footprint.height)
-                .padding(.bottom,BattleSpriteGeometry.footInset-footprint.height/2)
+            if showsGround { BattleGroundSurface(size: footprint) }
             BattlePokemonSprite(pokemon:pokemon,back:back,size:BattleSpriteGeometry.imageBox(stageSize:stageSize),pixelScale:sizing?.pixelScale,spriteStore:spriteStore,animated:animated)
                 .padding(.bottom,BattleSpriteGeometry.footInset).opacity(spriteOpacity)
         }.frame(width:width,height:sizing?.stageHeight ?? (stageSize+5),alignment:.bottom)
+    }
+}
+
+/// One surface can support a single battler or an entire doubles pair.
+@MainActor
+struct BattleGroundSurface: View {
+    let size: CGSize
+    var body: some View {
+        Ellipse().fill(LinearGradient(colors:[Color(red:0.39,green:0.26,blue:0.17),Color(red:0.18,green:0.12,blue:0.08)],startPoint:.top,endPoint:.bottom))
+            .overlay(Ellipse().fill(.black.opacity(0.24)).scaleEffect(x:0.72,y:0.48))
+            .overlay(Ellipse().stroke(.black.opacity(0.65),lineWidth:1))
+            .frame(width:size.width,height:size.height)
+            .padding(.bottom,BattleSpriteGeometry.footInset-size.height/2)
     }
 }

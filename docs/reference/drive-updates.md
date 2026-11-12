@@ -1,6 +1,6 @@
 # Drive version updates
 
-The current app version is 3.1.2. `scripts/build-app.sh` writes that version into both
+The current app version is 3.1.3. `scripts/build-app.sh` writes that version into both
 `CFBundleShortVersionString` and `CFBundleVersion`; the QA builder uses the same short version.
 Every subsequent Drive distribution must raise the app version and ZIP filename version.
 Package Drive releases with `scripts/package-zip.py --install-on-launch`.
@@ -104,3 +104,21 @@ Package verification independently opens the archive and checks version 3.0.1, e
 SHA-256, exact catalog and release-note bytes. Trainer-specific finale details are removed
 from the release-note text at the user's request; gameplay and internal technical reference
 documents remain complete. Final artifact hashes are recorded in the ZIP release ledger.
+
+
+## November 12 local 3.1.3 distribution
+
+The local universal installer ZIP includes stacked edge-aligned doubles HP cards,
+direct card targeting, fixed species/form display sizes and one ground surface per
+side. Fainted slots without reserves retain their request indices, disappear from
+the battlefield and leave a smaller surface under the survivor.
+
+Validation: 180 engine tests, 42 targeted native tests (two opt-in probes skipped)
+and nine packaging tests pass. The app, Node helper and installer include arm64 and
+x86_64 slices. Both app version fields and installer version fields are 3.1.3.
+All 4,356 source resources, executable hashes, ZIP integrity and complete note bytes
+match. The packaged helper reproduces Gyarados/Charizard and either no-reserve
+survivor. The local app and launcher use ad-hoc signing; no certificate is regenerated.
+
+Archive and hash are recorded in the ZIP release ledger. Drive distribution requires
+replacing the pinned shared file with the new archive.

@@ -29,11 +29,8 @@ import XCTest
         let small=PokeRogueSpriteSizes.shared.battleSize(speciesID:25,form:nil,back:true)
         let large=PokeRogueSpriteSizes.shared.battleSize(speciesID:321,form:nil,back:true)
         for mode in BattleMode.allCases {
-            let sizing=BattleSpriteSizing.make(mode:mode,sizes:[small,large])
-            let originalScale = min(mode == .singles ? 1.5 : 1.25,
-                                    (mode == .singles ? 180 : 118) / max(small.width, large.width),
-                                    (mode == .singles ? 150 : 110) / max(small.height, large.height))
-            XCTAssertEqual(sizing.pixelScale, originalScale * 1.5, accuracy: 0.0001)
+            let sizing=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
+            XCTAssertEqual(sizing.pixelScale, 1)
             XCTAssertEqual((large.width*sizing.pixelScale)/(small.width*sizing.pixelScale),large.width/small.width,accuracy:0.0001)
             XCTAssertLessThanOrEqual(sizing.stageWidth,(mode == .singles ? 282 : 189) + 0.0001)
             XCTAssertLessThanOrEqual(sizing.stageHeight,mode == .singles ? 241:181)
@@ -45,7 +42,7 @@ import XCTest
         let ids=[74,151,6,249,321]
         var measurements:[String:Double]=[:]
         for mode in BattleMode.allCases {
-            let camera=BattleSpriteSizing.make(mode:mode,sizes:ids.flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+            let camera=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
             for back in [false,true] {
                 func visible(_ id:Int)->CGSize {
                     let target=catalog.battleSize(speciesID:id,form:nil,back:back)
@@ -55,7 +52,7 @@ import XCTest
                 for small in [74,151] {
                     XCTAssertGreaterThan(visible(6).height,visible(small).height*1.75,"Charizard versus \(small), \(mode), back=\(back)")
                     XCTAssertGreaterThan(visible(249).height,visible(small).height*2.0,"Lugia versus \(small), \(mode), back=\(back)")
-                    XCTAssertGreaterThan(visible(249).width,visible(small).width*2.8)
+                    XCTAssertGreaterThan(visible(249).width,visible(small).width)
                 }
                 for id in ids {measurements["\(mode)-\(back ? "back":"front")-\(id)"]=Double(visible(id).height)}
             }
@@ -84,7 +81,7 @@ import XCTest
             sources[key]=try XCTUnwrap(frames.first).image.size
         }}
         for mode in BattleMode.allCases {for back in [false,true] {
-            let camera=BattleSpriteSizing.make(mode:mode,sizes:(ids+[321]).flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+            let camera=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
             func actual(_ id:Int)->CGSize {
                 let key=SpriteStore.cacheKey(speciesID:id,animated:true,shiny:false,back:back)
                 let target=catalog.battleSize(speciesID:id,form:nil,back:back)
@@ -99,7 +96,7 @@ import XCTest
         let root=VStack(alignment:.leading,spacing:14) {
             ForEach(BattleMode.allCases,id:\.self){mode in
                 ForEach([false,true],id:\.self){back in
-                    let camera=BattleSpriteSizing.make(mode:mode,sizes:(ids+[321]).flatMap{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}})
+                    let camera=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
                     VStack(alignment:.leading,spacing:5) {
                         Text("\(mode == .singles ? "싱글":"더블") · \(back ? "뒷모습":"앞모습")").font(.headline)
                         HStack(alignment:.bottom,spacing:8) {
@@ -129,7 +126,7 @@ import XCTest
         defer{try? FileManager.default.removeItem(at:directory)}
         let original=directory.appendingPathComponent("back-25-a.gif")
         try FileManager.default.copyItem(at:original,to:directory.appendingPathComponent("back-321-a.gif"))
-        let sizing=BattleSpriteSizing.make(mode:.singles,sizes:[25,321].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:$0,form:nil,back:true)})
+        let sizing=BattleSpriteSizing.forBattle(mode:.singles,own:[],foe:[])
         var heights:[Double]=[]
         var groundWidths:[Double]=[]
         for id in [25,321] {
@@ -186,7 +183,7 @@ import XCTest
         window.contentViewController=host;window.orderFront(nil)
         defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
         for mode in BattleMode.allCases {
-            let scale=BattleSpriteSizing.make(mode:mode,sizes:[25,321].flatMap{id in [false,true].map{PokeRogueSpriteSizes.shared.battleSize(speciesID:id,form:nil,back:$0)}}).pixelScale
+            let scale=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[]).pixelScale
             let actors=[PokeRogueActor(pokemon:pokemon(25),position:.init(own:true,slot:0),rect:CGRect(x:20,y:160,width:140,height:160),pixelScale:scale),
                         PokeRogueActor(pokemon:pokemon(321),position:.init(own:false,slot:0),rect:CGRect(x:480,y:20,width:140,height:160),pixelScale:scale)]
             for phase in [nil,"entry"] as [String?] {

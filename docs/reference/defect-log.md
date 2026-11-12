@@ -117,29 +117,25 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   and commands unchanged. Capture both production modes offscreen and ensure the footer
   remains below the controls. Scroll only the log's contents.
 
-## Battle camera scale must not include the reserve roster
+## Battle display size must be absolute per species and form
 
-- The camera measured every registered species, both facings and all potential Mega
-  forms. A giant on the bench reduced the scale of every visible sprite. Earlier
-  size tests asserted relative ordering under that shared roster scale and a minimum
-  Charizard height, so they did not check that adding a reserve leaves the camera
-  unchanged. The production view was the only roster-based camera call site.
-- Use the presented active forms and actual facings for scale. Keep mode-specific
-  slot width, row height, ground and battlefield bounds fixed independently of scale.
-  Compare full native battle windows before/after with the same giant-reserve team.
-- Queued original-player actors must resolve both Pokémon and scale from each scene.
-  Keeping the initial actor scale would make entry/Mega playback disagree with the
-  native GIF revealed afterward. Recall keeps its previous scene's scale.
-- Full release validation also found a legacy physical-height test still calling
-  the old atlas-only sizing helper with pre-enlargement caps. It now checks the
-  production visible-combatant camera, both facings and fixed viewport bounds.
-- Fixed slots exposed a doubles item card exceeding the lower edge. Keep held-item
-  names to one line with full help text, use compact doubles padding, and put status
-  alongside the HP number so it does not add a row. Native layout regressions check
-  both item-bearing teams and the giant-reserve team offscreen.
-- Regressions compare cameras with/without reserves in either team, cover all pinned
-  species/forms in both modes, preserve slot/ground size on switch/Mega, and verify
-  the original player's old/new scene scales. Removing the active filter must fail.
+- Active-roster fitting still rescaled every battler when an opponent switched or a
+  Mega changed the largest bounds. The earlier reserve-only fix missed this: tests
+  required reserves to leave scale unchanged, but explicitly accepted a different
+  scale for each active scene. A front/back maximum *width* also shrank the body of
+  wide Mega Raichu artwork. Compare actual front/back heights, not just atlas extents.
+- Derive absolute display points from species/form height and preserve each facing's
+  original aspect ratio. Apply one per-form fit across both facings, bounded to 177
+  points wide and 112 high. The camera is always 1 in singles and doubles; it must
+  never measure a lineup. Viewport and stage dimensions are authored constants.
+- Native GIFs and original-player entry, recall, switch and Mega actors must use the
+  same `battleSize` dimensions and fixed scale. Scene resolution changes identity/form
+  without changing the camera. Authored temporary attack/Mega animation zoom remains.
+- Regressions must change the *active opponent*, both modes, Mega forms and queued
+  scenes while retaining the observed Pokemon. Also pin small-species separation,
+  Mega Raichu body height and all supported forms fitting the fixed slots. The new
+  active-switch regression fails against the old implementation before the fix.
+- Sizing rules and reference measurements live in `battle-sprite-sizing.md`.
 
 ## Doubles command summaries must not resize on selection
 
@@ -3269,3 +3265,17 @@ for both forms and their shiny variants, in addition to rendering the sheet.
 - Keep each candidate in the same list and derive its checkmark and order from the current
   selection. Recheck uniqueness and capacity in the action, and test repeated toggles
   and an attempted seventh pick.
+
+## Shared doubles ground must ignore fainted slots without renumbering them
+
+- The engine retains an active fainted Pokemon when no bench member can replace it,
+  with `canPass=true` and `mustSwitch=false`. Summing every active slot left a two-body
+  surface and a translucent defeated sprite. Initial visual tests only had two living
+  leads and therefore never exercised this reachable request state.
+- Derive ground bounds from living actors, preserve slot positions and hide fainted
+  native/player actors. Never compact active members: slot 1 must remain slot 1 after
+  slot 0 faints, for target and effect keys to stay correct.
+- The seeded real-engine fixture uses Gyarados/Charizard, Protect and Explosion with
+  all reserves already fainted. Render both possible survivors and both living leads
+  through production BattleView. Assert a smaller surface under the original surviving
+  slot, full coverage in both facings and layout containment for two maximum-width actors.

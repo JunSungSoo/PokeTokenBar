@@ -19,7 +19,7 @@ for name in ['package.json','LICENSE']:shutil.copy2(root/'BattleEngine/node_modu
 shutil.copytree(root/'BattleEngine/node_modules/ts-chacha20',modules/'ts-chacha20')
 subprocess.run(['lipo',str(root/'BattleEngine/runtime/node'),'-thin','arm64','-output',str(engine/'node')],check=True)
 (engine/'node').chmod(0o755)
-info={'CFBundleExecutable':'PokeTokenBar','CFBundleIdentifier':'dev.poketokenbar.challengetest','CFBundleName':'PokeTokenBarChallengeTest','CFBundleDisplayName':'PokeTokenBar Challenge Test','CFBundlePackageType':'APPL','CFBundleVersion':'1','CFBundleShortVersionString':'3.1.2','CFBundleIconFile':'AppIcon','LSMinimumSystemVersion':'14.0','LSUIElement':True,'NSHighResolutionCapable':True,'PTBChallengeTestMode':True,'NSLocalNetworkUsageDescription':'Local Pokémon battle testing','NSBonjourServices':['_pokebattle._tcp','_poketrade._tcp']}
+info={'CFBundleExecutable':'PokeTokenBar','CFBundleIdentifier':'dev.poketokenbar.challengetest','CFBundleName':'PokeTokenBarChallengeTest','CFBundleDisplayName':'PokeTokenBar Challenge Test','CFBundlePackageType':'APPL','CFBundleVersion':'1','CFBundleShortVersionString':'3.1.3','CFBundleIconFile':'AppIcon','LSMinimumSystemVersion':'14.0','LSUIElement':True,'NSHighResolutionCapable':True,'PTBChallengeTestMode':True,'NSLocalNetworkUsageDescription':'Local Pokémon battle testing','NSBonjourServices':['_pokebattle._tcp','_poketrade._tcp']}
 with (contents/'Info.plist').open('wb') as file:plistlib.dump(info,file)
 subprocess.run(['codesign','--force','--sign','-',str(engine/'node')],check=True)
 subprocess.run(['codesign','--force','--sign','-',str(app)],check=True)

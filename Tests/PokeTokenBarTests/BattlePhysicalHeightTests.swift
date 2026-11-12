@@ -18,10 +18,10 @@ import XCTest
         let catalog=PokeRogueSpriteSizes.shared
         let ids=[25,6,143,208,321]
         let sizes=ids.map{id in [false,true].map{catalog.battleSize(speciesID:id,form:nil,back:$0)}}
-        let extents=sizes.map{$0.flatMap{[$0.width,$0.height]}.max()!}
+        let extents=sizes.map{$0.map(\.height).max()!}
         for i in 1..<extents.count {XCTAssertGreaterThan(extents[i],extents[i-1])}
-        XCTAssertGreaterThan(extents.last!/extents.first!,2.5)
-        XCTAssertLessThan(extents.last!/extents.first!,4,"Compress metres so small Pokémon remain readable")
+        XCTAssertGreaterThan(extents.last!/extents.first!,2.0)
+        XCTAssertLessThan(extents.last!/extents.first!,3,"Compress metres so small Pokémon remain readable")
         for id in ids {for back in [false,true] {
             let raw=catalog.size(speciesID:id,form:nil,back:back),scaled=catalog.battleSize(speciesID:id,form:nil,back:back)
             XCTAssertEqual(scaled.width/scaled.height,raw.width/raw.height,accuracy:0.000001)

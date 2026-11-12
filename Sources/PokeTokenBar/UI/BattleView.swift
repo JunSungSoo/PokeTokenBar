@@ -170,14 +170,13 @@ struct BattleView: View {
         let ownParty = BattlePartyStatus(selected: frame.own.count, fainted: frame.own.filter(\.fainted).count)
         return ZStack {
             VStack(spacing: BattleSpriteSizing.battlefieldRowSpacing) {
-                HStack(alignment: .top, spacing: 14) {
-                    ForEach(Array(frame.foe.enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:false,slot:slot,party:frame.foeTeamStatus).opacity(trainerIntro?.active == true ? 0:1) }
-                }.frame(maxWidth: .infinity, alignment: .trailing)
-                HStack(spacing: 14) {
-                    ForEach(Array(frame.own.filter(\.active).enumerated()),id:\.element.id) { slot,pokemon in combatant(pokemon,own:true,slot:slot,party:ownParty) }
-                }.frame(maxWidth: .infinity, alignment: .leading)
+                battleSide(frame.foe, own: false, party: frame.foeTeamStatus)
+                    .opacity(trainerIntro?.active == true ? 0 : 1)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                battleSide(frame.own.filter(\.active), own: true, party: ownParty)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, battle.mode == .doubles ? 8 : 18)
             .measureBattleContent("battlers")
             .padding(.top, BattleSpriteSizing.battlefieldTopInset)
             if frame.preview { Image(systemName:"bolt.shield").font(.system(size:50)).foregroundStyle(.black.opacity(0.3)) }
@@ -217,58 +216,136 @@ struct BattleView: View {
         }
         return result
     }
-    private func combatant(_ pokemon: BattleCombatant, own: Bool, slot: Int, party: BattlePartyStatus?) -> some View {
-        let sizing = spriteSizing
-        // The doubles row has 303 points per combatant after window padding and row spacing.
-        let cardWidth: CGFloat = battle.mode == .singles ? 205 : min(148, 299 - sizing.stageWidth)
-        return HStack(alignment: own ? .center : .top, spacing: 4) {
-            if own { battleSprite(pokemon,own:true,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
-            VStack(alignment: .leading, spacing: battle.mode == .doubles ? 5 : 6) {
-                HStack {
-                    Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(.headline).lineLimit(1)
-                    Spacer(minLength: 2)
-                    Text("\(l.level) \(pokemon.level)").font(.caption.monospacedDigit())
+    @ViewBuilder
+    private func battleSide(_ members: [BattleCombatant], own: Bool, party: BattlePartyStatus?) -> some View {
+        if battle.mode == .doubles {
+            HStack(alignment: .center, spacing: 0) {
+                if own {
+                    pairedSprites(members, own: true)
+                    Spacer(minLength: 14)
                 }
-                if own,let item=BattleHeldItems.item(pokemon.item) {
-                    Text(item.name(store.language)).font(.caption2).lineLimit(1).foregroundStyle(.secondary).help(item.tooltip(store.language))
-                }
-                HStack(spacing: 5) {
-                    Text(l.battleHP).font(.caption2.bold()).foregroundStyle(.orange)
-                    GeometryReader { geometry in
-                        Capsule().fill(.black.opacity(0.18)).overlay(alignment:.leading) {
-                            Capsule().fill(pokemon.hp * 4 <= pokemon.maxHP ? Color.red : pokemon.hp * 2 <= pokemon.maxHP ? Color.orange : Color.green)
-                                .frame(width: geometry.size.width * max(0,min(1,Double(pokemon.hp)/Double(max(1,pokemon.maxHP)))))
-                        }
-                    }.frame(height: 8)
-                }
-                HStack(spacing: 4) {
-                    if !pokemon.status.isEmpty { Text(l.battleStatus(pokemon.status)).font(.caption.bold()).foregroundStyle(.orange).lineLimit(1) }
-                    Spacer(minLength: 0)
-                    Text(own ? "\(pokemon.hp) / \(pokemon.maxHP)" : "\(pokemon.hp)%").font(.caption.monospacedDigit()).lineLimit(1)
-                }
-            }.padding(battle.mode == .doubles ? 8 : 10).frame(width: cardWidth)
-                .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
-                .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
-                .overlay {
-                    if isSelectedTarget(own: own, slot: slot) {
-                        RoundedRectangle(cornerRadius: 6).stroke(Color.accentColor, lineWidth: 3)
-                            .padding(-3).allowsHitTesting(false)
+                VStack(spacing: 4) {
+                    ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
+                        combatantCard(pokemon, own: own, slot: slot, party: party)
                     }
                 }
-                .foregroundStyle(.black)
-                .opacity(pokemon.fainted ? 0.35 : 1)
-                .overlay(alignment: .topLeading) {
-                    if slot == 0 {
-                        BattlePartyIndicators(status: party,
-                            expectedCount: battle.isChallenge ? 6 : battle.mode.battleSize,
-                            language: store.language)
-                            .offset(y: -17)
-                    }
+                if !own {
+                    Spacer(minLength: 14)
+                    pairedSprites(members, own: false)
                 }
-                .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
-                .padding(.top, !own || slot == 0 ? 17 : 0)
-            if !own { battleSprite(pokemon,own:false,slot:slot,sizing:sizing).opacity(pokemon.fainted ? 0.35 : 1) }
+            }
+        } else {
+            ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
+                HStack(alignment: own ? .center : .top, spacing: 4) {
+                    if own { battleSprite(pokemon, own: true, slot: slot, sizing: spriteSizing).opacity(pokemon.fainted ? 0.35 : 1) }
+                    combatantCard(pokemon, own: own, slot: slot, party: party)
+                    if !own { battleSprite(pokemon, own: false, slot: slot, sizing: spriteSizing).opacity(pokemon.fainted ? 0.35 : 1) }
+                }
+            }
         }
+    }
+
+    private func pairedSprites(_ members: [BattleCombatant], own: Bool) -> some View {
+        let sizing = spriteSizing
+        let widths = members.map {
+            PokeRogueSpriteSizes.shared.battleSize(speciesID: $0.speciesID, form: $0.form, back: own).width * sizing.pixelScale
+        }
+        let layout = BattlePairGroundLayout(widths: widths, living: members.map { !$0.fainted }, stageWidth: sizing.stageWidth)
+        return HStack(spacing: layout.spacing) {
+            ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
+                battleSprite(pokemon, own: own, slot: slot, sizing: sizing, showsGround: false)
+                    .opacity(pokemon.fainted ? 0 : 1)
+            }
+        }
+        .background(alignment: .bottom) {
+            if let ground = layout.ground {
+                BattleGroundSurface(size: ground.size)
+                    .offset(x: ground.midX - layout.width / 2)
+            }
+        }
+    }
+
+    private var targetSelection: (slot: Int, action: BattleAction, move: BattleMove)? {
+        guard !battle.submitted, !effectsBusy, !battle.presentation.pending,
+              let frame = battle.presentation.frame ?? battle.frame, !frame.waiting,
+              let slot = frame.slots.first(where: { $0.slot == editingSlot }),
+              let action = choices[slot.slot], action.kind == "move",
+              let move = slot.moves.first(where: { $0.index == action.index }), move.targetRequired else { return nil }
+        return (slot.slot, action, move)
+    }
+
+    @ViewBuilder
+    private func combatantCard(_ pokemon: BattleCombatant, own: Bool, slot: Int, party: BattlePartyStatus?) -> some View {
+        let location = own ? -(slot + 1) : slot + 1
+        if let selection = targetSelection, selection.move.targets.contains(where: { $0.location == location }) {
+            Button {
+                choices[selection.slot] = BattleAction(kind: "move", index: selection.action.index, target: location)
+            } label: {
+                healthCard(pokemon, own: own, slot: slot, party: party)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.accentColor.opacity(0.5), lineWidth: 1))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("battle-target-\(selection.slot)-\(location)")
+            .accessibilityLabel(l.battleTarget + ": " + l.battleChoiceTarget(location, own: (battle.presentation.frame ?? battle.frame)?.own ?? [], foe: (battle.presentation.frame ?? battle.frame)?.foe ?? []))
+            .accessibilityValue(selection.action.target == location ? l.battleSelected : "")
+            .help(l.battleTarget)
+        } else {
+            healthCard(pokemon, own: own, slot: slot, party: party)
+                .opacity(targetSelection == nil ? 1 : 0.55)
+        }
+    }
+
+    private func healthCard(_ pokemon: BattleCombatant, own: Bool, slot: Int, party: BattlePartyStatus?) -> some View {
+        let compact = battle.mode == .doubles
+        return VStack(alignment: .leading, spacing: compact ? 2 : 6) {
+            HStack {
+                Text(pokemon.mega == true ? BattleTextCatalog.shared.pokemonName(pokemon.name,language:store.language):BattleTextCatalog.shared.speciesName(pokemon.speciesID,language:store.language)).font(compact ? .subheadline.bold() : .headline).lineLimit(1)
+                Spacer(minLength: 2)
+                Text("\(l.level) \(pokemon.level)").font(.caption.monospacedDigit())
+            }
+            if own, !compact, let item=BattleHeldItems.item(pokemon.item) {
+                Text(item.name(store.language)).font(.caption2).lineLimit(1).foregroundStyle(.secondary).help(item.tooltip(store.language))
+            }
+            HStack(spacing: 5) {
+                Text(l.battleHP).font(.caption2.bold()).foregroundStyle(.orange)
+                GeometryReader { geometry in
+                    Capsule().fill(.black.opacity(0.18)).overlay(alignment:.leading) {
+                        Capsule().fill(pokemon.hp * 4 <= pokemon.maxHP ? Color.red : pokemon.hp * 2 <= pokemon.maxHP ? Color.orange : Color.green)
+                            .frame(width: geometry.size.width * max(0,min(1,Double(pokemon.hp)/Double(max(1,pokemon.maxHP)))))
+                    }
+                }.frame(height: 8)
+            }
+            HStack(spacing: 4) {
+                if own, compact, let item = BattleHeldItems.item(pokemon.item) {
+                    Text(item.name(store.language)).font(.caption2).lineLimit(1)
+                        .foregroundStyle(.secondary).help(item.tooltip(store.language))
+                }
+                if !pokemon.status.isEmpty { Text(l.battleStatus(pokemon.status)).font(.caption.bold()).foregroundStyle(.orange).lineLimit(1) }
+                Spacer(minLength: 0)
+                Text(own ? "\(pokemon.hp) / \(pokemon.maxHP)" : "\(pokemon.hp)%").font((compact ? Font.caption2 : .caption).monospacedDigit()).lineLimit(1)
+            }
+        }.padding(compact ? 4 : 10).frame(width: 205)
+            .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:6))
+            .overlay(RoundedRectangle(cornerRadius:6).stroke(Color(red:0.25,green:0.32,blue:0.31),lineWidth:3))
+            .overlay {
+                if isSelectedTarget(own: own, slot: slot) {
+                    RoundedRectangle(cornerRadius: 6).stroke(Color.accentColor, lineWidth: 3)
+                        .padding(-3).allowsHitTesting(false)
+                }
+            }
+            .foregroundStyle(.black)
+            .opacity(pokemon.fainted ? 0.35 : 1)
+            .overlay(alignment: .topLeading) {
+                if slot == 0 {
+                    BattlePartyIndicators(status: party,
+                        expectedCount: battle.isChallenge ? 6 : battle.mode.battleSize,
+                        language: store.language)
+                        .offset(y: -17)
+                }
+            }
+            .opacity(roguePlayer.entryHiddenPositions.contains(BattleEffectPosition.key(own:own,slot:slot)) ? 0:1)
+            .padding(.top, !compact || slot == 0 ? 17 : 0)
     }
     private func isSelectedTarget(own: Bool, slot: Int) -> Bool {
         guard battle.mode == .doubles, !battle.submitted, !effectsBusy, !battle.presentation.pending,
@@ -282,9 +359,9 @@ struct BattleView: View {
         return BattleSpriteSizing.forBattle(mode: battle.mode, own: frame?.own ?? [], foe: frame?.foe ?? [])
     }
 
-    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
+    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing, showsGround: Bool = true) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing)
+        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing,showsGround:showsGround)
             .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
     }
 
@@ -334,11 +411,9 @@ struct BattleView: View {
                                 }
                                 if let action = choices[slot.slot], action.kind == "move",
                                    let move = slot.moves.first(where: { $0.index == action.index }), move.targetRequired {
-                                    Picker(l.battleTarget, selection: Binding(get: { action.target }, set: { target in
-                                        choices[slot.slot] = BattleAction(kind: "move", index: action.index, target: target)
-                                    })) {
-                                        ForEach(move.targets, id: \.self) { target in Text(targetLabel(target,frame:frame)).tag(target.location) }
-                                    }
+                                    Label(l.battleTarget + ": " + l.battleChoiceTarget(action.target, own: frame.own, foe: frame.foe), systemImage: "scope")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                        .lineLimit(2)
                                 }
                             }
                             Menu(l.battleSwitch) {
@@ -387,9 +462,6 @@ struct BattleView: View {
             .disabled(battle.submitted || frame.waiting || effectsBusy || battle.presentation.pending || !validChoices(frame))
     }
 
-    private func targetLabel(_ target: BattleTarget, frame: BattleFrame) -> String {
-        l.battleChoiceTarget(target.location, own: frame.own, foe: frame.foe)
-    }
     private func validChoices(_ frame: BattleFrame) -> Bool {
         guard frame.slots.allSatisfy({ choices[$0.slot] != nil }) else { return false }
         let switches = choices.values.filter { $0.kind == "switch" }.map(\.index)

@@ -1,3 +1,5 @@
+import AppKit
+import SwiftUI
 import XCTest
 @testable import PokeTokenBar
 
@@ -7,6 +9,66 @@ final class BattleVisibleSizingTests: XCTestCase {
         .init(id:String(id),speciesID:id,name:"",level:100,shiny:false,active:active,form:form,
               fainted:false,hp:100,maxHP:100,status:"",stats:nil)
     }
+    func testOpponentSwitchAndMegaCannotResizeAnExistingPokemon() throws {
+        for mode in BattleMode.allCases {
+            let base = BattleSpriteSizing.forBattle(mode: mode, own: [pokemon(25)], foe: [pokemon(16)])
+            for opponent in [16, 25, 6, 130, 208, 321] {
+                let changed = BattleSpriteSizing.forBattle(mode: mode, own: [pokemon(25)], foe: [pokemon(opponent)])
+                XCTAssertEqual(changed.pixelScale, base.pixelScale, "Opponent \(opponent) must not resize Pikachu")
+                for form in BattleHeldItems.sizingForms(speciesID: 26) {
+                    let scene = BattleScene(id: 1, turn: 2, own: [pokemon(26, form: form)], foe: [pokemon(opponent)], field: BattleFieldState(weather: "", weatherSuppressed: false, conditions: [], ownSide: [], foeSide: []))
+                    let actor = PokeRogueActor(pokemon: pokemon(26, form: form), position: .init(own: true, slot: 0), rect: .zero, pixelScale: base.pixelScale)
+                    XCTAssertEqual(try XCTUnwrap(actor.inScene(scene, mode: mode)).pixelScale, base.pixelScale,
+                                   "Queued Mega/entry actors must use the same fixed scale")
+                }
+            }
+        }
+    }
+
+    func testSmallSpeciesAndMegaBodyHeightsStayDistinctAndRenderReference() async throws {
+        let catalog = PokeRogueSpriteSizes.shared
+        XCTAssertEqual(catalog.battleSize(speciesID: 16, form: nil, back: false).height, 43.82, accuracy: 0.1)
+        XCTAssertEqual(catalog.battleSize(speciesID: 25, form: nil, back: true).height, 50.60, accuracy: 0.1)
+        for back in [false, true] {
+            let base = catalog.battleSize(speciesID: 26, form: nil, back: back)
+            for form in [PokemonForm("mega-x"), PokemonForm("mega-y")] {
+                XCTAssertGreaterThan(catalog.battleSize(speciesID: 26, form: form, back: back).height, base.height)
+            }
+            XCTAssertLessThan(catalog.battleSize(speciesID: 16, form: nil, back: back).height,
+                              catalog.battleSize(speciesID: 6, form: nil, back: back).height * 0.5)
+        }
+        let members = [pokemon(16), pokemon(25), pokemon(26), pokemon(26, form: .init("mega-x")),
+                       pokemon(26, form: .init("mega-y")), pokemon(6)]
+        let names = ["구구", "피카츄", "라이츄", "메가라이츄 X", "메가라이츄 Y", "리자몽"]
+        let root = VStack(spacing: 16) {
+            Text("배틀 고정 크기 기준 · 싱글/더블 동일").font(.headline)
+            ForEach([false, true], id: \.self) { back in
+                HStack(alignment: .bottom, spacing: 0) {
+                    ForEach(Array(members.enumerated()), id: \.offset) { index, member in
+                        VStack(spacing: 4) {
+                            Text(names[index] + (back ? " · 뒤" : " · 앞")).font(.caption)
+                            BattlePokemonStage(pokemon: member, back: back, stageSize: 90,
+                                sizing: BattleSpriteSizing.forBattle(mode: .doubles, own: [], foe: []))
+                        }
+                    }
+                }
+            }
+        }.padding(16).frame(width: 1166, height: 440, alignment: .top)
+            .background(Color(nsColor: .windowBackgroundColor))
+        let host = NSHostingController(rootView: root)
+        host.sizingOptions = []
+        let window = NSWindow(contentRect: NSRect(x: -10000, y: -10000, width: 1166, height: 440),
+                              styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentViewController = host; window.setContentSize(NSSize(width: 1166, height: 440)); window.orderFront(nil)
+        defer { window.orderOut(nil); window.contentViewController = nil }
+        try await Task.sleep(for: .seconds(1))
+        host.view.layoutSubtreeIfNeeded()
+        let bitmap = try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in: host.view.bounds))
+        host.view.cacheDisplay(in: host.view.bounds, to: bitmap)
+        try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+            .write(to: URL(fileURLWithPath: "/tmp/ptb-fixed-battle-size-reference.png"))
+    }
+
     func testGiantReservesCannotShrinkVisiblePokemonInEitherMode() {
         for mode in BattleMode.allCases {
             let own = [pokemon(26)] + (mode == .doubles ? [pokemon(151)] : [])
@@ -15,10 +77,7 @@ final class BattleVisibleSizingTests: XCTestCase {
             let reserves = [321,208,249,130].map { pokemon($0,active:false) }
             XCTAssertEqual(BattleSpriteSizing.forBattle(mode:mode,own:own+reserves,foe:foe),visible)
             XCTAssertEqual(BattleSpriteSizing.forBattle(mode:mode,own:own,foe:foe+reserves),visible)
-            let old = BattleSpriteSizing.make(mode:mode,sizes:(own+foe+reserves).flatMap { member in
-                [false,true].map { PokeRogueSpriteSizes.shared.battleSize(speciesID:member.speciesID,form:member.form,back:$0) }
-            },rowHeightLimit:BattleSpriteSizing.battlefieldRowHeightLimit(for:mode))
-            XCTAssertGreaterThan(visible.pixelScale,old.pixelScale*1.5)
+            XCTAssertEqual(visible.pixelScale, 1)
         }
     }
     func testSwitchAndMegaKeepSlotGroundAndViewportFixed() {
