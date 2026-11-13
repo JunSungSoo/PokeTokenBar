@@ -1312,6 +1312,16 @@ struct L {
           "Datos de la forma predeterminada", "Données de la forme par défaut", "Dados da forma padrão",
           "Daten der Standardform", "Данные обычной формы")
     }
+    var arceusFormDataNote: String {
+        t("모든 타입의 종족값·특성·습득 기술은 같으며, 심판의뭉치의 타입은 현재 폼을 따릅니다.",
+          "All types share base stats, ability and learnset. Judgment matches the current form's type.",
+          "全タイプで種族値・特性・習得技は共通です。さばきのつぶては現在のフォルムのタイプになります。",
+          "Todos los tipos comparten estadísticas base, habilidad y movimientos. Sentencia adopta el tipo de la forma actual.",
+          "Les statistiques de base, le talent et les capacités apprises sont communs à tous les types. Jugement suit le type de la forme actuelle.",
+          "Todos os tipos compartilham atributos base, habilidade e movimentos aprendidos. Judgment segue o tipo da forma atual.",
+          "Alle Typen teilen Basiswerte, Fähigkeit und erlernbare Attacken. Urteilskraft entspricht dem Typ der aktuellen Form.",
+          "Базовые характеристики, способность и изучаемые приёмы общие для всех типов. Тип Judgment соответствует текущей форме.")
+    }
     var formNotCollected: String {
         t("미수집", "Not collected", "未収集", "Sin conseguir", "Non collectionnée", "Não coletada", "Noch nicht gesammelt", "Не собрано")
     }

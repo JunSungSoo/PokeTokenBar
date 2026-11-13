@@ -12,6 +12,17 @@ read_when:
 
 # 결함 대응 축적 규칙
 
+## Species caches need form context in information views
+
+- Arceus's detail picker changed its sprite while type badges and move metadata
+  still read the default #493 cache. Existing form tests covered labels and assets,
+  not the detail page's metadata path. Project the selected form for presentation
+  without mutating the shared cache or the saved profile. All Arceus forms share
+  stats, Multitype and learnsets; only Judgment's displayed type follows the form.
+- Sweep both the detail page and active-companion type badges. Regression tests
+  exercise the detail view's owned-form path for all 18 types, including Fairy,
+  and verify ordinary move types and the shared cache remain unchanged.
+
 A square crop for a static animation placeholder must never be smaller than the
 sprite's opaque bounds. Wide static Mega sprites such as Raichu X and Y need a
 rectangular crop when the source canvas is too short for a square. Fit that
@@ -36,6 +47,11 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   the save take precedence, and reopening must not credit the same run twice.
 
 ## Release-wide battle assertions must follow approved UI and catalog changes
+
+- Back-sprite fixtures must use the current `back-<species>-<variant>` cache key.
+  The merged sulking tests expected the older `<species>-back-<variant>` name and
+  wrote their back image where the loader never reads it. Keep an explicit key
+  contract assertion and construct disk fixtures through `SpriteStore.cacheKey`.
 
 - The old height-fit test counted the new visible turn log as empty command clearance.
   Measure that panel and check the actual unoccupied gap after it. Do not remove the

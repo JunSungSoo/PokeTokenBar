@@ -756,8 +756,8 @@ struct CompanionHeader: View {
                         }
                     }
                     if store.hasActive, let id = store.currentSpeciesID, let details = store.pokemonDetailsByID[id] {
-                        TypeBadges(types: details.types, language: store.language)
-                        if !PokemonForm.isDefault(store.currentForm, speciesID: id) {
+                        TypeBadges(types: details.displayed(form: store.currentForm).types, language: store.language)
+                        if id != 493 && !PokemonForm.isDefault(store.currentForm, speciesID: id) {
                             Text(store.l.defaultFormDataNote)
                                 .font(.caption2).foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -1751,6 +1751,20 @@ struct PokemonDetailView: View {
             ?? forms.first ?? species
     }
 
+    var displayedDetails: PokemonDetails? {
+        store.pokemonDetailsByID[species.id]?.displayed(form: displayedSpecies.form)
+    }
+
+    func moveMenuTitle(_ name: String) -> String {
+        BattleTextCatalog.shared.moveMenuTitle(name, language: store.language,
+            speciesID: species.id, form: displayedSpecies.form)
+    }
+
+    func moveTooltip(_ name: String) -> String {
+        BattleTextCatalog.shared.moveTooltip(name, language: store.language,
+            speciesID: species.id, form: displayedSpecies.form)
+    }
+
     private var allIndividuals: [DexEntry] {
         store.pokemonIndividuals(speciesID: species.id, form: displayedSpecies.form)
     }
@@ -1789,7 +1803,7 @@ struct PokemonDetailView: View {
                     if individuals.isEmpty {
                         Text(store.l.dexAppearancePreview).font(.callout).foregroundStyle(.secondary)
                     }
-                    if let details = store.pokemonDetailsByID[species.id] {
+                    if let details = displayedDetails {
                         if let individual, let profile = individual.profile {
                             individualSection(entry: individual, profile: profile, details: details)
                         } else {
@@ -1904,10 +1918,14 @@ struct PokemonDetailView: View {
                     Text(store.l.rarityLabel(species.rarity))
                         .font(.callout.weight(.semibold)).foregroundStyle(.secondary)
                 }
-                if let details = store.pokemonDetailsByID[species.id] {
+                if let details = displayedDetails {
                     TypeBadges(types: details.types, language: store.language, size: 11,
                                horizontalPadding: 7, verticalPadding: 2)
-                    if !PokemonForm.isDefault(species.form, speciesID: species.id) {
+                    if species.id == 493 {
+                        Text(store.l.arceusFormDataNote)
+                            .font(.caption2).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else if !PokemonForm.isDefault(species.form, speciesID: species.id) {
                         Text(store.l.defaultFormDataNote)
                             .font(.caption2).foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -2014,8 +2032,8 @@ struct PokemonDetailView: View {
             detailTitle(store.l.activeMoves)
             if entry.isReleased {
                 ForEach(profile.moves) { move in
-                    Text(BattleTextCatalog.shared.moveMenuTitle(move.name, language: store.language)).font(.callout)
-                        .help(BattleTextCatalog.shared.moveTooltip(move.name, language: store.language))
+                    Text(moveMenuTitle(move.name)).font(.callout)
+                        .help(moveTooltip(move.name))
                 }
             } else {
                 let options = PokemonLoadout.moveOptions(details: details, level: profile.level).sorted {
@@ -2025,13 +2043,13 @@ struct PokemonDetailView: View {
                 ForEach(0..<min(4, profile.moves.count + 1), id: \.self) { slot in
                     PokemonLoadoutPicker(
                         title: "\(slot + 1). " + (profile.moves.indices.contains(slot)
-                            ? BattleTextCatalog.shared.moveMenuTitle(profile.moves[slot].name, language: store.language) : store.l.loadoutChooseMove),
+                            ? moveMenuTitle(profile.moves[slot].name) : store.l.loadoutChooseMove),
                         tooltip: profile.moves.indices.contains(slot)
-                            ? BattleTextCatalog.shared.moveTooltip(profile.moves[slot].name, language: store.language) : "",
+                            ? moveTooltip(profile.moves[slot].name) : "",
                         choices: options.map { option in
                             PokemonLoadoutChoice(id: option.name,
-                                title: BattleTextCatalog.shared.moveMenuTitle(option.name, language: store.language),
-                                tooltip: BattleTextCatalog.shared.moveTooltip(option.name, language: store.language),
+                                title: moveMenuTitle(option.name),
+                                tooltip: moveTooltip(option.name),
                                 selected: profile.moves.indices.contains(slot) && profile.moves[slot].name == option.name,
                                 enabled: !profile.moves.enumerated().contains { $0.offset != slot && $0.element.name == option.name })
                         }, onSelect: { store.setPokemonMove(entryID: entry.id, slot: slot, name: $0) })
@@ -2103,13 +2121,13 @@ struct PokemonDetailView: View {
             detailTitle(store.l.completeMoveList(moves.count))
             ForEach(moves) { move in
                 HStack(alignment: .firstTextBaseline) {
-                    Text(BattleTextCatalog.shared.moveMenuTitle(move.name,language:store.language))
+                    Text(moveMenuTitle(move.name))
                     Spacer()
                     Text(move.learnMethods.map(store.l.moveMethod).uniqued().joined(separator: " · "))
                         .foregroundStyle(.secondary).multilineTextAlignment(.trailing)
                 }
                 .font(.callout)
-                .help(BattleTextCatalog.shared.moveTooltip(move.name, language: store.language))
+                .help(moveTooltip(move.name))
                 Divider()
             }
         }

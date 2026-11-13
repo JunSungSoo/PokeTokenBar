@@ -213,7 +213,7 @@ final class BackSpriteTests: XCTestCase {
             }
         }
         XCTAssertEqual(SpriteStore.cacheKey(speciesID: 25, animated: false, shiny: false), "25-s")
-        XCTAssertEqual(SpriteStore.cacheKey(speciesID: 25, animated: true, shiny: true, back: true), "25-back-sha")
+        XCTAssertEqual(SpriteStore.cacheKey(speciesID: 25, animated: true, shiny: true, back: true), "back-25-sha")
     }
 
     func testViewIdentityKeysIncludeBack() {
@@ -247,7 +247,8 @@ final class BackSpriteTests: XCTestCase {
         XCTAssertNotNil(SpriteLoader.cachedImage(speciesID: 25, shiny: true, directory: dir, back: true),
                         "shiny + back miss falls through plain back to the plain front")
 
-        try pngData(.blue).write(to: dir.appendingPathComponent("25-back-s.png"))
+        let backKey = SpriteStore.cacheKey(speciesID: 25, animated: false, shiny: false, back: true)
+        try pngData(.blue).write(to: dir.appendingPathComponent(backKey + ".png"))
         let back = SpriteLoader.cachedImage(speciesID: 25, directory: dir, back: true)
         XCTAssertNotNil(back)
         XCTAssertNotEqual(back?.tiffRepresentation, fallback?.tiffRepresentation)

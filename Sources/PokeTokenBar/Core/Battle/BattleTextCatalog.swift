@@ -43,6 +43,8 @@ struct BattleTextCatalog: Decodable, Sendable {
     }()
     func pokemonTypes(_ id:Int,form:PokemonForm?)->[String] {
         let form=PokemonForm.resolved(speciesID:id,form:form)
+        // Fairy is a collectible Arceus form even though the bundled type table is Gen V.
+        if id == 493, let form { return [form.rawValue] }
         let key=String(id)+(form.map{":"+$0.rawValue} ?? "")
         return Self.speciesTypes[key] ?? Self.speciesTypes[String(id)] ?? []
     }
@@ -66,9 +68,15 @@ struct BattleTextCatalog: Decodable, Sendable {
     func moveName(_ raw: String, language: AppLanguage) -> String {
         moves[Self.key(raw)]?.names[language.rawValue] ?? L(language).battleUnknownMove
     }
-    func moveMenuTitle(_ raw: String, language: AppLanguage) -> String {
+    func moveType(_ raw: String, speciesID: Int? = nil, form: PokemonForm? = nil) -> String {
+        if speciesID == 493, Self.key(raw) == "judgment" {
+            return pokemonTypes(493, form: form).first ?? "normal"
+        }
+        return moves[Self.key(raw)]?.type?.lowercased() ?? ""
+    }
+    func moveMenuTitle(_ raw: String, language: AppLanguage, speciesID: Int? = nil, form: PokemonForm? = nil) -> String {
         moveName(raw, language: language) + " · "
-            + typeName(moves[Self.key(raw)]?.type ?? "", language: language)
+            + typeName(moveType(raw, speciesID: speciesID, form: form), language: language)
             + " · " + L(language).battleCategory(moves[Self.key(raw)]?.category ?? "")
     }
     func description(_ raw: String, language: AppLanguage) -> String {
@@ -83,11 +91,12 @@ struct BattleTextCatalog: Decodable, Sendable {
     func abilityDescription(_ raw: String, language: AppLanguage) -> String {
         abilityDescriptions?[Self.key(raw)]?[language.rawValue] ?? BattleMegaText.catalog.abilities[Self.key(raw)]?.descriptions[language.rawValue] ?? L(language).battleDescriptionUnavailable
     }
-    func moveTooltip(_ raw: String, language: AppLanguage) -> String {
+    func moveTooltip(_ raw: String, language: AppLanguage, speciesID: Int? = nil, form: PokemonForm? = nil) -> String {
         let l = L(language)
         var lines = [moveName(raw, language: language), description(raw, language: language)]
-        if let move = moves[Self.key(raw)], let type = move.type, let category = move.category,
+        if let move = moves[Self.key(raw)], let category = move.category,
            let pp = move.pp, let power = move.power {
+            let type = moveType(raw, speciesID: speciesID, form: form)
             lines.append("\(typeName(type, language: language)) · \(l.battleCategory(category)) · \(l.battlePower): \(power > 0 ? String(power) : "—") · \(l.battlePP): \(pp)")
         }
         lines.append(l.battleBaseAccuracy + ": " + l.battleAccuracy(moves[Self.key(raw)]?.accuracy))
