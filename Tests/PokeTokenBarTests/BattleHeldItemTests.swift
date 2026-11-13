@@ -6,9 +6,9 @@ import XCTest
 
 @MainActor final class BattleHeldItemTests:XCTestCase {
     func testCatalogAndNativeMenusAreLocalizedAndSpeciesBound() throws {
-        XCTAssertEqual(BattleHeldItems.all.count,101)
+        XCTAssertEqual(BattleHeldItems.all.count,102)
         XCTAssertEqual(BattleHeldItems.all.filter{$0.mega != nil}.count,64)
-        XCTAssertEqual(BattleHeldItems.choices(speciesID:25,form:nil).count,37)
+        XCTAssertEqual(BattleHeldItems.choices(speciesID:25,form:nil).count,38)
         XCTAssertEqual(Set(BattleHeldItems.choices(speciesID:6,form:nil).compactMap{$0.mega == nil ? nil:$0.id}),["charizarditex","charizarditey"])
         XCTAssertTrue(BattleHeldItems.sizingForms(speciesID:479).contains(PokemonForm("wash")))
         XCTAssertEqual(BattleHeldItems.sizingForms(speciesID:479).count,6)

@@ -181,8 +181,8 @@ import XCTest
         }
     }
     func testCategoriesPartitionCatalogAndKeepSpeciesBindingAndRecentOrder() throws {
-        XCTAssertEqual(BattleItemCategory.allCases.map{$0.title(.ko)},["전체","메가스톤","회복","공격강화","타입강화","생존","행동순서","열매"])
-        let counts:[BattleItemCategory:Int]=[.all:101,.mega:64,.recovery:3,.power:6,.type:18,.defense:5,.order:3,.berries:2]
+        XCTAssertEqual(BattleItemCategory.allCases.map{$0.title(.ko)},["전체","메가스톤","회복","공격강화","타입강화","생존","행동순서","열매","명중"])
+        let counts:[BattleItemCategory:Int]=[.all:102,.mega:64,.recovery:3,.power:6,.type:18,.defense:5,.order:3,.berries:2,.accuracy:1]
         for group in BattleItemCategory.allCases {
             XCTAssertEqual(BattleHeldItems.all.filter{group.includes($0)}.count,counts[group])
             for language in AppLanguage.allCases {XCTAssertFalse(group.title(language).isEmpty)}

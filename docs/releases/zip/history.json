@@ -1117,6 +1117,27 @@
           "releaseNotesUnchanged": true
         }
       ]
+    },
+    {
+      "date": "2026-11-13",
+      "time": "09:39:25",
+      "archive": "PokeTokenBar-3.1.4-261113-installer.zip",
+      "version": "3.1.4",
+      "evidence": "Universal Desktop installer ZIP. 181 engine, 12 native held-item and 14 packaging tests passed. Strict bundle signature, both app/helper/installer architectures, 4,356 source resources, packaged Wide Lens accuracy 88, archive integrity, versions, executable hashes, bundled resource symlink and notes verified.",
+      "turn": null,
+      "title": "Add Wide Lens and accuracy item category",
+      "commit": null,
+      "sourceBaseCommit": "ef970de0e3b4925d81faf9d46dcdaca652dc63c7",
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "광각렌즈를 지닌도구에 추가했습니다. 싱글·더블배틀과 챌린지에서 지닌 포켓몬이 사용하는 기술의 명중률이 1.1배로 적용됩니다.",
+        "도구 선택창에 명중 분류를 추가하고 광각렌즈의 이름과 효과 설명을 지원 언어로 표시합니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.1.4-261113-installer.zip",
+      "sha256": "fdbfcf12df3d7ef63daedbf6830868506b629c51da84a362df0bfb776cbcd016",
+      "bytes": 169917793,
+      "packagedAt": "2026-11-13T09:39:25+09:00"
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

@@ -21,7 +21,7 @@ struct BattleHeldItem:Codable,Sendable,Identifiable {
 }
 /// The picker categories mirror the shared item catalog without changing item rules.
 enum BattleItemCategory:String,CaseIterable,Identifiable,Sendable {
-    case all,mega,recovery,power,type,defense,order,berries
+    case all,mega,recovery,power,type,defense,order,berries,accuracy
     var id:String {rawValue}
     func includes(_ item:BattleHeldItem)->Bool {self == .all || item.group == rawValue}
     func title(_ language:AppLanguage)->String {
@@ -34,6 +34,7 @@ enum BattleItemCategory:String,CaseIterable,Identifiable,Sendable {
         case .type:return l.t("타입강화","Type boosts","タイプ強化","Tipos","Types","Tipos","Typverstärkung","Усиление типов")
         case .defense:return l.t("생존","Survival","生存","Supervivencia","Survie","Sobrevivência","Überleben","Выживание")
         case .order:return l.t("행동순서","Turn order","行動順","Orden de turno","Ordre du tour","Ordem do turno","Zugreihenfolge","Порядок ходов")
+        case .accuracy:return l.t("명중","Accuracy","命中","Precisión","Précision","Precisão","Genauigkeit","Точность")
         case .berries:return l.t("열매","Berries","きのみ","Bayas","Baies","Frutas","Beeren","Ягоды")
         }
     }

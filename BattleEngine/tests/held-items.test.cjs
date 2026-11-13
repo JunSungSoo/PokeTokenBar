@@ -5,6 +5,27 @@ function team(p,lead,second){const mons=[lead,second||member(p+'1','Blissey'),me
 function make(item='',moves=['tackle'],mode='singles'){return new OwnedBattle(mode,[team('a',member('a','Smeargle',item,moves)),team('b',member('b','Mew','',['splash']))],[1,2,3,4]);}
 function turn(e,a=[{kind:'move',index:1,target:0}],b=[{kind:'move',index:1,target:0}]){for(const [p,actions]of [[0,a],[1,b]])e.choose(p,e.frame(p).decisionID,actions);}
 function firstDamage(e){const line=e.frame(0).log.find(l=>l.startsWith('|-damage|p2a:'));return 100-Number(line.split('|')[3].split('/')[0]);}
+test('Wide Lens applies 1.1x accuracy in singles, doubles and challenge battles',()=>{
+ for(const mode of ['singles','doubles'])for(const profile of ['peer','challenge']){
+  const observed=[];
+  for(const item of ['', 'widelens']){
+   const e=new OwnedBattle(mode,[team('a',member('a','Smeargle',item,['hydropump'])),
+     team('b',member('b','Mew','',['splash']))],[1,2,3,4],{profile});
+   const runEvent=e.battle.runEvent;
+   e.battle.runEvent=function(event,target,source,move,...args){
+    const result=runEvent.call(this,event,target,source,move,...args);
+    if(event==='Accuracy'&&source?.set.ptbID==='a0')observed.push(result);
+    return result;
+   };
+   const own=[{kind:'move',index:1,target:mode==='doubles'?1:0}];
+   const foe=[{kind:'move',index:1,target:0}];
+   if(mode==='doubles'){own.push({kind:'move',index:1,target:0});foe.push({kind:'move',index:1,target:0});}
+   turn(e,own,foe);
+   assert.equal(e.frame(0).own[0].item,item);
+  }
+  assert.deepEqual(observed,[80,88],mode+' '+profile);
+ }
+});
 test('reapplying an active status or weather costs PP without playing its effect', () => {
  for (const move of ['thunderwave', 'sunnyday', 'substitute']) {
   const engine = make('', [move]);
@@ -97,7 +118,7 @@ for(const mode of ['singles','doubles'])test('all 64 Mega Stones preserve custom
  }
 });
 test('whitelist, base form, stone-species binding, unsupported generations and private preview',()=>{
- assert.equal(catalog.items.length,101);assert.equal(catalog.items.filter(i=>i.mega).length,64);
+ assert.equal(catalog.items.length,102);assert.equal(catalog.items.filter(i=>i.mega).length,64);
  for(const item of ['assaultvest','mewtwonitex','not-an-item'])assert.throws(()=>make(item),/held item/);
  const wrong=team('a',member('a','Smeargle','charizarditex'));assert.throws(()=>validateTeam(wrong,6),/does not match/);
  const mega=team('a',member('a','Charizard-Mega-X'));assert.throws(()=>validateTeam(mega,6),/base Pokémon/);
