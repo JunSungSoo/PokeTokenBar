@@ -28,8 +28,7 @@ struct PokemonLoadoutPicker: NSViewRepresentable {
     }
     func updateNSView(_ button: NSPopUpButton, context: Context) {
         context.coordinator.onSelect = onSelect
-        Self.configure(button, title: title, tooltip: tooltip, choices: choices,
-                       target: context.coordinator, action: #selector(Coordinator.select(_:)))
+        context.coordinator.configure(button, title: title, tooltip: tooltip, choices: choices)
     }
     static func configure(_ button: NSPopUpButton, title: String, tooltip: String,
                           choices: [PokemonLoadoutChoice], target: AnyObject, action: Selector) {
@@ -51,9 +50,22 @@ struct PokemonLoadoutPicker: NSViewRepresentable {
         button.setAccessibilityLabel(title)
         button.setAccessibilityHelp(tooltip)
     }
-    final class Coordinator: NSObject {
+    @MainActor final class Coordinator: NSObject {
+        private struct Contents: Equatable {
+            let title: String
+            let tooltip: String
+            let choices: [PokemonLoadoutChoice]
+        }
+        private var contents: Contents?
         var onSelect: (String) -> Void
         init(onSelect: @escaping (String) -> Void) { self.onSelect = onSelect }
+        func configure(_ button: NSPopUpButton, title: String, tooltip: String, choices: [PokemonLoadoutChoice]) {
+            let next = Contents(title: title, tooltip: tooltip, choices: choices)
+            guard next != contents else { return }
+            PokemonLoadoutPicker.configure(button, title: title, tooltip: tooltip, choices: choices,
+                target: self, action: #selector(select(_:)))
+            contents = next
+        }
         @objc func select(_ sender: NSMenuItem) {
             guard sender.isEnabled, let id = sender.representedObject as? String else { return }
             onSelect(id)

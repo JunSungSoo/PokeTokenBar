@@ -485,7 +485,7 @@ final class CompanionStore {
     /// Collected form summaries for the detail picker; missing forms remain visible but disabled.
     func formSpecies(speciesID: Int) -> [DexSpecies] {
         guard PokemonForm.hasForms(speciesID: speciesID) else { return [] }
-        return collectedDexSpecies(groupForms: true).filter { $0.id == speciesID }
+        return collectedDexSpecies(groupForms: true, matching: speciesID)
     }
 
     // MARK: 세대(지역) 도감 완성 추적
@@ -555,11 +555,11 @@ final class CompanionStore {
         }
     }
 
-    private func collectedDexSpecies(groupForms: Bool) -> [DexSpecies] {
+    private func collectedDexSpecies(groupForms: Bool, matching speciesID: Int? = nil) -> [DexSpecies] {
         // 종별 누적을 한 번에 훑는다(뷰가 body 에서 1회 소비 — 메모이즈 없이 충분).
         var acc: [DexKey: DexAccumulator] = [:]
         for entry in state.dex {
-            for id in entry.chainOrder {
+            for id in entry.chainOrder where speciesID == nil || id == speciesID {
                 let key = DexKey(id, form: entry.form, groupForms: groupForms)
                 var a = acc[key] ?? DexAccumulator(rarity: entry.rarity)
                 if let n = entry.names?[id] { a.names = n }   // 이름 없는 구버전 항목이 덮어쓰지 않게
@@ -570,7 +570,7 @@ final class CompanionStore {
         if let active = state.active {
             // 도달분만 — stageIndex 가 pathIDs 범위 안임은 두 입구가 보장한다:
             // MonState.init(from:) 의 clamp, 그리고 SaveTransfer 의 가져오기 정규화.
-            for id in active.pathIDs.prefix(active.stageIndex + 1) {
+            for id in active.pathIDs.prefix(active.stageIndex + 1) where speciesID == nil || id == speciesID {
                 let key = DexKey(id, form: active.form, groupForms: groupForms)
                 var a = acc[key] ?? DexAccumulator(rarity: active.rarity)
                 if let n = currentLine?.names[id] { a.names = n }

@@ -74,6 +74,22 @@ final class PokemonFormTests: XCTestCase {
 
     // MARK: Catalog
 
+    func testTargetedFormAggregationKeepsCollectedEvolutionAndActiveAppearance() throws {
+        var state = CompanionState()
+        state.dex = [burmy([412, 413], form: plant), burmy([412, 413], form: sandy, shiny: true),
+                     .init(baseID: 25, finalID: 25, chainOrder: [25], rarity: .common, caughtAt: now)]
+        state.active = MonState(baseID: 412, pathIDs: [412, 414], stageIndex: 0, usedAtStage: 0,
+                                rarity: .common, totalForms: 2, form: PokemonForm("trash"))
+        let store = try store(state)
+        XCTAssertEqual(store.formSpecies(speciesID: 412).map(\.form), [plant, sandy, PokemonForm("trash")])
+        XCTAssertEqual(store.formSpecies(speciesID: 413).map(\.form), [plant, sandy])
+        XCTAssertTrue(store.formSpecies(speciesID: 413).first { $0.form == sandy }?.isShiny == true)
+        XCTAssertTrue(store.formSpecies(speciesID: 412).first { $0.form == PokemonForm("trash") }?.isRaising == true)
+        XCTAssertEqual(store.dexSpecies.map(\.id), [25, 412, 413])
+        XCTAssertTrue(store.formSpecies(speciesID: 25).isEmpty)
+        XCTAssertTrue(store.formSpecies(speciesID: 492).isEmpty)
+    }
+
     func testCatalogListsDefaultFirstWithinTheHatchableRange() {
         XCTAssertEqual(PokemonForm.catalog.count, 23)
         for (speciesID, entries) in PokemonForm.catalog {

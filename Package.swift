@@ -20,6 +20,7 @@ let package = Package(
                 .copy("Fixtures/PokeRogueFaithful"),
                 .copy("Fixtures/CodexFork"),
                 .copy("Fixtures/CodexSubagent"),
+                .copy("Fixtures/ArceusDetails"),
             ]
         ),
     ]

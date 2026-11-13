@@ -1,0 +1,998 @@
+{
+  "abilities": [
+    {
+      "isHidden": false,
+      "name": "multitype",
+      "slot": 1
+    }
+  ],
+  "baseExperience": 324,
+  "baseStats": {
+    "attack": 120,
+    "defense": 120,
+    "hp": 120,
+    "special-attack": 120,
+    "special-defense": 120,
+    "speed": 120
+  },
+  "genderRate": -1,
+  "height": 32,
+  "moves": [
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "aerial-ace"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "aqua-tail"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "blizzard"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "brick-break"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "bulldoze"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "calm-mind"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "charge-beam"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 1,
+          "method": "level-up"
+        }
+      ],
+      "name": "cosmic-power"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "cut"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "dark-pulse"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "double-team"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "draco-meteor"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "dragon-claw"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "dragon-pulse"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "dream-eater"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 20,
+          "method": "level-up"
+        },
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "earth-power"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "earthquake"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "echoed-voice"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "energy-ball"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 40,
+          "method": "level-up"
+        }
+      ],
+      "name": "extreme-speed"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "facade"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "fire-blast"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "flamethrower"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "flash"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "flash-cannon"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "fly"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "focus-blast"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "frustration"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 60,
+          "method": "level-up"
+        }
+      ],
+      "name": "future-sight"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "giga-drain"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "giga-impact"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "grass-knot"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 10,
+          "method": "level-up"
+        },
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "gravity"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "hail"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "heat-wave"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "hidden-power"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "hone-claws"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 80,
+          "method": "level-up"
+        },
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "hyper-beam"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 30,
+          "method": "level-up"
+        },
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "hyper-voice"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "ice-beam"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "icy-wind"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "incinerate"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "iron-defense"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "iron-head"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "iron-tail"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 100,
+          "method": "level-up"
+        }
+      ],
+      "name": "judgment"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "last-resort"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "light-screen"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "magic-coat"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 1,
+          "method": "level-up"
+        }
+      ],
+      "name": "natural-gift"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "outrage"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "overheat"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "payback"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 90,
+          "method": "level-up"
+        }
+      ],
+      "name": "perish-song"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "poison-jab"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "protect"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "psych-up"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "psychic"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "psyshock"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 1,
+          "method": "level-up"
+        }
+      ],
+      "name": "punishment"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "quash"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "rain-dance"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 70,
+          "method": "level-up"
+        }
+      ],
+      "name": "recover"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "recycle"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "reflect"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 50,
+          "method": "level-up"
+        }
+      ],
+      "name": "refresh"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "rest"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "retaliate"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "return"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "roar"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "rock-slide"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "rock-smash"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "rock-tomb"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "round"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "safeguard"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "sandstorm"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 1,
+          "method": "level-up"
+        }
+      ],
+      "name": "seismic-toss"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "shadow-ball"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "shadow-claw"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "signal-beam"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "sleep-talk"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "sludge-bomb"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "snarl"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "snore"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "solar-beam"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "stealth-rock"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "stone-edge"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "strength"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "substitute"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "sunny-day"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "surf"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "swagger"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "swords-dance"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "tailwind"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "telekinesis"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "thunder"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "thunder-wave"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "thunderbolt"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "toxic"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "trick"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "trick-room"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "waterfall"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "will-o-wisp"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "work-up"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "machine"
+        }
+      ],
+      "name": "x-scissor"
+    },
+    {
+      "learnMethods": [
+        {
+          "level": 0,
+          "method": "tutor"
+        }
+      ],
+      "name": "zen-headbutt"
+    }
+  ],
+  "name": "arceus",
+  "speciesID": 493,
+  "types": [
+    "normal"
+  ],
+  "weight": 3200
+}

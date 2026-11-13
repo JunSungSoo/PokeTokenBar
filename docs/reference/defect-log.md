@@ -14,6 +14,19 @@ read_when:
 
 ## Species caches need form context in information views
 
+- Do not resolve that context inside each move title/tooltip. The type-aware wrappers
+  re-entered `formSpecies` for every row in each of four menus, aggregating and sorting
+  the entire collection 864 times for 108 choices. Correctness tests used one catch
+  and three moves, so they did not reveal the main-thread cost. Capture one immutable
+  `PokemonDetailPresentation` per body evaluation, scope form aggregation before
+  sorting, and share one move-text table across all menus. Rebuild on normal view
+  invalidation so form, shiny, individual, language and loadout changes remain live.
+- Arceus labels come from the bundled localized type catalog, with no form-name
+  requests. Native loadout menus retain their menu object when the rendered contents
+  have not changed. Regression coverage includes 1,000 collection entries, the full
+  106-move BW2 fixture plus two Fairy exceptions, and menu identity checks. Copied-save
+  performance measurements are opt-in and never read/write the real save directly.
+
 - Arceus's detail picker changed its sprite while type badges and move metadata
   still read the default #493 cache. Existing form tests covered labels and assets,
   not the detail page's metadata path. Project the selected form for presentation

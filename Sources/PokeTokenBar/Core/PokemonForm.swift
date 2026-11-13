@@ -216,7 +216,8 @@ extension PokemonForm {
     /// PokéAPI resource with the localized name of the form this species shows.
     /// Unown and the unnamed usual looks need none.
     static func nameResource(speciesID: Int, form: PokemonForm?) -> PokemonNameResource? {
-        guard speciesID != unownSpeciesID, !hasUnnamedDefault(speciesID: speciesID, form: form),
+        guard speciesID != unownSpeciesID, speciesID != 493,
+              !hasUnnamedDefault(speciesID: speciesID, form: form),
               let id = formID(speciesID: speciesID, form: form) else { return nil }
         return PokemonNameResource(kind: .pokemonForm, name: String(id))
     }
@@ -236,6 +237,7 @@ extension PokemonForm {
             return L(language).battleMegaEvolution+(form.rawValue=="mega" ? "":" "+form.rawValue.replacingOccurrences(of:"mega-",with:"").uppercased())
         }
         if speciesID == unownSpeciesID { return form.symbol }
+        if speciesID == 493 { return BattleTextCatalog.shared.typeName(form.rawValue, language: language) }
         if hasUnnamedDefault(speciesID: speciesID, form: form) { return L(language).normalForm }
         let translations = nameResource(speciesID: speciesID, form: form).flatMap { names.names[$0] }
         return translations.flatMap(language.resolveName) ?? PokemonNameLocalization.identifier(form.rawValue)

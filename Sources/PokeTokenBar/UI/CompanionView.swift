@@ -1740,48 +1740,14 @@ struct PokemonDetailView: View {
         _selectedShiny = State(initialValue: selectedShiny)
     }
 
-    private var formSpecies: [CompanionStore.DexSpecies] {
-        store.formSpecies(speciesID: species.id)
-    }
-
-    private var displayedSpecies: CompanionStore.DexSpecies {
-        let forms = formSpecies
-        return forms.first { $0.form == selectedForm }
-            ?? forms.first { store.isRepresentative($0) }
-            ?? forms.first ?? species
-    }
-
-    var displayedDetails: PokemonDetails? {
-        store.pokemonDetailsByID[species.id]?.displayed(form: displayedSpecies.form)
-    }
-
-    func moveMenuTitle(_ name: String) -> String {
-        BattleTextCatalog.shared.moveMenuTitle(name, language: store.language,
-            speciesID: species.id, form: displayedSpecies.form)
-    }
-
-    func moveTooltip(_ name: String) -> String {
-        BattleTextCatalog.shared.moveTooltip(name, language: store.language,
-            speciesID: species.id, form: displayedSpecies.form)
-    }
-
-    private var allIndividuals: [DexEntry] {
-        store.pokemonIndividuals(speciesID: species.id, form: displayedSpecies.form)
-    }
-    private var displayedShiny: Bool {
-        if let selectedShiny,
-           selectedShiny ? displayedSpecies.isShiny : displayedSpecies.hasNormal { return selectedShiny }
-        return allIndividuals.first?.isShiny ?? displayedSpecies.isShiny
-    }
-    private var individuals: [DexEntry] {
-        allIndividuals.filter { $0.isShiny == displayedShiny }
-    }
-    private var individual: DexEntry? {
-        individuals.first { $0.id == selectedInstanceID } ?? individuals.first
+    var presentation: PokemonDetailPresentation {
+        PokemonDetailPresentation(store: store, species: species, selectedForm: selectedForm,
+            selectedShiny: selectedShiny, selectedInstanceID: selectedInstanceID)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let context = presentation
+        return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Button(action: onBack) {
                     Label(store.l.back, systemImage: "chevron.left")
@@ -1792,25 +1758,25 @@ struct PokemonDetailView: View {
             }
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    if PokemonForm.hasForms(speciesID: species.id) { formPicker }
-                    if displayedSpecies.hasNormal && displayedSpecies.isShiny { appearancePicker }
-                    identityHeader
+                    if PokemonForm.hasForms(speciesID: species.id) { formPicker(context) }
+                    if context.species.hasNormal && context.species.isShiny { appearancePicker(context) }
+                    identityHeader(context)
                     if !BattleHeldItems.megaStones(speciesID:species.id).isEmpty {
                         Button(store.l.pokemonMegaInfo) {showingMegaInfo=true}
                             .accessibilityIdentifier("pokemon-show-mega-info")
                     }
-                    if individuals.count > 1 { individualPicker }
-                    if individuals.isEmpty {
+                    if context.individuals.count > 1 { individualPicker(context) }
+                    if context.individuals.isEmpty {
                         Text(store.l.dexAppearancePreview).font(.callout).foregroundStyle(.secondary)
                     }
-                    if let details = displayedDetails {
-                        if let individual, let profile = individual.profile {
-                            individualSection(entry: individual, profile: profile, details: details)
+                    if let details = context.details {
+                        if let individual = context.individual, let profile = individual.profile {
+                            individualSection(entry: individual, profile: profile, details: details, context: context)
                         } else {
                             baseStatsSection(details)
                         }
                         speciesSection(details)
-                        movesSection(details)
+                        movesSection(context)
                     } else if store.failedPokemonDetailIDs.contains(species.id) {
                         VStack(spacing: 8) {
                             Text(store.l.pokemonDetailsUnavailable).foregroundStyle(.secondary)
@@ -1827,8 +1793,8 @@ struct PokemonDetailView: View {
             }
         }
         .task {
-            if selectedForm == nil { selectedForm = displayedSpecies.form }
-            if selectedInstanceID.isEmpty { selectedInstanceID = individuals.first?.id ?? "" }
+            if selectedForm == nil { selectedForm = context.species.form }
+            if selectedInstanceID.isEmpty { selectedInstanceID = context.individuals.first?.id ?? "" }
             await store.loadPokemonDetails(speciesID: species.id)
         }
         .sheet(item:$editingDefaultItem) { entry in
@@ -1841,8 +1807,8 @@ struct PokemonDetailView: View {
                 },onCancel:{editingDefaultItem=nil})
         }
         .sheet(isPresented:$showingMegaInfo) {
-            PokemonMegaInfoView(speciesID:species.id,language:store.language,shiny:displayedShiny,
-                baseStats:store.pokemonDetailsByID[species.id]?.baseStats ?? [:],profile:individual?.profile,nature:individual?.nature,onClose:{showingMegaInfo=false})
+            PokemonMegaInfoView(speciesID:species.id,language:store.language,shiny:context.shiny,
+                baseStats:store.pokemonDetailsByID[species.id]?.baseStats ?? [:],profile:context.individual?.profile,nature:context.individual?.nature,onClose:{showingMegaInfo=false})
         }
     }
 
@@ -1851,10 +1817,10 @@ struct PokemonDetailView: View {
         formCount > 8 ? (formCount > 20 ? 7 : 6) : min(formCount, 4)
     }
 
-    private var formPicker: some View {
-        let forms = formSpecies
+    private func formPicker(_ context: PokemonDetailPresentation) -> some View {
+        let forms = context.forms
         let allForms = PokemonForm.forms(speciesID: species.id)
-        let selected = displayedSpecies.form
+        let selected = context.species.form
         let columns = Self.formPickerColumns(formCount: allForms.count)
         return VStack(alignment: .leading, spacing: 6) {
             Text(store.l.formsCollected(forms.count, of: allForms.count)).font(.callout.weight(.semibold))
@@ -1905,11 +1871,11 @@ struct PokemonDetailView: View {
         .task(id: species.id) { await store.loadFormNames(PokemonForm.nameResources(speciesID: species.id)) }
     }
 
-    private var identityHeader: some View {
-        let species = displayedSpecies
+    private func identityHeader(_ context: PokemonDetailPresentation) -> some View {
+        let species = context.species
         return HStack(spacing: 14) {
             SpriteView(speciesID: species.id, size: 104, animated: true,
-                       shiny: displayedShiny, spriteStore: spriteStore, form: species.form)
+                       shiny: context.shiny, spriteStore: spriteStore, form: species.form)
                 .frame(width: 104, height: 104)
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .firstTextBaseline) {
@@ -1918,7 +1884,7 @@ struct PokemonDetailView: View {
                     Text(store.l.rarityLabel(species.rarity))
                         .font(.callout.weight(.semibold)).foregroundStyle(.secondary)
                 }
-                if let details = displayedDetails {
+                if let details = context.details {
                     TypeBadges(types: details.types, language: store.language, size: 11,
                                horizontalPadding: 7, verticalPadding: 2)
                     if species.id == 493 {
@@ -1931,8 +1897,8 @@ struct PokemonDetailView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                if displayedShiny { Text("✨ \(store.l.dexShinyLabel)").font(.callout) }
-                if let individual, store.isActiveDexEntry(individual) { Text(store.l.dexRaising).font(.callout).foregroundStyle(Color.accentColor) }
+                if context.shiny { Text("✨ \(store.l.dexShinyLabel)").font(.callout) }
+                if let individual = context.individual, store.isActiveDexEntry(individual) { Text(store.l.dexRaising).font(.callout).foregroundStyle(Color.accentColor) }
                 let isRepresentative = store.isRepresentative(species)
                 RepresentativeFooterButton(localization: store.l,
                                            isRepresentative: isRepresentative) {
@@ -1944,19 +1910,19 @@ struct PokemonDetailView: View {
         }
     }
 
-    private var appearancePicker: some View {
+    private func appearancePicker(_ context: PokemonDetailPresentation) -> some View {
         Picker(store.l.dexAppearance, selection: Binding(
-            get: { displayedShiny }, set: { selectedShiny = $0; selectedInstanceID = "" })) {
+            get: { context.shiny }, set: { selectedShiny = $0; selectedInstanceID = "" })) {
             Text(store.l.dexNormalLabel).tag(false)
             Text("✨ \(store.l.dexShinyLabel)").tag(true)
         }
         .pickerStyle(.segmented)
     }
 
-    private var individualPicker: some View {
+    private func individualPicker(_ context: PokemonDetailPresentation) -> some View {
         Picker(store.l.pokemonIndividual, selection: Binding(
-            get: { individual?.id ?? "" }, set: { selectedInstanceID = $0 })) {
-            ForEach(Array(individuals.enumerated()), id: \.element.id) { index, entry in
+            get: { context.individual?.id ?? "" }, set: { selectedInstanceID = $0 })) {
+            ForEach(Array(context.individuals.enumerated()), id: \.element.id) { index, entry in
                 Text(individualLabel(entry, index: index)).tag(entry.id)
             }
         }
@@ -1973,7 +1939,7 @@ struct PokemonDetailView: View {
     }
 
     private func individualSection(entry: DexEntry, profile: PokemonProfile,
-                                   details: PokemonDetails) -> some View {
+                                   details: PokemonDetails, context: PokemonDetailPresentation) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 detailTitle(store.l.pokemonIndividual)
@@ -2032,27 +1998,17 @@ struct PokemonDetailView: View {
             detailTitle(store.l.activeMoves)
             if entry.isReleased {
                 ForEach(profile.moves) { move in
-                    Text(moveMenuTitle(move.name)).font(.callout)
-                        .help(moveTooltip(move.name))
+                    Text(context.moves.text(move.name).title).font(.callout)
+                        .help(context.moves.text(move.name).tooltip)
                 }
             } else {
-                let options = PokemonLoadout.moveOptions(details: details, level: profile.level).sorted {
-                    BattleTextCatalog.shared.moveName($0.name, language: store.language)
-                        .localizedStandardCompare(BattleTextCatalog.shared.moveName($1.name, language: store.language)) == .orderedAscending
-                }
                 ForEach(0..<min(4, profile.moves.count + 1), id: \.self) { slot in
                     PokemonLoadoutPicker(
                         title: "\(slot + 1). " + (profile.moves.indices.contains(slot)
-                            ? moveMenuTitle(profile.moves[slot].name) : store.l.loadoutChooseMove),
+                            ? context.moves.text(profile.moves[slot].name).title : store.l.loadoutChooseMove),
                         tooltip: profile.moves.indices.contains(slot)
-                            ? moveTooltip(profile.moves[slot].name) : "",
-                        choices: options.map { option in
-                            PokemonLoadoutChoice(id: option.name,
-                                title: moveMenuTitle(option.name),
-                                tooltip: moveTooltip(option.name),
-                                selected: profile.moves.indices.contains(slot) && profile.moves[slot].name == option.name,
-                                enabled: !profile.moves.enumerated().contains { $0.offset != slot && $0.element.name == option.name })
-                        }, onSelect: { store.setPokemonMove(entryID: entry.id, slot: slot, name: $0) })
+                            ? context.moves.text(profile.moves[slot].name).tooltip : "",
+                        choices: context.moves.choices(profile: profile, slot: slot), onSelect: { store.setPokemonMove(entryID: entry.id, slot: slot, name: $0) })
                 }
                 Text(store.l.loadoutLearnsetHint).font(.caption).foregroundStyle(.secondary)
             }
@@ -2115,19 +2071,19 @@ struct PokemonDetailView: View {
         .detailCard()
     }
 
-    private func movesSection(_ details: PokemonDetails) -> some View {
-        let moves=PokemonFairyMoves.mergedMoves(details:details)
+    private func movesSection(_ context: PokemonDetailPresentation) -> some View {
+        let moves = context.moves.all
         return LazyVStack(alignment: .leading, spacing: 6) {
             detailTitle(store.l.completeMoveList(moves.count))
             ForEach(moves) { move in
                 HStack(alignment: .firstTextBaseline) {
-                    Text(moveMenuTitle(move.name))
+                    Text(context.moves.text(move.name).title)
                     Spacer()
                     Text(move.learnMethods.map(store.l.moveMethod).uniqued().joined(separator: " · "))
                         .foregroundStyle(.secondary).multilineTextAlignment(.trailing)
                 }
                 .font(.callout)
-                .help(moveTooltip(move.name))
+                .help(context.moves.text(move.name).tooltip)
                 Divider()
             }
         }
