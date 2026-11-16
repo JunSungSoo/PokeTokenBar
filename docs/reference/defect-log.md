@@ -3358,3 +3358,113 @@ for both forms and their shiny variants, in addition to rendering the sheet.
 - A separately signed QA app uses the packaged Node and resource tree, with private
   data/cache directories and no main-app startup, to play an actual move successfully.
   The package tool rejects shipping resource trees without their module bundle.
+
+
+## Safari continuation must distinguish player escape from wild escape
+
+- A timer advanced every `between` phase, so the Continue button was bypassed after
+  the player selected Run. Earlier engine tests checked saved phases only; render
+  tests disabled music, which also disabled that timer and hid the live UI path.
+- Use the persisted `ran` notice to pause automatic continuation across redraws and
+  app restarts. Audio settings must not gate gameplay. Hidden, never-ordered test
+  hosts exercise the real timer, including a positive control after wild escape.
+- Pixel-art trainer images must bypass NSImage Retina resampling: render the raw
+  bitmap with nearest-neighbor integer scaling at integral positions. Tests compare
+  every enlarged 3×3 pixel block with its source, including alpha.
+
+
+## Local QA saves must not depend on protected checkout access
+
+- After re-signing the Safari QA app, startup stalled inside `CompanionStore.load`
+  at the file open for a save under the Desktop checkout. Headless tests had used
+  temporary saves, so they never exercised the packaged QA launch path.
+- Keep Safari QA progress in an isolated temporary or Application Support directory,
+  not alongside the app in the Desktop checkout. Copy the existing save unchanged
+  and update the QA bundle's state path before re-signing. The production save stays
+  untouched. Verify the live bag and ticket count after launch, as well as signatures.
+
+## Safari capture must persist original checks rather than invent visual outcomes
+
+- Earlier Safari capture used one final probability roll and derived failed shake
+  counts from a Pokémon profile seed. It could not represent PokéRogue critical
+  capture or the actual first/second/third failed check. Tests only covered the
+  custom BST probability and a separate presentation timeline, hiding that mismatch.
+- Resolve the original critical and shake checks against the persisted session RNG;
+  save the result before presentation. Reference vectors, scripted rolls for every
+  failure point, guaranteed/critical branches and legacy-save round trips cover the
+  production path. Rock/bait remains an explicitly approved final percentage-point
+  extension. Audit all 221 catch rates against the pinned original generation data;
+  Basculin and Metagross differ from the earlier PokéAPI table.
+- Validate every capture WAV and trimmed atlas frame. Use SwiftUI ImageRenderer for
+  offscreen evidence: NSHostingView cacheDisplay omits the colorMultiply GPU filter
+  and therefore cannot prove the original red absorption tint is present.
+
+## Safari encounters must share the battle's visible-pixel foot anchor
+
+- Safari used a 145-point square centered at a fixed Y and a separate 120-point
+  oval. Transparent padding, wide tails and different species heights could place
+  the visible stance away from the oval center. Previous capture snapshots checked
+  timings, not the stance-to-ground relationship.
+- Use the battle renderer's union crop and duration-weighted horizontal stance,
+  with PokéRogue's bottom-center origin. Keep the Safari camera fixed; derive the
+  black/brown ground width from the species display size once per encounter, never
+  from the current GIF pose or capture scale. The existing GIF and static fallback
+  bob remain active. Prepared crops/anchors are bounded and reused across capture
+  timeline redraws, invalidating when the underlying cached image objects change.
+- Offscreen production rendering verifies the actual foot location using asymmetric
+  transparent fixtures for small, tall and wide species. All Gen I–V species sizes
+  must fit the fixed camera. Existing battle animation and capture tests also run.
+
+## Safari Finish must exercise a real button and atomically keep the caught Pokémon
+
+- The reported unresponsive Leave control only toggled a SwiftUI confirmation state;
+  existing coverage invoked store methods directly and never pressed that control.
+  Remove the redundant header action as requested. A native target/action Finish
+  button and native window-close confirmation now share one finish-and-dismiss API.
+- Award the retained individual and clear the session in the same atomic write.
+  A failed write must leave both the active catch and the collection unchanged;
+  closing an already-credited finished session must not credit it again. Pending
+  replacement choices remain protected from accidental dismissal.
+- A hidden production host presses the real native Finish button and checks the
+  on-disk collection/session, with zero-catch, already-finished, replacement and
+  failed-save cases. Rendered-text OCR verifies that Leave, capture/flee rates,
+  capture HP and percentage hints are absent. Numeric action-effect translations
+  are removed from the Safari UI; internal capture and flee rules are unchanged.
+
+## Safari area transfer must wait for a persisted confirmation
+
+- Continuing after the ball/encounter limit previously chose an area, changed its
+  background and spawned a Pokémon in one call, leaving no confirmation boundary.
+- Persist an optional pending destination without changing the current area, visit
+  count or wild Pokémon. Suspend auto-advance and reject repeated Continue calls
+  until the native modal confirmation consumes that destination. Existing saves
+  without the new field still decode. Finish clears a pending transfer safely.
+- Engine tests cover both triggers, round trips, repeated Continue/Confirm rejection
+  and the final-area finish. A hidden production host waits past the normal timer,
+  checks the unchanged area, rendered destination and disabled underlying controls,
+  then presses the real confirmation button and verifies the saved new encounter.
+- Native representable buttons must combine their own enabled flag with SwiftUI's
+  isEnabled environment; otherwise an enclosing disabled modal background does not
+  disable their AppKit target/action.
+
+## Safari random selection must exclude the last encountered species
+
+- Independent random indices allowed back-to-back appearances of the same species;
+  previous encounter tests checked quotas and rarity, not adjacent species IDs.
+- Filter the preceding wild species before selecting either ordinary or legendary
+  candidates. Use the persisted wild encounter, not the retained catch, so Run,
+  replacement decisions, area confirmation and restart preserve the exclusion.
+  If the preceding species is an area's sole legendary, use ordinary candidates
+  for that encounter rather than violating the no-repeat rule or rerolling forever.
+- All areas/pool indices, the eligible legendary gate, sole-legend fallback and
+  128 full saved/resumed journeys cover the selection path without visible windows.
+
+## Safari area and battle preset lists must reserve overlay scroller space
+
+- Full release validation found missing scroller lanes in the new Safari area grid
+  and the existing battle roster preset list. Focused gameplay tests did not include
+  the repository-wide source scanner for scrollable content.
+- Apply the shared lane reservation to each scroll view's own grid/stack content,
+  rather than outside the ScrollView. Re-run the scanner, actor-isolation check and
+  affected Safari/preset tests after the fix. The existing source gate prevents new
+  lists from shipping without that reservation.

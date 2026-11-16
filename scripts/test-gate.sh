@@ -19,6 +19,10 @@ cd "$(dirname "$0")/.."
 THRESHOLD="${THRESHOLD:-75}"
 
 LOGIC_CORE=(
+  "Sources/PokeTokenBar/Core/Safari/SafariSession.swift"
+  "Sources/PokeTokenBar/Core/Safari/SafariCaptureOdds.swift"
+  "Sources/PokeTokenBar/Core/Safari/SafariCaptureSequence.swift"
+  "Sources/PokeTokenBar/Core/Safari/SafariThrowPath.swift"
   "Sources/PokeTokenBar/Core/Battle/BattleTextCatalog.swift"
   "Sources/PokeTokenBar/Core/Battle/BattleModels.swift"
   "Sources/PokeTokenBar/Core/Battle/BattleHistory.swift"

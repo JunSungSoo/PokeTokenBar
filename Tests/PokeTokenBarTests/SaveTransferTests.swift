@@ -556,7 +556,7 @@ final class SaveTransferTests: XCTestCase {
         let progress: Set<String> = ["usedSinceInstall", "spentTokens", "eggUsage", "eggTier",
                                      "pendingHatchID", "pendingForm", "eggPrayers", "active",
                                      "representativeSpeciesID", "representativeForm", "dex",
-                                     "collectedFinals", "inventory",
+                                     "collectedFinals", "inventory", "safariSession",
                                      "notifiedDexCompletions", "dexCompletionsSeeded", "challengeShinyClaims"]
         let deviceLedger: Set<String> = ["installBaselineSet", "claimedTodayTokensByProvider", "lastDate"]
         // Shiny claims travel with the imported Dex; cash claims merge to prevent duplicate credits.

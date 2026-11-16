@@ -1,0 +1,2324 @@
+[
+  {
+    "id": 18,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 469,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 20,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 413,
+    "legendary": false,
+    "captureRate": 127
+  },
+  {
+    "id": 22,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 442,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 36,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 473,
+    "legendary": false,
+    "captureRate": 25
+  },
+  {
+    "id": 40,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 425,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 83,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 352,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 85,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 115,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 128,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 132,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 288,
+    "legendary": false,
+    "captureRate": 35
+  },
+  {
+    "id": 162,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 415,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 164,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 442,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 203,
+    "area": "plains",
+    "types": [
+      "normal",
+      "psychic"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 210,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 450,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 217,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 234,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 465,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 235,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 250,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 241,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 242,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 540,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 264,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 420,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 289,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 670,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 327,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 360,
+    "legendary": false,
+    "captureRate": 255
+  },
+  {
+    "id": 335,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 458,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 352,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 440,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 398,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 400,
+    "area": "plains",
+    "types": [
+      "normal",
+      "water"
+    ],
+    "bst": 410,
+    "legendary": false,
+    "captureRate": 127
+  },
+  {
+    "id": 424,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 482,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 463,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 515,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 521,
+    "area": "plains",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "bst": 478,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 531,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 445,
+    "legendary": false,
+    "captureRate": 255
+  },
+  {
+    "id": 24,
+    "area": "forest",
+    "types": [
+      "poison"
+    ],
+    "bst": 438,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 31,
+    "area": "forest",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 34,
+    "area": "forest",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 45,
+    "area": "forest",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 47,
+    "area": "forest",
+    "types": [
+      "bug",
+      "grass"
+    ],
+    "bst": 405,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 49,
+    "area": "forest",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "bst": 450,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 71,
+    "area": "forest",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 89,
+    "area": "forest",
+    "types": [
+      "poison"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 103,
+    "area": "forest",
+    "types": [
+      "grass",
+      "psychic"
+    ],
+    "bst": 520,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 110,
+    "area": "forest",
+    "types": [
+      "poison"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 127,
+    "area": "forest",
+    "types": [
+      "bug"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 169,
+    "area": "forest",
+    "types": [
+      "poison",
+      "flying"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 182,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 189,
+    "area": "forest",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "bst": 450,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 192,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 425,
+    "legendary": false,
+    "captureRate": 120
+  },
+  {
+    "id": 205,
+    "area": "forest",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "bst": 465,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 212,
+    "area": "forest",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 25
+  },
+  {
+    "id": 213,
+    "area": "forest",
+    "types": [
+      "bug",
+      "rock"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 190
+  },
+  {
+    "id": 214,
+    "area": "forest",
+    "types": [
+      "bug",
+      "fighting"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 275,
+    "area": "forest",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 284,
+    "area": "forest",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "bst": 414,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 286,
+    "area": "forest",
+    "types": [
+      "grass",
+      "fighting"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 291,
+    "area": "forest",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "bst": 456,
+    "legendary": false,
+    "captureRate": 120
+  },
+  {
+    "id": 313,
+    "area": "forest",
+    "types": [
+      "bug"
+    ],
+    "bst": 400,
+    "legendary": false,
+    "captureRate": 150
+  },
+  {
+    "id": 314,
+    "area": "forest",
+    "types": [
+      "bug"
+    ],
+    "bst": 400,
+    "legendary": false,
+    "captureRate": 150
+  },
+  {
+    "id": 317,
+    "area": "forest",
+    "types": [
+      "poison"
+    ],
+    "bst": 467,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 332,
+    "area": "forest",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 336,
+    "area": "forest",
+    "types": [
+      "poison"
+    ],
+    "bst": 458,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 357,
+    "area": "forest",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 407,
+    "area": "forest",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 416,
+    "area": "forest",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "bst": 474,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 452,
+    "area": "forest",
+    "types": [
+      "poison",
+      "dark"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 454,
+    "area": "forest",
+    "types": [
+      "poison",
+      "fighting"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 455,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 454,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 465,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 469,
+    "area": "forest",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "bst": 515,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 545,
+    "area": "forest",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 547,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 549,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 556,
+    "area": "forest",
+    "types": [
+      "grass"
+    ],
+    "bst": 461,
+    "legendary": false,
+    "captureRate": 255
+  },
+  {
+    "id": 558,
+    "area": "forest",
+    "types": [
+      "bug",
+      "rock"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 589,
+    "area": "forest",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 596,
+    "area": "forest",
+    "types": [
+      "bug",
+      "electric"
+    ],
+    "bst": 472,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 617,
+    "area": "forest",
+    "types": [
+      "bug"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 632,
+    "area": "forest",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "bst": 484,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 55,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 62,
+    "area": "lake",
+    "types": [
+      "water",
+      "fighting"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 80,
+    "area": "lake",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 99,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 119,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 450,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 130,
+    "area": "lake",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "bst": 540,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 184,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 410,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 186,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 195,
+    "area": "lake",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "bst": 430,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 199,
+    "area": "lake",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 70
+  },
+  {
+    "id": 224,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 272,
+    "area": "lake",
+    "types": [
+      "water",
+      "grass"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 319,
+    "area": "lake",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 340,
+    "area": "lake",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "bst": 468,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 342,
+    "area": "lake",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "bst": 468,
+    "legendary": false,
+    "captureRate": 155
+  },
+  {
+    "id": 419,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 537,
+    "area": "lake",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "bst": 499,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 550,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 190
+  },
+  {
+    "id": 565,
+    "area": "lake",
+    "types": [
+      "water",
+      "rock"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 581,
+    "area": "lake",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "bst": 473,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 594,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 470,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 76,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 142,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "flying"
+    ],
+    "bst": 515,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 149,
+    "area": "mountain",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "bst": 600,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 248,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "dark"
+    ],
+    "bst": 600,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 334,
+    "area": "mountain",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 337,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "bst": 440,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 338,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "bst": 440,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 373,
+    "area": "mountain",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "bst": 600,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 409,
+    "area": "mountain",
+    "types": [
+      "rock"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 445,
+    "area": "mountain",
+    "types": [
+      "dragon",
+      "ground"
+    ],
+    "bst": 600,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 476,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "steel"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 526,
+    "area": "mountain",
+    "types": [
+      "rock"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 567,
+    "area": "mountain",
+    "types": [
+      "rock",
+      "flying"
+    ],
+    "bst": 567,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 612,
+    "area": "mountain",
+    "types": [
+      "dragon"
+    ],
+    "bst": 540,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 621,
+    "area": "mountain",
+    "types": [
+      "dragon"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 28,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 450,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 51,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 405,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 105,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 425,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 232,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 330,
+    "area": "desert",
+    "types": [
+      "ground",
+      "dragon"
+    ],
+    "bst": 520,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 344,
+    "area": "desert",
+    "types": [
+      "ground",
+      "psychic"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 389,
+    "area": "desert",
+    "types": [
+      "grass",
+      "ground"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 423,
+    "area": "desert",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 450,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 464,
+    "area": "desert",
+    "types": [
+      "ground",
+      "rock"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 472,
+    "area": "desert",
+    "types": [
+      "ground",
+      "flying"
+    ],
+    "bst": 510,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 530,
+    "area": "desert",
+    "types": [
+      "ground",
+      "steel"
+    ],
+    "bst": 508,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 553,
+    "area": "desert",
+    "types": [
+      "ground",
+      "dark"
+    ],
+    "bst": 509,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 618,
+    "area": "desert",
+    "types": [
+      "ground",
+      "electric"
+    ],
+    "bst": 471,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 623,
+    "area": "desert",
+    "types": [
+      "ground",
+      "ghost"
+    ],
+    "bst": 483,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 6,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "bst": 534,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 38,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 59,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 555,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 78,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 136,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 146,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 157,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 534,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 219,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "rock"
+    ],
+    "bst": 410,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 250,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "bst": 680,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 323,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "ground"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 150
+  },
+  {
+    "id": 324,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 470,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 467,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 540,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 500,
+    "area": "volcano",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "bst": 528,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 514,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 498,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 555,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 631,
+    "area": "volcano",
+    "types": [
+      "fire"
+    ],
+    "bst": 484,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 637,
+    "area": "volcano",
+    "types": [
+      "bug",
+      "fire"
+    ],
+    "bst": 550,
+    "legendary": false,
+    "captureRate": 15
+  },
+  {
+    "id": 25,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 300,
+    "legendary": false,
+    "captureRate": 190
+  },
+  {
+    "id": 101,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 145,
+    "area": "metropolis",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 181,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 208,
+    "area": "metropolis",
+    "types": [
+      "steel",
+      "ground"
+    ],
+    "bst": 510,
+    "legendary": false,
+    "captureRate": 25
+  },
+  {
+    "id": 306,
+    "area": "metropolis",
+    "types": [
+      "steel",
+      "rock"
+    ],
+    "bst": 530,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 310,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 376,
+    "area": "metropolis",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "bst": 600,
+    "legendary": false,
+    "captureRate": 10
+  },
+  {
+    "id": 405,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 523,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 417,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 405,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 437,
+    "area": "metropolis",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 462,
+    "area": "metropolis",
+    "types": [
+      "electric",
+      "steel"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 466,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 540,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 587,
+    "area": "metropolis",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "bst": 428,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 601,
+    "area": "metropolis",
+    "types": [
+      "steel"
+    ],
+    "bst": 520,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 604,
+    "area": "metropolis",
+    "types": [
+      "electric"
+    ],
+    "bst": 515,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 57,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 68,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 106,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 107,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 237,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 257,
+    "area": "dojo",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "bst": 530,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 297,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 474,
+    "legendary": false,
+    "captureRate": 200
+  },
+  {
+    "id": 308,
+    "area": "dojo",
+    "types": [
+      "fighting",
+      "psychic"
+    ],
+    "bst": 410,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 392,
+    "area": "dojo",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "bst": 534,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 448,
+    "area": "dojo",
+    "types": [
+      "fighting",
+      "steel"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 475,
+    "area": "dojo",
+    "types": [
+      "psychic",
+      "fighting"
+    ],
+    "bst": 518,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 534,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 538,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 465,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 539,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 465,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 620,
+    "area": "dojo",
+    "types": [
+      "fighting"
+    ],
+    "bst": 510,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 94,
+    "area": "cave",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 197,
+    "area": "cave",
+    "types": [
+      "dark"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 229,
+    "area": "cave",
+    "types": [
+      "dark",
+      "fire"
+    ],
+    "bst": 500,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 262,
+    "area": "cave",
+    "types": [
+      "dark"
+    ],
+    "bst": 420,
+    "legendary": false,
+    "captureRate": 127
+  },
+  {
+    "id": 354,
+    "area": "cave",
+    "types": [
+      "ghost"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 359,
+    "area": "cave",
+    "types": [
+      "dark"
+    ],
+    "bst": 465,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 429,
+    "area": "cave",
+    "types": [
+      "ghost"
+    ],
+    "bst": 495,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 430,
+    "area": "cave",
+    "types": [
+      "dark",
+      "flying"
+    ],
+    "bst": 505,
+    "legendary": false,
+    "captureRate": 30
+  },
+  {
+    "id": 442,
+    "area": "cave",
+    "types": [
+      "ghost",
+      "dark"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 100
+  },
+  {
+    "id": 477,
+    "area": "cave",
+    "types": [
+      "ghost"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 560,
+    "area": "cave",
+    "types": [
+      "dark",
+      "fighting"
+    ],
+    "bst": 488,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 563,
+    "area": "cave",
+    "types": [
+      "ghost"
+    ],
+    "bst": 483,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 571,
+    "area": "cave",
+    "types": [
+      "dark"
+    ],
+    "bst": 510,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 609,
+    "area": "cave",
+    "types": [
+      "ghost",
+      "fire"
+    ],
+    "bst": 520,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 625,
+    "area": "cave",
+    "types": [
+      "dark",
+      "steel"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 65,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 97,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 483,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 122,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 460,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 178,
+    "area": "fairy_cave",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "bst": 470,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 196,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 202,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 405,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 249,
+    "area": "fairy_cave",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "bst": 680,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 282,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 518,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 326,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 470,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 358,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 425,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 518,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 487,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 528,
+    "area": "fairy_cave",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "bst": 425,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 561,
+    "area": "fairy_cave",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 576,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 579,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 490,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 606,
+    "area": "fairy_cave",
+    "types": [
+      "psychic"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 90
+  },
+  {
+    "id": 87,
+    "area": "ice_cave",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "bst": 475,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 91,
+    "area": "ice_cave",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 124,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "psychic"
+    ],
+    "bst": 455,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 131,
+    "area": "ice_cave",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 144,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "flying"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 225,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "flying"
+    ],
+    "bst": 330,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 362,
+    "area": "ice_cave",
+    "types": [
+      "ice"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 365,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "water"
+    ],
+    "bst": 530,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 460,
+    "area": "ice_cave",
+    "types": [
+      "grass",
+      "ice"
+    ],
+    "bst": 494,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 461,
+    "area": "ice_cave",
+    "types": [
+      "dark",
+      "ice"
+    ],
+    "bst": 510,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 471,
+    "area": "ice_cave",
+    "types": [
+      "ice"
+    ],
+    "bst": 525,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 473,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "ground"
+    ],
+    "bst": 530,
+    "legendary": false,
+    "captureRate": 50
+  },
+  {
+    "id": 478,
+    "area": "ice_cave",
+    "types": [
+      "ice",
+      "ghost"
+    ],
+    "bst": 480,
+    "legendary": false,
+    "captureRate": 75
+  },
+  {
+    "id": 584,
+    "area": "ice_cave",
+    "types": [
+      "ice"
+    ],
+    "bst": 535,
+    "legendary": false,
+    "captureRate": 45
+  },
+  {
+    "id": 614,
+    "area": "ice_cave",
+    "types": [
+      "ice"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 60
+  },
+  {
+    "id": 615,
+    "area": "ice_cave",
+    "types": [
+      "ice"
+    ],
+    "bst": 485,
+    "legendary": false,
+    "captureRate": 25
+  }
+]

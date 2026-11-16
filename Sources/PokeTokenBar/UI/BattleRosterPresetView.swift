@@ -56,7 +56,7 @@ struct BattleRosterPresetEditor: View {
                             }
                         }
                     }
-                }
+                }.reservesScrollerLane()
             }.frame(height: 260)
             HStack {
                 Button(l.battleCancel) { dismiss() }.keyboardShortcut(.cancelAction)
@@ -113,6 +113,7 @@ struct BattleRosterPresetEditor: View {
     }
 }
 
+@MainActor
 struct BattleRosterPresetMenu: View {
     let l: L
     let mode: BattleMode

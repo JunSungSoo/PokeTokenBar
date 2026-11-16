@@ -1919,6 +1919,7 @@ struct L {
         switch kind {
         case .rareCandy: return t("이상한 사탕", "Rare Candy", "ふしぎなアメ", "Caramelo Raro", "Super Bonbon", "Doce Raro", "Sonderbonbon", "Редкая конфета")
         case .mint:      return t("민트", "Mint", "ミント", "Menta", "Menthe", "Menta", "Minze", "Мята")
+        case .safariTicket: return safariTitle + " " + safariTicketLabel
         case .redMaple: return t("붉은 단풍","Red Maple","赤いもみじ","Arce rojo","Érable rouge","Bordo vermelho","Rotes Ahornblatt","Красный клён")
         case .shinyCharm: return t("이로치 부적", "Shiny Charm", "ひかるおまもり", "Amuleto Iris", "Charme Chroma", "Amuleto Shiny", "Schillerpin", "Шайни-талисман")
         }
@@ -1944,6 +1945,8 @@ struct L {
                      "Muda a natureza do seu Pokémon aleatoriamente.",
                      "Ändert das Wesen deines aktuellen Pokémon zufällig.",
                      "Случайно меняет характер покемона.")
+        case .safariTicket:
+            return safariTicketDescription
         case .redMaple:
             return t("선택한 포켓몬의 종족값을 랜덤하게 변경해요.","Randomizes the selected Pokémon’s individual stats.","選んだポケモンの個体値をランダムに変更します。","Cambia al azar los valores individuales del Pokémon elegido.","Modifie aléatoirement les valeurs individuelles du Pokémon choisi.","Altera aleatoriamente os valores individuais do Pokémon escolhido.","Würfelt die individuellen Werte des gewählten Pokémon neu.","Случайно меняет индивидуальные значения выбранного покемона.")
         case .shinyCharm:

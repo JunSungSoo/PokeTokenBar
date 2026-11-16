@@ -1138,6 +1138,35 @@
       "sha256": "fdbfcf12df3d7ef63daedbf6830868506b629c51da84a362df0bfb776cbcd016",
       "bytes": 169917793,
       "packagedAt": "2026-11-13T09:39:25+09:00"
+    },
+    {
+      "date": "2026-11-16",
+      "time": "16:45:03",
+      "archive": "PokeTokenBar-3.2.0-261116-installer.zip",
+      "version": "3.2.0",
+      "evidence": "Verified installer ZIP created with scripts/package-zip.py; signatures, arm64 payload, version, release notes and Safari assets checked after extraction.",
+      "turn": null,
+      "title": "Safari Zone exploration and capture",
+      "commit": null,
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "상점에 300M 고정 가격의 사파리존 입장권을 추가했습니다. 가방에서 사용하면 별도 창으로 입장하며, 탐험 진행상황을 자동 저장합니다.",
+        "11개 지역에 출현 포켓몬 221종을 배치했습니다. 첫 지역은 대표 출현 포켓몬을 보고 선택하며, 다음 지역은 무작위로 정해집니다.",
+        "사파리볼 20개를 지역별 6개·6개·8개로 나누어 사용합니다. 한 지역에서 최대 5마리와 조우하며, 지역 이동 안내의 확인 버튼을 눌러야 다음 지역으로 이동합니다.",
+        "사파리볼 던지기·돌 던지기·먹이 주기·도망 가기를 추가했습니다. PokéRogue 기준 포획 판정과 볼·입자·흔들림·효과음을 적용하고, 투척은 포물선으로 표시합니다.",
+        "돌을 작은 만화풍 디자인으로 표시하고, 포켓몬 크기에 맞춘 지면과 발 위치 정렬을 적용했습니다. 기존 포켓몬 GIF와 플로팅을 유지합니다.",
+        "직전에 조우한 포켓몬과 같은 종이 연속 출현하지 않도록 했습니다. 포획률·도주율과 돌·먹이의 수치 효과는 화면에 표시하지 않습니다.",
+        "추가 포획 시 데려갈 포켓몬 한 마리를 선택할 수 있습니다. 종료하면 선택한 포켓몬을 100레벨 졸업 개체로 포획로그와 컬렉션에 등록합니다.",
+        "야생 조우 시 성격과 개체별 별 등급을 무작위로 확정하며, 포획·퇴장·재실행 후에도 유지합니다. 종료 버튼은 포켓몬 등록과 탐험 종료를 함께 저장합니다.",
+        "지역 선택과 선발 프리셋 목록에서 스크롤바가 항목을 가리지 않도록 여백을 조정했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.2.0-261116-installer.zip",
+      "sha256": "b85259556addcf7bd60e0c5c3f4ebb9a41aa7188b6f69667dc713e4e2c2b88d6",
+      "bytes": 128861886,
+      "packagedAt": "2026-11-16T16:45:03+09:00",
+      "sourceHEAD": "ad1bb7c9217028270ec28ebfb8d2dc05059a09da",
+      "workingTreeModified": true
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

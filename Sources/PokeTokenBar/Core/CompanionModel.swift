@@ -183,6 +183,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
     case rareCandy
     case mint
     case redMaple
+    case safariTicket
     case shinyCharm
 
     /// PokéAPI 아이템 스프라이트 파일명(.../sprites/items/{name}.png). nil = 스프라이트 없음(이모지 폴백만).
@@ -190,7 +191,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         switch self {
         case .rareCandy: return "rare-candy"
         case .mint: return nil   // PokéAPI 에 민트 스프라이트 없음(8세대 아이템) → 이모지 폴백
-        case .redMaple: return nil
+        case .redMaple, .safariTicket: return nil
         case .shinyCharm: return "shiny-charm"
         }
     }
@@ -200,6 +201,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         case .rareCandy: return "🍬"
         case .mint: return "🌿"
         case .redMaple: return "🍁"
+        case .safariTicket: return "🎟️"
         case .shinyCharm: return "✨"
         }
     }
@@ -208,13 +210,14 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         switch self {
         case .rareCandy: return RareCandy.price
         case .mint, .redMaple: return Mint.price
+        case .safariTicket: return 300_000_000
         case .shinyCharm: return ShinyCharm.price
         }
     }
     /// 보유형(패시브) 아이템 — 소비하지 않고 보유하는 동안 상시 효과. 1회 구매(재구매 불가), 가방엔 "적용 중" 표시.
     var isPassive: Bool {
         switch self {
-        case .rareCandy, .mint, .redMaple: return false
+        case .rareCandy, .mint, .redMaple, .safariTicket: return false
         case .shinyCharm: return true
         }
     }
@@ -695,6 +698,7 @@ struct CompanionState: Codable, Sendable {
     var representativeForm: PokemonForm? = nil
     // 도감
     var dex: [DexEntry] = []
+    var safariSession: SafariSession? = nil
     var challengeCashClaims:[String:Int]? = nil
     var challengeShinyClaims:[String:String]? = nil
     // 소유한 (base,final) 쌍 — 분기 다양성용
@@ -747,6 +751,7 @@ struct CompanionState: Codable, Sendable {
             form: PokemonForm.decoded(from: decoder, keys: "representativeForm", "representativeUnownForm"))
         // 도감은 항목별 격리 — 손상 항목 하나가 도감 전체를 날리지 않게.
         dex                = c.lenient([Lossy<DexEntry>].self, forKey: .dex, default: []).compactMap(\.value)
+        safariSession = c.lenientOptional(SafariSession.self, forKey: .safariSession)
         challengeCashClaims = try? c.decodeIfPresent([String:Int].self,forKey:.challengeCashClaims)
         challengeShinyClaims = try? c.decodeIfPresent([String:String].self,forKey:.challengeShinyClaims)
         collectedFinals    = c.lenient(Set<String>.self, forKey: .collectedFinals, default: [])

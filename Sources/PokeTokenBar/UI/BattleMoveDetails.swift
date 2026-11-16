@@ -61,18 +61,59 @@ struct BattlePokemonSprite: View {
     var pixelScale:CGFloat? = nil
     var spriteStore: SpriteStore = .shared
     var animated = true
+    var bobsWhenStatic = false
+    @State private var bobUp = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var image: NSImage?
     @State private var frames: [(image: NSImage, delay: TimeInterval)] = []
     @State private var frameIndex = 0
     @State private var horizontalCenter: CGFloat = 0.5
+    init(pokemon:BattleCombatant,back:Bool,size:CGFloat,pixelScale:CGFloat? = nil,
+         spriteStore:SpriteStore = .shared,animated:Bool = true,bobsWhenStatic:Bool = false) {
+        self.pokemon = pokemon; self.back = back; self.size = size
+        self.pixelScale = pixelScale; self.spriteStore = spriteStore; self.animated = animated; self.bobsWhenStatic = bobsWhenStatic
+        // Seed the same cropped assets used by the task so encounter switches and
+        // offscreen rendering do not briefly show a placeholder before onAppear.
+        let raw = Self.cachedImage(pokemon:pokemon,back:back,spriteStore:spriteStore)
+        let decoded = animated && !pokemon.fainted ? SpriteLoader.cachedFrames(
+            speciesID:pokemon.speciesID,shiny:pokemon.shiny,directory:spriteStore.directory,form:pokemon.form,back:back) : []
+        let key = spriteStore.directory.path + "/" + SpriteStore.cacheKey(speciesID:pokemon.speciesID,
+            animated:animated && !pokemon.fainted,shiny:pokemon.shiny,form:pokemon.form,back:back)
+        let seed = Self.prepared(key:key,image:raw,frames:decoded)
+        _image = State(initialValue:seed.image)
+        _frames = State(initialValue:seed.frames)
+        _horizontalCenter = State(initialValue:seed.center)
+    }
+    /// Keep pixel scans out of TimelineView redraws. Source image identity detects
+    /// real cache replacements; missing assets are not retained as negative entries.
+    @MainActor private final class Prepared {
+        let source:NSImage?; let originals:[(image:NSImage,delay:TimeInterval)]
+        let image:NSImage?; let frames:[(image:NSImage,delay:TimeInterval)]; let center:CGFloat
+        init(image:NSImage?,frames:[(image:NSImage,delay:TimeInterval)]) {
+            source=image; originals=frames
+            self.image=image.map(BattleSpriteGeometry.cropped)
+            self.frames=BattleSpriteGeometry.croppedFrames(frames)
+            center=BattleSpriteGeometry.horizontalCenter(self.frames.isEmpty ? self.image.map { [($0,1)] } ?? []:self.frames)
+        }
+    }
+    private static let preparedCache:NSCache<NSString,Prepared> = {
+        let cache=NSCache<NSString,Prepared>(); cache.countLimit=16; return cache
+    }()
+    private static func prepared(key:String,image:NSImage?,frames:[(image:NSImage,delay:TimeInterval)]) -> Prepared {
+        if let old=preparedCache.object(forKey:key as NSString), old.source === image,
+           old.originals.count == frames.count,
+           zip(old.originals,frames).allSatisfy({ $0.image === $1.image && $0.delay == $1.delay }) { return old }
+        let result=Prepared(image:image,frames:frames)
+        if image != nil || !frames.isEmpty { preparedCache.setObject(result,forKey:key as NSString) }
+        return result
+    }
     private var moving: Bool { animated && !reduceMotion && !pokemon.fainted }
     private var key: String { SpriteStore.cacheKey(speciesID:pokemon.speciesID,animated:moving,shiny:pokemon.shiny,form:pokemon.form,back:back) }
-    private func cachedImage() -> NSImage? {
+    private static func cachedImage(pokemon:BattleCombatant,back:Bool,spriteStore:SpriteStore) -> NSImage? {
         for (facing,color) in [(back,pokemon.shiny),(back,false),(false,pokemon.shiny),(false,false)] {
             if let source = SpriteLoader.cachedImage(speciesID:pokemon.speciesID,shiny:color,
                 directory:spriteStore.directory,form:pokemon.form,back:facing) {
-                return BattleSpriteGeometry.cropped(source)
+                return source
             }
         }
         return nil
@@ -100,10 +141,14 @@ struct BattlePokemonSprite: View {
             } else {
                 Image(systemName:"pawprint.fill").font(.system(size:22)).foregroundStyle(.secondary)
             }
-        }.frame(width:size,height:pixelScale == nil ? size:nil,alignment:.bottom)
+        }
+        .offset(y:bobsWhenStatic && !reduceMotion && frames.isEmpty && bobUp ? -3:0)
+        .animation(bobsWhenStatic && !reduceMotion ? .easeInOut(duration:0.9).repeatForever(autoreverses:true):nil,value:bobUp)
+        .frame(width:size,height:pixelScale == nil ? size:nil,alignment:.bottom)
+        .onAppear { if bobsWhenStatic && !reduceMotion { bobUp = true } }
         .task(id:key) {
             // Clear old species/form/facing pixels before any await; SwiftUI cancels on replacement/removal.
-            image = cachedImage(); frameIndex = 0
+            image = Self.cachedImage(pokemon:pokemon,back:back,spriteStore:spriteStore).map(BattleSpriteGeometry.cropped); frameIndex = 0
             horizontalCenter = image.map { BattleSpriteGeometry.horizontalCenter([($0,1)]) } ?? 0.5
             frames = moving ? BattleSpriteGeometry.croppedFrames(SpriteLoader.cachedFrames(
                 speciesID:pokemon.speciesID,shiny:pokemon.shiny,directory:spriteStore.directory,form:pokemon.form,back:back)) : []

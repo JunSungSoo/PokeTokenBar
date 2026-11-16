@@ -1,0 +1,36 @@
+{
+  "repository": "pagefaultgames/pokerogue-assets",
+  "revision": "fb8ccb6d0703ffe48cdf80a8102d5ed943c82dba",
+  "sounds": {
+    "crit_throw": {
+      "gitBlob": "a737410e7ce3857ea6369f1f828d555d476b5567",
+      "sha256": "1577ae4d8b988b9cda5d145355c803b16d562e45c6085b9379a5a7661462abfc",
+      "bytes": 134444
+    },
+    "pb_bounce_1": {
+      "gitBlob": "2c2604be3da1946320177298ab9b855e09903d36",
+      "sha256": "c8da96d2e6bdc3cfc0181015f593e26886d332730f905c32de40bd79dea0785e",
+      "bytes": 59604
+    },
+    "pb_catch": {
+      "gitBlob": "41b8a3cb7b87bddf5bcbefca04a97b6fba9de92c",
+      "sha256": "570041f3a4ec15f718b4949e03f6d8742cd1b8a895326047e8d9f71d5d823850",
+      "bytes": 80100
+    },
+    "pb_lock": {
+      "gitBlob": "4af8a918de839be56a360c7a02b3a696be45b075",
+      "sha256": "00238560c236852452d32400ceff1eb689e63172331b7f0cd968ab40c530ffc9",
+      "bytes": 55684
+    },
+    "pb_move": {
+      "gitBlob": "f2f2b54b21f5b6dd59769003a72eace91daca0b6",
+      "sha256": "8d632a4f51766fe3578a96889949392cc7a3749b1b986e1968819ea8cec11cd7",
+      "bytes": 17772
+    },
+    "pb_throw": {
+      "gitBlob": "3c1b23c1ce96b81c8656477e3820b3df9f88e5fc",
+      "sha256": "86e92bb0d3a060ba12573cf38ab59a26d8bf5a519a6da4ed28875259df416588",
+      "bytes": 108876
+    }
+  }
+}

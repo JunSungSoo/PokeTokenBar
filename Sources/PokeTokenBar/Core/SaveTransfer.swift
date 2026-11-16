@@ -151,6 +151,11 @@ enum SaveTransfer {
     static func sanitized(_ state: CompanionState) -> CompanionState {
         func clampToken(_ v: Int) -> Int { min(max(0, v), maxTokenValue) }
         var s = state
+        if let session = s.safariSession {
+            // Imported/local JSON crosses the same trust boundary before any Safari action runs.
+            do { try session.validate(catalog: SafariCatalog.load()) }
+            catch { s.safariSession = nil }
+        }
         s.usedSinceInstall = clampToken(s.usedSinceInstall)
         s.spentTokens = clampToken(s.spentTokens)
         s.challengeCashClaims=s.challengeCashClaims?.filter{!$0.key.isEmpty && (10_000_000...500_000_000).contains($0.value) && $0.value.isMultiple(of:10_000_000)}
@@ -205,7 +210,7 @@ enum SaveTransfer {
     ///
     /// `CompanionState` 의 필드는 이전 관점에서 세 부류다.
     ///  - **진행**: 어느 기기에서든 참(`usedSinceInstall`·`dex`·`inventory`·`active`·`eggUsage`·`eggTier`·
-    ///    `pendingHatchID`·`pendingForm`·`eggPrayers`·`representativeSpeciesID`·`representativeForm`…)
+    ///    `pendingHatchID`·`pendingForm`·`eggPrayers`·`representativeSpeciesID`·`representativeForm`·`safariSession`…)
     ///    → 그대로. 알 보증(`eggTier`)은 산 물건이지 이 기기의 장부가 아니라 기기를 옮겨도 따라간다.
     ///  - **로컬 장부**: *그 기기가* 어디까지 적립했나(`claimedTodayTokensByProvider`·`lastDate`·`installBaselineSet`)
     ///    → 새 기기 기준으로 다시 잡는다. 그대로 들여오면 옛 기기의 오늘 총량이 문턱이 되어

@@ -7,12 +7,15 @@ struct BagView: View {
     let nav: PopoverNavigation
 
     var body: some View {
-        if store.ownedItems.isEmpty {
+        if store.ownedItems.isEmpty && store.safariSession == nil {
             emptyState
         } else {
             // 고정 높이 — 컬렉션과 동일(팝오버 재오픈 시 fitting size 축소 방지).
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
+                    if store.itemCount(.safariTicket) == 0, store.safariSession != nil {
+                        ItemCard(store: store, nav: nav, kind: .safariTicket, count: 0)
+                    }
                     ForEach(store.ownedItems, id: \.kind) { item in
                         ItemCard(store: store, nav: nav, kind: item.kind, count: item.count)
                     }
@@ -107,6 +110,7 @@ private struct ItemCard: View {
         case .rareCandy: return store.canUseRareCandy
         case .mint:      return store.canUseMint
         case .redMaple: return store.canUseRedMaple
+        case .safariTicket: return store.canEnterSafari
         case .shinyCharm: return false   // 보유형 — 사용 개념 없음(상시 효과)
         }
     }
@@ -116,6 +120,7 @@ private struct ItemCard: View {
         case .rareCandy: return "+\(TokenFormatter.compact(selectedCandyCount * RareCandy.xp)) XP"
         case .mint:      return l.mintEffectHint
         case .redMaple: return l.redMapleHint
+        case .safariTicket: return l.safariTicketDescription
         case .shinyCharm: return l.shinyCharmEffectHint
         }
     }
@@ -124,13 +129,20 @@ private struct ItemCard: View {
         case .rareCandy: _ = store.useRareCandy(count: selectedCandyCount)
         case .mint:      _ = store.useMint()
         case .redMaple: RedMapleWindowController.shared.show(store:store)
+        case .safariTicket: SafariWindowController.shared.show(store: store)
         case .shinyCharm: break   // 보유형 — 사용 동작 없음
         }
     }
 
     @ViewBuilder
     private func useControls(_ l: L) -> some View {
-        if kind == .redMaple {
+        if kind == .safariTicket {
+            HStack {
+                Spacer()
+                Button(store.safariSession == nil ? l.useItem : l.safariResume) { SafariWindowController.shared.show(store: store) }
+                    .buttonStyle(.borderedProminent).disabled(!canUse)
+            }
+        } else if kind == .redMaple {
             HStack {
                 Text(store.redMapleTargets.isEmpty ? l.redMapleEmpty:l.redMapleHint)
                     .font(.caption2).foregroundStyle(.secondary)

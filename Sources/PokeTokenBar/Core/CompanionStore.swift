@@ -172,12 +172,13 @@ final class CompanionStore {
 
     /// 상점 표시·결제에 쓰는 실제 가격 — 기본가 × 상점 난이도. 미판매면 nil.
     func price(of kind: ItemKind) -> Int? {
-        kind.shopPrice.map { PokemonBalance.scaled($0, by: shopDifficulty) }
+        kind == .safariTicket ? kind.shopPrice : kind.shopPrice.map { PokemonBalance.scaled($0, by: shopDifficulty) }
     }
 
     /// 알을 포함한 상점 한 줄의 실제 가격.
     func price(of entry: ShopEntry) -> Int {
-        PokemonBalance.scaled(entry.price, by: shopDifficulty)
+        if case .item(let kind) = entry { return price(of: kind) ?? 0 }
+        return PokemonBalance.scaled(entry.price, by: shopDifficulty)
     }
     /// 앱 전체 UI 문자열 — language 변경 시 자동 재렌더.
     var l: L { L(language) }
@@ -2613,6 +2614,90 @@ final class CompanionStore {
         try JSONEncoder().encode(next).write(to:fileURL,options:.atomic)
         state=next
     }
+    // MARK: Safari — ticket, progress and reward use the same atomic save as the wallet.
+    var safariSession: SafariSession? { state.safariSession }
+    var canEnterSafari: Bool { itemCount(.safariTicket) > 0 || state.safariSession != nil }
+
+    func startSafari(area: SafariArea, catalog: SafariCatalog) throws {
+        if state.safariSession != nil { return }
+        guard itemCount(.safariTicket) > 0 else { throw SafariError.noTicket }
+        try catalog.validate()
+        var session = SafariSession(area: area, seed: rng.next(), shinyDenominator: shinyDenominator, now: clock())
+        session.registeredSpeciesCount = Set(dexSpecies.map(\.id)).count
+        try session.continueJourney(catalog: catalog)
+        var next = state
+        next.inventory[ItemKind.safariTicket.rawValue] = itemCount(.safariTicket) - 1
+        next.safariSession = session
+        try commitSafari(next)
+    }
+    func safariAct(_ action: SafariAction) throws {
+        guard var session = state.safariSession else { throw SafariError.invalidAction }
+        session.registeredSpeciesCount = Set(dexSpecies.map(\.id)).count
+        try session.act(action)
+        var next = state; next.safariSession = session
+        try commitSafari(next)
+    }
+    func safariContinue(catalog: SafariCatalog) throws {
+        guard var session = state.safariSession else { throw SafariError.invalidAction }
+        try session.continueJourney(catalog: catalog)
+        var next = state; next.safariSession = session
+        try commitSafari(next)
+    }
+    func safariConfirmAreaChange(catalog: SafariCatalog) throws {
+        guard var session = state.safariSession else { throw SafariError.invalidAction }
+        try session.confirmAreaChange(catalog:catalog)
+        var next = state; next.safariSession = session
+        try commitSafari(next)
+    }
+    func safariResolveCatch(replace: Bool) throws {
+        guard var session = state.safariSession else { throw SafariError.invalidAction }
+        try session.resolveCatch(replace: replace)
+        var next = state; next.safariSession = session
+        try commitSafari(next)
+    }
+    func safariExit() throws {
+        guard var session = state.safariSession, session.phase != .replacement else { throw SafariError.invalidAction }
+        session.finish()
+        var next = state; next.safariSession = session
+        try commitSafari(next)
+    }
+    /// The visible Finish button and native close flow award the kept individual
+    /// and remove the session in one atomic write, with no pending reward to lose.
+    func finishAndDismissSafari() throws {
+        guard var session = state.safariSession, session.phase != .replacement else { throw SafariError.invalidAction }
+        session.finish()
+        var next = state; next.safariSession = session
+        try commitSafari(next,dismissingSafari:true)
+    }
+    func dismissSafari() throws {
+        guard state.safariSession?.phase == .finished, state.safariSession?.claimed == true else { throw SafariError.invalidAction }
+        var next = state; next.safariSession = nil
+        try commitSafari(next)
+    }
+    private func commitSafari(_ proposed: CompanionState, dismissingSafari: Bool = false) throws {
+        var next = proposed
+        if var session = next.safariSession {
+            try session.validate(catalog: SafariCatalog.load())
+            if session.phase == .finished && !session.claimed {
+                if var pokemon = session.carried {
+                    if let details = pokemonDetailsByID[pokemon.species.id] { pokemon.profile.enrich(with: details) }
+                    if !next.dex.contains(where: { $0.id == pokemon.id }) {
+                        next.dex.append(DexEntry(id: pokemon.id, baseID: pokemon.species.id, finalID: pokemon.species.id,
+                            chainOrder: [pokemon.species.id], rarity: pokemon.species.rarity, caughtAt: clock(),
+                            isShiny: pokemon.shiny, nature: pokemon.nature, profile: pokemon.profile))
+                        next.collectedFinals.insert("\(pokemon.species.id):\(pokemon.species.id)")
+                    }
+                    session.carried = pokemon
+                }
+                session.claimed = true; next.safariSession = session
+            }
+        }
+        if dismissingSafari { next.safariSession = nil }
+        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try JSONEncoder().encode(next).write(to: fileURL, options: .atomic)
+        state = next; refreshRepresentativeSubject()
+    }
+
     private func save() {
         refreshRepresentativeSubject()
         checkDexCompletions()   // 보유 성장분이 영속되는 매 지점에서 세대 완성 알림을 한 번만 띄운다

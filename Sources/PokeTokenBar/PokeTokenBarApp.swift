@@ -98,6 +98,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if ChallengeTestMode.enabled,
+           Bundle.main.object(forInfoDictionaryKey: "PTBSafariTestMode") as? Bool == true,
+           let path = Bundle.main.object(forInfoDictionaryKey: "PTBSafariTestStatePath") as? String {
+            NSApp.setActivationPolicy(.regular)
+            companion = CompanionStore(fileURL: URL(fileURLWithPath: path))
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 600),
+                                  styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+            window.title = "PokeTokenBar Safari Test · " + companion.l.bag
+            window.isReleasedWhenClosed = false
+            window.contentViewController = NSHostingController(rootView: SafariBagTestView(store: companion))
+            challengeTestWindow = window
+            window.center(); NSApp.activate(ignoringOtherApps: true); window.makeKeyAndOrderFront(nil)
+            return
+        }
         if ChallengeTestMode.enabled {
             // The challenge QA app does not need usage providers, credential prompts or login agents.
             NSApp.setActivationPolicy(.regular)
