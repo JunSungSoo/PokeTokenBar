@@ -1,6 +1,6 @@
 # Safari Zone
 
-Buy a Safari Zone ticket for a fixed 300M in the Shop, then use it from the Bag.
+Buy a Safari Zone ticket for a fixed 200M in the Shop, then use it from the Bag.
 The ticket is consumed when a starting area is chosen. An active trip can be resumed
 from the Bag even when no tickets remain.
 

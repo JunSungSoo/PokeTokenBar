@@ -569,13 +569,13 @@ final class SafariStoreTests: XCTestCase {
     private func store() -> CompanionStore { CompanionStore(provider:SafariNoProvider(),fileURL:file,defaults:defaults) }
     func testTicketIsFixedPriceAtBothStorePricePathsAndActualCheckout() throws {
         let store = store(); store.setShopDifficulty(2)
-        XCTAssertEqual(store.price(of:.safariTicket),300_000_000)
-        XCTAssertEqual(store.price(of:ShopEntry.item(.safariTicket)),300_000_000)
+        XCTAssertEqual(store.price(of:.safariTicket),200_000_000)
+        XCTAssertEqual(store.price(of:ShopEntry.item(.safariTicket)),200_000_000)
         XCTAssertTrue(store.buy(.safariTicket))
-        XCTAssertEqual(store.availableTokens,1_700_000_000)
+        XCTAssertEqual(store.availableTokens,1_800_000_000)
         XCTAssertEqual(store.itemCount(.safariTicket),3)
         store.setShopDifficulty(0.1)
-        XCTAssertEqual(store.price(of:.safariTicket),300_000_000)
+        XCTAssertEqual(store.price(of:.safariTicket),200_000_000)
     }
     func testStartConsumesOneTicketResumeDoesNotAndOldStateIsCompatible() throws {
         let catalog = try SafariCatalog.load(), store = store()

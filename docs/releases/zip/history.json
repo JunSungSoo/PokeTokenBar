@@ -1194,6 +1194,29 @@
       "packagedAt": "2026-11-17T11:10:57+09:00",
       "sourceHEAD": "716ec43e196639fdd1728ec6dc12a0b34c6abc11",
       "workingTreeModified": true
+    },
+    {
+      "date": "2026-11-17",
+      "time": "12:36:47",
+      "archive": "PokeTokenBar-3.2.1-261117-2-installer.zip",
+      "version": "3.2.1",
+      "evidence": "Verified local same-version installer ZIP: CRC, arm64 launcher/app/Node, deep signature, version, full notes and 15 Safari resources checked; 41 price/shop tests and two installer policy tests passed.",
+      "turn": null,
+      "title": "Safari ticket fixed price reduced to 200M",
+      "commit": null,
+      "artifactAvailable": true,
+      "releaseNumber": 2,
+      "changes": [
+        "사파리존 입장권의 고정 가격을 300M에서 200M으로 변경했습니다.",
+        "상점·가방·사파리존의 모든 언어 가격 안내를 200M으로 맞췄습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.2.1-261117-2-installer.zip",
+      "sha256": "65752142af04123a90a644044c4aa285df5b995936b96e6777895f8004919bae",
+      "bytes": 128872432,
+      "packagedAt": "2026-11-17T12:36:47+09:00",
+      "sourceHEAD": "2aaeb8e3b33bbe1908d72f0b1fb486a66bbdea4a",
+      "workingTreeModified": true,
+      "reinstallSameVersion": true
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",
