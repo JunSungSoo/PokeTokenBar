@@ -151,10 +151,13 @@ enum SaveTransfer {
     static func sanitized(_ state: CompanionState) -> CompanionState {
         func clampToken(_ v: Int) -> Int { min(max(0, v), maxTokenValue) }
         var s = state
-        if let session = s.safariSession {
-            // Imported/local JSON crosses the same trust boundary before any Safari action runs.
-            do { try session.validate(catalog: SafariCatalog.load()) }
-            catch { s.safariSession = nil }
+        if var session = s.safariSession {
+            // Migrate genuine older trips before validating their new area limits.
+            session.migrateAreaRules()
+            do {
+                try session.validate(catalog: SafariCatalog.load())
+                s.safariSession = session
+            } catch { s.safariSession = nil }
         }
         s.usedSinceInstall = clampToken(s.usedSinceInstall)
         s.spentTokens = clampToken(s.spentTokens)

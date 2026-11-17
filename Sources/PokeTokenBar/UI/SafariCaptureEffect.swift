@@ -35,6 +35,8 @@ struct SafariBattlefield: View {
                         Text(BattleTextCatalog.shared.speciesName(wild.species.id,language:language) + (wild.shiny ? " ✨" : "")).font(.headline)
                         Text(wild.species.types.map { BattleTextCatalog.shared.typeName($0,language:language) }.joined(separator:" / "))
                         Text("\(l.safariTurns): \(session.turn)/5")
+                        Text("\(l.safariCatchRate): \(String(format:"%.1f",session.catchChance))%")
+                        Text("\(l.safariFleeRate): \(Int(session.displayedFleeChance))%")
                     }.font(.caption).padding(10)
                         .background(Color(red:0.97,green:0.97,blue:0.87),in:RoundedRectangle(cornerRadius:8))
                         .foregroundStyle(.black).position(x:width*0.25,y:54)

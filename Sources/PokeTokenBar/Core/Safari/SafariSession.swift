@@ -18,6 +18,7 @@ struct SafariSpecies: Codable, Sendable, Equatable, Identifiable {
 }
 
 struct SafariCatalog: Sendable {
+    static let legendaryChancePerSpecies = 0.03
     let species: [SafariSpecies]
     static func load() throws -> Self {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleText/safari-species.json")
@@ -34,9 +35,12 @@ struct SafariCatalog: Sendable {
             .mountain: ["rock", "dragon", "flying"], .desert: ["ground"], .volcano: ["fire"],
             .metropolis: ["electric", "steel"], .dojo: ["fighting"], .cave: ["ghost", "dark"],
             .fairyCave: ["psychic"], .iceCave: ["ice"]]
-        guard species.count == 221, Set(species.map(\.id)).count == 221,
-              Set(species.filter(\.legendary).map(\.id)) == [144,145,146,249,250],
-              SafariArea.allCases.allSatisfy({ area in species.filter { $0.area == area }.count >= 15 }),
+        guard species.count == 228, Set(species.map(\.id)).count == 228,
+              Set(species.filter(\.legendary).map(\.id)) == [144,145,146,245,249,250,251,377,383,486,491,639],
+              SafariArea.allCases.allSatisfy({ area in
+                  let local = species.filter { $0.area == area }
+                  return local.count >= 15 && local.contains(where: \.legendary)
+              }),
               species.allSatisfy({ (1...649).contains($0.id) && $0.bst > 0 &&
                   !Set($0.types).isDisjoint(with: allowed[$0.area] ?? []) && ($0.area != .forest || $0.bst >= 400) })
         else { throw SafariError.catalog }
@@ -50,12 +54,12 @@ struct SafariCatalog: Sendable {
             return a.id < b.id
         }.first
     }
-    /// One 0.5% legendary gate, with the immediately preceding species excluded.
-    /// If the area's only legend was just seen, this encounter uses the ordinary pool.
+    /// Each eligible legendary/mythical species gets 3%; two species make a 6% pool.
+    /// Exclude the previous species before computing the remaining pool's probability.
     func choose(in area: SafariArea, roll: Double, index: UInt64, excludingSpeciesID: Int? = nil) throws -> SafariSpecies {
         let entries = species.filter { $0.area == area && $0.id != excludingSpeciesID }
         let legends = entries.filter(\.legendary)
-        let pool = !legends.isEmpty && roll < 0.005 ? legends : entries.filter { !$0.legendary }
+        let pool = !legends.isEmpty && roll < Double(legends.count)*Self.legendaryChancePerSpecies ? legends : entries.filter { !$0.legendary }
         guard !pool.isEmpty else { throw SafariError.catalog }
         return pool[Int(index % UInt64(pool.count))]
     }
@@ -76,6 +80,9 @@ struct SafariPokemon: Codable, Sendable, Equatable, Identifiable {
 
 /// Pure value state. The store commits a complete next value before publishing any result.
 struct SafariSession: Codable, Sendable, Equatable, Identifiable {
+    static let maximumAreas = 2
+    static let maximumAreaBalls = 10
+    static let currentAreaRulesVersion = 3
     let id: String
     let startedAt: Date
     var randomState: UInt64
@@ -90,7 +97,9 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
     var wild: SafariPokemon?
     var carried: SafariPokemon?
     var pendingCatch: SafariPokemon?
-    var pendingArea: SafariArea? = nil
+    var pendingArea: SafariArea? = nil // Legacy single destination, consumed by migration only.
+    var pendingAreaOptions: [SafariArea]? = nil
+    var areaRulesVersion: Int? = nil
     var phase: SafariPhase = .between
     var notices: [SafariNotice] = []
     var registeredSpeciesCount: Int? = nil
@@ -98,8 +107,12 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
     var claimed = false
     var shinyDenominator: UInt64
     /// A deliberate player escape pauses exploration, including after an app restart.
-    var shouldAdvanceAutomatically: Bool { phase == .between && pendingArea == nil && !notices.contains(.ran) }
-    var areaBallLimit: Int { visited.count == 3 ? 8 : 6 }
+    var shouldAdvanceAutomatically: Bool { phase == .between && !isAwaitingAreaSelection && !notices.contains(.ran) }
+    var areaBallLimit: Int { Self.maximumAreaBalls }
+    var isAwaitingAreaSelection: Bool { pendingAreaOptions != nil || pendingArea != nil }
+    var areaLimitReached: Bool { areaBalls >= areaBallLimit }
+    /// The next ordinary response is forced to flee on turn five; capture still wins first.
+    var displayedFleeChance: Double { turn >= 4 ? 100:fleeChance }
     var captureOdds: SafariCaptureOdds {
         SafariCaptureOdds(captureRate:wild?.species.captureRate ?? 0,shiny:wild?.shiny ?? false,
                           registeredSpecies:registeredSpeciesCount ?? 0,modifier:catchModifier)
@@ -111,6 +124,7 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
     init(area: SafariArea, seed: UInt64, shinyDenominator: UInt64, now: Date = Date(), id: String = UUID().uuidString) {
         self.id = id; startedAt = now; randomState = seed; self.area = area; visited = [area]
         self.shinyDenominator = max(1, shinyDenominator)
+        areaRulesVersion = Self.currentAreaRulesVersion
     }
     private mutating func next() -> UInt64 {
         // Same saved stream for species, individual values and outcomes. Never reroll on UI redraw.
@@ -123,14 +137,12 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
     private mutating func roll() -> Double { Double(next() >> 11) / 9_007_199_254_740_992 }
 
     mutating func continueJourney(catalog: SafariCatalog) throws {
-        guard phase == .between, pendingArea == nil else { throw SafariError.invalidAction }
+        guard phase == .between, !isAwaitingAreaSelection else { throw SafariError.invalidAction }
         if ballsRemaining == 0 { finish(); return }
-        if areaBalls >= areaBallLimit || encounters >= 5 {
-            guard visited.count < 3 else { finish(); return }
-            let choices = SafariArea.allCases.filter { !visited.contains($0) }
-            // Persist the destination before presenting it. Confirmation alone moves
-            // the camera and creates the next encounter; retries cannot reroll it.
-            pendingArea = choices[Int(next() % UInt64(choices.count))]
+        if areaLimitReached {
+            guard visited.count < Self.maximumAreas else { finish(); return }
+            // Persist all three candidates once. Reopening or redrawing cannot reroll them.
+            pendingAreaOptions = drawAreaOptions()
             return
         }
         let gate = roll(), index = next()
@@ -144,13 +156,22 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
         let nature = PokemonNature.allCases[Int(next() % UInt64(PokemonNature.allCases.count))]
         let shiny = next() % shinyDenominator == 0
         wild = SafariPokemon(species: species, profile: profile, nature: nature, shiny: shiny)
-        turn = 0; catchModifier = 0; fleeModifier = 0; lastCapture = nil; encounters += 1
+        turn = 0; catchModifier = 0; fleeModifier = 0; lastCapture = nil; encounters = encounters < Int.max ? encounters + 1:encounters
         notices = [.appeared]; phase = .encounter
     }
 
-    mutating func confirmAreaChange(catalog: SafariCatalog) throws {
-        guard phase == .between, let destination = pendingArea else { throw SafariError.invalidAction }
-        area = destination; visited.append(destination); pendingArea = nil
+    private mutating func drawAreaOptions(including preferred:SafariArea? = nil) -> [SafariArea] {
+        var available = SafariArea.allCases.filter { !visited.contains($0) }
+        var options:[SafariArea] = []
+        if let preferred, let index = available.firstIndex(of:preferred) { options.append(available.remove(at:index)) }
+        while options.count < 3 { options.append(available.remove(at:Int(next() % UInt64(available.count)))) }
+        return options
+    }
+
+    mutating func confirmAreaChange(to destination:SafariArea, catalog: SafariCatalog) throws {
+        guard phase == .between, visited.count < Self.maximumAreas,
+              pendingAreaOptions?.contains(destination) == true else { throw SafariError.invalidAction }
+        area = destination; visited.append(destination); pendingArea = nil; pendingAreaOptions = nil
         areaBalls = 0; encounters = 0
         try continueJourney(catalog:catalog)
     }
@@ -175,13 +196,12 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
                 return
             }
             notices = [.missed]
-        case .rock: catchModifier += 5; notices = [.rock]
-        case .bait: catchModifier -= 3; fleeModifier -= 5; notices = [.bait]
+        case .rock: catchModifier += 5; fleeModifier += 10; notices = [.rock]
+        case .bait: catchModifier -= 5; fleeModifier -= 10; notices = [.bait]
         case .run: break
         }
         // Exactly one wild response; turn five overrides any bait protection.
-        let chance = action == .rock ? 40 : fleeChance
-        if turn >= 5 || roll() * 100 < chance { notices.append(.fled); endEncounter() }
+        if turn >= 5 || roll() * 100 < fleeChance { notices.append(.fled); endEncounter() }
         else { notices.append(.waited) }
         if ballsRemaining == 0 || areaBalls >= areaBallLimit { endEncounter() }
     }
@@ -192,22 +212,45 @@ struct SafariSession: Codable, Sendable, Equatable, Identifiable {
         guard phase == .replacement, let pendingCatch else { throw SafariError.invalidAction }
         if replace { carried = pendingCatch }
         self.pendingCatch = nil; phase = .between; notices = [replace ? .replaced : .kept]
+        if visited.count > Self.maximumAreas { finish() } // Complete a legacy third-area catch choice safely.
     }
     mutating func finish() {
-        phase = .finished; wild = nil; pendingCatch = nil; pendingArea = nil
+        phase = .finished; wild = nil; pendingCatch = nil; pendingArea = nil; pendingAreaOptions = nil
         catchModifier = 0; fleeModifier = 0; notices = [.ended]
     }
+    /// Preserve retained catches and pending old prompts while adopting ball-only transfers.
+    mutating func migrateAreaRules() {
+        guard areaRulesVersion == nil || areaRulesVersion == 2 else { return }
+        if visited.count > Self.maximumAreas {
+            if phase != .replacement { finish() }
+        } else if isAwaitingAreaSelection && visited.count >= Self.maximumAreas {
+            finish()
+        } else if isAwaitingAreaSelection && !areaLimitReached {
+            // Old encounter-count prompts are no longer due; stay in the current area.
+            pendingArea = nil; pendingAreaOptions = nil
+        } else if let previous = pendingArea {
+            pendingArea = nil
+            pendingAreaOptions = drawAreaOptions(including:previous)
+        }
+        areaRulesVersion = Self.currentAreaRulesVersion
+    }
+
     /// External saves may not bypass limits or inject a species outside the fixed catalog.
     func validate(catalog: SafariCatalog) throws {
-        guard !id.isEmpty, (1...3).contains(visited.count), Set(visited).count == visited.count,
+        guard !id.isEmpty,
+              ((1...Self.maximumAreas).contains(visited.count) || ((phase == .finished || phase == .replacement) && visited.count == 3)),
+              areaRulesVersion == nil || areaRulesVersion == Self.currentAreaRulesVersion,
+              Set(visited).count == visited.count,
               visited.last == area, (0...20).contains(ballsRemaining),
-              (0...areaBallLimit).contains(areaBalls), (0...5).contains(encounters), (0...5).contains(turn),
+              (0...areaBallLimit).contains(areaBalls), encounters >= 0, (0...5).contains(turn),
               catchModifier.isFinite, fleeModifier.isFinite,
-              (-15...25).contains(catchModifier), (-25...0).contains(fleeModifier),
+              (-25...25).contains(catchModifier), (-50...50).contains(fleeModifier),
               shinyDenominator > 0, (registeredSpeciesCount ?? 0) >= 0, lastCapture?.isValid != false,
               phase != .replacement || pendingCatch != nil,
-              pendingArea.map({ destination in phase == .between && visited.count < 3 && ballsRemaining > 0 &&
-                  !visited.contains(destination) && (areaBalls >= areaBallLimit || encounters >= 5) }) ?? true,
+              pendingArea == nil,
+              pendingAreaOptions.map({ options in phase == .between && visited.count < Self.maximumAreas && ballsRemaining > 0 &&
+                  areaLimitReached && options.count == 3 && Set(options).count == 3 &&
+                  options.allSatisfy { !visited.contains($0) } }) ?? true,
               phase != .encounter || (wild != nil && turn < 5 && ballsRemaining > 0 && areaBalls < areaBallLimit),
               [wild, carried, pendingCatch].compactMap({ $0 }).allSatisfy({ pokemon in
                   catalog.species.contains(pokemon.species) && pokemon.profile.level == 100

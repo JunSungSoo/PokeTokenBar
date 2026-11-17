@@ -2320,5 +2320,77 @@
     "bst": 485,
     "legendary": false,
     "captureRate": 25
+  },
+  {
+    "id": 486,
+    "area": "plains",
+    "types": [
+      "normal"
+    ],
+    "bst": 670,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 251,
+    "area": "forest",
+    "types": [
+      "psychic",
+      "grass"
+    ],
+    "bst": 600,
+    "legendary": true,
+    "captureRate": 45
+  },
+  {
+    "id": 245,
+    "area": "lake",
+    "types": [
+      "water"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 377,
+    "area": "mountain",
+    "types": [
+      "rock"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 383,
+    "area": "desert",
+    "types": [
+      "ground"
+    ],
+    "bst": 670,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 639,
+    "area": "dojo",
+    "types": [
+      "rock",
+      "fighting"
+    ],
+    "bst": 580,
+    "legendary": true,
+    "captureRate": 3
+  },
+  {
+    "id": 491,
+    "area": "cave",
+    "types": [
+      "dark"
+    ],
+    "bst": 600,
+    "legendary": true,
+    "captureRate": 3
   }
 ]

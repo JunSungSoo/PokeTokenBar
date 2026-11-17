@@ -2643,9 +2643,9 @@ final class CompanionStore {
         var next = state; next.safariSession = session
         try commitSafari(next)
     }
-    func safariConfirmAreaChange(catalog: SafariCatalog) throws {
+    func safariConfirmAreaChange(to destination:SafariArea,catalog: SafariCatalog) throws {
         guard var session = state.safariSession else { throw SafariError.invalidAction }
-        try session.confirmAreaChange(catalog:catalog)
+        try session.confirmAreaChange(to:destination,catalog:catalog)
         var next = state; next.safariSession = session
         try commitSafari(next)
     }

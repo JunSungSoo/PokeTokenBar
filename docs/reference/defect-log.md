@@ -3468,3 +3468,75 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   rather than outside the ScrollView. Re-run the scanner, actor-isolation check and
   affected Safari/preset tests after the fix. The existing source gate prevents new
   lists from shipping without that reservation.
+
+## Safari rule changes must migrate pending trips before applying tighter limits
+
+- Changing 6/6/8 balls, five encounters and three areas to ten balls, eight
+  encounters and two areas would reject existing pending transfer/third-area saves
+  as invalid and discard retained catches during sanitization.
+- Version the area rules. Cancel obsolete first-area prompts while preserving their
+  counters, finish trips already beyond the new area cap with their retained catch,
+  and keep unresolved legacy catch replacements until the user chooses. Validate
+  after migration; a terminal third-area record is allowed only to complete this
+  older trip. New journeys cannot enter a third area.
+- Test both independent quota boundaries, second-area completion, legacy pending and
+  replacement states, and real store reload/registration without changing wallet or
+  inventory. Rendered UI checks verify restored probabilities/action descriptions.
+
+
+## Safari effect changes must update response gates and persisted modifier bounds
+
+- Rock formerly bypassed accumulated modifiers with a fixed 40% flee gate, while
+  saved flee modifiers only admitted nonpositive bait effects. Merely adding a
+  positive rock modifier would either leave the old gate active or fail the save.
+- Both actions now modify the same persistent percentage-point totals: rock adds
+  5 capture / 10 flee, bait subtracts 5 capture / 10 flee. Validate the five-turn
+  bounds, preserve positive and negative totals across reload, and reset on encounter
+  end. The existing fifth-turn forced escape and capture-first priority stay intact.
+- Regression tests distinguish 35% first-rock flee from the old fixed 40%, exercise
+  the reduced bait gate, stacked/alternating actions, sanitized round trips and
+  reset. All eight language descriptions and the production UI render are checked.
+
+
+## Safari ball-only transfers must persist candidates instead of a forced destination
+
+- Encounter-count transfer guards, display denominators and validation bounds were
+  coupled to the previous eight-encounter rule. Remove the gameplay cap rather than
+  changing just the counter label; saturate the informational count on integer overflow.
+- At ten used balls, save three distinct unvisited candidates and block continuation.
+  Confirm accepts only an offered selection. The modal starts with no selection and
+  keeps Confirm disabled until a real native option button is pressed.
+- Migrate older encounter-based prompts back to the current area if ten balls are
+  not spent; convert due single destinations into stable three-option prompts while
+  preserving the old announced destination as one choice. Keep catches and completed
+  trips intact. Full model/store tests cover repeated escapes, randomness, persistence,
+  invalid choices, both area quotas and the hidden production modal's actual buttons.
+
+
+## Safari legend coverage must be checked per region, not just as one global ID set
+
+- Type-compatible legends can be placed in the wrong compatible region while the
+  global species IDs, totals and type guard still pass, leaving another region
+  without any legendary/mythical encounters.
+- Require a legendary/mythical candidate in every region in addition to the fixed
+  roster and per-region type rules. Seven fixed additions bring the pool to 228
+  species with twelve legends/mythicals; existing ordinary pools stay unchanged.
+- Tests relocate Terrakion to its other compatible Rock region to isolate the
+  missing-legend check and validate the full fixed mapping. The final user rule is
+  3% per eligible legendary/mythical species: one candidate gives 3%, two give 6%.
+  Tests verify individual counts as well as the combined pool and no-repeat fallback.
+
+
+### Full-battle renderer checks must budget the complete battle
+
+- The mounted six-on-six challenge test reached its final presentation with the
+  engine already finished, but its 65-second whole-battle deadline expired before
+  the reward screen settled. Runtime varies with mounted GIF/effect rendering; a
+  separate run completed all original assertions in 63.3 seconds.
+- Raise only the test scenario's outer safety deadline to 180 seconds. Keep actual
+  entry/hit/HP/faint playback and all reward/purchase assertions; do not force the
+  presentation-complete callback or shorten production animations.
+- Two collection color checks also failed during the full run and passed all
+  original pixel assertions on a separate run. Those tests still use a fixed
+  100ms render wait, so the initial full-suite result is recorded as a transient
+  rendering failure rather than silently reported as an uninterrupted pass.

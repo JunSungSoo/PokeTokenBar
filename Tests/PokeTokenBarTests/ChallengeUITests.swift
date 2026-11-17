@@ -501,7 +501,9 @@ private struct IncomingOnlyProvider:PokemonDetailProviding {
         controller.show(present:false);defer{controller.window?.close()}
         for i in 0..<6{m.select("owned-\(i)")}
         await m.start();beginPrepared(m)
-        let deadline=Date().addingTimeInterval(65)
+        // A complete six-on-six battle includes entry, six KO sequences and final HP playback.
+        // Bound the whole scenario without truncating the final mounted animation.
+        let deadline=Date().addingTimeInterval(180)
         var submitted=Set<String>()
         // Let the actual mounted renderer finish every entry/hit/HP/faint sequence.
         // No manual completePresentation/didFinishPresentation calls are allowed.

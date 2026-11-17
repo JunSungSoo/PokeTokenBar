@@ -122,12 +122,12 @@ struct SafariView: View {
         }
         .padding(14).frame(width: 660, height: 620)
         .background(Color(nsColor: .windowBackgroundColor))
-        .disabled(store.safariSession?.pendingArea != nil)
+        .disabled(store.safariSession?.isAwaitingAreaSelection == true)
         .overlay {
-            if let destination = store.safariSession?.pendingArea, !busy {
-                SafariAreaTransferModal(destination:destination,language:store.language) {
+            if let options = store.safariSession?.pendingAreaOptions, !busy {
+                SafariAreaTransferModal(options:options,catalog:catalog,language:store.language) { destination in
                     guard let catalog else { return }
-                    perform { try store.safariConfirmAreaChange(catalog:catalog) }
+                    perform { try store.safariConfirmAreaChange(to:destination,catalog:catalog) }
                 }
             }
         }
@@ -168,10 +168,10 @@ struct SafariView: View {
     private func journey(_ session: SafariSession) -> some View {
         VStack(spacing: 10) {
             HStack {
-                Text("\(l.safariArea(session.area)) · \(session.visited.count)/3").font(.headline)
+                Text("\(l.safariArea(session.area)) · \(min(session.visited.count,SafariSession.maximumAreas))/\(SafariSession.maximumAreas)").font(.headline)
                 Spacer()
                 Text("\(l.safariBalls): \(session.ballsRemaining) · \(session.areaBalls)/\(session.areaBallLimit)")
-                Text("\(l.safariEncounters): \(session.encounters)/5")
+                Text("\(l.safariEncounters): \(session.encounters)")
             }.font(.caption).monospacedDigit().lineLimit(1).minimumScaleFactor(0.75)
             battlefield(session)
             VStack(alignment: .leading, spacing: 3) {
@@ -196,9 +196,9 @@ struct SafariView: View {
                 }.buttonStyle(.borderedProminent).disabled(busy || catalog == nil)
             } else if session.phase == .encounter {
                 HStack(spacing: 8) {
-                    actionButton(.ball, title: l.safariBall)
-                    actionButton(.rock, title: l.safariRock)
-                    actionButton(.bait, title: l.safariBait)
+                    actionButton(.ball, title:l.safariBall,hint:"\(l.safariCatchRate) \(String(format:"%.1f",session.catchChance))%")
+                    actionButton(.rock, title:l.safariRock,hint:l.safariRockHint)
+                    actionButton(.bait, title:l.safariBait,hint:l.safariBaitHint)
                     actionButton(.run, title: l.safariRun)
                 }.disabled(busy)
             }
@@ -242,7 +242,7 @@ struct SafariView: View {
                 projectile: projectile, projectileProgress: projectileStartedAt.map { context.date.timeIntervalSince($0)/SafariThrowPath.itemDuration } ?? 0)
         }
     }
-    private func actionButton(_ action: SafariAction, title: String) -> some View {
+    private func actionButton(_ action: SafariAction, title: String, hint:String = "") -> some View {
         Button {
             guard !busy else { return }
             // Commit the outcome before playing its animation; a closed window cannot reroll it.
@@ -266,7 +266,10 @@ struct SafariView: View {
                 playbackSession = nil; busy = false; actionPlayback = nil
             }
         } label: {
-            Text(title).font(.callout.weight(.semibold)).frame(maxWidth:.infinity,minHeight:54)
+            VStack(spacing:3) {
+                Text(title).font(.callout.weight(.semibold))
+                Text(hint).font(.system(size:9)).lineLimit(2).frame(height:25).help(hint)
+            }.frame(maxWidth:.infinity,minHeight:54)
         }.buttonStyle(.bordered).accessibilityIdentifier("safari-action-" + action.rawValue)
     }
     private func name(_ pokemon: SafariPokemon) -> String {

@@ -1167,6 +1167,33 @@
       "packagedAt": "2026-11-16T16:45:03+09:00",
       "sourceHEAD": "ad1bb7c9217028270ec28ebfb8d2dc05059a09da",
       "workingTreeModified": true
+    },
+    {
+      "date": "2026-11-17",
+      "time": "11:10:57",
+      "archive": "PokeTokenBar-3.2.1-261117-installer.zip",
+      "version": "3.2.1",
+      "evidence": "Verified local installer ZIP: CRC, arm64 launcher/app/Node, deep signature, version, full notes and 15 Safari resources checked.",
+      "turn": null,
+      "title": "Safari rules, destination choices and legendary encounters",
+      "commit": null,
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "사파리존의 포획률·도주율과 돌 던지기·먹이 주기의 효과 설명을 다시 표시합니다.",
+        "탐험 지역을 최대 두 곳으로 변경하고 지역당 사파리볼 10회 투척 시에만 이동하도록 수정했습니다. 조우 수에 따른 이동 제한을 제거하고 전체 사파리볼 20개는 유지합니다.",
+        "지역 이동 시 방문하지 않은 지역 세 곳을 무작위 후보로 제시합니다. 지역을 선택하고 확인해야 이동하며, 앱을 다시 열어도 같은 후보가 유지됩니다.",
+        "돌 던지기는 포획률 +5%p·도주율 +10%p, 먹이 주기는 포획률 -5%p·도주율 -10%p로 변경했습니다. 효과는 현재 야생 포켓몬에게 누적되어 턴이 지나도 유지되며 조우 종료 시 초기화됩니다.",
+        "전설이 없던 지역에 레지기가스·세레비·스이쿤·레지락·그란돈·테라키온·다크라이를 추가했습니다. 모든 지역에 전설 또는 환상이 존재하며 전체 출현 목록은 228종입니다.",
+        "전설·환상 포켓몬의 출현 확률을 개체당 3%로 변경했습니다. 파이어와 칠색조가 있는 화산지대는 각각 3%로 합계 6%이며, 직전과 같은 종의 연속 출현은 계속 제한합니다.",
+        "기존 탐험 저장 데이터를 새 지역 규칙으로 이관하며 보관 중인 포획 개체와 미완료 포켓몬 교체 선택을 보존합니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.2.1-261117-installer.zip",
+      "sha256": "ab00dabcb2fd0ca81b95f89970b8ed6186edf916e246f16b72030852b4eeae3a",
+      "bytes": 128872392,
+      "packagedAt": "2026-11-17T11:10:57+09:00",
+      "sourceHEAD": "716ec43e196639fdd1728ec6dc12a0b34c6abc11",
+      "workingTreeModified": true
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

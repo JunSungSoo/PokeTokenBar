@@ -6,7 +6,7 @@ Source: https://github.com/pret/pokefirered/blob/master/graphics/trainers/back_p
 Existing Pokémon GIFs, battle backgrounds and cries retain their original project attribution.
 
 Capture logic and choreography: pagefaultgames/pokerogue revision 967ac11fad5b31ead174077c6934b5bcded097a2, src/phases/attempt-capture-phase.ts, src/data/pokeball.ts and src/animations.ts.
-All 221 Safari species catch rates were compared with src/data/balance/species/generation-01.ts through generation-05.ts at that revision. Basculin uses 190 and Metagross uses 10, matching PokéRogue rather than PokéAPI defaults.
+All 228 Safari species catch rates were compared with src/data/balance/species/generation-01.ts through generation-05.ts at that revision. Basculin uses 190 and Metagross uses 10, matching PokéRogue rather than PokéAPI defaults.
 Capture assumes 50% HP, no status, normal Poké Ball bonus, default shiny bonus and no Catching Charm. The Safari-specific rock/bait modifier is added in percentage points to the resulting probability.
 Native rendering ports the original capture/bounce timing and restores original trimmed atlas frames; the Safari flight path is a custom parabola as requested. It does not embed the Phaser capture phase.
 Safari rock: native cartoon vector artwork, displayed at 14 points (half the previous 28-point emoji size).

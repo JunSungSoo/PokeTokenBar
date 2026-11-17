@@ -1,6 +1,12 @@
 import Foundation
 
 extension L {
+    var safariCatchRate: String { t("포획률", "Catch chance", "捕獲率", "Captura", "Capture", "Captura", "Fangchance", "Шанс поимки") }
+    var safariFleeRate: String { t("도주율", "Flee chance", "逃走率", "Huida", "Fuite", "Fuga", "Fluchtchance", "Шанс побега") }
+    var safariRockHint: String { t("포획 +5%p · 도주 +10%p (누적)", "Catch +5pp · Flee +10pp (stacks)", "捕獲+5pt・逃走+10pt（累積）", "Captura +5pp · Huida +10pp acumulable", "Capture +5pt · Fuite +10pt cumulable", "Captura +5pp · Fuga +10pp cumulativa", "Fang +5pp · Flucht +10pp kumulativ", "Поимка +5п.п. · Побег +10п.п. (суммируется)") }
+    var safariBaitHint: String { t("포획 -5%p · 도주 -10%p (누적)", "Catch −5pp · Flee −10pp (stacks)", "捕獲−5pt・逃走−10pt（累積）", "Captura −5pp · Huida −10pp acumulable", "Capture −5pt · Fuite −10pt cumulable", "Captura −5pp · Fuga −10pp cumulativa", "Fang −5pp · Flucht −10pp kumulativ", "Поимка −5п.п. · Побег −10п.п. (суммируется)") }
+
+    var safariTravelChooseMessage: String { t("이동할 지역을 선택해 주세요.", "Choose your next area.", "移動先を選んでください。", "Elige la siguiente zona.", "Choisissez la prochaine zone.", "Escolha a próxima área.", "Wähle dein nächstes Gebiet.", "Выберите следующую зону.") }
     var safariTravelTitle: String { t("지역을 이동합니다.", "Moving to the next area.", "エリアを移動します。", "Vamos a cambiar de zona.", "Changement de zone.", "Vamos mudar de área.", "Wir wechseln das Gebiet.", "Переходим в другую зону.") }
     func safariTravelMessage(_ area: SafariArea) -> String {
         let name = safariArea(area)
