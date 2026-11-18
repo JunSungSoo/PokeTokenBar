@@ -59,12 +59,12 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         try await render(history:false,drive:true,current:"3.0.1")
     }
 
-    func testLiveDriveThreeNoticeForOlderInstallAndNoNoticeOnCurrentInstall()async throws {
-        guard ProcessInfo.processInfo.environment["PTB_DRIVE_EXPECTED_VERSION"]=="3.0.0" else{throw XCTSkip("Opt-in published 3.0.0 verification")}
-        let fetched=await DriveReleaseSource.fetch(),release=try XCTUnwrap(fetched)
-        XCTAssertEqual(release.tag,"3.0.0")
-        try await render(history:false,drive:true,current:"2.5.6",remoteVersion:release.tag,expectedOffer:true)
-        try await render(history:false,drive:true,current:"3.0.0",remoteVersion:release.tag,expectedOffer:false)
+    func testLiveGitHubManifestIsSignedAndOfferedOnlyToOlderInstalls()async throws {
+        guard let expected=ProcessInfo.processInfo.environment["PTB_GITHUB_EXPECTED_VERSION"] else{throw XCTSkip("Opt-in published release verification")}
+        let fetched=await GitHubReleaseSource.fetch(),release=try XCTUnwrap(fetched,"the published manifest must verify with the shipped key")
+        XCTAssertEqual(release.version,expected)
+        try await render(history:false,drive:true,current:"2.5.6",remoteVersion:release.version,expectedOffer:true)
+        try await render(history:false,drive:true,current:release.version,remoteVersion:release.version,expectedOffer:false)
     }
 
     func testRecapLabelKeepsPeriodCostsOnOneLine() async throws {
@@ -125,7 +125,7 @@ final class ZeroUsageHomeRenderingTests: XCTestCase {
         XCTAssertEqual(store.todayTotalTokens, 0)
         XCTAssertEqual(store.monthTotalTokens, costs != nil ? 17_900_000 : series.reduce(0) { $0 + $1.totalTokens })
 
-        let checker=UpdateChecker(currentVersion:current,defaults:defaults,fetchLatest:{drive ? .init(tag:remoteVersion,url:DriveReleaseSource.shareURL.absoluteString):nil})
+        let checker=UpdateChecker(currentVersion:current,defaults:defaults,fetchLatest:{drive ? UpdateRelease(version:remoteVersion,size:1,sha256:String(repeating:"a",count:64)):nil})
         if drive {await checker.check()}
         let navigation=PopoverNavigation();navigation.tab=tab
         let height = drive ? 740.0:604.0

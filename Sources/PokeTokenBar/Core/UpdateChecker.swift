@@ -1,11 +1,11 @@
 import AppKit
 import Observation
 
-/// Compare the installed app version with the ZIP version on the pinned Drive share.
+/// Compare the installed app version with the signed manifest on GitHub Releases and install on request.
 @MainActor
 @Observable
 final class UpdateChecker {
-    struct Available: Equatable { let version: String; let url: String }
+    typealias Available = UpdateRelease
 
     /// What Settings should say after a check. A skipped release is not "up to date".
     enum SettingsNotice: Equatable {
@@ -14,39 +14,50 @@ final class UpdateChecker {
         case current
     }
 
-    /// Version + pinned Drive URL from the public filename (or a test double).
-    struct LatestRelease: Equatable, Sendable {
-        let tag: String
-        let url: String
+    /// Why the last install attempt did not finish.
+    enum InstallFailure: Equatable {
+        case busy
+        case failed
+        /// The new bundle is installed but could not be started; a second swap would fail.
+        case restartRequired
     }
 
     private(set) var available: Available?
     /// Newer release the user chose to skip. Hidden from the banner, still shown in Settings.
     private(set) var skipped: Available?
     private(set) var isUpdating = false
+    private(set) var installFailure: InstallFailure?
 
     let currentVersion: String
     private let clock: () -> Date
     private let defaults: UserDefaults
     /// Injected so tests can fail or succeed without hitting the network.
-    private let fetchLatest: () async -> LatestRelease?
+    private let fetchLatest: () async -> UpdateRelease?
     private var lastChecked: Date?
-    private let openDownload:(URL)->Void
-    /// Overlapping popover opens must not stack concurrent Drive calls once the early
+    private let openDownload: (URL) -> Void
+    private let install: @MainActor (UpdateRelease, @escaping @MainActor () -> Bool) async throws -> Void
+    private let installBlocked: @MainActor () -> Bool
+    /// Overlapping popover opens must not stack concurrent requests once the early
     /// cooldown stamp is gone (a failed check no longer blocks the next attempt).
     private var checkInFlight = false
 
-    static let skippedVersionKey = "skippedDriveUpdateVersion"
+    static let skippedVersionKey = "skippedGitHubUpdateVersion"
 
     init(currentVersion: String? = nil, clock: @escaping () -> Date = Date.init, defaults: UserDefaults = .standard,
-         fetchLatest: (() async -> LatestRelease?)? = nil,
-         openDownload:@escaping (URL)->Void = {NSWorkspace.shared.open($0)}) {
+         fetchLatest: (() async -> UpdateRelease?)? = nil,
+         openDownload: @escaping (URL) -> Void = { NSWorkspace.shared.open($0) },
+         install: @escaping @MainActor (UpdateRelease, @escaping @MainActor () -> Bool) async throws -> Void = {
+             try await UpdateInstaller.install($0, isBlocked: $1)
+         },
+         installBlocked: @escaping @MainActor () -> Bool = { false }) {
         self.currentVersion = currentVersion
             ?? (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "0"
         self.clock = clock
         self.defaults = defaults
-        self.fetchLatest = fetchLatest ?? { await DriveReleaseSource.fetch() }
-        self.openDownload=openDownload
+        self.fetchLatest = fetchLatest ?? { await GitHubReleaseSource.fetch() }
+        self.openDownload = openDownload
+        self.install = install
+        self.installBlocked = installBlocked
     }
 
     var settingsNotice: SettingsNotice {
@@ -55,28 +66,22 @@ final class UpdateChecker {
         return .current
     }
 
-    /// Release Settings can install. A skip hides the banner; it does not throw the URL away.
+    /// Release Settings can install. A skip hides the banner; it does not throw the release away.
     var updateTarget: Available? { available ?? skipped }
 
     /// 최신 릴리스 조회. 스킵한 버전은 배너(`available`)에 안 올리고 Settings(`skipped`)에만 남긴다.
-    /// minInterval 은 **성공한** 조회 사이에만 적용한다(레이트리밋 보호). 실패 — 네트워크·비정상 응답·
-    /// 불안전 URL·지원하지 않는 태그 — 는 쿨다운을 시작하지 않아, 팝오버를 다시 열면 곧장 재시도한다.
+    /// minInterval 은 **성공한** 조회 사이에만 적용한다(레이트리밋 보호). 실패 — 네트워크·서명 불일치·
+    /// 지원하지 않는 버전 — 는 쿨다운을 시작하지 않아, 팝오버를 다시 열면 곧장 재시도한다.
     func check(minInterval: TimeInterval = 1800) async {
         if checkInFlight { return }
+        if installFailure == .busy { installFailure = nil }
         if let last = lastChecked, clock().timeIntervalSince(last) < minInterval { return }
         checkInFlight = true
         defer { checkInFlight = false }
 
-        guard let release = await fetchLatest(),
-              Self.isTrustedReleaseURL(release.url),
-              let version = Self.normalizedReleaseVersion(release.tag) else { return }
+        guard let release = await fetchLatest() else { return }
         lastChecked = clock()
-        consider(latest: version, url: release.url)
-    }
-
-    /// Only the configured public Drive file is an update destination.
-    nonisolated static func isTrustedReleaseURL(_ string:String)->Bool {
-        string == DriveReleaseSource.shareURL.absoluteString
+        consider(release)
     }
 
     /// Release tag → comparable version, or nil when the tag is not a plain `MAJOR.MINOR.PATCH`
@@ -94,17 +99,14 @@ final class UpdateChecker {
         return parts.map { String(Int($0)!) }.joined(separator: ".")
     }
 
-    /// Apply one fetched release. `latest` may be a tag (`v2.5.4`) or a bare version.
-    func consider(latest tag: String, url: String) {
-        let latest = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
-        let skippedVersion = defaults.string(forKey: Self.skippedVersionKey)
-        guard Self.isNewer(latest, than: currentVersion) else {
+    /// Apply one verified release.
+    func consider(_ release: UpdateRelease) {
+        guard Self.isNewer(release.version, than: currentVersion) else {
             available = nil
             skipped = nil
             return
         }
-        let release = Available(version: latest, url: url)
-        if latest == skippedVersion {
+        if release.version == defaults.string(forKey: Self.skippedVersionKey) {
             available = nil
             skipped = release
         } else {
@@ -130,10 +132,31 @@ final class UpdateChecker {
         }
     }
 
-    /// Open the download page in the default browser; never run brew or replace a live app.
-    func applyUpdate() {
-        guard updateTarget != nil,!isUpdating else{return}
-        openDownload(DriveReleaseSource.shareURL)
+    /// Download, verify and swap in the release; on success the relaunched app takes over.
+    func applyUpdate() async {
+        guard let target = updateTarget, !isUpdating, installFailure != .restartRequired else { return }
+        guard !installBlocked() else {
+            installFailure = .busy
+            return
+        }
+        installFailure = nil
+        isUpdating = true
+        do {
+            try await install(target, installBlocked)
+        } catch {
+            AppLog.write("update \(target.version) failed: \(error)")
+            switch error as? UpdateInstaller.Failure {
+            case .busy: installFailure = .busy
+            case .relaunch: installFailure = .restartRequired
+            default: installFailure = .failed
+            }
+            isUpdating = false
+        }
+    }
+
+    /// Manual fallback when the in-place install cannot finish.
+    func openReleasePage() {
+        openDownload(updateTarget?.pageURL ?? GitHubReleaseSource.releasesURL)
     }
 
     // MARK: 버전 비교

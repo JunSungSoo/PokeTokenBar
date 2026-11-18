@@ -78,7 +78,7 @@ def make_installer(app, info, directory, reinstall_same_version=False):
         binary = directory / ("launcher-" + arch)
         subprocess.run(["xcrun", "swiftc", "-O", "-parse-as-library", "-target",
                         f"{arch}-apple-macos14.0", "-module-cache-path", str(directory / "modules"),
-                        str(sources / "BundleInstallation.swift"), str(sources / "Launcher.swift"),
+                        str(ROOT / "Sources/PokeTokenBar/Core/Update/BundleInstallation.swift"), str(sources / "Launcher.swift"),
                         "-o", str(binary)], check=True)
         slices.append(str(binary))
     executable = contents / "MacOS/PokeTokenBarInstaller"

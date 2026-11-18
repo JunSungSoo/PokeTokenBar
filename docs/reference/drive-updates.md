@@ -1,5 +1,8 @@
 # Drive version updates
 
+> **2026-11-18: 앱의 업데이트 확인은 GitHub Releases 로 전환됐다** — `github-updates.md`.
+> 아래 Drive 확인 내용은 3.2.1 이하 설치본의 동작 기록이다. Drive ZIP 은 최초 설치용으로만 남는다.
+
 The current app version is 3.1.4. `scripts/build-app.sh` writes that version into both
 `CFBundleShortVersionString` and `CFBundleVersion`; the QA builder uses the same short version.
 Every subsequent Drive distribution must raise the app version and ZIP filename version.

@@ -152,9 +152,12 @@ struct PopoverView: View {
                     } else {
                         Button(l.skipThisVersion) { updater.skipCurrent() }
                             .buttonStyle(.borderless).controlSize(.small).foregroundStyle(.secondary)
-                        Button(l.updateButton) { updater.applyUpdate() }
+                        Button(l.updateButton) { Task { await updater.applyUpdate() } }
                             .buttonStyle(.borderedProminent).controlSize(.small)
                     }
+                }
+                if let failure = updater.installFailure {
+                    UpdateFailureRow(failure: failure, l: l) { updater.openReleasePage() }
                 }
             }
             .padding(8)

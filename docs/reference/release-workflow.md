@@ -52,6 +52,9 @@ Homebrew 배포 ZIP은 기존처럼 실제 `PokeTokenBar.app`을 최상위에 �
 
 ### Drive 배포 버전
 
+> 2026-11-18부터 앱의 업데이트 확인·설치는 GitHub Releases(`docs/reference/github-updates.md`)가 맡는다.
+> 아래 Drive 규칙은 최초 설치용 ZIP과 3.2.1 이하 설치본에만 적용된다.
+
 Drive 업데이트는 날짜·회차가 아니라 앱의 `CFBundleShortVersionString`과 공유 ZIP 파일명의
 `MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.2.1이며 새 Drive 배포마다 앱 버전과 파일명
 버전을 함께 올린다. 빌드 스크립트가 앱 내부 버전을 기록하고 ZIP 메타데이터에도 같은 값이

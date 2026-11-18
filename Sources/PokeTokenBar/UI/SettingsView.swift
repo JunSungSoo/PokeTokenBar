@@ -502,7 +502,8 @@ struct SettingsView: View {
                     if case .offer(let version) = updater.settingsNotice {
                         Text(l.updateFound(version)).font(.caption).foregroundStyle(.orange)
                         Spacer()
-                        Button(l.updateButton) { updater.applyUpdate() }.controlSize(.small)
+                        Button(l.updateButton) { Task { await updater.applyUpdate() } }
+                            .controlSize(.small).disabled(updater.isUpdating)
                     } else if case .skipped(let version) = updater.settingsNotice {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(l.skippedVersion(version))
@@ -511,13 +512,17 @@ struct SettingsView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                             HStack(spacing: 8) {
                                 Button(l.showSkippedAgain) { updater.showSkippedAgain() }.controlSize(.small)
-                                Button(l.updateButton) { updater.applyUpdate() }.controlSize(.small)
+                                Button(l.updateButton) { Task { await updater.applyUpdate() } }
+                                    .controlSize(.small).disabled(updater.isUpdating)
                             }
                         }
                     } else {
                         Text(l.upToDate(Self.appVersion)).font(.caption).foregroundStyle(.secondary)
                         Spacer()
                     }
+                }
+                if let failure = updater.installFailure {
+                    groupRow { UpdateFailureRow(failure: failure, l: l) { updater.openReleasePage() } }
                 }
             }
         }

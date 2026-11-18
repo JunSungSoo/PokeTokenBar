@@ -137,7 +137,7 @@ class PackageZipTests(unittest.TestCase):
         }''')
         binary = self.root / 'policy'
         subprocess.run(['xcrun', 'swiftc', '-parse-as-library', '-module-cache-path', str(self.root / 'modules'),
-                        str(ROOT / 'scripts/zip-installer/BundleInstallation.swift'), str(source), '-o', str(binary)], check=True)
+                        str(ROOT / 'Sources/PokeTokenBar/Core/Update/BundleInstallation.swift'), str(source), '-o', str(binary)], check=True)
         subprocess.run([str(binary)], check=True)
 
     def test_runtime_resources_need_packaged_module_link(self):
@@ -201,7 +201,7 @@ class PackageZipTests(unittest.TestCase):
         mismatch.parent.mkdir(parents=True);shutil.copytree(other,mismatch)
         ordinary = self.root/'ordinary.app';shutil.copytree(self.app,ordinary)
         binary=self.root/'identity'
-        subprocess.run(['xcrun','swiftc','-parse-as-library','-module-cache-path',str(self.root/'modules'),str(ROOT/'scripts/zip-installer/BundleInstallation.swift'),str(source),'-o',str(binary)],check=True)
+        subprocess.run(['xcrun','swiftc','-parse-as-library','-module-cache-path',str(self.root/'modules'),str(ROOT/'Sources/PokeTokenBar/Core/Update/BundleInstallation.swift'),str(source),'-o',str(binary)],check=True)
         subprocess.run([str(binary),str(moved),str(self.app),str(alias),str(mismatch),str(ordinary)],check=True)
 
     def test_invalid_output_path_is_rejected_before_packaging(self):

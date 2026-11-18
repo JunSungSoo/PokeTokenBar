@@ -131,6 +131,9 @@ import SwiftUI
     }
     var requiresSurrenderBeforeExit: Bool { model.running && model.run?.phase == .battling }
 
+    /// An in-place update would end the run the same way quitting does.
+    static var blocksUpdate: Bool { current?.requiresSurrenderBeforeExit == true }
+
     static func allowApplicationTermination() -> Bool {
         guard let current else { return true }
         return current.prepareForTermination {

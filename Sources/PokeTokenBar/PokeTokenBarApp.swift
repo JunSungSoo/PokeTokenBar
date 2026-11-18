@@ -26,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var battleWindow: BattleWindowController!
     private var challengeTestWindow:NSWindow?
     private var updater: UpdateChecker!
+    private var updateHandOffFinished = false
     private var floatingPet: FloatingPetController!
     private let navigation = PopoverNavigation()
 
@@ -98,6 +99,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // An update relaunch starts before the old process exits; take over only after it has quit.
+        if !updateHandOffFinished, let previous = UpdateRelaunch.waitPID(in: CommandLine.arguments) {
+            Task { @MainActor in
+                guard await UpdateRelaunch.waitForExit(of: previous) else {
+                    AppLog.writeAndFlush("previous instance kept running; update relaunch abandoned")
+                    NSApp.terminate(nil)
+                    return
+                }
+                updateHandOffFinished = true
+                applicationDidFinishLaunching(notification)
+            }
+            return
+        }
         if ChallengeTestMode.enabled,
            Bundle.main.object(forInfoDictionaryKey: "PTBSafariTestMode") as? Bool == true,
            let path = Bundle.main.object(forInfoDictionaryKey: "PTBSafariTestStatePath") as? String {
@@ -183,7 +197,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         battle = BattleCoordinator()
         battleWindow = BattleWindowController(battle: battle, store: companion)
         Task { await companion.preparePokemonProfiles() }
-        updater = UpdateChecker()
+        updater = UpdateChecker(installBlocked: { [weak self] in
+            guard let self else { return true }
+            return battle.isActive || navigation.tradeSessionActive || ChallengeWindowController.blocksUpdate
+        })
+        UpdateInstaller.removeLeftoverDownloads()
         store.localizationLanguage = companion.language   // 알림 현지화용 미러 시드
         store.onRefresh = { [weak self] in self?.onStoreRefreshed() }   // 한도 로드 후 companion·사탕 지급
         floatingPet = FloatingPetController(

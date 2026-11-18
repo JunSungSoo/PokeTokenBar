@@ -25,9 +25,11 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertFalse(UpdateChecker.isNewer("2.0", than: "2.0.0"))  // 동일
     }
 
-    // MARK: - Cooldown stamps only after a successful, validated check
+    // MARK: - Cooldown stamps only after a successful, verified check
 
-    private static let releaseURL = DriveReleaseSource.shareURL.absoluteString
+    private static func release(_ version: String) -> UpdateRelease {
+        UpdateRelease(version: version, size: 1_000, sha256: String(repeating: "a", count: 64))
+    }
 
     @MainActor
     private func isolatedDefaults() -> UserDefaults {
@@ -36,7 +38,7 @@ final class UpdateCheckerTests: XCTestCase {
         return UserDefaults(suiteName: suite)!
     }
 
-    /// A failed Drive lookup must not start the 30-minute cooldown: otherwise opening the
+    /// A failed lookup must not start the 30-minute cooldown: otherwise opening the
     /// popover again stays silent until the timer expires, even though no release was seen.
     @MainActor
     func testFailedCheckDoesNotStartTheCooldown() async {
@@ -62,13 +64,12 @@ final class UpdateCheckerTests: XCTestCase {
         var fetches = 0
         let checker = UpdateChecker(currentVersion: "2.5.3", clock: { now }, defaults: isolatedDefaults()) {
             fetches += 1
-            return UpdateChecker.LatestRelease(tag: "v2.5.5", url: Self.releaseURL)
+            return Self.release("2.5.5")
         }
 
         await checker.check(minInterval: 1_800)
         XCTAssertEqual(fetches, 1)
-        XCTAssertEqual(checker.available?.version, "2.5.5")
-        XCTAssertEqual(checker.available?.url, Self.releaseURL)
+        XCTAssertEqual(checker.available, Self.release("2.5.5"))
 
         now = now.addingTimeInterval(60)
         await checker.check(minInterval: 1_800)
@@ -77,48 +78,6 @@ final class UpdateCheckerTests: XCTestCase {
         now = now.addingTimeInterval(1_800)
         await checker.check(minInterval: 1_800)
         XCTAssertEqual(fetches, 2, "after the cooldown the next check must fetch again")
-    }
-
-    @MainActor
-    func testRejectedReleaseUrlDoesNotStartTheCooldown() async {
-        var fetches = 0
-        let checker = UpdateChecker(currentVersion: "2.5.3", clock: { Date(timeIntervalSince1970: 1_700_000_000) },
-                                    defaults: isolatedDefaults()) {
-            fetches += 1
-            return UpdateChecker.LatestRelease(tag: "v2.5.5", url: "http://evil.example/x")
-        }
-
-        await checker.check(minInterval: 1_800)
-        XCTAssertNil(checker.available)
-        await checker.check(minInterval: 1_800)
-        XCTAssertEqual(fetches, 2, "an unsafe URL is a failed check, not a cooldown start")
-    }
-
-    /// Malformed tags and unsupported prerelease tags are failed checks: nothing is applied, and the
-    /// very next attempt fetches again and applies a valid release instead of waiting 30 minutes.
-    @MainActor
-    func testMalformedOrPrereleaseTagIsAFailedCheckAndDoesNotBlockTheNextOne() async {
-        let badTags = ["", "latest", "v", "v2.5", "2.5.5.1", "v2..5", "2.5.x", "release-2.5.5", "v 2.5.5",
-                       "v2.6.0-beta.1", "2.6.0-rc1", "v2.6.0+build.5", "v2.6.0.beta", "v-2.6.0",
-                       "v1234567890.0.0", "v٢.٥.٥"]
-        for bad in badTags {
-            var tag = bad
-            var fetches = 0
-            let checker = UpdateChecker(currentVersion: "2.5.3", clock: { Date(timeIntervalSince1970: 1_700_000_000) },
-                                        defaults: isolatedDefaults()) {
-                fetches += 1
-                return UpdateChecker.LatestRelease(tag: tag, url: Self.releaseURL)
-            }
-
-            await checker.check(minInterval: 1_800)
-            XCTAssertNil(checker.available, "\(bad.debugDescription) must not be offered")
-            XCTAssertEqual(checker.settingsNotice, .current, "\(bad.debugDescription)")
-
-            tag = "v2.5.5"
-            await checker.check(minInterval: 1_800)
-            XCTAssertEqual(fetches, 2, "\(bad.debugDescription) must not start the cooldown")
-            XCTAssertEqual(checker.available?.version, "2.5.5", "the next valid release applies at once")
-        }
     }
 
     func testNormalizedReleaseVersion() {
@@ -130,7 +89,7 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertNil(UpdateChecker.normalizedReleaseVersion("v1234567890.0.0"), "component would overflow comparisons")
     }
 
-    /// With no early stamp, overlapping popover opens would each hit Drive. One fetch at a time.
+    /// With no early stamp, overlapping popover opens would each hit GitHub. One fetch at a time.
     @MainActor
     func testOverlappingChecksShareOneFetch() async {
         var fetches = 0
@@ -155,12 +114,9 @@ final class UpdateCheckerTests: XCTestCase {
     /// the release exists. Settings must not treat that as "already latest".
     @MainActor
     func testSkippedReleaseStaysVisibleAndANewerOneReturnsToTheBanner() {
-        let suite = "UpdateCheckerTests.skip.\(UUID().uuidString)"
-        let box = UserDefaults(suiteName: suite)!
-        defer { box.removePersistentDomain(forName: suite) }
-        let checker = UpdateChecker(currentVersion: "2.5.3", defaults: box)
+        let checker = UpdateChecker(currentVersion: "2.5.3", defaults: isolatedDefaults())
 
-        checker.consider(latest: "2.5.4", url: DriveReleaseSource.shareURL.absoluteString)
+        checker.consider(Self.release("2.5.4"))
         XCTAssertEqual(checker.available?.version, "2.5.4")
         XCTAssertNil(checker.skipped)
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.4"))
@@ -169,53 +125,130 @@ final class UpdateCheckerTests: XCTestCase {
         XCTAssertNil(checker.available, "the popover banner stays hidden")
         XCTAssertEqual(checker.skipped?.version, "2.5.4")
         XCTAssertEqual(checker.settingsNotice, .skipped("2.5.4"))
-        XCTAssertEqual(box.string(forKey: UpdateChecker.skippedVersionKey), "2.5.4")
 
-        checker.consider(latest: "v2.5.4", url: DriveReleaseSource.shareURL.absoluteString)
+        checker.consider(Self.release("2.5.4"))
         XCTAssertNil(checker.available)
         XCTAssertEqual(checker.settingsNotice, .skipped("2.5.4"), "a skipped version is not the latest installed")
 
-        checker.consider(latest: "2.5.5", url: DriveReleaseSource.shareURL.absoluteString)
+        checker.consider(Self.release("2.5.5"))
         XCTAssertEqual(checker.available?.version, "2.5.5")
         XCTAssertNil(checker.skipped)
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.5"))
 
-        checker.consider(latest: "2.5.3", url: DriveReleaseSource.shareURL.absoluteString)
-        XCTAssertEqual(checker.settingsNotice, .current, "the installed release is the latest")
+        for installedOrOlder in ["2.5.3", "2.5.0"] {
+            checker.consider(Self.release(installedOrOlder))
+            XCTAssertEqual(checker.settingsNotice, .current, "\(installedOrOlder) is never offered")
+        }
     }
 
     @MainActor
-    func testShowAgainRestoresTheBannerAndUpdateUsesTheSkippedRelease() {
-        let suite = "UpdateCheckerTests.restore.\(UUID().uuidString)"
-        let box = UserDefaults(suiteName: suite)!
-        defer { box.removePersistentDomain(forName: suite) }
-        let checker = UpdateChecker(currentVersion: "2.5.3", defaults: box)
-        let url = DriveReleaseSource.shareURL.absoluteString
-        checker.consider(latest: "2.5.4", url: url)
+    func testShowAgainRestoresTheBannerAndUpdateUsesTheSkippedRelease() async {
+        var installed: [UpdateRelease] = []
+        let checker = UpdateChecker(currentVersion: "2.5.3", defaults: isolatedDefaults(),
+                                    install: { release, _ in installed.append(release) })
+        checker.consider(Self.release("2.5.4"))
         checker.skipCurrent()
-
-        XCTAssertEqual(checker.updateTarget?.url, url, "Settings can still install a skipped release")
+        XCTAssertEqual(checker.updateTarget, Self.release("2.5.4"), "Settings can still install a skipped release")
+        await checker.applyUpdate()
+        XCTAssertEqual(installed, [Self.release("2.5.4")])
 
         checker.showSkippedAgain()
         XCTAssertEqual(checker.available?.version, "2.5.4")
         XCTAssertNil(checker.skipped)
-        XCTAssertNil(box.string(forKey: UpdateChecker.skippedVersionKey))
         XCTAssertEqual(checker.settingsNotice, .offer("2.5.4"))
     }
 
-    @MainActor func testDriveVersionOfferClearsOnInstallAndButtonAlwaysOpensPinnedShare()async {
-        let defaults=isolatedDefaults();defaults.set("3.0.1",forKey:"skippedUpdateVersion")
-        var opened:[URL]=[]
-        let checker=UpdateChecker(currentVersion:"3.0.0",defaults:defaults,fetchLatest:{.init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString)},openDownload:{opened.append($0)})
-        await checker.check();XCTAssertEqual(checker.available?.version,"3.0.1","Old GitHub skip must not hide Drive updates")
-        checker.applyUpdate();XCTAssertEqual(opened,[DriveReleaseSource.shareURL]);XCTAssertFalse(checker.isUpdating)
-        let installed=UpdateChecker(currentVersion:"3.0.1",defaults:defaults,fetchLatest:{.init(tag:"3.0.1",url:DriveReleaseSource.shareURL.absoluteString)})
-        await installed.check();XCTAssertNil(installed.available)
-        for other in ["2.5.6","3.0.0"]{checker.consider(latest:other,url:DriveReleaseSource.shareURL.absoluteString);XCTAssertNil(checker.available)}
-    }
-    func testDriveDestinationMustBeTheSpecificSharedFile() {
-        XCTAssertTrue(UpdateChecker.isTrustedReleaseURL(DriveReleaseSource.shareURL.absoluteString))
-        for url in ["https://github.com/chattymin/PokeTokenBar/releases/latest","https://drive.google.com/file/d/other/view","https://drive.google.com.evil.test/file/d/1NYVOMV8fMqf-UGM-dIfKZ3wKV4PtITrN/view","http://drive.google.com/file/d/1NYVOMV8fMqf-UGM-dIfKZ3wKV4PtITrN/view"]{XCTAssertFalse(UpdateChecker.isTrustedReleaseURL(url))}
+    // MARK: - Installing
+
+    @MainActor
+    func testUpdateIsRefusedDuringABattleOrTradeWithoutDownloading() async {
+        var installs = 0
+        var blocked = true
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(),
+                                    install: { _, _ in installs += 1 }, installBlocked: { blocked })
+        checker.consider(Self.release("3.3.0"))
+
+        await checker.applyUpdate()
+        XCTAssertEqual(installs, 0)
+        XCTAssertEqual(checker.installFailure, .busy)
+        XCTAssertFalse(checker.isUpdating)
+
+        blocked = false
+        await checker.applyUpdate()
+        XCTAssertEqual(installs, 1)
+        XCTAssertNil(checker.installFailure)
+        XCTAssertTrue(checker.isUpdating, "a successful install hands over to the relaunched app")
     }
 
+    @MainActor
+    func testFailedInstallReportsAndOffersTheReleasePage() async {
+        var opened: [URL] = []
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(),
+                                    openDownload: { opened.append($0) },
+                                    install: { _, _ in throw UpdateInstaller.Failure.integrity })
+        checker.consider(Self.release("3.3.0"))
+
+        await checker.applyUpdate()
+        XCTAssertEqual(checker.installFailure, .failed)
+        XCTAssertFalse(checker.isUpdating)
+
+        checker.openReleasePage()
+        XCTAssertEqual(opened, [Self.release("3.3.0").pageURL])
+    }
+
+    @MainActor
+    func testInstallerSeesABattleThatStartsDuringTheDownload() async {
+        var blocked = false
+        var seenByInstaller: Bool?
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(),
+                                    install: { _, isBlocked in
+                                        blocked = true
+                                        seenByInstaller = isBlocked()
+                                        throw UpdateInstaller.Failure.busy
+                                    },
+                                    installBlocked: { blocked })
+        checker.consider(Self.release("3.3.0"))
+
+        await checker.applyUpdate()
+        XCTAssertEqual(seenByInstaller, true, "the installer re-reads the live state before swapping")
+        XCTAssertEqual(checker.installFailure, .busy)
+        XCTAssertFalse(checker.isUpdating)
+    }
+
+    @MainActor
+    func testRelaunchFailureAfterTheSwapAsksForARestartAndStopsRetrying() async {
+        var installs = 0
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(),
+                                    install: { _, _ in
+                                        installs += 1
+                                        throw UpdateInstaller.Failure.relaunch
+                                    })
+        checker.consider(Self.release("3.3.0"))
+
+        await checker.applyUpdate()
+        XCTAssertEqual(checker.installFailure, .restartRequired)
+        await checker.applyUpdate()
+        XCTAssertEqual(installs, 1, "the new version is already on disk; a second swap would fail")
+    }
+
+    @MainActor
+    func testBusyNoticeClearsOnTheNextCheck() async {
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(),
+                                    fetchLatest: { Self.release("3.3.0") },
+                                    install: { _, _ in }, installBlocked: { true })
+        await checker.check()
+        await checker.applyUpdate()
+        XCTAssertEqual(checker.installFailure, .busy)
+        await checker.check(minInterval: 0)
+        XCTAssertNil(checker.installFailure)
+    }
+
+    @MainActor
+    func testNoInstallWithoutAnOffer() async {
+        var installs = 0
+        let checker = UpdateChecker(currentVersion: "3.2.1", defaults: isolatedDefaults(), install: { _, _ in installs += 1 })
+        await checker.applyUpdate()
+        XCTAssertEqual(installs, 0)
+        XCTAssertNil(checker.installFailure)
+    }
 }
