@@ -108,16 +108,47 @@ test('a complete doubles match supports knockouts and forced replacements until 
  assert.equal(e.battle.ended,true);
  assert.ok([0,1].includes(e.frame(0).winner));
 });
-test('all item-dependent Arceus forms are rejected in singles and doubles',()=>{
- const {Dex}=require('pokemon-showdown');
- const forms=Dex.mod('gen5').species.all().filter(s=>s.num===493 && s.gen<=5);
- assert.ok(forms.length>1);
- for(const mode of ['singles','doubles']) for(const species of forms) {
-   const count=6;
-   const team=Array.from({length:count},(_,i)=>member('a'+i,i));
-   team[1]=mon('blocked',species.name,'Multitype',['judgment']);
-   assert.throws(()=>new OwnedBattle(mode,[team,Array.from({length:count},(_,i)=>member('b'+i,i))]),/type depends on a held item/);
+const arceusTypes=['Normal','Fighting','Flying','Poison','Ground','Rock','Bug','Ghost','Steel','Fire','Water','Grass','Electric','Psychic','Ice','Dragon','Dark','Fairy'];
+function arceusBattle(mode,type,ability) {
+ const team=Array.from({length:6},(_,i)=>member('a'+i,i));
+ // The native client sends the saved form in lower case, e.g. "Arceus-fire".
+ team[0]=mon('arceus',type==='Normal'?'Arceus':'Arceus-'+type.toLowerCase(),ability,['judgment']);
+ const e=new OwnedBattle(mode,[team,Array.from({length:6},(_,i)=>member('b'+i,i))],[1,2,3,4]);
+ lead(e);
+ return e;
+}
+test('every collected Arceus form battles as its own type with either ability in singles and doubles',()=>{
+ for(const mode of ['singles','doubles']) for(const type of arceusTypes) for(const ability of ['Pressure','Adaptability']) {
+   const e=arceusBattle(mode,type,ability),label=`${mode} ${type} ${ability}`;
+   const arceus=e.battle.sides[0].pokemon.find(p=>p.set.ptbID==='arceus');
+   assert.ok(arceus.isActive,label);
+   assert.deepEqual(arceus.getTypes(),[type],label);
+   assert.equal(arceus.baseAbility,ability.toLowerCase(),label);
+   assert.equal(arceus.item,'',label);
+   assert.equal(e.frame(0).own.find(p=>p.id==='arceus').form,type.toLowerCase(),label);
+   assert.equal(e.errors.length,0,label);
  }
+});
+test('Judgment follows the Arceus form type without a plate, in the menu and in the simulator',()=>{
+ for(const type of arceusTypes) {
+   const e=arceusBattle('singles',type,'Adaptability');
+   const arceus=e.battle.sides[0].active[0];
+   assert.equal(e.frame(0).slots[0].moves[0].type,type);
+   const move=e.battle.dex.getActiveMove('judgment');
+   e.battle.singleEvent('ModifyType',move,null,arceus,e.battle.sides[1].active[0],move,move);
+   assert.equal(move.type,type);
+ }
+});
+test('Judgment stays Normal for a non-Arceus user',()=>{
+ const e=setup('singles',null,[1,2,3,4],['judgment']);lead(e);
+ const move=e.battle.dex.getActiveMove('judgment');
+ e.battle.singleEvent('ModifyType',move,null,e.battle.sides[0].active[0],e.battle.sides[1].active[0],move,move);
+ assert.equal(move.type,'Normal');
+});
+test('Multitype is no longer a legal Arceus ability',()=>{
+ const team=Array.from({length:6},(_,i)=>member('a'+i,i));
+ team[0]=mon('arceus','Arceus-fire','Multitype',['judgment']);
+ assert.throws(()=>new OwnedBattle('singles',[team,Array.from({length:6},(_,i)=>member('b'+i,i))]),/ability is incompatible/);
 });
 test('battle sprite follows Forecast weather changes rather than the saved cosmetic form',()=>{
  const template={...mon('x','Castform','Forecast',['sunny-day','rain-dance','protect']),form:'normal'};

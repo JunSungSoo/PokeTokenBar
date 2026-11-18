@@ -57,7 +57,6 @@ extension L {
         if raw.contains("Invalid battle lineup") { return battleRegisterHint }
         if raw == battleFinalOnly || raw.contains("Fully evolved Pokémon required") { return battleFinalOnly }
         if raw == battleDuplicateSpecies || raw.contains("Duplicate species") { return battleDuplicateSpecies }
-        if raw == battleItemTypeExcluded { return raw }
         if raw.contains("Incompatible") || raw.contains("revision") {
             return t("두 기기의 앱을 같은 버전으로 업데이트해 주세요.","Update both apps to the same version.","両方のアプリを同じ版に更新してください。","Actualiza ambas apps a la misma versión.","Mets les deux apps à la même version.","Atualize os dois apps para a mesma versão.","Aktualisiere beide Apps auf dieselbe Version.","Обновите оба приложения до одной версии.")
         }

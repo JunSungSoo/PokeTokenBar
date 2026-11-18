@@ -240,7 +240,7 @@ final class BattleCoordinator {
                 guard phase == .connected, message.mode == mode, let roster = message.roster,
                       roster.count == mode.teamSize, Set(roster.map(\.id)).count == roster.count,
                       Set(roster.map(\.speciesID)).count == roster.count,
-                      roster.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) && BattleTeamBuilder.isSpeciesEligible($0.speciesID) && (5...100).contains($0.level) }) else { throw BattleFailure.invalidMessage }
+                      roster.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) && (5...100).contains($0.level) }) else { throw BattleFailure.invalidMessage }
                 guard opponentRoster.isEmpty else { throw BattleFailure.invalidMessage }
                 clearReady(resetRegistration: false); opponentRoster = roster
                 arena = BattleArena.forOpponent(roster)
@@ -298,7 +298,7 @@ final class BattleCoordinator {
         guard !BattleHeldItems.hasDuplicates(team) else{error="Duplicate held item";return}
         guard phase == .connected, opponent != nil, registeredTeam.isEmpty, team.count == mode.teamSize,
               Set(team.map(\.id)).count == team.count, Set(team.map(\.speciesID)).count == team.count,
-              team.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) && BattleTeamBuilder.isSpeciesEligible($0.speciesID) }) else { return }
+              team.allSatisfy({ BattleTeamBuilder.isFinalEvolution($0.speciesID) }) else { return }
         clearReady(resetRegistration: false); registeredTeam = team; error = nil
         var message = wire("roster"); message.mode = mode; message.roster = team.map(BattleRosterMember.init); send(message)
     }

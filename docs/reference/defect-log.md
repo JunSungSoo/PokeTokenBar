@@ -12,6 +12,21 @@ read_when:
 
 # 결함 대응 축적 규칙
 
+## A species the battle overlay adds must be swept across every stock-dex lookup
+
+- Admitting Arceus (2026-11-18) added Fairy Arceus, a Gen VI form, to the overlay in
+  `battleDex()`. Three lookups still read stock Gen V data and each rejected or mislabeled
+  only that form: `validateTeam` (`species.gen > 5`), the doubles lineup model
+  (`speciesProfile`), and the name aliases in the generated `catalog.json` (battle log
+  showed the unknown-Pokémon label). The first tests used Fire and Normal, which exist
+  in Gen V, so they passed through a different path than the Fairy trigger.
+- When the overlay gains a species or form, grep `Dex.mod('gen5')`, `.gen > 5` and the
+  generated BattleText resources, and test with the form that is absent from stock Gen V.
+  Stock BW2 also forces a plateless Arceus to Normal through the `arceus` species
+  condition, so overriding Pokedex types alone is not enough.
+- Regression tests iterate all 18 forms in the engine, the doubles lineup and the
+  battle-log name lookup.
+
 ## Species caches need form context in information views
 
 - Do not resolve that context inside each move title/tooltip. The type-aware wrappers

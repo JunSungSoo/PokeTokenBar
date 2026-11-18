@@ -39,7 +39,12 @@ test('packaged ability choices exactly match every supported Gen V species and f
  const fs=require('node:fs'),path=require('node:path');
  const {Dex}=require('pokemon-showdown'), dex=Dex.mod('gen5');
  const options=JSON.parse(fs.readFileSync(path.join(__dirname,'../../Sources/PokeTokenBar/Resources/BattleText/ability-options.json')));
- for(const s of dex.species.all().filter(s=>s.num>0&&s.num<=649&&s.gen<=5)) {
+ // Arceus takes its forms (including Fairy) and abilities from the battle overlay.
+ const battle=require('../held-items.cjs').battleDex();
+ const supported=[...dex.species.all().filter(s=>s.num>0&&s.num<=649&&s.gen<=5&&s.num!==493),...battle.species.all().filter(s=>s.num===493)];
+ assert.equal(Object.keys(options).length,supported.length);
+ assert.deepEqual(options.arceusfairy,[{name:'Pressure',slot:1,isHidden:false},{name:'Adaptability',slot:2,isHidden:false}]);
+ for(const s of supported) {
   assert.deepEqual(options[s.id],Object.entries(s.abilities).filter(([slot,name])=>['0','1','H'].includes(slot)&&dex.abilities.get(name).gen<=5).map(([slot,name])=>({name,slot:slot==='H'?3:Number(slot)+1,isHidden:slot==='H'})));
  }
 });

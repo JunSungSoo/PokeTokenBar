@@ -12,6 +12,9 @@ private let arceusDetails = PokemonDetails(
         .init(name: "earth-power", learnMethods: [.init(method: "level-up", level: 20)]),
         .init(name: "recover", learnMethods: [.init(method: "level-up", level: 70)])])
 
+private let battleAbilities = [PokemonAbilityOption(name: "Pressure", slot: 1, isHidden: false),
+                              PokemonAbilityOption(name: "Adaptability", slot: 2, isHidden: false)]
+
 private struct ArceusDetailProvider: PokeProviding, PokemonDetailProviding {
     func pokemonDetails(speciesID: Int) async throws -> PokemonDetails { arceusDetails }
     func line(baseSpeciesID: Int) async throws -> EvoLine {
@@ -165,17 +168,58 @@ final class ArceusFormDetailsTests: XCTestCase {
             XCTAssertEqual(details.types, [form.rawValue])
             XCTAssertEqual(details.baseStats, arceusDetails.baseStats)
             XCTAssertEqual(details.baseStatTotal, 720)
-            XCTAssertEqual(details.abilities, arceusDetails.abilities)
+            XCTAssertEqual(details.abilities, battleAbilities)
             XCTAssertEqual(details.moves, arceusDetails.moves)
             XCTAssertEqual(details.height, 32)
             XCTAssertEqual(details.weight, 3200)
         }
         XCTAssertEqual(arceusDetails.types, ["normal"], "Presentation must not mutate cached metadata")
-        XCTAssertEqual(arceusDetails.displayed(form: nil), arceusDetails)
-        XCTAssertEqual(arceusDetails.displayed(form: PokemonForm("invalid")), arceusDetails)
+        XCTAssertEqual(arceusDetails.abilities.map(\.name), ["multitype"], "Presentation must not mutate cached metadata")
+        for fallback in [nil, PokemonForm("invalid")] {
+            XCTAssertEqual(arceusDetails.displayed(form: fallback).types, ["normal"])
+            XCTAssertEqual(arceusDetails.displayed(form: fallback).abilities, battleAbilities)
+        }
         let pikachu = PokemonDetails(speciesID: 25, name: "pikachu", height: 4, weight: 60,
             baseExperience: 112, genderRate: 4, types: ["electric"], baseStats: [:], abilities: [], moves: [])
         XCTAssertEqual(pikachu.displayed(form: PokemonForm("fire")), pikachu)
+    }
+
+    @MainActor
+    func testSavedMultitypeBecomesPressureAndAdaptabilityStaysSelectable() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let suite = "arceus-ability-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        for form in PokemonForm.forms(speciesID: 493) {
+            XCTAssertEqual(PokemonLoadout.abilityOptions(details: arceusDetails, form: form), battleAbilities, form.rawValue)
+            var legacy = PokemonProfile.generate(seed: 31)
+            legacy.abilityName = "multitype"; legacy.abilitySlot = 1
+            let url = directory.appendingPathComponent(form.rawValue + ".json")
+            var state = CompanionState()
+            state.dex = [.init(id: "arceus", baseID: 493, finalID: 493, chainOrder: [493], rarity: .legendary,
+                               caughtAt: Date(), profile: legacy, form: form)]
+            try JSONEncoder().encode(state).write(to: url)
+            let store = CompanionStore(provider: ArceusDetailProvider(), fileURL: url,
+                dittoDisguiseRollingEnabled: false, defaults: defaults)
+            await store.loadPokemonDetails(speciesID: 493)
+            XCTAssertEqual(store.state.dex.first?.profile?.abilityName, "Pressure", form.rawValue)
+            XCTAssertFalse(store.setPokemonAbility(entryID: "arceus", name: "Multitype"))
+            XCTAssertTrue(store.setPokemonAbility(entryID: "arceus", name: "Adaptability"))
+            await store.loadPokemonDetails(speciesID: 493)
+            XCTAssertEqual(store.state.dex.first?.profile?.abilityName, "Adaptability", form.rawValue)
+            XCTAssertEqual(store.state.dex.first?.profile?.abilitySlot, 2)
+        }
+    }
+
+    func testBattleLogNamesEveryFormIncludingFairy() {
+        let catalog = BattleTextCatalog.shared
+        for form in PokemonForm.forms(speciesID: 493) {
+            let engineName = BattleTeamBuilder.engineSpecies("arceus", speciesID: 493, form: form)
+            XCTAssertEqual(catalog.pokemonName("\(engineName), L37", language: .ko), "아르세우스", form.rawValue)
+        }
+        XCTAssertEqual(catalog.pokemonName("Arceus-Fairy", language: .en), "Arceus")
     }
 
     func testJudgmentUsesFormTypeInLocalizedTitlesAndTooltipsOnly() {

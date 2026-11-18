@@ -240,9 +240,6 @@ enum BattleTeamBuilder {
         return lineup + roster.filter { !lineup.contains($0) }
     }
     static let statNames = ["hp": "hp", "attack": "atk", "defense": "def", "special-attack": "spa", "special-defense": "spd", "speed": "spe"]
-    // Generation V: Arceus (including Normal) depends on held plates for its type.
-    static func isSpeciesEligible(_ speciesID: Int) -> Bool { speciesID != 493 }
-
     static let finalSpeciesIDs: Set<Int> = {
         let bundled = Bundle.main.resourceURL?.appendingPathComponent("BattleText/final-species.json")
         let url = bundled.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
@@ -285,9 +282,6 @@ enum BattleTeamBuilder {
             guard isFinalEvolution(entry.finalID) else {
                 throw BattleFailure.invalidTeam(L(language).battleFinalOnly)
             }
-            guard isSpeciesEligible(entry.finalID) else {
-                throw BattleFailure.invalidTeam(L(language).battleItemTypeExcluded)
-            }
             guard speciesIDs.insert(entry.finalID).inserted else {
                 throw BattleFailure.invalidTeam(L(language).battleDuplicateSpecies)
             }
@@ -296,9 +290,6 @@ enum BattleTeamBuilder {
         for id in ids {
             guard let entry = entries.first(where: { $0.id == id && !$0.isReleased }), var profile = entry.profile else {
                 throw BattleFailure.invalidTeam("This Pokémon is no longer available.")
-            }
-            guard isSpeciesEligible(entry.finalID) else {
-                throw BattleFailure.invalidTeam(L(language).battleItemTypeExcluded)
             }
             let details = try await provider.pokemonDetails(speciesID: entry.finalID)
             // Refresh historical ability compatibility even when a legacy saved loadout is complete.

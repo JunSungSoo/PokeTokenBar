@@ -119,7 +119,7 @@
 "honeygather","Honey Gather","Teddiursa","","excluded: final-evolution-only selection",""
 "frisk","Frisk","Wigglytuff","Wigglytuff","available: gen5 engine event hooks","onStart"
 "reckless","Reckless","Hitmonlee","Hitmonlee","available: gen5 engine event hooks","onBasePower"
-"multitype","Multitype","Arceus","","excluded: item-dependent-type rule",""
+"multitype","Multitype","Arceus","","excluded: Arceus battles with Pressure or Adaptability",""
 "flowergift","Flower Gift","Cherrim","Cherrim","available: gen5 engine event hooks","onAllyModifyAtk onAllyModifySpD onStart onWeatherChange"
 "baddreams","Bad Dreams","Darkrai","Darkrai","available: gen5 engine event hooks","onResidual"
 "pickpocket","Pickpocket","Shiftry","Shiftry","available: gen5 engine event hooks","onAfterMoveSecondary"

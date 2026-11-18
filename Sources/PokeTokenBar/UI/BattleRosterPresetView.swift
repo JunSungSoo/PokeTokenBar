@@ -13,7 +13,7 @@ struct BattleRosterPresetEditor: View {
 
     private var l: L { store.l }
     private var candidates: [DexEntry] {
-        BattleTeamBuilder.storedCandidates(store.state.dex).filter { BattleTeamBuilder.isSpeciesEligible($0.finalID) }
+        BattleTeamBuilder.storedCandidates(store.state.dex)
     }
     private var loadout: BattleItemLoadout {
         var loadout = BattleItemLoadout()

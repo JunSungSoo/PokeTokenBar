@@ -10,7 +10,7 @@ const rows=abilities.map(a=>{
  const witnesses=species.filter(s=>Object.values(s.abilities).includes(a.name));
  const final=witnesses.find(s=>s.num!==493&&finals.has(s.num));
  const hooks=Object.entries(a).filter(([k,v])=>k.startsWith('on')&&typeof v==='function').map(([k])=>k).sort();
- const scope=a.id==='multitype'?'excluded: item-dependent-type rule':!final?'excluded: final-evolution-only selection':!hooks.length?'available: no in-battle effect in BW2':'available: gen5 engine event hooks';
+ const scope=a.id==='multitype'?'excluded: Arceus battles with Pressure or Adaptability':!final?'excluded: final-evolution-only selection':!hooks.length?'available: no in-battle effect in BW2':'available: gen5 engine event hooks';
  return [a.id,a.name,witnesses[0]?.name||'',final?.name||'',scope,hooks.join(' ')];
 });
 const out=path.join(__dirname,'../docs/reference/battle-ability-support.csv');

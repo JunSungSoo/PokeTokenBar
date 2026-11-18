@@ -30,6 +30,21 @@ test('four-member doubles challenge rejects switches to either unselected member
  e.runCPU();
  assert.ok(e.frame(0).own.find(p=>p.id==='a3').active);
 });
+test('the learned doubles lineup scores a player roster containing any Arceus form, including Fairy',()=>{
+ const {REVISION}=require('../challenge-doubles-lineup.cjs');
+ const sets=require('../challenge-doubles-opponents.json');
+ const {encounters}=require('../challenge-opponents.json');
+ const trainer=sets.brock.map(set=>({...encounters.find(e=>e.id==='brock').team.find(p=>p.speciesID===set.speciesID),...set}));
+ for(const form of ['Arceus','Arceus-fire','Arceus-fairy']){
+  const player=team('a');
+  player[0]={...player[0],species:form,ability:'Adaptability',moves:['judgment']};
+  const e=new OwnedBattle('doubles',[player,trainer],[1,2,3,4],{
+   profile:'challenge',challengeBattleSize:4,automaticOpponent:true,expectedPolicyRevision:REVISION
+  });
+  assert.equal(e.frame(1).own.length,4,form);
+  assert.equal(e.errors.length,0,form);
+ }
+});
 test('learned doubles lead and four-member selection adapt to sets without seeing the player lineup',()=>{
  const {REVISION,FEATURE_NAMES}=require('../challenge-doubles-lineup.cjs');
  const model=require('../challenge-doubles-lineup-model.json');

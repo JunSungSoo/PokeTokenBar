@@ -187,7 +187,6 @@ struct BattleLobbyView: View {
             selectedRoster
             Text(l.battleFinalOnly).font(.caption).foregroundStyle(.secondary)
             Text(l.battleDuplicateSpecies).font(.caption).foregroundStyle(.secondary)
-            Text(l.battleItemTypeExcluded).font(.caption).foregroundStyle(.secondary)
             ForEach(entries) { entry in
                 let duplicate = BattleTeamBuilder.hasSelectedSpecies(entry, selectedIDs: selectedIDs, entries: entries)
                 Button {
@@ -201,7 +200,7 @@ struct BattleLobbyView: View {
                         Spacer(); Text("\(l.level) \(entry.profile?.level ?? 0)").font(.caption.monospacedDigit())
                     }.contentShape(Rectangle())
                 }.buttonStyle(.plain)
-                    .disabled(building || duplicate || !BattleTeamBuilder.isSpeciesEligible(entry.finalID))
+                    .disabled(building || duplicate)
             }
             Button(l.battleRegisterTeam) { prepareRegistration() }.buttonStyle(.borderedProminent)
                 .disabled(selectedIDs.count != 6 || building)

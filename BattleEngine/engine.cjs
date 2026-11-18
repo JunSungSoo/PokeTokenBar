@@ -44,14 +44,14 @@ function validateTeam(team, count, carried = false, npc = false) {
     if (!mon.id || ids.has(mon.id)) throw Error('Duplicate individual');
     ids.add(mon.id);
     const dex = Dex.mod('gen5');
-    const species = dex.species.get(mon.species);
+    // Arceus forms and their abilities come from the battle overlay, not stock BW2.
+    const species = (dex.species.get(mon.species).num === 493 ? battleDex() : dex).species.get(mon.species);
     if(species.isMega)throw Error('Register the base Pokémon, not its Mega form');
     const npcItem=dex.items.get(mon.item||'');
     if(npc&&mon.item&&(!npcItem.exists||npcItem.gen>5)&&!allowedItems.get(Dex.toID(mon.item))?.mega)throw Error('Invalid NPC item');
     const item=npc && !allowedItems.get(Dex.toID(mon.item))?.mega ? (mon.item?npcItem.id:''):heldItem(mon.item,species);
     if(item){if(items.has(item)&&!carried)throw Error('Duplicate held item');items.add(item);}
     if (!species.exists || species.gen > 5 || species.num < 1 || species.num > 649) throw Error('Unsupported species');
-    if (species.num === 493) throw Error('Arceus cannot battle: its type depends on a held item.');
     if (speciesIDs.has(species.num)) throw Error('Duplicate species: only one Pokémon of each species per team.');
     speciesIDs.add(species.num);
     if (!Number.isInteger(mon.level) || mon.level < 5 || mon.level > 100) throw Error('Invalid level');

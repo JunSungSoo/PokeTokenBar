@@ -41,7 +41,7 @@ struct BattleRosterPresets: Codable {
         guard ids.count == mode.teamSize, Set(ids).count == ids.count else { return false }
         let members = ids.compactMap { id in candidates.first { $0.id == id } }
         return members.count == ids.count && Set(members.map(\.finalID)).count == ids.count
-            && members.allSatisfy { !$0.isReleased && BattleTeamBuilder.isSpeciesEligible($0.finalID) }
+            && members.allSatisfy { !$0.isReleased }
     }
 
     static func toggle(_ id: String, in ids: inout [String], mode: BattleMode, candidates: [DexEntry]) {

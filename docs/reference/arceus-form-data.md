@@ -11,6 +11,9 @@ Verified on 2026-11-13 using PokéAPI and the project's pinned Pokémon Showdown
   uses the held Plate's type. The pinned Gen V engine reports power 100, accuracy
   100, 10 base PP and the Special category. In the collection's fixed type forms,
   its displayed type follows that form. Other moves retain their own types.
+- Battles do not use Plates. The battle overlay fixes each form's type, makes Judgment
+  follow it, and replaces Multitype with a choice of Pressure or Adaptability; see
+  `local-battles.md`. The species cache keeps PokéAPI's Multitype untouched.
 - Fairy Arceus is already a collectible form in this app. Its display uses the
   same shared stats and learnset, even though Fairy is absent from the BW2 type table.
 

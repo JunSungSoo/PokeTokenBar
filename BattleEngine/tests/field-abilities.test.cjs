@@ -26,14 +26,14 @@ function damage(e,move,source=0,target=1) {
  e.battle.prng.setSeed('1,2,3,4');
  return e.battle.actions.getDamage(e.battle.sides[source].active[0],e.battle.sides[target].active[0],{...e.battle.dex.getActiveMove(move),willCrit:false},true);
 }
-test('all 164 generation-V abilities remain in the engine; every non-item-dependent ability initializes in bring-six singles and doubles',()=>{
+test('all 164 generation-V abilities remain in the engine; every ability with a legal holder initializes in bring-six singles and doubles',()=>{
  const abilities=dex.abilities.all().filter(a=>a.exists&&a.num>0&&a.gen<=5);
  assert.equal(abilities.length,164);
  const species=dex.species.all().filter(s=>s.num>0&&s.num<=649&&s.gen<=5);
  let initialized=0;
  for(const a of abilities) {
   const s=species.find(s=>s.num!==493&&Object.values(s.abilities).includes(a.name));
-  if(!s) { assert.equal(a.id,'multitype');assert.throws(()=>validateTeam(team('x',mon('Arceus',a.name)),6),/held item/);continue; }
+  if(!s) { assert.equal(a.id,'multitype');assert.throws(()=>validateTeam(team('x',mon('Arceus',a.name)),6),/ability is incompatible/);continue; }
   for(const mode of ['singles','doubles']) {
    const e=battle(mode,mon(s.name,a.name));
    const p=e.battle.sides[0].pokemon[0];

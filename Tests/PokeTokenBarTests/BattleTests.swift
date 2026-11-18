@@ -1058,21 +1058,22 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(team[0].stats,expected)
         XCTAssertEqual(team[0].moves,["thunderbolt"])
         XCTAssertEqual(team[0].level,37)
-        XCTAssertTrue(BattleTeamBuilder.isSpeciesEligible(351), "Weather forms remain eligible")
-        XCTAssertFalse(BattleTeamBuilder.isSpeciesEligible(493))
-        for mode in BattleMode.allCases {
-            for form in PokemonForm.forms(speciesID:493) {
-                let blocked = (0..<mode.teamSize).map { i in
-                    DexEntry(id:"blocked\(i)",baseID:493,finalID:493,chainOrder:[493],rarity:.common,
-                        caughtAt:Date(),nature:.timid,profile:profile,form:form)
-                }
-                do {
-                    _ = try await BattleTeamBuilder.build(ids:blocked.map(\.id),entries:blocked,mode:mode,
-                        language:.ko,provider:BattleDetailFixture(details:details))
-                    XCTFail("Every item-dependent form must be rejected before loading details")
-                } catch {
-                    XCTAssertEqual(error.localizedDescription,L(.ko).battleItemTypeExcluded)
-                }
+        // A legacy Multitype save must reach the engine as the form's species with a legal ability.
+        var legacyArceus = profile
+        legacyArceus.abilityName="multitype";legacyArceus.moves=[PokemonKnownMove(name:"judgment",learnedAtLevel:100)]
+        var chosenArceus = legacyArceus
+        chosenArceus.abilityName="Adaptability";chosenArceus.abilitySlot=2;chosenArceus.hasCustomAbility=true
+        for form in PokemonForm.forms(speciesID:493) {
+            for (arceusProfile,expectedAbility) in [(legacyArceus,"Pressure"),(chosenArceus,"Adaptability")] {
+                let arceus = DexEntry(id:"arceus",baseID:493,finalID:493,chainOrder:[493],rarity:.legendary,
+                    caughtAt:Date(),nature:.timid,profile:arceusProfile,form:form)
+                let roster = [arceus] + entries.prefix(5)
+                let built = try await BattleTeamBuilder.build(ids:roster.map(\.id),entries:roster,mode:.singles,
+                    language:.ko,provider:BattleDetailFixture(details:details))
+                XCTAssertEqual(built[0].species,form.rawValue == "normal" ? "Arceus":"Arceus-"+form.rawValue)
+                XCTAssertEqual(built[0].form,form)
+                XCTAssertEqual(built[0].ability,expectedAbility,form.rawValue)
+                XCTAssertEqual(built[0].moves,["judgment"])
             }
         }
         var released=entries;released[0].releasedAt=Date()
@@ -1598,7 +1599,8 @@ private struct BattleDetailFixture: PokemonDetailProviding {
     func pokemonDetails(speciesID: Int) async throws -> PokemonDetails {
         PokemonDetails(speciesID:speciesID,name:[25:"pikachu",26:"raichu",172:"pichu",181:"ampharos",310:"manectric",101:"electrode",587:"emolga",618:"stunfisk"][speciesID] ?? details.name,
             height:details.height,weight:details.weight,baseExperience:details.baseExperience,genderRate:details.genderRate,
-            types:details.types,baseStats:details.baseStats,abilities:details.abilities,moves:details.moves)
+            types:details.types,baseStats:details.baseStats,
+            abilities:speciesID == 493 ? [PokemonAbilityOption(name:"multitype",slot:1,isHidden:false)]:details.abilities,moves:details.moves)
     }
 }
 

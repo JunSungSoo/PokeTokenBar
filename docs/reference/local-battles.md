@@ -46,7 +46,7 @@ The collection's individual stat rows show an IV grade as `★(1)` through `★(
 The 32 IV values use fifteen bands (`floor(IV * 15 / 32) + 1`), with 0 at grade 1 and
 31 at grade 15. These labels do not change IVs or computed battle stats.
 
-Pokémon whose type depends on a held item cannot participate. In generation V this excludes Arceus in every form, including Normal. The picker disables these individuals with an explanation; both native preflight and the host engine reject them as well. Weather-driven form changes remain legal and sprites follow the current battle form.
+Arceus battles as its collected form: the form's type is fixed without a Plate, Judgment takes that type, and its held-item slot is free. This is an app-specific rule (2026-11-18), replacing the earlier exclusion of every Arceus form. Multitype is not selectable; each Arceus chooses Pressure or Adaptability, and a saved Multitype becomes Pressure. The overlay lives in `BattleEngine/held-items.cjs` (`battleDex`) and feeds `ability-options.json` through `scripts/export-battle-abilities.cjs`. Weather-driven form changes remain legal and sprites follow the current battle form.
 
 The app currently displays default-form, present-day PokéAPI base stats alongside BW2 learnsets. The battle format is explicitly `ptb-bw2-owned-stats-v1`: imported starting stats override only the individual's original species calculation. Switching preserves those values; genuine battle form changes, Transform, boosts, status, weather, abilities, damage rolls and targeting use the simulator. This is an app-specific format rather than unchanged cartridge stats. Non-default form abilities map the saved ability slot to the actual generation-V form; incompatible abilities on ordinary forms fail preflight. Stored profiles are not rewritten to make them legal.
 
@@ -406,8 +406,8 @@ three-ability implementation or whitelist. The runtime contains all 164 generati
 abilities. `scripts/audit-battle-abilities.cjs` regenerates
 [`battle-ability-support.csv`](battle-ability-support.csv) with actual inherited event hooks,
 a witness species and a witness eligible under the app’s final-evolution rule. The current
-selection rules expose 161 distinct abilities: Multitype belongs to banned item-dependent
-Arceus, and Friend Guard/Honey Gather have no eligible final-stage witness in BW2. The
+selection rules expose 161 distinct abilities: Multitype has no holder because Arceus battles
+with Pressure or Adaptability, and Friend Guard/Honey Gather have no eligible final-stage witness in BW2. The
 underlying engine still retains their data. Run Away and Illuminate have no in-battle
 effect under BW2 rules; held-item-only effects have no item to trigger with this format.
 These are rule constraints, not substitute effects or silently disabled callbacks.

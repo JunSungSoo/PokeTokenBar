@@ -25,7 +25,8 @@ struct BattleTextCatalog: Decodable, Sendable {
         // A missing/incomplete resource is a build error, caught by catalog/packaging tests.
         let base=try! JSONDecoder().decode(Self.self,from:Data(contentsOf:url))
         return Self(moves:base.moves.merging(PokemonFairyMoves.shared.moves){_,new in new},
-            species:base.species,aliases:base.aliases,abilities:base.abilities,
+            // The Gen V text export has no Fairy Arceus, which the battle overlay adds.
+            species:base.species,aliases:base.aliases.merging(["arceusfairy":"493"]){current,_ in current},abilities:base.abilities,
             abilityDescriptions:base.abilityDescriptions,
             types:base.types.merging(PokemonFairyMoves.shared.types){_,new in new})
     }()

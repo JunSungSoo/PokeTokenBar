@@ -41,6 +41,21 @@ function battleDex(){
    if(!parent.abilities.get(ability).exists||a.gen>5)d.dataCache.Abilities[a.id]=donor.data.Abilities[a.id];
   }
  }
+ // Arceus battles as its collected form without a plate; these abilities replace Multitype.
+ for(const [id,entry]of Object.entries(parent.data.Pokedex)){
+  if(entry.num!==493)continue;
+  const {requiredItems,...form}=entry;
+  d.dataCache.Pokedex[id]={...form,gen:5,abilities:{0:'Pressure',1:'Adaptability'}};
+ }
+ // Stock BW2 forces a plateless Arceus back to Normal through this species condition.
+ d.dataCache.Conditions.arceus={name:'Arceus'};
+ const judgment=parent.data.Moves.judgment;
+ d.dataCache.Moves.judgment={...judgment,
+  onModifyType(move,pokemon){
+   judgment.onModifyType.call(this,move,pokemon);
+   if(pokemon.species.num===493&&!pokemon.getItem().onPlate)move.type=pokemon.species.types[0];
+  }
+ };
  // Preserve Showdown's arithmetic and annotate only the stage lines it actually emits.
  // AfterEachBoost excludes capped changes and changes blocked by Mist/TryBoost.
  for(const id of ['contrary','simple']){

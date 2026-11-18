@@ -94,7 +94,7 @@ enum ChallengeScreen {case setup,preparation,resume,loading,battle,reward,result
     }
     var save:ChallengeRunStore {session.save}
     var run:ChallengeRun? {save.run}
-    var candidates:[DexEntry] {BattleTeamBuilder.storedCandidates(store.state.dex).filter{BattleTeamBuilder.isSpeciesEligible($0.finalID)}}
+    var candidates:[DexEntry] {BattleTeamBuilder.storedCandidates(store.state.dex)}
     var replacements:[DexEntry] {
         guard let run else{return []}
         return candidates.filter{p in !run.retiredIDs.contains(p.id) && !run.team.contains(where:{$0.id==p.id || $0.speciesID==p.finalID})}

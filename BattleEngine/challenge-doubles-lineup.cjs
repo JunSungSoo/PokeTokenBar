@@ -3,6 +3,7 @@
 const {Dex}=require('pokemon-showdown');
 const REVISION='ptb-challenge-doubles-v3';
 const gen5=Dex.mod('gen5');
+const {battleDex}=require('./held-items.cjs');
 const weatherAbilities={drizzle:'rain',drought:'sun',sandstream:'sand',snowwarning:'hail'};
 const weatherMoves={raindance:'rain',sunnyday:'sun',sandstorm:'sand',hail:'hail'};
 const weatherUsers={swiftswim:'rain',chlorophyll:'sun',solarpower:'sun',sandrush:'sand',sandforce:'sand',icebody:'hail'};
@@ -18,7 +19,8 @@ function multiplier(dex,type,types) {
 }
 
 function speciesProfile(name) {
-  const s=gen5.species.get(name);
+  // The battle overlay adds Fairy Arceus and its abilities; other species equal stock BW2.
+  const s=battleDex().species.get(name);
   if (!s.exists || s.gen>5) throw Error('Unrecognized generation V species: '+name);
   if (poolCache.has(s.id)) return poolCache.get(s.id);
   const profile={types:s.types,stats:s.baseStats,abilities:Object.values(s.abilities).map(Dex.toID),moves:gen5.species.getMovePool(s.id)};

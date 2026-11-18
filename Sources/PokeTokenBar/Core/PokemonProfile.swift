@@ -16,14 +16,15 @@ struct PokemonDetails: Codable, Sendable, Equatable {
 
     var baseStatTotal: Int { baseStats.values.reduce(0, +) }
 
-    /// Arceus forms share stats, Multitype and the BW2 learnset; only their type differs.
+    /// Arceus forms share stats, battle abilities and the BW2 learnset; only their type differs.
     /// Project for presentation rather than changing the species cache or the saved individual.
     func displayed(form: PokemonForm?) -> PokemonDetails {
         guard speciesID == 493 else { return self }
         return PokemonDetails(speciesID: speciesID, name: name, height: height, weight: weight,
             baseExperience: baseExperience, genderRate: genderRate,
             types: BattleTextCatalog.shared.pokemonTypes(speciesID, form: form),
-            baseStats: baseStats, abilities: abilities, moves: moves)
+            baseStats: baseStats, abilities: PokemonLoadout.abilityOptions(details: self,
+                form: PokemonForm.resolved(speciesID: speciesID, form: form)), moves: moves)
     }
 
     /// Invariant: hatchable species are capped at Gen V by animated-sprite availability.
