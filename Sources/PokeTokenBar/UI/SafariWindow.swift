@@ -112,6 +112,8 @@ struct SafariView: View {
     @State private var actionPlayback: Task<Void,Never>?
     @State private var music: BattleMusicPlayer?
     @State private var audio = BattleAudioSettings(defaults: .standard)
+    @State private var inputGuard = SafariInputGuard()
+    @State private var choosingArea = false
     private var l: L { store.l }
 
     var body: some View {
@@ -122,13 +124,17 @@ struct SafariView: View {
         }
         .padding(14).frame(width: 660, height: 620)
         .background(Color(nsColor: .windowBackgroundColor))
-        .disabled(store.safariSession?.isAwaitingAreaSelection == true)
+        .disabled(choosingArea)
         .overlay {
-            if let options = store.safariSession?.pendingAreaOptions, !busy {
-                SafariAreaTransferModal(options:options,catalog:catalog,language:store.language) { destination in
-                    guard let catalog else { return }
-                    perform { try store.safariConfirmAreaChange(to:destination,catalog:catalog) }
-                }
+            if choosingArea, let session = store.safariSession, canTravel(session) {
+                SafariAreaTransferModal(options: session.travelDestinations, catalog: catalog, language: store.language,
+                                        warnsAboutFleeing: session.phase == .encounter,
+                                        confirm: { destination in
+                                            choosingArea = false
+                                            guard let catalog else { return }
+                                            perform { try store.safariTravel(to: destination, catalog: catalog) }
+                                        },
+                                        cancel: { choosingArea = false })
             }
         }
         .task {
@@ -141,6 +147,7 @@ struct SafariView: View {
             await store.loadPokemonDetails(speciesID: id)
         }
         .onChange(of: store.safariSession?.phase) { _, _ in updateMusic() }
+        .onChange(of: store.safariSession?.wild?.id) { _, _ in inputGuard.lock(at: Date()) }
         .onDisappear { actionPlayback?.cancel(); captureAudio.stop(); music?.stop(); music = nil }
 
     }
@@ -168,9 +175,9 @@ struct SafariView: View {
     private func journey(_ session: SafariSession) -> some View {
         VStack(spacing: 10) {
             HStack {
-                Text("\(l.safariArea(session.area)) · \(min(session.visited.count,SafariSession.maximumAreas))/\(SafariSession.maximumAreas)").font(.headline)
+                Text(l.safariArea(session.area)).font(.headline)
                 Spacer()
-                Text("\(l.safariBalls): \(session.ballsRemaining) · \(session.areaBalls)/\(session.areaBallLimit)")
+                Text("\(l.safariBalls): \(session.ballsRemaining)")
                 Text("\(l.safariEncounters): \(session.encounters)")
             }.font(.caption).monospacedDigit().lineLimit(1).minimumScaleFactor(0.75)
             battlefield(session)
@@ -218,18 +225,23 @@ struct SafariView: View {
             HStack {
                 Text(l.safariSaveHint).font(.caption2).foregroundStyle(.secondary)
                 Spacer()
+                // The container's environment overrides a native button's own flag, so disable through SwiftUI too.
+                SafariFinishButton(title: l.safariTravelButton, enabled: canTravel(session), identifier: "safari-travel") {
+                    if canTravel(session) { choosingArea = true }
+                }.fixedSize().disabled(!canTravel(session))
                 SafariFinishButton(title:l.quit,enabled:!busy && session.phase != .replacement) {
                     do {
                         try store.finishAndDismissSafari()
                         SafariWindowController.shared.window?.performClose(nil)
                     } catch { self.error = l.userFacingError(error) }
-                }.fixedSize()
+                }.fixedSize().disabled(busy || session.phase == .replacement)
             }
         }
-        .task(id: session.phase) {
+        // Re-armed when the picker closes, so cancelling it resumes the automatic advance.
+        .task(id: "\(session.phase.rawValue)-\(choosingArea)") {
             guard session.shouldAdvanceAutomatically else { return }
             do { try await Task.sleep(for: .milliseconds(1200)) } catch { return }
-            guard !Task.isCancelled, !busy,
+            guard !Task.isCancelled, !busy, !choosingArea,
                   store.safariSession?.id == session.id, store.safariSession?.shouldAdvanceAutomatically == true,
                   let catalog else { return }
             perform { try store.safariContinue(catalog: catalog) }
@@ -244,7 +256,7 @@ struct SafariView: View {
     }
     private func actionButton(_ action: SafariAction, title: String, hint:String = "") -> some View {
         Button {
-            guard !busy else { return }
+            guard !busy, inputGuard.accepts(at: Date()) else { return }
             // Commit the outcome before playing its animation; a closed window cannot reroll it.
             playbackSession = store.safariSession; busy = true
             perform { try store.safariAct(action) }
@@ -271,6 +283,10 @@ struct SafariView: View {
                 Text(hint).font(.system(size:9)).lineLimit(2).frame(height:25).help(hint)
             }.frame(maxWidth:.infinity,minHeight:54)
         }.buttonStyle(.bordered).accessibilityIdentifier("safari-action-" + action.rawValue)
+    }
+    /// Travel waits for capture playback and never interrupts the replacement choice or a finished trip.
+    private func canTravel(_ session: SafariSession) -> Bool {
+        !busy && playbackSession == nil && (session.phase == .encounter || session.phase == .between) && session.ballsRemaining > 0
     }
     private func name(_ pokemon: SafariPokemon) -> String {
         BattleTextCatalog.shared.speciesName(pokemon.species.id, language: store.language) + (pokemon.shiny ? " ✨" : "")

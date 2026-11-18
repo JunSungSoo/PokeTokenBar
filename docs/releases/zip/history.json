@@ -1217,6 +1217,34 @@
       "sourceHEAD": "2aaeb8e3b33bbe1908d72f0b1fb486a66bbdea4a",
       "workingTreeModified": true,
       "reinstallSameVersion": true
+    },
+    {
+      "date": "2026-11-18",
+      "time": "13:56:45",
+      "archive": "PokeTokenBar-3.2.1-20261118.zip",
+      "version": "3.2.1",
+      "evidence": "Verified local same-version universal installer ZIP: x86_64+arm64 launcher/app/Node, deep signatures, version 3.2.1, full notes, GitHub update public key and CPU rules policy present; 196 engine tests passed during the build.",
+      "turn": null,
+      "title": "Arceus battles, in-app GitHub updates, challenge CPU guardrails, Safari ticket 250M",
+      "commit": null,
+      "artifactAvailable": true,
+      "releaseNumber": 1,
+      "changes": [
+        "아르세우스가 배틀에 참가할 수 있습니다. 수집한 폼의 타입으로 싸우며 심판의뭉치도 그 타입을 따르고, 페어리 폼도 참가합니다.",
+        "아르세우스는 특성으로 프레셔와 적응력 중 하나를 고릅니다. 멀티타입으로 저장된 개체는 프레셔로 바뀝니다.",
+        "업데이트 버튼을 누르면 앱이 새 버전을 직접 받아 검증한 뒤 교체하고 다시 실행합니다. '그래도 열기' 확인이 필요 없으며, 배틀·챌린지·교환 중에는 설치하지 않습니다.",
+        "업데이트 확인 위치를 Google Drive에서 GitHub Releases로 바꿨습니다.",
+        "싱글 챌린지 상대가 효과 없는 기술을 쓰지 않습니다. 이유 없는 방어와 연속 방어, 랭크 +2 이상의 능력 강화, 이미 걸린 상태이상, 반복되는 날씨·압정류·벽, 가득 찬 체력의 회복을 고르지 않습니다.",
+        "싱글 챌린지 상대가 지구던지기·은혜갚기·풀묶기처럼 위력이 상황에 따라 정해지는 기술을 제대로 평가합니다. 진행 중인 챌린지는 기존 방식으로 이어집니다.",
+        "사파리존 입장권의 고정 가격을 200M에서 250M으로 변경했습니다."
+      ],
+      "currentFilename": "PokeTokenBar-3.2.1-20261118.zip",
+      "sha256": "ec9dc5bf8be995c9a8cafa554dfe1a8c7a9ff98190e6bf442b1f6ae4d3d2f5c7",
+      "bytes": 170569198,
+      "packagedAt": "2026-11-18T13:56:45+09:00",
+      "sourceHEAD": "d76fc94aac3b45b08b4b031c8ddc8c35f59a8d2f",
+      "workingTreeModified": true,
+      "reinstallSameVersion": true
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

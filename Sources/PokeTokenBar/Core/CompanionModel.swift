@@ -210,7 +210,7 @@ enum ItemKind: String, Codable, Sendable, CaseIterable {
         switch self {
         case .rareCandy: return RareCandy.price
         case .mint, .redMaple: return Mint.price
-        case .safariTicket: return 200_000_000
+        case .safariTicket: return 250_000_000
         case .shinyCharm: return ShinyCharm.price
         }
     }

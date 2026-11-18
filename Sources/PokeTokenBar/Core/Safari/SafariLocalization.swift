@@ -6,8 +6,11 @@ extension L {
     var safariRockHint: String { t("포획 +5%p · 도주 +10%p (누적)", "Catch +5pp · Flee +10pp (stacks)", "捕獲+5pt・逃走+10pt（累積）", "Captura +5pp · Huida +10pp acumulable", "Capture +5pt · Fuite +10pt cumulable", "Captura +5pp · Fuga +10pp cumulativa", "Fang +5pp · Flucht +10pp kumulativ", "Поимка +5п.п. · Побег +10п.п. (суммируется)") }
     var safariBaitHint: String { t("포획 -5%p · 도주 -10%p (누적)", "Catch −5pp · Flee −10pp (stacks)", "捕獲−5pt・逃走−10pt（累積）", "Captura −5pp · Huida −10pp acumulable", "Capture −5pt · Fuite −10pt cumulable", "Captura −5pp · Fuga −10pp cumulativa", "Fang −5pp · Flucht −10pp kumulativ", "Поимка −5п.п. · Побег −10п.п. (суммируется)") }
 
-    var safariTravelChooseMessage: String { t("이동할 지역을 선택해 주세요.", "Choose your next area.", "移動先を選んでください。", "Elige la siguiente zona.", "Choisissez la prochaine zone.", "Escolha a próxima área.", "Wähle dein nächstes Gebiet.", "Выберите следующую зону.") }
-    var safariTravelTitle: String { t("지역을 이동합니다.", "Moving to the next area.", "エリアを移動します。", "Vamos a cambiar de zona.", "Changement de zone.", "Vamos mudar de área.", "Wir wechseln das Gebiet.", "Переходим в другую зону.") }
+    var safariTravelChooseMessage: String { t("어느 지역으로 갈까요?", "Where would you like to go?", "どのエリアへ行きますか？", "¿A qué zona quieres ir?", "Où voulez-vous aller ?", "Para qual área quer ir?", "Wohin möchtest du gehen?", "Куда отправимся?") }
+    var safariTravelTitle: String { t("지역 이동", "Change area", "エリア移動", "Cambiar de zona", "Changer de zone", "Mudar de área", "Gebiet wechseln", "Сменить зону") }
+    var safariTravelButton: String { safariTravelTitle }
+    var safariTravelSelect: String { t("선택", "Select", "選択", "Elegir", "Choisir", "Escolher", "Wählen", "Выбрать") }
+    var safariTravelFleeNote: String { t("마주친 포켓몬은 도망칩니다.", "The Pokémon you are facing will flee.", "出会っているポケモンは逃げてしまいます。", "El Pokémon que tienes delante huirá.", "Le Pokémon rencontré va s’enfuir.", "O Pokémon que você encontrou vai fugir.", "Das Pokémon vor dir wird fliehen.", "Встреченный покемон убежит.") }
     func safariTravelMessage(_ area: SafariArea) -> String {
         let name = safariArea(area)
         return t("다음 지역은 \(name) 입니다.", "The next area is \(name).", "次のエリアは\(name)です。", "La siguiente zona es \(name).", "La prochaine zone est \(name).", "A próxima área é \(name).", "Das nächste Gebiet ist \(name).", "Следующая зона: \(name).")
@@ -20,7 +23,7 @@ extension L {
 
     var safariTitle: String { t("사파리존", "Safari Zone", "サファリゾーン", "Zona Safari", "Parc Safari", "Zona Safari", "Safari-Zone", "Зона Сафари") }
     var safariTicketLabel: String { t("입장권", "Ticket", "入場券", "Entrada", "Ticket", "Ingresso", "Eintrittskarte", "Билет") }
-    var safariTicketDescription: String { t("200M 고정 가격. 사파리볼 20개로 탐험하고 포켓몬 한 마리를 데려와요.", "Fixed price: 200M. Explore with 20 Safari Balls and bring home one Pokémon.", "200M固定。サファリボール20個で探索し、1匹を連れて帰ります。", "Precio fijo: 200M. Explora con 20 Safari Balls y llévate un Pokémon.", "Prix fixe : 200M. Explorez avec 20 Safari Balls et repartez avec un Pokémon.", "Preço fixo: 200M. Explore com 20 Safari Balls e leve um Pokémon.", "Festpreis: 200M. Erkunde mit 20 Safaribällen und nimm ein Pokémon mit.", "Цена: 200M. Исследуйте с 20 Сафари-болами и заберите одного покемона.") }
+    var safariTicketDescription: String { t("250M 고정 가격. 사파리볼 20개로 탐험하고 포켓몬 한 마리를 데려와요.", "Fixed price: 250M. Explore with 20 Safari Balls and bring home one Pokémon.", "250M固定。サファリボール20個で探索し、1匹を連れて帰ります。", "Precio fijo: 250M. Explora con 20 Safari Balls y llévate un Pokémon.", "Prix fixe : 250M. Explorez avec 20 Safari Balls et repartez avec un Pokémon.", "Preço fixo: 250M. Explore com 20 Safari Balls e leve um Pokémon.", "Festpreis: 250M. Erkunde mit 20 Safaribällen und nimm ein Pokémon mit.", "Цена: 250M. Исследуйте с 20 Сафари-болами и заберите одного покемона.") }
     var safariResume: String { t("사파리존 이어하기", "Resume Safari", "サファリを続ける", "Continuar Safari", "Reprendre le Safari", "Continuar Safari", "Safari fortsetzen", "Продолжить Сафари") }
     var safariChooseArea: String { t("입장할 장소를 선택해 주세요.", "Choose your starting area.", "最初の場所を選んでください。", "Elige la zona inicial.", "Choisissez la zone de départ.", "Escolha a área inicial.", "Wähle dein Startgebiet.", "Выберите начальную зону.") }
     var safariEnter: String { t("입장하기", "Enter", "入場する", "Entrar", "Entrer", "Entrar", "Betreten", "Войти") }

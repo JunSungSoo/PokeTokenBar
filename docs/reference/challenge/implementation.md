@@ -706,3 +706,37 @@ faster. The biggest decreases in player wins versus singles were Brock
 (4 to 1), Lance (3 to 0), and Misty (3 to 1). Lt. Surge (3 to 5) moved in
 the other direction. This measures per-encounter difficulty for these bots
 and rosters. Full-route attrition and human difficulty are unmeasured.
+
+## Singles CPU guardrails (2026-11-18)
+
+The learned singles scorer picked moves that could not help: Hypno opened with Protect, Golduck
+repeated Calm Mind into a resisted target, Metapod used Iron Defense at +6, Skarmory laid a fourth
+Spikes layer. Across 27 encounters × 3 player teams × 3 lines (5,202 CPU moves, 25 turns) 490 such
+choices appeared. Two causes: attacks whose data base power is 0 (Seismic Toss, Night Shade,
+Return, Grass Knot, Low Kick, Gyro Ball, Reversal, Hidden Power) scored as no damage, so the flat
+status-move weight beat them; and the features describe the state identically for every candidate,
+so nothing tells the scorer that a boost or status cannot work any more.
+
+`challenge-cpu-rules.cjs` (`meaningful-actions-v1`) now runs before the unchanged learned weights:
+- Drops moves that cannot help: setup once every raised stat is at +2, healing at full HP, Wish while
+  one is pending, Substitute behind one or at ≤25% HP, status into a statused/immune/substituted foe,
+  Leech Seed into Grass or a seeded foe, repeated weather, hazards at maximum layers, active screens/Tailwind.
+- Protect/Detect/Endure only with a reason to stall (own Wish pending, foe poisoned/burned/seeded),
+  never twice in a row.
+- Values data-power-0 attacks from public information (fixed damage ≈ 1.3 × level up to 120, weight,
+  speed or HP formulas, Return 102); fixed damage ignores effectiveness except immunity.
+- Switches are never removed; if every move is pointless the original list stands.
+`runCPU` passes the CPU's own last move and pending Wish plus the foe's visible volatiles
+(Substitute, Leech Seed, confusion, Yawn), which the frame does not carry.
+
+Saved runs replay decisions with their original policy, so the shipped model is kept byte-for-byte
+as `challenge-policy-v2.json` (revision `02bc7a49…`) and resolves to the unguarded scorer; the new
+`challenge-policy.json` only adds `"cpuRules"`. After the change the same sweep shows 0 of every
+category except one Substitute in a PP-exhausted fallback. Doubles (separate hand-written policy)
+showed only 5 consecutive Protects in 626 moves and is unchanged.
+- A foe Substitute only blocks single-target moves without `flags.bypasssub`; side/field moves and
+  Whirlwind/Roar/Taunt stay available (review finding, covered by a test).
+- **Before retraining or recalibrating:** `scripts/challenge/*` call `features()` without
+  `effectivePower` and `chooseCPU` without the engine context, so offline vectors differ from live
+  scores for data-power-0 attacks. `calibrate-policy.py` rewrites `challenge-policy.json`; keep
+  `"cpuRules"`, and preserve the previous bytes as a new `challenge-policy-vN.json` so saved runs replay.

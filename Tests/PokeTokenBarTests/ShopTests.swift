@@ -229,7 +229,7 @@ final class ShopTests: XCTestCase {
         XCTAssertEqual(s.shopEntries,
                        [.item(.mint),        // 100M
                         .item(.redMaple),    // 100M
-                        .item(.safariTicket), // fixed 200M
+                        .item(.safariTicket), // fixed 250M
                         .item(.rareCandy),   // 500M
                         .egg(nil),           // 1B
                         .egg(.uncommon),     // 2.5B
@@ -248,7 +248,7 @@ final class ShopTests: XCTestCase {
         XCTAssertEqual(s.shopEntries,
                        [.item(.mint),        // 100M
                         .item(.redMaple),    // 100M
-                        .item(.safariTicket), // fixed 200M
+                        .item(.safariTicket), // fixed 250M
                         .item(.rareCandy),   // 500M
                         .egg(nil),           // 1B
                         .egg(.uncommon),     // 2.5B

@@ -14,9 +14,16 @@ final class ChallengePolicyCompatibilityTests: XCTestCase {
         throw ChallengeFailure.invalidState
     }
     func testLegacyPolicyCheckpointReplaysWithIdenticalDecisionsHPAndPP() async throws {
+        try await assertCheckpointReplays(policyFile:"challenge-policy-v1.json")
+    }
+    /// Runs saved before the CPU guardrails keep the unguarded scorer when resumed.
+    func testPreGuardrailPolicyCheckpointReplaysWithIdenticalDecisionsHPAndPP() async throws {
+        try await assertCheckpointReplays(policyFile:"challenge-policy-v2.json")
+    }
+    private func assertCheckpointReplays(policyFile:String) async throws {
         let catalog=try ChallengeEncounterCatalog.load(),helper=ChallengeRunTests(),save=try helper.store()
         defer{try? FileManager.default.removeItem(at:save.url)}
-        let bytes=try Data(contentsOf:BattleEngineProcess.resourceDirectory.appendingPathComponent("challenge-policy-v1.json"))
+        let bytes=try Data(contentsOf:BattleEngineProcess.resourceDirectory.appendingPathComponent(policyFile))
         let old=SHA256.hash(data:bytes).map{String(format:"%02x",$0)}.joined()
         XCTAssertTrue(try ChallengeEncounterCatalog.supportsPolicyRevision(old))
         XCTAssertNotEqual(old,try ChallengeEncounterCatalog.policyRevision())

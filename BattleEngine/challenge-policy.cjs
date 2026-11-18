@@ -1,5 +1,6 @@
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
+const rules=require('./challenge-cpu-rules.cjs');
 const FEATURE_VERSION='bw-public-action-v2';
 const FEATURES=['bias','switch','move','statusMove','power','effectiveness','stab','ownHP','foeHP','speciesSpeedPrior','priority','recovery','setup','hazard','statusInfliction','hazardRemoval','offensePrior','switchRisk','switchHP','foeStatus','ownStatus','atkBoost','spaBoost','speBoost','sun','rain','trickRoom','ownSurvivors','foeSurvivors','recoveryNeed','setupSafety','boostedOffense','attackTempo','priorityWhenSlower','setupTempo','recoveryTempo','statusApplicable','statusBlocked','burnedPhysical','sleepUsable','sleepBlocked','freezeBlocked','hazardFoeBench','setupEndgame','recoverEndgame','lastOwnOffense','switchReserves','effectiveOffense'];
 const recovery=new Set(['recover','roost','softboiled','slackoff','milkdrink','moonlight','morningsun','synthesis','rest','wish']);
@@ -17,12 +18,15 @@ function estimatedSpeed(dex,mon,field={}) {
  if(field.tailwind)speed*=2;
  return Math.max(1,speed);
 }
-function features(dex,o,c){
+// `effectivePower` belongs to the rules policy only; without it scores stay identical for saved runs.
+function features(dex,o,c,{effectivePower=false}={}){
  const own=dex.species.get(o.own.species),foe=dex.species.get(o.foe.species),switching=c.kind==='switch';
  const move=switching?null:dex.moves.get(c.move),incoming=switching?dex.species.get(c.species):own;
  const types=o.foe.types||foe.types,ownTypes=o.own.types||own.types;
- const status=move?.category==='Status',power=(move?.basePower||0)/150;
- const eff=move&&!status?effectiveness(dex,move.type,types):0,stab=!!move&&ownTypes.includes(move.type);
+ const status=move?.category==='Status';
+ const power=(effectivePower&&move?rules.effectivePower(dex,move,o,c,estimatedSpeed):(move?.basePower||0))/150;
+ const fixed=effectivePower&&!!move&&rules.ignoresEffectiveness(move);
+ const eff=move&&!status?(fixed?+dex.getImmunity(move.type,types):effectiveness(dex,move.type,types)):0,stab=!!move&&!fixed&&ownTypes.includes(move.type);
  const hp=o.own.hp,fhp=o.foe.hp,boost=o.own.boosts||{};
  const risk=switching?Math.max(...types.map(t=>effectiveness(dex,t,incoming.types)))/4:0;
  const heal=!!move&&recovery.has(move.id),raise=!!move&&setup.has(move.id);
@@ -63,7 +67,7 @@ function chooseLead(dex,team,opponents,model=loadPolicy()){
 function candidates(frame){
  const slot=frame.slots[0];if(!slot||frame.waiting)return [];
  const list=[];
- if(!slot.mustSwitch&&!slot.canPass)for(const m of slot.moves)if(!m.disabled&&m.pp>0)list.push({kind:'move',index:m.index,move:m.name,target:0});
+ if(!slot.mustSwitch&&!slot.canPass)for(const m of slot.moves)if(!m.disabled&&m.pp>0)list.push({kind:'move',index:m.index,move:m.name,power:m.power,target:0});
  if(slot.mustSwitch||!slot.trapped)frame.own.forEach((p,i)=>{if(!p.active&&!p.fainted)list.push({kind:'switch',index:i+1,species:p.name,hp:p.hp/p.maxHP,level:p.level,status:p.status,effectiveSpeed:p.effectiveSpeed,speed:p.stats?.spe,boosts:p.boosts,target:0});});
  if(!list.length&&slot.canPass)list.push({kind:'pass',index:0,target:0});
  return list;
@@ -78,16 +82,21 @@ function observation(frame){
  ownSurvivors:frame.own.filter(p=>!p.fainted&&p.hp>0).length,
  foeSurvivors:frame.foeTeamStatus ? Math.max(0,frame.foeTeamStatus.selected-frame.foeTeamStatus.fainted):6};
 }
-let cached;
-function loadPolicy(){
- if(cached)return cached;
- const bytes=fs.readFileSync(path.join(__dirname,'challenge-policy.json')),model=JSON.parse(bytes);
+const cached=new Map();
+// challenge-policy-v2.json is the same model without rules, kept byte-for-byte for saved runs.
+function loadPolicy(file='challenge-policy.json'){
+ if(cached.has(file))return cached.get(file);
+ const bytes=fs.readFileSync(path.join(__dirname,file)),model=JSON.parse(bytes);
+ if(model.cpuRules!==undefined&&model.cpuRules!==rules.RULES)throw Error('Unsupported challenge CPU rules');
  if(model.featureVersion!==FEATURE_VERSION||JSON.stringify(model.features)!==JSON.stringify(FEATURES)||model.weights.length!==FEATURES.length||!model.weights.every(Number.isFinite))throw Error('Incompatible challenge policy');
  if(!model.lead||JSON.stringify(model.lead.features)!==JSON.stringify(LEAD_FEATURES)||model.lead.weights.length!==LEAD_FEATURES.length||!model.lead.weights.every(Number.isFinite))throw Error('Incompatible lead policy');
- return cached={...model,revision:crypto.createHash('sha256').update(bytes).digest('hex')};
+ const loaded={...model,revision:crypto.createHash('sha256').update(bytes).digest('hex')};
+ cached.set(file,loaded);
+ return loaded;
 }
-function chooseCPU(dex,frame,model=loadPolicy()){
+function chooseCPU(dex,frame,model=loadPolicy(),context={}){
  let actions=candidates(frame);if(!actions.length)throw Error('No legal CPU action');
+ const guarded=model.cpuRules===rules.RULES;
  // Explicit encounter tactic; this is not a retrained model. Legacy checkpoints lack
  // the field and continue using the unchanged learned scores for every action.
  const own=frame.own.find(p=>p.active),threshold=own?.cpuRecoveryThreshold;
@@ -96,9 +105,10 @@ function chooseCPU(dex,frame,model=loadPolicy()){
   if(heal&&own.hp/own.maxHP<=threshold)return {kind:heal.kind,index:heal.index,target:heal.target};
   if(own.hp===own.maxHP)actions=actions.filter(a=>a!==heal);
  }
+ if(guarded)actions=rules.meaningfulActions(dex,frame,actions,context);
  const o=observation(frame);let selected=actions[0],best=-Infinity;
  for(const action of actions){
-  const vector=o&&action.kind!=='pass'?features(dex,o,action):FEATURES.map(()=>0);
+  const vector=o&&action.kind!=='pass'?features(dex,o,action,{effectivePower:guarded}):FEATURES.map(()=>0);
   const score=vector.reduce((sum,x,i)=>sum+x*model.weights[i],0);
   if(score>best){best=score;selected=action;}
  }
@@ -107,6 +117,8 @@ function chooseCPU(dex,frame,model=loadPolicy()){
 function resolvePolicy(revision){
  const model=loadPolicy();
  if(!revision||revision===model.revision)return {model,chooseCPU,chooseLead};
+ const unguarded=loadPolicy('challenge-policy-v2.json');
+ if(revision===unguarded.revision)return {model:unguarded,chooseCPU,chooseLead};
  const legacy=require('./challenge-policy-v1.cjs'),old=legacy.loadPolicy();
  if(revision===old.revision)return {model:old,chooseCPU:legacy.chooseCPU,chooseLead:legacy.chooseLead};
  throw Error('Challenge policy version changed');

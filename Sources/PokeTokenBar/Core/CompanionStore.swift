@@ -2643,9 +2643,10 @@ final class CompanionStore {
         var next = state; next.safariSession = session
         try commitSafari(next)
     }
-    func safariConfirmAreaChange(to destination:SafariArea,catalog: SafariCatalog) throws {
+    func safariTravel(to destination: SafariArea, catalog: SafariCatalog) throws {
         guard var session = state.safariSession else { throw SafariError.invalidAction }
-        try session.confirmAreaChange(to:destination,catalog:catalog)
+        session.registeredSpeciesCount = Set(dexSpecies.map(\.id)).count
+        try session.travel(to: destination, catalog: catalog)
         var next = state; next.safariSession = session
         try commitSafari(next)
     }

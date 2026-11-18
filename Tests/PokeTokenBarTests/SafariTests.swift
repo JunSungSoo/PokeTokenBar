@@ -162,29 +162,6 @@ final class SafariEngineTests: XCTestCase {
         try value.validate(catalog:catalog())
     }
 
-    func testTenBallLimitsAndNoThirdArea() throws {
-        let catalog = try catalog()
-        var value = try session()
-        var used: [Int] = []
-        for expected in [10,10] {
-            // Represent the last throw of this area's quota, independent of catch RNG.
-            let before = value.ballsRemaining
-            value.areaBalls = expected - 1
-            value.ballsRemaining = 20 - used.reduce(0,+) - expected + 1
-            XCTAssertEqual(value.areaBallLimit,expected)
-            try value.act(.ball)
-            if value.phase == .replacement { try value.resolveCatch(replace:true) }
-            XCTAssertEqual(value.areaBalls,expected)
-            XCTAssertEqual(value.phase,.between)
-            try value.continueJourney(catalog:catalog)
-            if value.pendingAreaOptions != nil { try value.confirmAreaChange(to:try XCTUnwrap(value.pendingAreaOptions?.first),catalog:catalog) }
-            used.append(expected)
-            if value.phase != .finished { XCTAssertLessThan(value.ballsRemaining,before) }
-        }
-        XCTAssertEqual(value.ballsRemaining,0)
-        XCTAssertEqual(value.phase,.finished)
-        XCTAssertEqual(value.visited.count,2)
-    }
     func testBaitStacksInPercentagePointsAndResetsAtNewEncounter() throws {
         var value = try session()
         let baseCatch = value.catchChance
@@ -300,62 +277,8 @@ final class SafariEngineTests: XCTestCase {
             }
         }
     }
-    func testThreeRandomAreaOptionsPersistAndRequireAnOfferedSelection() throws {
-        let catalog = try catalog()
-        var value = try session(); value.areaBalls = 9; value.ballsRemaining = 11
-        try value.act(.ball)
-        let oldArea = value.area, oldWild = value.wild
-        try value.continueJourney(catalog:catalog)
-        let options = try XCTUnwrap(value.pendingAreaOptions)
-        XCTAssertEqual(options.count,3); XCTAssertEqual(Set(options).count,3)
-        XCTAssertFalse(options.contains(oldArea))
-        XCTAssertEqual(value.area,oldArea); XCTAssertEqual(value.wild,oldWild)
-        XCTAssertFalse(value.shouldAdvanceAutomatically)
-        let waiting = value
-        XCTAssertThrowsError(try value.continueJourney(catalog:catalog))
-        XCTAssertThrowsError(try value.act(.rock))
-        XCTAssertThrowsError(try value.confirmAreaChange(to:oldArea,catalog:catalog))
-        XCTAssertEqual(value,waiting)
-        value = try JSONDecoder().decode(SafariSession.self,from:JSONEncoder().encode(value))
-        try value.validate(catalog:catalog)
-        XCTAssertEqual(value.pendingAreaOptions,options)
-        let chosen = options[1]
-        try value.confirmAreaChange(to:chosen,catalog:catalog)
-        XCTAssertEqual(value.area,chosen); XCTAssertEqual(value.visited,[oldArea,chosen])
-        XCTAssertNil(value.pendingAreaOptions); XCTAssertEqual(value.phase,.encounter)
-        XCTAssertEqual(value.encounters,1); XCTAssertEqual(value.areaBalls,0)
-        XCTAssertEqual(value.ballsRemaining,10); XCTAssertEqual(value.wild?.species.area,chosen)
-        XCTAssertThrowsError(try value.confirmAreaChange(to:chosen,catalog:catalog))
-    }
 
-    func testPendingAreaOptionsRejectVisitedOrDuplicateCandidates() throws {
-        let catalog = try catalog()
-        var value = try session(); value.phase = .between
-        value.pendingAreaOptions = [.forest,.lake,.cave]
-        XCTAssertThrowsError(try value.validate(catalog:catalog)) // Ten balls have not been thrown.
-        value.areaBalls = 10
-        value.pendingAreaOptions = [.plains,.forest,.lake]
-        XCTAssertThrowsError(try value.validate(catalog:catalog))
-        value.pendingAreaOptions = [.forest,.forest,.lake]
-        XCTAssertThrowsError(try value.validate(catalog:catalog))
-        value.pendingAreaOptions = [.forest,.lake]
-        XCTAssertThrowsError(try value.validate(catalog:catalog))
-        value.pendingAreaOptions = [.forest,.lake,.cave]
-        try value.validate(catalog:catalog)
-    }
 
-    func testFinalAreaAndExitDoNotLeaveAWaitingAreaTransfer() throws {
-        let catalog = try catalog()
-        var value = try session()
-        value.visited = [.forest,value.area]; value.areaBalls = 10
-        try value.act(.run); try value.continueJourney(catalog:catalog)
-        XCTAssertEqual(value.phase,.finished); XCTAssertNil(value.pendingAreaOptions)
-        value = try session(); value.areaBalls = 10
-        try value.act(.run); try value.continueJourney(catalog:catalog)
-        XCTAssertNotNil(value.pendingAreaOptions)
-        value.finish(); XCTAssertNil(value.pendingAreaOptions)
-        try value.validate(catalog:catalog)
-    }
 
     func testNatureAndAllSixIndividualValuesAreRolledAtEncounterAndNeverRerolledByActions() throws {
         let catalog = try catalog()
@@ -381,33 +304,7 @@ final class SafariEngineTests: XCTestCase {
         XCTAssertEqual(natures,Set(PokemonNature.allCases))
         for values in individualValues { XCTAssertEqual(values,Set(0...31)) }
     }
-    func testTenBallBoundaryDoesNotMoveEarlyAndEncountersHaveNoTransferThreshold() throws {
-        let catalog = try catalog()
-        var value = try session(); value.areaBalls = 9; value.ballsRemaining = 11
-        for _ in 0..<12 { try value.act(.run); try value.continueJourney(catalog:catalog) }
-        XCTAssertNil(value.pendingAreaOptions); XCTAssertEqual(value.area,.plains)
-        XCTAssertGreaterThan(value.encounters,8); XCTAssertEqual(value.areaBalls,9)
-        try value.act(.ball); try value.continueJourney(catalog:catalog)
-        XCTAssertEqual(value.areaBalls,10); XCTAssertNotNil(value.pendingAreaOptions)
-    }
 
-    func testFailedTenthBallEndsAreaEvenWhenWildChoosesToWait() throws {
-        let catalog = try catalog()
-        var initial = try session(); initial.areaBalls = 9; initial.ballsRemaining = 11; initial.encounters = 3
-        var found = false
-        for seed in 0..<1000 {
-            var value = initial; value.randomState = UInt64(seed)
-            try value.act(.ball)
-            guard value.notices.contains(.missed), value.notices.contains(.waited) else { continue }
-            XCTAssertEqual(value.areaBalls,10); XCTAssertEqual(value.ballsRemaining,10)
-            XCTAssertEqual(value.phase,.between,"Area quota must end the encounter even after a wait response")
-            try value.validate(catalog:catalog)
-            try value.continueJourney(catalog:catalog)
-            XCTAssertNotNil(value.pendingAreaOptions); XCTAssertEqual(value.visited.count,1)
-            found = true; break
-        }
-        XCTAssertTrue(found,"Use a real failed capture and wait roll, rather than a forced result")
-    }
     func testLegacyAreaMigrationPreservesCatchAndDoesNotDiscardEntireTrip() throws {
         let catalog = try catalog()
         let original = try session()
@@ -421,20 +318,19 @@ final class SafariEngineTests: XCTestCase {
             XCTAssertEqual(migrated.carried,old.carried)
             XCTAssertEqual(migrated.areaRulesVersion,SafariSession.currentAreaRulesVersion)
             XCTAssertNil(migrated.pendingArea)
-            XCTAssertEqual(migrated.phase,thirdArea ? .finished:.between)
+            // Free travel keeps every older trip going with its remaining balls.
+            XCTAssertEqual(migrated.phase,.between)
             try migrated.validate(catalog:catalog)
-            if !thirdArea {
-                XCTAssertEqual(migrated.area,old.area); XCTAssertEqual(migrated.encounters,5)
-                XCTAssertEqual(migrated.areaBalls,6); XCTAssertEqual(migrated.ballsRemaining,20)
-            }
+            XCTAssertEqual(migrated.area,old.area); XCTAssertEqual(migrated.encounters,5)
+            XCTAssertEqual(migrated.areaBalls,0); XCTAssertEqual(migrated.ballsRemaining,20)
         }
         var pendingThird = original; pendingThird.areaRulesVersion = nil
         pendingThird.visited = [.forest,.plains]; pendingThird.pendingArea = .lake
         pendingThird.phase = .between; pendingThird.encounters = 5; pendingThird.carried = pendingThird.wild
         var state = CompanionState(); state.safariSession = pendingThird
-        let ended = try XCTUnwrap(SaveTransfer.sanitized(state).safariSession)
-        XCTAssertEqual(ended.phase,.finished); XCTAssertNil(ended.pendingArea)
-        XCTAssertEqual(ended.carried,pendingThird.carried)
+        let resumed = try XCTUnwrap(SaveTransfer.sanitized(state).safariSession)
+        XCTAssertEqual(resumed.phase,.between); XCTAssertNil(resumed.pendingArea)
+        XCTAssertEqual(resumed.carried,pendingThird.carried)
     }
     func testLegacyThirdAreaReplacementStillLetsPlayerChooseTheirCatch() throws {
         var value = try session(); value.areaRulesVersion = nil
@@ -446,42 +342,8 @@ final class SafariEngineTests: XCTestCase {
         var migrated = try XCTUnwrap(SaveTransfer.sanitized(state).safariSession)
         XCTAssertEqual(migrated.phase,.replacement); XCTAssertEqual(migrated.pendingCatch,pending)
         try migrated.resolveCatch(replace:true)
-        XCTAssertEqual(migrated.carried,pending); XCTAssertEqual(migrated.phase,.finished)
+        XCTAssertEqual(migrated.carried,pending); XCTAssertEqual(migrated.phase,.between)
         try migrated.validate(catalog:catalog())
-    }
-    func testRandomAreaCandidatesVaryWithoutRepeatsAndExcludeVisitedAreas() throws {
-        let catalog = try catalog()
-        var destinations = Set<SafariArea>()
-        for seed in 0..<128 {
-            var value = SafariSession(area:.forest,seed:UInt64(seed),shinyDenominator:4096)
-            try value.continueJourney(catalog:catalog)
-            try value.act(.run); value.areaBalls = 10; value.ballsRemaining = 10
-            try value.continueJourney(catalog:catalog)
-            let options = try XCTUnwrap(value.pendingAreaOptions)
-            XCTAssertEqual(options.count,3); XCTAssertEqual(Set(options).count,3)
-            XCTAssertFalse(options.contains(.forest))
-            destinations.formUnion(options)
-        }
-        XCTAssertEqual(destinations,Set(SafariArea.allCases).subtracting([.forest]))
-    }
-    func testOldEncounterLimitPromptsAreCancelledAndDueSingleDestinationsBecomeThreeOptions() throws {
-        let catalog = try catalog()
-        for balls in [9,10] {
-            var old = try session(); old.areaRulesVersion = 2
-            old.phase = .between; old.encounters = 8; old.areaBalls = balls
-            old.ballsRemaining = 20-balls; old.pendingArea = .forest; old.carried = old.wild
-            var state = CompanionState(); state.safariSession = old
-            let migrated = try XCTUnwrap(SaveTransfer.sanitized(state).safariSession)
-            XCTAssertEqual(migrated.carried,old.carried); XCTAssertEqual(migrated.encounters,8)
-            XCTAssertEqual(migrated.area,.plains); XCTAssertNil(migrated.pendingArea)
-            if balls == 10 {
-                let options = try XCTUnwrap(migrated.pendingAreaOptions)
-                XCTAssertEqual(options.count,3); XCTAssertTrue(options.contains(.forest))
-                XCTAssertEqual(Set(options).count,3)
-            } else { XCTAssertNil(migrated.pendingAreaOptions) }
-            var again = migrated; again.migrateAreaRules(); XCTAssertEqual(again,migrated)
-            try migrated.validate(catalog:catalog)
-        }
     }
     func testDisplayedFleeChanceReflectsBaitAndForcedFifthResponse() throws {
         var value = try session()
@@ -545,8 +407,14 @@ final class SafariEngineTests: XCTestCase {
     func testCatalogAndSaveRejectInvalidData() throws {
         let catalog = try catalog()
         XCTAssertThrowsError(try SafariCatalog(species:Array(catalog.species.dropFirst())).validate())
-        var value = try session(); value.visited += [.forest,.lake,.cave]
-        XCTAssertThrowsError(try value.validate(catalog:catalog))
+        var value = try session(); value.visited += [.forest,.lake,.forest]
+        XCTAssertThrowsError(try value.validate(catalog:catalog),"a visited area is recorded once")
+        value = try session(); value.visited = [.forest]
+        XCTAssertThrowsError(try value.validate(catalog:catalog),"the current area is always visited")
+        value = try session(); value.pendingAreaOptions = [.lake,.cave,.dojo]
+        XCTAssertThrowsError(try value.validate(catalog:catalog),"no candidate prompt survives migration")
+        value = try session(); value.visited += [.forest,.lake,.cave]
+        XCTAssertNoThrow(try value.validate(catalog:catalog),"more than two areas is normal now")
         value = try session(); value.catchModifier = .nan
         XCTAssertThrowsError(try value.validate(catalog:catalog))
     }
@@ -569,13 +437,13 @@ final class SafariStoreTests: XCTestCase {
     private func store() -> CompanionStore { CompanionStore(provider:SafariNoProvider(),fileURL:file,defaults:defaults) }
     func testTicketIsFixedPriceAtBothStorePricePathsAndActualCheckout() throws {
         let store = store(); store.setShopDifficulty(2)
-        XCTAssertEqual(store.price(of:.safariTicket),200_000_000)
-        XCTAssertEqual(store.price(of:ShopEntry.item(.safariTicket)),200_000_000)
+        XCTAssertEqual(store.price(of:.safariTicket),250_000_000)
+        XCTAssertEqual(store.price(of:ShopEntry.item(.safariTicket)),250_000_000)
         XCTAssertTrue(store.buy(.safariTicket))
-        XCTAssertEqual(store.availableTokens,1_800_000_000)
+        XCTAssertEqual(store.availableTokens,1_750_000_000)
         XCTAssertEqual(store.itemCount(.safariTicket),3)
         store.setShopDifficulty(0.1)
-        XCTAssertEqual(store.price(of:.safariTicket),200_000_000)
+        XCTAssertEqual(store.price(of:.safariTicket),250_000_000)
     }
     func testStartConsumesOneTicketResumeDoesNotAndOldStateIsCompatible() throws {
         let catalog = try SafariCatalog.load(), store = store()
@@ -807,6 +675,110 @@ final class SafariStoreTests: XCTestCase {
         try store.safariContinue(catalog:catalog)
         XCTAssertNotEqual(store.safariSession?.wild?.id,before?.wild?.id)
     }
+    /// The auto-advance swaps the Next button for the action row under the cursor; Next overlaps Rock and Bait.
+    func testActionsIgnoreClicksBrieflyAfterANewWildPokemonAppears() {
+        let appeared = Date(timeIntervalSince1970: 1_000)
+        var inputGuard = SafariInputGuard()
+        XCTAssertTrue(inputGuard.accepts(at: appeared), "nothing is locked before an encounter appears")
+        inputGuard.lock(at: appeared)
+        XCTAssertFalse(inputGuard.accepts(at: appeared))
+        XCTAssertFalse(inputGuard.accepts(at: appeared.addingTimeInterval(0.4)), "a click meant for Next is ignored")
+        XCTAssertTrue(inputGuard.accepts(at: appeared.addingTimeInterval(SafariInputGuard.duration)))
+        inputGuard.lock(at: appeared.addingTimeInterval(10))
+        XCTAssertFalse(inputGuard.accepts(at: appeared.addingTimeInterval(10.2)), "every new encounter locks again")
+    }
+    /// Reproduces the report: a click aimed at Next lands after the auto-advance, on the Rock button.
+    func testClickAtNextAfterAutoAdvanceDoesNotThrowARock() async throws {
+        let store = store(), catalog = try SafariCatalog.load()
+        try store.startSafari(area:.forest,catalog:catalog)
+        for _ in 0..<5 { if store.safariSession?.phase == .encounter { try store.safariAct(.bait) } }
+        XCTAssertEqual(store.safariSession?.phase,.between)
+        let host = NSHostingView(rootView:SafariView(store:store,playsMusic:false))
+        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:660,height:620),styleMask:.borderless,backing:.buffered,defer:false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.contentView = nil; window.close() }
+        window.orderFrontRegardless(); host.layoutSubtreeIfNeeded()
+        func click() {
+            // Left half of Next, which becomes the right part of Rock after the swap.
+            let point = NSPoint(x:310,y:167)
+            for type in [NSEvent.EventType.leftMouseDown,.leftMouseUp] {
+                window.sendEvent(NSEvent.mouseEvent(with:type,location:point,modifierFlags:[],timestamp:ProcessInfo.processInfo.systemUptime,
+                    windowNumber:window.windowNumber,context:nil,eventNumber:0,clickCount:1,pressure:1)!)
+            }
+        }
+        try await Task.sleep(for:.milliseconds(1400))
+        XCTAssertEqual(store.safariSession?.phase,.encounter,"the timer brought the next wild Pokémon")
+        let appeared = store.safariSession
+        click()
+        try await Task.sleep(for:.milliseconds(50))
+        XCTAssertEqual(store.safariSession,appeared,"the stray click is ignored")
+        try await Task.sleep(for:.milliseconds(600))
+        click()
+        try await Task.sleep(for:.milliseconds(50))
+        XCTAssertEqual(store.safariSession?.notices.first,.rock,"a deliberate click after the pause still throws")
+    }
+    func testTravelButtonOpensAllOtherAreasAndMovesOnlyOnConfirm() async throws {
+        let store = store(), catalog = try SafariCatalog.load()
+        try store.startSafari(area:.forest,catalog:catalog)
+        let host = NSHostingView(rootView:SafariView(store:store,playsMusic:false))
+        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:660,height:620),styleMask:.borderless,backing:.buffered,defer:false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.contentView = nil; window.close() }
+        func buttons(_ view:NSView) -> [NSButton] { (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons) }
+        func button(_ id:String) -> NSButton? { host.layoutSubtreeIfNeeded(); return buttons(host).first { $0.accessibilityIdentifier() == id } }
+        func settle() async throws { try await Task.sleep(for:.milliseconds(100)); host.layoutSubtreeIfNeeded() }
+
+        let travel = try XCTUnwrap(button("safari-travel"))
+        XCTAssertTrue(travel.isEnabled,"travel is available during an encounter")
+        travel.performClick(nil); try await settle()
+        let options = buttons(host).compactMap { $0.accessibilityIdentifier() }.filter { $0.hasPrefix("safari-travel-option-") }
+        XCTAssertEqual(Set(options),Set(SafariArea.allCases.filter { $0 != .forest }.map { "safari-travel-option-" + $0.rawValue }))
+        XCTAssertFalse(try XCTUnwrap(button("safari-travel-confirm")).isEnabled,"nothing is chosen yet")
+
+        try XCTUnwrap(button("safari-travel-cancel")).performClick(nil); try await settle()
+        XCTAssertNil(button("safari-travel-confirm"),"cancel closes the picker")
+        XCTAssertEqual(store.safariSession?.area,.forest)
+
+        try XCTUnwrap(button("safari-travel")).performClick(nil); try await settle()
+        try XCTUnwrap(button("safari-travel-option-lake")).performClick(nil); try await settle()
+        try XCTUnwrap(button("safari-travel-confirm")).performClick(nil); try await settle()
+        XCTAssertEqual(store.safariSession?.area,.lake)
+        XCTAssertEqual(store.safariSession?.phase,.encounter)
+        XCTAssertEqual(self.store().safariSession?.area,.lake,"the move is saved")
+
+        var state = store.state
+        var session = try XCTUnwrap(state.safariSession)
+        session.carried = session.wild; session.pendingCatch = session.wild; session.phase = .replacement
+        state.safariSession = session
+        try JSONEncoder().encode(state).write(to:file)
+        let replacing = self.store()
+        let other = NSHostingView(rootView:SafariView(store:replacing,playsMusic:false))
+        window.contentView = other; other.layoutSubtreeIfNeeded()
+        try await Task.sleep(for:.milliseconds(100)); other.layoutSubtreeIfNeeded()
+        XCTAssertFalse(try XCTUnwrap(buttons(other).first { $0.accessibilityIdentifier() == "safari-travel" }).isEnabled,
+                       "the replacement choice cannot be skipped by travelling")
+        XCTAssertFalse(try XCTUnwrap(buttons(other).first { $0.accessibilityIdentifier() == "safari-finish" }).isEnabled,
+                       "Finish is also unavailable until the catch is chosen")
+    }
+    func testOpenPickerHoldsAutoAdvanceAndCancelResumesIt() async throws {
+        let store = store(), catalog = try SafariCatalog.load()
+        try store.startSafari(area:.forest,catalog:catalog)
+        for _ in 0..<5 { if store.safariSession?.phase == .encounter { try store.safariAct(.bait) } }
+        XCTAssertEqual(store.safariSession?.shouldAdvanceAutomatically,true)
+        let host = NSHostingView(rootView:SafariView(store:store,playsMusic:false))
+        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:660,height:620),styleMask:.borderless,backing:.buffered,defer:false)
+        window.isReleasedWhenClosed = false; window.contentView = host
+        defer { window.contentView = nil; window.close() }
+        func buttons(_ view:NSView) -> [NSButton] { (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons) }
+        func button(_ id:String) -> NSButton? { host.layoutSubtreeIfNeeded(); return buttons(host).first { $0.accessibilityIdentifier() == id } }
+        try XCTUnwrap(button("safari-travel")).performClick(nil)
+        try await Task.sleep(for:.milliseconds(1600))
+        XCTAssertEqual(store.safariSession?.phase,.between,"the timer waits while the picker is open")
+        try XCTUnwrap(button("safari-travel-cancel")).performClick(nil)
+        try await Task.sleep(for:.milliseconds(1600))
+        XCTAssertEqual(store.safariSession?.phase,.encounter,"cancelling resumes the automatic advance")
+        XCTAssertEqual(store.safariSession?.area,.forest)
+    }
     func testLiveViewTimerStillAdvancesAfterWildFlees() async throws {
         let store = store(), catalog = try SafariCatalog.load()
         try store.startSafari(area:.forest,catalog:catalog)
@@ -850,7 +822,7 @@ final class SafariStoreTests: XCTestCase {
         state.safariSession?.carried = caught
         try JSONEncoder().encode(state).write(to:file)
         let loaded = self.store()
-        XCTAssertEqual(loaded.safariSession?.phase,.finished)
+        XCTAssertEqual(loaded.safariSession?.phase,.encounter,"free travel keeps an older three-area trip going")
         XCTAssertEqual(loaded.safariSession?.carried,caught)
         XCTAssertEqual(loaded.availableTokens,store.availableTokens)
         try loaded.finishAndDismissSafari()
@@ -873,80 +845,6 @@ final class SafariStoreTests: XCTestCase {
         XCTAssertEqual(clean.usedSinceInstall,state.usedSinceInstall)
         XCTAssertEqual(clean.challengeCashClaims,state.challengeCashClaims)
         XCTAssertEqual(clean.inventory,state.inventory)
-    }
-    func testLiveAreaTransferModalBlocksTimerAndMovesOnlyWhenConfirmIsPressed() async throws {
-        let store = store(), catalog = try SafariCatalog.load()
-        store.setLanguage(.ko)
-        try store.startSafari(area:.forest,catalog:catalog)
-        var state = store.state; state.safariSession?.areaBalls = 9; state.safariSession?.ballsRemaining = 11
-        try JSONEncoder().encode(state).write(to:file)
-        let reopened = self.store(); reopened.setLanguage(.ko)
-        try reopened.safariAct(.ball)
-        XCTAssertEqual(reopened.safariSession?.areaBalls,10)
-        XCTAssertEqual(reopened.safariSession?.phase,.between)
-        let before = try XCTUnwrap(reopened.safariSession)
-        let host = NSHostingView(rootView:SafariView(store:reopened,playsMusic:false))
-        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:660,height:620),styleMask:.borderless,backing:.buffered,defer:false)
-        window.isReleasedWhenClosed = false; window.contentView = host
-        defer { window.contentView = nil; window.close() }
-        host.layoutSubtreeIfNeeded()
-        try await Task.sleep(for:.milliseconds(1550))
-        host.layoutSubtreeIfNeeded()
-        let options = try XCTUnwrap(reopened.safariSession?.pendingAreaOptions)
-        XCTAssertEqual(options.count,3)
-        let destination = options[1]
-        XCTAssertEqual(reopened.safariSession?.area,before.area)
-        XCTAssertEqual(reopened.safariSession?.wild?.id,before.wild?.id)
-        XCTAssertEqual(self.store().safariSession?.pendingAreaOptions,options)
-        let waiting = reopened.safariSession
-        try await Task.sleep(for:.milliseconds(1400))
-        XCTAssertEqual(reopened.safariSession,waiting)
-        func buttons(_ view:NSView) -> [NSButton] {
-            (view as? NSButton).map { [$0] } ?? view.subviews.flatMap(buttons)
-        }
-        host.layoutSubtreeIfNeeded()
-        let confirm = try XCTUnwrap(buttons(host).first { $0.accessibilityIdentifier() == "safari-travel-confirm" })
-        XCTAssertFalse(confirm.isEnabled)
-        let option = try XCTUnwrap(buttons(host).first { $0.accessibilityIdentifier() == "safari-travel-option-" + destination.rawValue })
-        option.performClick(nil)
-        try await Task.sleep(for:.milliseconds(100))
-        XCTAssertTrue(confirm.isEnabled)
-        XCTAssertFalse(try XCTUnwrap(buttons(host).first { $0.accessibilityIdentifier() == "safari-finish" }).isEnabled)
-        let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in:host.bounds))
-        host.cacheDisplay(in:host.bounds,to:bitmap)
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate; request.recognitionLanguages = ["ko-KR","en-US"]
-        try VNImageRequestHandler(cgImage:XCTUnwrap(bitmap.cgImage)).perform([request])
-        try bitmap.representation(using:.png,properties:[:])?.write(to:FileManager.default.temporaryDirectory.appendingPathComponent("ptb-safari-area-options.png"))
-        let text = request.results?.compactMap { $0.topCandidates(1).first?.string }.joined(separator:" ") ?? ""
-        XCTAssertTrue(text.contains("지역을 이동"),text)
-        XCTAssertTrue(text.contains(L(.ko).safariArea(destination)),text)
-        confirm.performClick(nil)
-        try await Task.sleep(for:.milliseconds(100))
-        XCTAssertFalse(window.isVisible)
-        XCTAssertEqual(reopened.safariSession?.phase,.encounter)
-        XCTAssertEqual(reopened.safariSession?.area,destination)
-        XCTAssertNil(reopened.safariSession?.pendingAreaOptions)
-        XCTAssertEqual(reopened.safariSession?.encounters,1)
-        XCTAssertNotEqual(reopened.safariSession?.wild?.id,before.wild?.id)
-        XCTAssertEqual(self.store().safariSession,reopened.safariSession)
-    }
-    func testTwentyBallJourneyThroughStoreEndsWithoutThirdArea() throws {
-        let store = store(), catalog = try SafariCatalog.load()
-        try store.startSafari(area:.plains,catalog:catalog)
-        for _ in 0..<20 {
-            try store.safariAct(.ball)
-            if store.safariSession?.phase == .replacement { try store.safariResolveCatch(replace:true) }
-            if store.safariSession?.phase == .between { try store.safariContinue(catalog:catalog) }
-            if let destination = store.safariSession?.pendingAreaOptions?.last {
-                try store.safariConfirmAreaChange(to:destination,catalog:catalog)
-            }
-        }
-        XCTAssertEqual(store.safariSession?.phase,.finished)
-        XCTAssertEqual(store.safariSession?.visited.count,2)
-        XCTAssertTrue(store.safariSession?.claimed == true)
-        XCTAssertEqual(store.safariSession?.ballsRemaining,0)
-        XCTAssertEqual(self.store().safariSession,store.safariSession)
     }
 
     func testFinalBallCatchWaitsForReplacementAndAwardsOnlyChosenIndividual() throws {
@@ -1011,5 +909,125 @@ final class SafariStoreTests: XCTestCase {
             XCTAssertTrue(l.safariReplacement(old:"OLD",new:"NEW").contains("OLD"))
             XCTAssertTrue(l.safariReplacement(old:"OLD",new:"NEW").contains("NEW"))
         }
+    }
+}
+
+final class SafariTravelTests: XCTestCase {
+    private func catalog() throws -> SafariCatalog { try SafariCatalog.load() }
+    private func session(area: SafariArea = .plains, seed: UInt64 = 1) throws -> SafariSession {
+        var session = SafariSession(area: area, seed: seed, shinyDenominator: 4096)
+        try session.continueJourney(catalog: catalog())
+        return session
+    }
+
+    func testTravelMovesAnytimeWithoutSpendingBalls() throws {
+        let catalog = try catalog()
+        var value = try session()
+        try value.act(.rock)
+        let fleeing = try XCTUnwrap(value.wild?.id)
+        if value.phase == .between { try value.continueJourney(catalog: catalog) }
+        let ballsBefore = value.ballsRemaining
+        value.catchModifier = 5; value.fleeModifier = 10; value.turn = 2
+        XCTAssertEqual(value.travelDestinations.count, SafariArea.allCases.count - 1)
+        XCTAssertFalse(value.travelDestinations.contains(.plains))
+
+        try value.travel(to: .lake, catalog: catalog)
+        XCTAssertEqual(value.area, .lake)
+        XCTAssertEqual(value.phase, .encounter, "the first Pokémon of the new area appears at once")
+        XCTAssertNotEqual(value.wild?.id, fleeing)
+        XCTAssertEqual(value.wild?.species.area, .lake)
+        XCTAssertEqual(value.ballsRemaining, ballsBefore)
+        XCTAssertEqual(value.encounters, 1)
+        XCTAssertEqual(value.turn, 0)
+        XCTAssertEqual(value.catchModifier, 0)
+        XCTAssertEqual(value.notices, [.appeared])
+        try value.validate(catalog: catalog)
+
+        try value.act(.run)
+        try value.travel(to: .volcano, catalog: catalog)
+        XCTAssertEqual(value.phase, .encounter, "travel also works between encounters")
+        XCTAssertEqual(value.wild?.species.area, .volcano)
+    }
+
+    func testTravelRejectsCurrentAreaReplacementAndFinished() throws {
+        let catalog = try catalog()
+        var value = try session()
+        let wild = value.wild
+        XCTAssertThrowsError(try value.travel(to: .plains, catalog: catalog), "no free reroll in place")
+        XCTAssertEqual(value.wild, wild)
+
+        var replacing = value
+        replacing.carried = value.wild; replacing.pendingCatch = value.wild; replacing.phase = .replacement
+        XCTAssertThrowsError(try replacing.travel(to: .lake, catalog: catalog))
+
+        var finished = value; finished.finish()
+        XCTAssertThrowsError(try finished.travel(to: .lake, catalog: catalog))
+    }
+
+    func testRevisitIsAllowedAndVisitedStaysUnique() throws {
+        let catalog = try catalog()
+        var value = try session()
+        for area in [SafariArea.lake, .cave, .plains, .lake, .iceCave, .forest, .desert, .dojo, .mountain, .volcano, .metropolis, .fairyCave] {
+            try value.travel(to: area, catalog: catalog)
+            try value.validate(catalog: catalog)
+        }
+        XCTAssertEqual(value.area, .fairyCave)
+        XCTAssertEqual(Set(value.visited), Set(SafariArea.allCases))
+        XCTAssertEqual(value.visited.count, SafariArea.allCases.count)
+        let decoded = try JSONDecoder().decode(SafariSession.self, from: JSONEncoder().encode(value))
+        try decoded.validate(catalog: catalog)
+    }
+
+    func testTwentyBallsStillFinishWithoutAreaLimits() throws {
+        let catalog = try catalog()
+        var value = try session()
+        var throws_ = 0
+        while value.phase != .finished && throws_ < 40 {
+            if value.phase == .replacement { try value.resolveCatch(replace: false) }
+            if value.phase == .between { try value.continueJourney(catalog: catalog); continue }
+            if value.phase == .encounter { try value.act(.ball); throws_ += 1 }
+        }
+        XCTAssertEqual(throws_, 20, "every ball is thrown in one area; no ten-ball stop")
+        XCTAssertEqual(value.ballsRemaining, 0)
+        XCTAssertEqual(value.phase, .finished)
+        XCTAssertEqual(value.visited, [.plains])
+        XCTAssertNil(value.pendingAreaOptions)
+    }
+
+    func testLastBallAfterTravelEndsTheTrip() throws {
+        let catalog = try catalog()
+        var value = try session()
+        value.ballsRemaining = 1
+        try value.travel(to: .lake, catalog: catalog)
+        try value.act(.ball)
+        if value.phase == .replacement { try value.resolveCatch(replace: true) }
+        if value.phase == .between { try value.continueJourney(catalog: catalog) }
+        XCTAssertEqual(value.phase, .finished)
+        XCTAssertThrowsError(try value.travel(to: .cave, catalog: catalog))
+    }
+
+    func testVersionThreeSaveWaitingForCandidatesMigrates() throws {
+        let catalog = try catalog()
+        var legacy = try session()
+        try legacy.act(.run)
+        legacy.areaBalls = 10; legacy.ballsRemaining = 10
+        legacy.pendingAreaOptions = [.lake, .cave, .dojo]
+        legacy.areaRulesVersion = 3
+        legacy.carried = legacy.wild
+        var state = CompanionState(); state.safariSession = legacy
+        var value = try XCTUnwrap(SaveTransfer.sanitized(state).safariSession, "the real load path keeps the trip")
+        XCTAssertEqual(value.areaRulesVersion, SafariSession.currentAreaRulesVersion)
+        XCTAssertNil(value.pendingAreaOptions)
+        XCTAssertEqual(value.areaBalls, 0)
+        XCTAssertEqual(value.ballsRemaining, 10)
+        XCTAssertEqual(value.carried, legacy.carried, "the kept Pokémon survives")
+        XCTAssertTrue(value.shouldAdvanceAutomatically == false, "a deliberate escape still pauses")
+        try value.validate(catalog: catalog)
+        try value.travel(to: .dojo, catalog: catalog)
+        XCTAssertEqual(value.phase, .encounter)
+
+        var future = legacy; future.areaRulesVersion = SafariSession.currentAreaRulesVersion + 1
+        var futureState = CompanionState(); futureState.safariSession = future
+        XCTAssertNil(SaveTransfer.sanitized(futureState).safariSession, "a save from a newer app is not rewritten as current")
     }
 }

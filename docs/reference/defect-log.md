@@ -12,6 +12,43 @@ read_when:
 
 # 결함 대응 축적 규칙
 
+## A native button inside a SwiftUI container needs `.disabled`, not only its own flag
+
+- `SafariFinishButton` (NSViewRepresentable) set `isEnabled` from its `enabled` argument, but the
+  enclosing `.disabled(false)` environment re-enabled the NSButton afterwards. Finish was clickable
+  during the keep/replace choice (the store rejected it, so only an error appeared). The new Change
+  area button would have set `choosingArea` with no picker shown, disabling the whole window.
+- **Why tests missed it:** the earlier test checked a button inside the overlay, outside that
+  container; no test read Finish's state during the replacement choice.
+- Guard: both buttons also use SwiftUI `.disabled(...)`, and the travel action re-checks
+  `canTravel`. `testTravelButtonOpensAllOtherAreasAndMovesOnlyOnConfirm` asserts both are disabled
+  during the replacement choice (each fails without its modifier).
+
+## A timer must not swap controls under the cursor
+
+- After a Safari catch or flee, "Continue" (Next) and a 1.2s auto-advance both start the next
+  encounter. When the timer won, the action row replaced Next in the same place; Next overlaps Rock
+  and Bait, so the click meant for Next threw a Rock or Bait at the new Pokémon.
+- **Why tests missed it:** they checked that the timer advances, never a click landing after the swap.
+- Guard: `SafariInputGuard` ignores action clicks for 0.5s after a new wild Pokémon appears.
+  `testClickAtNextAfterAutoAdvanceDoesNotThrowARock` posts real mouse events at Next's position after
+  the auto-advance (fails without the guard) and checks a later click still throws.
+- Sweep: other UI timers only sequence animations; none replace a clickable control.
+
+## A learned policy needs a "cannot work" check, not only an imitation score
+
+- The singles challenge CPU chose moves that could not help (Protect at full HP with no reason, Calm
+  Mind into a resisted target, Iron Defense at +6, a fourth Spikes layer) — 490 of 5,202 moves.
+  Attacks with data base power 0 (Seismic Toss, Return, Grass Knot…) scored as no damage, and state
+  features were identical across candidates, so they could not separate a useful boost from a wasted one.
+- **Why tests missed it:** the policy was validated only by how closely it imitated human replays and
+  by rollout win rates; no test asked whether a chosen move could succeed in the visible state.
+- Guard: `BattleEngine/challenge-cpu-rules.cjs` plus `tests/challenge-cpu-rules.test.cjs`, whose
+  encounter sweep fails on any wasted move. Re-run the sweep after retraining or changing rosters.
+- **Saved runs replay CPU decisions**: never change scoring under an existing policy revision. Keep the
+  previous model bytes (`challenge-policy-v2.json`) and add a new revision; `ChallengePolicyCompatibilityTests`
+  replays each preserved revision.
+
 ## A species the battle overlay adds must be swept across every stock-dex lookup
 
 - Admitting Arceus (2026-11-18) added Fairy Arceus, a Gen VI form, to the overlay in

@@ -54,7 +54,8 @@ PTB_UPDATE_ARTIFACTS=build/github-update/3.2.2 swift test --filter testPublished
 
 ## 전환
 
-3.2.1 이하 설치본은 Drive 만 확인한다. 이 기능이 들어간 첫 버전은 Drive ZIP 으로 한 번 더 배포해야
+이 기능은 2026-11-18 빌드(`PokeTokenBar-3.2.1-20261118.zip`, 3.2.2)부터 들어 있다. 그 이전 설치본은 Drive 만 확인하므로
+이 기능이 든 버전을 Drive ZIP 으로 한 번 더 배포해야
 그 뒤부터 GitHub 업데이트를 받는다.
 
 ## 한계

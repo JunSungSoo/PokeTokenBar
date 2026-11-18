@@ -255,11 +255,19 @@ class OwnedBattle {
         else this.submitCommand(1,'default');
       }else{
         const {chooseCPU,model}=this.cpuPolicy;
-        const action=chooseCPU(this.battle.dex,frame,model);
+        const action=chooseCPU(this.battle.dex,frame,model,this.cpuContext());
         this.choose(1,frame.decisionID,[action]);
       }
     }
     throw Error('CPU action loop did not settle');
+  }
+  // Own-side facts and the foe's visible volatiles that the CPU frame does not carry.
+  cpuContext() {
+    const mon=this.battle.sides[1].active[0],foe=this.battle.sides[0].active[0];
+    if(!mon)return {};
+    const visible=['substitute','leechseed','confusion','yawn'];
+    return {lastMove:mon.lastMove?.id,wishPending:!!mon.side.slotConditions[mon.position]?.wish,
+      foeEffects:foe&&!foe.fainted?visible.filter(id=>foe.volatiles[id]):[]};
   }
   surrender(player) {
     if (![0,1].includes(player)) throw Error('Invalid player');

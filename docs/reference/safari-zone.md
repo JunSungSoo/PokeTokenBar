@@ -1,18 +1,20 @@
 # Safari Zone
 
-Buy a Safari Zone ticket for a fixed 200M in the Shop, then use it from the Bag.
+Buy a Safari Zone ticket for a fixed 250M in the Shop, then use it from the Bag.
 The ticket is consumed when a starting area is chosen. An active trip can be resumed
 from the Bag even when no tickets remain.
 
 Choose a starting area from eleven text cards with a representative Pokémon. The
 fixed roster contains 228 Gen I–V species, using final evolutions plus Pikachu.
-Explore at most two distinct areas with 20 Safari Balls. Each area ends after ten
-ball throws; encounter count and running away do not cause an area change. After
-the first area's quota, three distinct unvisited destinations are drawn once and
-saved. Select one and press Confirm before the background changes or the next
-encounter begins. Reopening preserves the same three candidates. The second area's
-quota or running out of balls finishes the trip. The same species cannot appear
-in consecutive encounters, including after a restart.
+Explore with 20 Safari Balls; using all of them finishes the trip. The Change area
+button (left of Finish) moves to any of the other ten areas at any time, revisits
+included, and never costs a ball. During an encounter the wild Pokémon flees first.
+The picker shows each area's representative; nothing moves until Confirm, and
+Cancel closes it. The button is unavailable during capture playback, the keep/replace
+choice and after the trip ends. The encounter count restarts in each area. Trips saved
+under the older two-area rules (area rules version 4, 2026-11-18) drop any pending
+three-candidate prompt and per-area count and continue with their balls and catches.
+The same species cannot appear in consecutive encounters, including after a restart.
 
 Every area has a type-matched legendary or mythical encounter. Each eligible legendary/mythical
 species has a 3% encounter chance. Volcano's Moltres and Ho-Oh each have 3%, for a
@@ -60,3 +62,6 @@ This is a new screen; no previous Safari screen existed in a released build.
 See `Sources/PokeTokenBar/Resources/BattleText/safari-assets-notice.txt` and the
 existing PokéRogue asset notices for capture rules, source revisions and artwork
 attribution. Capture-result RNG and visual animation RNG remain separate.
+
+After a new wild Pokémon appears, Ball/Rock/Bait/Run ignore clicks for 0.5s: the automatic advance
+replaces the Next button in the same spot, and a click meant for Next must not throw anything.

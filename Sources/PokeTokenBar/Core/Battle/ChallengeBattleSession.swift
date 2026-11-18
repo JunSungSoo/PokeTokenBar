@@ -74,7 +74,7 @@ struct ChallengeEncounterCatalog: Decodable, Sendable {
     }
     @MainActor static func supportsPolicyRevision(_ revision:String, mode: BattleMode = .singles)throws->Bool {
         if mode == .doubles { return [doublesPolicy,tacticalDoublesPolicy,previousDoublesPolicy].contains(revision) }
-        for name in ["challenge-policy.json","challenge-policy-v1.json"] {
+        for name in ["challenge-policy.json","challenge-policy-v2.json","challenge-policy-v1.json"] {
             let url=BattleEngineProcess.resourceDirectory.appendingPathComponent(name)
             guard FileManager.default.fileExists(atPath:url.path) else{continue}
             if SHA256.hash(data:try Data(contentsOf:url)).map({String(format:"%02x",$0)}).joined()==revision{return true}

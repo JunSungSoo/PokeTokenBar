@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "featureVersion": "bw-public-action-v2",
+  "cpuRules": "meaningful-actions-v1",
   "features": [
     "bias",
     "switch",
