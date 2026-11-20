@@ -39,10 +39,11 @@ cp -R Sources/PokeTokenBar/Resources/BattleEffects "$APP/Contents/Resources/Batt
 cp -R Sources/PokeTokenBar/Resources/Showmotion "$APP/Contents/Resources/Showmotion"
 cp -R Sources/PokeTokenBar/Resources/PokeRogue "$APP/Contents/Resources/PokeRogue"
 cp -R Sources/PokeTokenBar/Resources/PokeRoguePlayer "$APP/Contents/Resources/PokeRoguePlayer"
+cp -R Sources/PokeTokenBar/Resources/ReleaseNotes "$APP/Contents/Resources/ReleaseNotes"
 # Keep one physical resource copy in the standard signed resource-bundle location.
 MODULE="$APP/Contents/Resources/PokeTokenBar_PokeTokenBar.bundle"
 mkdir -p "$MODULE"
-for resource in BattleText BattleEffects Showmotion PokeRogue PokeRoguePlayer; do
+for resource in BattleText BattleEffects Showmotion PokeRogue PokeRoguePlayer ReleaseNotes; do
     mv "$APP/Contents/Resources/$resource" "$MODULE/$resource"
     ln -s "PokeTokenBar_PokeTokenBar.bundle/$resource" "$APP/Contents/Resources/$resource"
 done

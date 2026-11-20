@@ -1000,6 +1000,13 @@ struct SettingsView: View {
                     .font(.caption2).foregroundStyle(.orange).textSelection(.enabled)
                     .padding(.horizontal, 12).padding(.bottom, 6)
             }
+            Divider()
+            groupRow {
+                Text(l.releaseNotesDescription)
+                Spacer()
+                Button(ReleaseNotesWindowController.title) { ReleaseNotesWindowController.shared.show() }
+                    .accessibilityIdentifier("settings-release-notes")
+            }
         }
     }
 

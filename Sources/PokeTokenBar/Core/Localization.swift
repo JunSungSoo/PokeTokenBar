@@ -1062,6 +1062,7 @@ struct L {
     }
 
     // MARK: 문제점 알리기 (설정 → 메일 리포트)
+    var releaseNotesDescription: String { t("배포 변경사항", "What changed in each release", "リリースごとの変更点", "Cambios de cada versión", "Nouveautés de chaque version", "Mudanças de cada versão", "Änderungen je Version", "Изменения в каждом выпуске") }
     var reportProblem: String { t("문제점 알리기", "Report a problem", "問題を報告", "Reportar un problema", "Signaler un problème", "Relatar um problema", "Problem melden", "Сообщить о сбое") }
     var showLogFile: String { t("로그 파일 보기", "Show log file", "ログファイルを表示", "Mostrar archivo de registro", "Afficher le fichier journal", "Mostrar arquivo de log", "Protokolldatei anzeigen", "Показать файл журнала") }
     var reportAttachHint: String {

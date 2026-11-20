@@ -19,7 +19,9 @@ ZIP 생성·갱신, 빌드, 커밋·푸시 또는 기존 노트 포함 요청만
 기존 전체 이력을 ZIP에 포함한다. 파일명 중복은 생성 시각으로 구분하며 노트 회차를 올리지 않는다.
 
 새 이력 추가를 지시받으면 완성된 UTF-8 TXT 노트를 날짜별 `docs/releases/zip/`에
-보관하고 전체 이력과 `history.json`도 갱신한다.
+보관하고 전체 이력과 `history.json`도 갱신한다. 설정 화면 Release Note 가 보여주는 앱 사본
+`Sources/PokeTokenBar/Resources/ReleaseNotes/Release History.txt` 에도 전체 이력을 그대로 복사한다
+(`ReleaseHistoryTests` 가 두 파일이 다르면 실패한다).
 본문은 `YYYY-MM-DD (N차 배포)` 제목, 빈 줄, `- 변경사항` 목록만 사용한다.
 날짜마다 회차를 1부터 부여하고 같은 날짜 안에서는 높은 회차부터 내림차순으로 표시한다.
 다음 배포는 빈 줄로 구분한다. 날짜도 최신 날짜부터 내림차순으로 표시한다. 버전·검증·출처는
@@ -56,7 +58,7 @@ Homebrew 배포 ZIP은 기존처럼 실제 `PokeTokenBar.app`을 최상위에 �
 > 아래 Drive 규칙은 최초 설치용 ZIP과 3.2.1 이하 설치본에만 적용된다.
 
 Drive 업데이트는 날짜·회차가 아니라 앱의 `CFBundleShortVersionString`과 공유 ZIP 파일명의
-`MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.2.3이며 새 Drive 배포마다 앱 버전과 파일명
+`MAJOR.MINOR.PATCH`를 비교한다. 현재 버전은 3.3.0이며 새 Drive 배포마다 앱 버전과 파일명
 버전을 함께 올린다. 빌드 스크립트가 앱 내부 버전을 기록하고 ZIP 메타데이터에도 같은 값이
 포함된다. 파일명에 인식 가능한 버전이 있으면 패키저는 앱 버전 불일치를 거부한다.
 `PokeTokenBar-3.2.1.zip` 또는 `PokeTokenBar-3.2.1-261113.zip` 형식을 사용한다.

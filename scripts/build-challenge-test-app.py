@@ -8,7 +8,7 @@ if app.exists():shutil.rmtree(app)
 (contents/'MacOS').mkdir(parents=True);resources=contents/'Resources';resources.mkdir()
 shutil.copy2(root/'.build/arm64-apple-macosx/debug/PokeTokenBar',contents/'MacOS/PokeTokenBar')
 shutil.copy2(root/'assets/AppIcon.icns',resources/'AppIcon.icns')
-for name in ['BattleText','BattleEffects','Showmotion','PokeRogue','PokeRoguePlayer']:
+for name in ['BattleText','BattleEffects','Showmotion','PokeRogue','PokeRoguePlayer','ReleaseNotes']:
  shutil.copytree(root/'Sources/PokeTokenBar/Resources'/name,resources/name)
 engine=resources/'BattleEngine';engine.mkdir()
 for pattern in ['*.cjs','*.json','*.wav']:

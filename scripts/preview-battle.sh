@@ -40,6 +40,7 @@ ditto Sources/PokeTokenBar/Resources/BattleEffects "$PREVIEW_APP/Contents/Resour
 ditto Sources/PokeTokenBar/Resources/Showmotion "$PREVIEW_APP/Contents/Resources/Showmotion"
 ditto Sources/PokeTokenBar/Resources/PokeRogue "$PREVIEW_APP/Contents/Resources/PokeRogue"
 ditto Sources/PokeTokenBar/Resources/PokeRoguePlayer "$PREVIEW_APP/Contents/Resources/PokeRoguePlayer"
+ditto Sources/PokeTokenBar/Resources/ReleaseNotes "$PREVIEW_APP/Contents/Resources/ReleaseNotes"
 ditto Tests/PokeTokenBarTests/Fixtures/PokeRogueFaithful "$PREVIEW_APP/Contents/Resources/PokeRogueFaithful"
 ditto Tests/PokeTokenBarTests/Fixtures/PokeRoguePreview "$PREVIEW_APP/Contents/Resources/PokeRoguePreview"
 if [[ "${PTB_SIZE_PREVIEW:-0}" == "1" ]]; then
