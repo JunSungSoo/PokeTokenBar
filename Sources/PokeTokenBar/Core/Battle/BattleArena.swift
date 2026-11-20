@@ -20,6 +20,8 @@ enum BattleArena: String, CaseIterable, Sendable {
         }
     }
     var backgroundPath: String { "images/arenas/\(rawValue)_bg.png" }
+    /// Original layer naming: `_a` is the player platform, `_b` the enemy platform.
+    func platformPath(own: Bool) -> String { "images/arenas/\(rawValue)_\(own ? "a" : "b").png" }
 
     // Explicit priority makes mixed-team ties stable across processes and selection order.
     static let typeOrder=["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"]

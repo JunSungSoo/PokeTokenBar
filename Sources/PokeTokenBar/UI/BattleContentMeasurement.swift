@@ -10,6 +10,8 @@ struct BattleContentMeasurement: Equatable {
     let roster:CGRect?
     let commandTitle:CGRect?
     var turnLog: CGRect? = nil
+    /// Battler stage boxes keyed "stage-own-0", "stage-foe-1", …
+    var stages: [String: CGRect] = [:]
     var commandClearance: CGFloat? {
         guard let commands, let footer else { return nil }
         return footer.minY - (turnLog?.maxY ?? commands.maxY)

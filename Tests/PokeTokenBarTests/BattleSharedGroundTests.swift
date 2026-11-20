@@ -51,22 +51,6 @@ final class BattleSharedGroundTests: XCTestCase {
                 XCTAssertTrue(frame.slots[dead].canPass)
                 XCTAssertFalse(frame.slots[dead].mustSwitch)
             }
-            for own in [false, true] {
-                let widths = members.map { PokeRogueSpriteSizes.shared.battleSize(speciesID: $0.speciesID, form: $0.form, back: own).width }
-                let layout = BattlePairGroundLayout(widths: widths, living: living, stageWidth: 189)
-                let ground = try XCTUnwrap(layout.ground)
-                XCTAssertGreaterThanOrEqual(ground.minX, 0)
-                XCTAssertLessThanOrEqual(ground.maxX, layout.width)
-                for slot in members.indices where living[slot] {
-                    let center = 189 / 2.0 + CGFloat(slot) * (189 + layout.spacing)
-                    XCTAssertLessThanOrEqual(ground.minX, center - widths[slot] / 2)
-                    XCTAssertGreaterThanOrEqual(ground.maxX, center + widths[slot] / 2)
-                }
-                if name != "large-pair" {
-                    let full = try XCTUnwrap(BattlePairGroundLayout(widths: widths, living: [true, true], stageWidth: 189).ground)
-                    XCTAssertLessThan(ground.width, full.width)
-                }
-            }
             let suite = "SharedGround.\(UUID())", defaults = UserDefaults(suiteName: suite)!
             let file = FileManager.default.temporaryDirectory.appendingPathComponent(suite + ".json")
             defer { defaults.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: file) }
@@ -87,11 +71,21 @@ final class BattleSharedGroundTests: XCTestCase {
             host.view.layoutSubtreeIfNeeded()
             let bitmap = try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in: host.view.bounds))
             host.view.cacheDisplay(in: host.view.bounds, to: bitmap)
+            // Every battler stands on PokéRogue's doubles feet, and a knockout leaves the survivor in its slot.
+            let field = try XCTUnwrap(measured.battlefield)
+            let scene = BattleFieldScene(size: field.size)
+            let sizing = BattleSpriteSizing.forBattle(mode: .doubles, own: [], foe: [])
+            for (own, count) in [(true, members.count), (false, frame.foe.count)] {
+                for slot in 0..<count {
+                    let key = BattleEffectPosition.key(own: own, slot: slot)
+                    let stage = try XCTUnwrap(measured.stages["stage-" + key], "\(name) \(key)")
+                    let expected = scene.stageFrame(own: own, slot: slot, count: 2, sizing: sizing).offsetBy(dx: field.minX, dy: field.minY)
+                    XCTAssertEqual(stage.midX, expected.midX, accuracy: 0.5, "\(name) \(key)")
+                    XCTAssertEqual(stage.maxY, expected.maxY, accuracy: 0.5, "\(name) \(key)")
+                }
+            }
             try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
                 .write(to: URL(fileURLWithPath: "/tmp/ptb-ground-\(name).png"))
         }
-        XCTAssertNil(BattlePairGroundLayout(widths: [177, 177], living: [false, false], stageWidth: 189).ground)
-        let widest = BattlePairGroundLayout(widths: [177, 177], living: [true, true], stageWidth: 189)
-        XCTAssertEqual(widest.ground?.width, widest.width)
     }
 }

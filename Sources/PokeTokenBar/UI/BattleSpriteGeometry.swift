@@ -6,10 +6,6 @@ enum BattleSpriteGeometry {
     static let feetAboveShadowCenter: CGFloat = 0
     static var footInset: CGFloat { shadowHeight / 2 + feetAboveShadowCenter }
     static func imageBox(stageSize: CGFloat) -> CGFloat { stageSize + 5 - footInset }
-    /// The shared stage determines the ground footprint for the whole match.
-    static func groundSize(stageWidth: CGFloat) -> CGSize {
-        CGSize(width: stageWidth * 0.75, height: shadowHeight)
-    }
 
     /// Read alpha from a single bitmap instead of creating an AppKit color for each pixel.
     private static func rgbaPixels(_ bitmap: NSBitmapImageRep) -> [UInt8]? {
@@ -107,28 +103,5 @@ enum BattleSpriteGeometry {
         guard let bitmap = bitmap(for: image),
               let bounds = contentBounds(bitmap), let cg = bitmap.cgImage?.cropping(to:bounds) else { return image }
         return NSImage(cgImage:cg,size:NSSize(width:cg.width,height:cg.height))
-    }
-}
-
-/// Preserve battle slot indices while sizing the surface from living displayed actors only.
-struct BattlePairGroundLayout {
-    let spacing: CGFloat
-    let width: CGFloat
-    let ground: CGRect?
-
-    init(widths: [CGFloat], living: [Bool], stageWidth: CGFloat) {
-        let slotSpacing = widths.count == 2 ? (widths[0] + widths[1]) / 2 + 12 - stageWidth : 0
-        spacing = slotSpacing
-        width = stageWidth * CGFloat(widths.count) + slotSpacing * CGFloat(max(0, widths.count - 1))
-        let bounds = widths.enumerated().compactMap { slot, visibleWidth -> CGRect? in
-            guard living.indices.contains(slot), living[slot] else { return nil }
-            let center = stageWidth / 2 + CGFloat(slot) * (stageWidth + slotSpacing)
-            return CGRect(x: center - visibleWidth / 2, y: 0, width: visibleWidth, height: 22)
-        }.reduce(CGRect.null) { $0.union($1) }
-        if bounds.isNull { ground = nil }
-        else {
-            let left = max(0, bounds.minX - 16), right = min(width, bounds.maxX + 16)
-            ground = CGRect(x: left, y: 0, width: right - left, height: 22)
-        }
     }
 }

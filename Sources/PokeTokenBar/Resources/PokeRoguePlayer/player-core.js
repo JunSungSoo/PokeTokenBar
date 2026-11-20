@@ -12,6 +12,11 @@ export class TonePipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline
  constructor(game){super({game,fragShader:`precision mediump float;uniform sampler2D uMainSampler;varying vec2 outTexCoord;varying vec4 outTint;uniform vec4 tone;void main(){vec4 color=texture2D(uMainSampler,outTexCoord)*outTint;float luma=dot(color.rgb,vec3(.299,.587,.114));color.rgb=mix(color.rgb,vec3(luma),tone.w);color.rgb+=tone.rgb*(color.a/255.0);gl_FragColor=color;}`});}
  onBind(object){this.flush();const t=object?.pipelineData?.tone||[0,0,0,0];this.set4f('tone',t[0],t[1],t[2],t[3]);}
 }
+// Maps a SCREEN point like the host arena: centred and side-cropped, widened uniformly only when the view is wider.
+export function screenFocus(point,viewport){
+ const scale=Math.max(1,viewport.width/320);
+ return {x:(viewport.width-320*scale)/2+point.x*scale,y:point.y*scale,scaleX:point.scaleX*scale,scaleY:point.scaleY*scale};
+}
 export class OriginalMove extends BattleAnim {
  constructor(config,user,target,opposing,viewport){super(user,target);this.config=config;this.opposing=opposing;this.viewport=viewport;}
  getGraphicFrameData(frames,onSubstitute){
@@ -19,7 +24,7 @@ export class OriginalMove extends BattleAnim {
   if(this.viewport){let graphic=0;for(const frame of frames)if(frame.target===2){
    const point=data.get(2).get(graphic++);
    // SCREEN coordinates are authored for PokéRogue's 320×180 arena, not a Pokémon anchor.
-   if(frame.focus===4){const sx=this.viewport.width/320,sy=this.viewport.height/180;point.x*=sx;point.y*=sy;point.scaleX*=sx;point.scaleY*=sy;}
+   if(frame.focus===4)Object.assign(point,screenFocus(point,this.viewport));
   }}
   return data;
  }

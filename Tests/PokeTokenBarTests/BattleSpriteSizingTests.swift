@@ -25,16 +25,13 @@ import XCTest
         XCTAssertEqual(catalog.size(speciesID:25,form:nil,back:true),CGSize(width:41,height:47))
         XCTAssertEqual(catalog.size(speciesID:321,form:nil,back:true),CGSize(width:111,height:70))
     }
-    func testSharedCameraPreservesRelativeSizesAndFitsBothModes() {
-        let small=PokeRogueSpriteSizes.shared.battleSize(speciesID:25,form:nil,back:true)
-        let large=PokeRogueSpriteSizes.shared.battleSize(speciesID:321,form:nil,back:true)
+    func testSharedCameraKeepsTheOriginalAtlasRatioInBothModes() {
         for mode in BattleMode.allCases {
             let sizing=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
-            XCTAssertEqual(sizing.pixelScale, 1)
-            XCTAssertEqual((large.width*sizing.pixelScale)/(small.width*sizing.pixelScale),large.width/small.width,accuracy:0.0001)
-            XCTAssertLessThanOrEqual(sizing.stageWidth,(mode == .singles ? 282 : 189) + 0.0001)
-            XCTAssertLessThanOrEqual(sizing.stageHeight,mode == .singles ? 241:181)
-            XCTAssertGreaterThan(sizing.pixelScale,0)
+            let unit=BattleSpriteSizing.battlefieldHeight(for:mode)/132
+            XCTAssertEqual(sizing.pixelScale,unit,accuracy:1e-9)
+            XCTAssertEqual(sizing.stageWidth,64*unit,accuracy:1e-9)
+            XCTAssertEqual(sizing.stageHeight,64*unit+2*BattleSpriteGeometry.footInset,accuracy:1e-9)
         }
     }
     func testSmallSpeciesRemainDistinctFromCharizardAndLugiaInBothModesAndFacings() {
@@ -45,13 +42,12 @@ import XCTest
             let camera=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
             for back in [false,true] {
                 func visible(_ id:Int)->CGSize {
-                    let target=catalog.battleSize(speciesID:id,form:nil,back:back)
-                    let fit=SpriteFit.size(for:catalog.size(speciesID:id,form:nil,back:back),width:target.width,height:target.height)
-                    return CGSize(width:fit.width*camera.pixelScale,height:fit.height*camera.pixelScale)
+                    let atlas=catalog.size(speciesID:id,form:nil,back:back)
+                    return CGSize(width:atlas.width*camera.pixelScale,height:atlas.height*camera.pixelScale)
                 }
                 for small in [74,151] {
-                    XCTAssertGreaterThan(visible(6).height,visible(small).height*1.75,"Charizard versus \(small), \(mode), back=\(back)")
-                    XCTAssertGreaterThan(visible(249).height,visible(small).height*2.0,"Lugia versus \(small), \(mode), back=\(back)")
+                    XCTAssertGreaterThan(visible(6).height,visible(small).height*1.3,"Charizard versus \(small), \(mode), back=\(back)")
+                    XCTAssertGreaterThan(visible(249).height,visible(small).height*1.5,"Lugia versus \(small), \(mode), back=\(back)")
                     XCTAssertGreaterThan(visible(249).width,visible(small).width)
                 }
                 for id in ids {measurements["\(mode)-\(back ? "back":"front")-\(id)"]=Double(visible(id).height)}
@@ -84,13 +80,13 @@ import XCTest
             let camera=BattleSpriteSizing.forBattle(mode:mode,own:[],foe:[])
             func actual(_ id:Int)->CGSize {
                 let key=SpriteStore.cacheKey(speciesID:id,animated:true,shiny:false,back:back)
-                let target=catalog.battleSize(speciesID:id,form:nil,back:back)
-                let fit=SpriteFit.size(for:sources[key]!,width:target.width,height:target.height)
+                let atlas=catalog.size(speciesID:id,form:nil,back:back)
+                let fit=SpriteFit.size(for:sources[key]!,width:atlas.width,height:atlas.height)
                 return CGSize(width:fit.width*camera.pixelScale,height:fit.height*camera.pixelScale)
             }
             for small in [25,151] {
-                XCTAssertGreaterThan(actual(6).height,actual(small).height*1.7)
-                XCTAssertGreaterThan(actual(249).height,actual(small).height*1.9)
+                XCTAssertGreaterThan(actual(6).height,actual(small).height*1.3)
+                XCTAssertGreaterThan(actual(249).height,actual(small).height*1.5)
             }
         }}
         let root=VStack(alignment:.leading,spacing:14) {
@@ -121,22 +117,23 @@ import XCTest
         try XCTUnwrap(bitmap.representation(using:.png,properties:[:])).write(to:URL(fileURLWithPath:"/tmp/ptb-battle-size-comparison.png"))
     }
 
-    func testNativeStageKeepsGroundFixedAcrossSpeciesChanges() async throws {
+    func testNativeStageDrawsTheOriginalAtlasSizeOnTheFeet() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
         defer{try? FileManager.default.removeItem(at:directory)}
         let original=directory.appendingPathComponent("back-25-a.gif")
         try FileManager.default.copyItem(at:original,to:directory.appendingPathComponent("back-321-a.gif"))
         let sizing=BattleSpriteSizing.forBattle(mode:.singles,own:[],foe:[])
+        let canvas=CGSize(width:400,height:260)
         var heights:[Double]=[]
-        var groundWidths:[Double]=[]
         for id in [25,321] {
             let pokemon=BattleCombatant(id:String(id),speciesID:id,name:"",level:50,shiny:false,active:true,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
-            let host=NSHostingController(rootView:BattlePokemonStage(pokemon:pokemon,back:true,stageSize:108,sizing:sizing,spriteStore:store))
-            let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:sizing.stageWidth,height:sizing.stageHeight),styleMask:[.borderless],backing:.buffered,defer:false)
-            window.contentViewController=host;window.setContentSize(NSSize(width:sizing.stageWidth,height:sizing.stageHeight));window.orderFront(nil)
+            // Original sprites may outgrow the focus box, so render the stage bottom-aligned on a larger canvas.
+            let host=NSHostingController(rootView:BattlePokemonStage(pokemon:pokemon,back:true,stageSize:108,sizing:sizing,spriteStore:store)
+                .frame(width:canvas.width,height:canvas.height,alignment:.bottom))
+            let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:canvas.width,height:canvas.height),styleMask:[.borderless],backing:.buffered,defer:false)
+            window.contentViewController=host;window.setContentSize(canvas);window.orderFront(nil)
             defer{window.orderOut(nil);window.contentViewController=nil}
             var top=Int.max,bottom = -1,rasterScale=1.0
-            var groundLeft=Int.max,groundRight = -1
             for _ in 0..<40 {
                 try await Task.sleep(for:.milliseconds(25));host.view.layoutSubtreeIfNeeded()
                 let bitmap=try XCTUnwrap(host.view.bitmapImageRepForCachingDisplay(in:host.view.bounds))
@@ -146,26 +143,19 @@ import XCTest
                     for x in 0..<bitmap.pixelsWide {
                         guard let color=bitmap.colorAt(x:x,y:y)?.usingColorSpace(.deviceRGB) else{continue}
                         if color.redComponent>0.8 && color.blueComponent<0.3 {top=min(top,y);bottom=max(bottom,y)}
-                        if color.redComponent > color.greenComponent, color.greenComponent > color.blueComponent,
-                           color.redComponent < 0.6, color.redComponent - color.blueComponent > 0.08 {
-                            groundLeft=min(groundLeft,x);groundRight=max(groundRight,x)
-                        }
                     }
                 }
                 if bottom>=0 {break}
             }
             XCTAssertGreaterThanOrEqual(bottom,0,"Actual GIF must render")
             let height=Double(bottom-top+1)/rasterScale
-            let target=PokeRogueSpriteSizes.shared.battleSize(speciesID:id,form:nil,back:true)
-            let expected=SpriteFit.size(for:CGSize(width:48,height:52),width:target.width,height:target.height).height*sizing.pixelScale
+            let atlas=PokeRogueSpriteSizes.shared.size(speciesID:id,form:nil,back:true)
+            let expected=SpriteFit.size(for:CGSize(width:48,height:52),width:atlas.width,height:atlas.height).height*sizing.pixelScale
             XCTAssertEqual(height,expected,accuracy:2)
             XCTAssertEqual(host.view.bounds.height-Double(bottom+1)/rasterScale,BattleSpriteGeometry.footInset,accuracy:1.5)
             heights.append(height)
-            XCTAssertGreaterThan(groundRight,groundLeft,"The ground oval must render")
-            groundWidths.append(Double(groundRight-groundLeft+1)/rasterScale)
         }
         XCTAssertGreaterThan(heights[1],heights[0]*1.4,"Native display must not normalize both species to the same square")
-        XCTAssertEqual(groundWidths[0],groundWidths[1],accuracy:1,"Switching species must not resize the ground")
     }
     func testActualGIFsKeepDifferentNativeSizesDuringOriginalMoveAndEntry() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore()
@@ -195,8 +185,8 @@ import XCTest
                 let rendered=try XCTUnwrap(state["actors"] as? [[String:Any]])
                 let own=try XCTUnwrap(rendered.first{$0["key"] as? String=="own-0"})
                 let foe=try XCTUnwrap(rendered.first{$0["key"] as? String=="foe-0"})
-                XCTAssertEqual(own["height"] as? Double,ceil(PokeRogueSpriteSizes.shared.battleSize(speciesID:25,form:nil,back:true).height))
-                XCTAssertEqual(foe["height"] as? Double,ceil(PokeRogueSpriteSizes.shared.battleSize(speciesID:321,form:nil,back:false).height))
+                XCTAssertEqual(own["height"] as? Double,ceil(PokeRogueSpriteSizes.shared.size(speciesID:25,form:nil,back:true).height))
+                XCTAssertEqual(foe["height"] as? Double,ceil(PokeRogueSpriteSizes.shared.size(speciesID:321,form:nil,back:false).height))
                 XCTAssertEqual(own["pixelScale"] as? Double,Double(scale))
                 XCTAssertGreaterThan(foe["width"] as? Double ?? 0,own["width"] as? Double ?? 0)
                 let completed=await task.value;XCTAssertTrue(completed)

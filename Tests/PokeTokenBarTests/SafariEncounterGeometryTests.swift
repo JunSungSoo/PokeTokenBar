@@ -16,13 +16,12 @@ final class SafariEncounterGeometryTests: XCTestCase {
     func testEncounterFootprintUsesSpeciesSizeAndFixedCamera() {
         let small = SafariEncounterGeometry(speciesID:25), large = SafariEncounterGeometry(speciesID:249)
         XCTAssertGreaterThan(large.spriteSize.height,small.spriteSize.height)
-        XCTAssertGreaterThan(large.groundSize.width,small.groundSize.width)
         for id in 1...649 {
             let layout = SafariEncounterGeometry(speciesID:id)
-            XCTAssertEqual(layout.groundSize.height,22)
+            let atlas = PokeRogueSpriteSizes.shared.size(speciesID:id,form:nil,back:false)
+            XCTAssertEqual(atlas.width*layout.pixelScale,layout.spriteSize.width,accuracy:1e-9)
+            XCTAssertEqual(atlas.height*layout.pixelScale,layout.spriteSize.height,accuracy:1e-9)
             XCTAssertLessThanOrEqual(layout.spriteSize.height,SafariEncounterGeometry.slotHeight)
-            XCTAssertLessThanOrEqual(layout.groundSize.width,SafariEncounterGeometry.slotWidth)
-            XCTAssertGreaterThanOrEqual(layout.groundSize.width,layout.spriteSize.width)
             XCTAssertGreaterThanOrEqual(SafariEncounterGeometry.groundY-layout.spriteSize.height,0)
         }
     }

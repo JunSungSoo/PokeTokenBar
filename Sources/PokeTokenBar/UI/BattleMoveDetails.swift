@@ -133,7 +133,7 @@ struct BattlePokemonSprite: View {
     var body: some View {
         Group {
             if let current = frames.isEmpty ? image : frames[frameIndex % frames.count].image {
-                let target=PokeRogueSpriteSizes.shared.battleSize(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
+                let target=PokeRogueSpriteSizes.shared.size(speciesID:pokemon.speciesID,form:pokemon.form,back:back)
                 let native=SpriteFit.size(for:current.size,width:target.width,height:target.height)
                 let fitted=pixelScale.map{CGSize(width:native.width*$0,height:native.height*$0)} ?? SpriteFit.size(for:current.size,box:size)
                 Image(nsImage:current).interpolation(.none).resizable().frame(width:fitted.width,height:fitted.height)
@@ -180,27 +180,11 @@ struct BattlePokemonStage: View {
     var sizing:BattleSpriteSizing? = nil
     var spriteStore: SpriteStore = .shared
     var animated = true
-    var showsGround = true
     var body: some View {
         let width=sizing?.stageWidth ?? (stageSize+20)
-        let footprint = BattleSpriteGeometry.groundSize(stageWidth: width)
         ZStack(alignment:.bottom) {
-            if showsGround { BattleGroundSurface(size: footprint) }
             BattlePokemonSprite(pokemon:pokemon,back:back,size:BattleSpriteGeometry.imageBox(stageSize:stageSize),pixelScale:sizing?.pixelScale,spriteStore:spriteStore,animated:animated)
                 .padding(.bottom,BattleSpriteGeometry.footInset).opacity(spriteOpacity)
         }.frame(width:width,height:sizing?.stageHeight ?? (stageSize+5),alignment:.bottom)
-    }
-}
-
-/// One surface can support a single battler or an entire doubles pair.
-@MainActor
-struct BattleGroundSurface: View {
-    let size: CGSize
-    var body: some View {
-        Ellipse().fill(LinearGradient(colors:[Color(red:0.39,green:0.26,blue:0.17),Color(red:0.18,green:0.12,blue:0.08)],startPoint:.top,endPoint:.bottom))
-            .overlay(Ellipse().fill(.black.opacity(0.24)).scaleEffect(x:0.72,y:0.48))
-            .overlay(Ellipse().stroke(.black.opacity(0.65),lineWidth:1))
-            .frame(width:size.width,height:size.height)
-            .padding(.bottom,BattleSpriteGeometry.footInset-size.height/2)
     }
 }

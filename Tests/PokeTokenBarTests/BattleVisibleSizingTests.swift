@@ -27,15 +27,13 @@ final class BattleVisibleSizingTests: XCTestCase {
 
     func testSmallSpeciesAndMegaBodyHeightsStayDistinctAndRenderReference() async throws {
         let catalog = PokeRogueSpriteSizes.shared
-        XCTAssertEqual(catalog.battleSize(speciesID: 16, form: nil, back: false).height, 43.82, accuracy: 0.1)
-        XCTAssertEqual(catalog.battleSize(speciesID: 25, form: nil, back: true).height, 50.60, accuracy: 0.1)
         for back in [false, true] {
-            let base = catalog.battleSize(speciesID: 26, form: nil, back: back)
             for form in [PokemonForm("mega-x"), PokemonForm("mega-y")] {
-                XCTAssertGreaterThan(catalog.battleSize(speciesID: 26, form: form, back: back).height, base.height)
+                XCTAssertNotEqual(catalog.size(speciesID: 26, form: form, back: back), catalog.size(speciesID: 26, form: nil, back: back),
+                                  "Mega forms keep their own original atlas size")
             }
-            XCTAssertLessThan(catalog.battleSize(speciesID: 16, form: nil, back: back).height,
-                              catalog.battleSize(speciesID: 6, form: nil, back: back).height * 0.5)
+            XCTAssertLessThan(catalog.size(speciesID: 16, form: nil, back: back).height,
+                              catalog.size(speciesID: 6, form: nil, back: back).height * 0.6)
         }
         let members = [pokemon(16), pokemon(25), pokemon(26), pokemon(26, form: .init("mega-x")),
                        pokemon(26, form: .init("mega-y")), pokemon(6)]
@@ -77,7 +75,7 @@ final class BattleVisibleSizingTests: XCTestCase {
             let reserves = [321,208,249,130].map { pokemon($0,active:false) }
             XCTAssertEqual(BattleSpriteSizing.forBattle(mode:mode,own:own+reserves,foe:foe),visible)
             XCTAssertEqual(BattleSpriteSizing.forBattle(mode:mode,own:own,foe:foe+reserves),visible)
-            XCTAssertEqual(visible.pixelScale, 1)
+            XCTAssertEqual(visible.pixelScale, BattleSpriteSizing.battlefieldHeight(for: mode) / 132, accuracy: 1e-9)
         }
     }
     func testSwitchAndMegaKeepSlotGroundAndViewportFixed() {
@@ -88,9 +86,7 @@ final class BattleVisibleSizingTests: XCTestCase {
                     let changed=BattleSpriteSizing.forBattle(mode:mode,own:[pokemon(id,form:form)],foe:[pokemon(151)])
                     XCTAssertEqual(changed.stageWidth,initial.stageWidth)
                     XCTAssertEqual(changed.stageHeight,initial.stageHeight)
-                    XCTAssertEqual(BattleSpriteGeometry.groundSize(stageWidth:changed.stageWidth),BattleSpriteGeometry.groundSize(stageWidth:initial.stageWidth))
-                    XCTAssertEqual(2*changed.stageHeight+BattleSpriteSizing.battlefieldTopInset+BattleSpriteSizing.battlefieldRowSpacing,
-                                   BattleSpriteSizing.battlefieldHeight(for:mode),accuracy:0.01)
+                    XCTAssertEqual(changed.pixelScale,initial.pixelScale)
                 }
             }
         }
@@ -115,22 +111,6 @@ final class BattleVisibleSizingTests: XCTestCase {
                 XCTAssertEqual(rendered.pixelScale,BattleSpriteSizing.forBattle(mode:mode,own:mega.own,foe:mega.foe).pixelScale)
             }
             XCTAssertEqual(try XCTUnwrap(actor.inScene(large,mode:nil)).pixelScale,actor.pixelScale)
-        }
-    }
-    func testAllSupportedVisibleFormsFitTheFixedSlots() {
-        let catalog=PokeRogueSpriteSizes.shared
-        for mode in BattleMode.allCases {
-            for id in 1...649 {
-                for form in BattleHeldItems.sizingForms(speciesID:id) {
-                    let member=pokemon(id,form:form)
-                    let sizing=BattleSpriteSizing.forBattle(mode:mode,own:[member],foe:[member])
-                    for back in [false,true] {
-                        let raw=catalog.battleSize(speciesID:id,form:form,back:back)
-                        XCTAssertLessThanOrEqual(raw.width*sizing.pixelScale,sizing.stageWidth-12+0.01,"\(id) \(mode)")
-                        XCTAssertLessThanOrEqual(raw.height*sizing.pixelScale+BattleSpriteGeometry.footInset,sizing.stageHeight+0.01,"\(id) \(mode)")
-                    }
-                }
-            }
         }
     }
 }

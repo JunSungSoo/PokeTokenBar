@@ -18,9 +18,9 @@ struct PokeRogueSpriteSizes:Decodable,Sendable {
         let record=form.flatMap{records[key+"-"+$0.rawValue]} ?? records[key]
         return record.map{CGSize(width:$0.width,height:$0.height)} ?? CGSize(width:64,height:64)
     }
-    /// Absolute display points per species/form, shared by native GIFs and the move player.
+    /// Safari encounter size from physical height; battles draw the atlas size at the field scale instead.
     /// Calibrate against height, so a long tail or wingspan cannot normalize the body down.
-    func battleSize(speciesID:Int,form:PokemonForm?,back:Bool)->CGSize {
+    func physicalSize(speciesID:Int,form:PokemonForm?,back:Bool)->CGSize {
         let raw = size(speciesID:speciesID,form:form,back:back)
         let front = size(speciesID:speciesID,form:form,back:false)
         let rear = size(speciesID:speciesID,form:form,back:true)
@@ -50,23 +50,22 @@ struct PokemonDisplayHeights:Decodable,Sendable {
 
 /// Fixed camera and slots. Species/form dimensions never depend on another battler.
 struct BattleSpriteSizing:Equatable {
+    /// Points per original atlas pixel; PokéRogue draws one atlas pixel per field unit.
     let pixelScale:CGFloat
     let stageWidth:CGFloat
     let stageHeight:CGFloat
     static let battlefieldTopInset: CGFloat = 45
-    static let battlefieldRowSpacing: CGFloat = 4
+    /// Side of the original move-focus box around a battler, in field units.
+    private static let focusBox: CGFloat = 64
 
     // Keep the authored viewport independent of the species-size formula.
     @MainActor static func battlefieldHeight(for mode: BattleMode) -> CGFloat {
         mode == .singles ? 351 : 299
     }
 
-    @MainActor static func battlefieldRowHeightLimit(for mode: BattleMode) -> CGFloat {
-        (battlefieldHeight(for: mode) - battlefieldTopInset - battlefieldRowSpacing) / 2
-    }
-
     @MainActor static func forBattle(mode: BattleMode, own: [BattleCombatant], foe: [BattleCombatant]) -> Self {
-        Self(pixelScale: 1, stageWidth: mode == .singles ? 282 : 189,
-             stageHeight: battlefieldRowHeightLimit(for: mode))
+        let unit = battlefieldHeight(for: mode) / BattleFieldScene.fieldHeight
+        return Self(pixelScale: unit, stageWidth: focusBox * unit,
+                    stageHeight: focusBox * unit + 2 * BattleSpriteGeometry.footInset)
     }
 }

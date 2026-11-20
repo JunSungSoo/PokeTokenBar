@@ -64,11 +64,26 @@ assetRevision recorded in manifest.json, curated as three arenas per environment
 group (woods, water, highlands, caves, settlements). Both peers derive the same
 cosmetic selection from their shared random match nonces using SHA-256; this
 does not change battle weather, terrain, statistics or engine RNG. Native Pokémon
-GIFs, floating animation and existing sprite stages remain unchanged.
+GIFs and floating animation remain unchanged.
 
-Battle display size now uses original PokéAPI CSV height (decimetres), including
-all 649 species and 64 permitted Mega forms: extent = 90 * sqrt(metres), smoothly limited to 200 design pixels beyond 180, normalized
-against the largest front/back atlas dimension before the existing shared camera.
+Battles reproduce the original field composition. The visible 320x132 field
+(the 320x180 background minus the 48 rows the message box covers) is scaled to the
+battlefield height, centred, and cropped at both sides. The unchanged platform
+layers images/arenas/*_a.png (player) and *_b.png (enemy) are drawn full-size at
+ArenaBase's resting positions (x 0 and x 20); end_a/end_b play their frame atlases
+at the original 12 fps, or hold the first frame under Reduce Motion. Battlers stand
+on the original feet (PlayerPokemon 106,148; EnemyPokemon 236,84; doubles LEFT
+-32,-8 and RIGHT +32,0), so the player's lowest 16 units stay hidden as in the
+original. Sprites keep the original ratio of one atlas pixel per field unit
+(pokemon.ts getSpriteScale 1, origin 0.5,1), shared with the move player's camera.
+The random *_b_1..3 props are not imported. These layers replace the host's former
+drawn oval ground.
+
+Safari encounters keep their own layout: the enemy platform is cropped to its
+opaque base and anchored under the wild Pokemon's feet. Their display size uses
+original PokéAPI CSV height (decimetres), including all 649 species and 64
+permitted Mega forms: extent = 80 * sqrt(metres), smoothly limited beyond 96
+design pixels, normalized against the largest front/back atlas dimension.
 Physical length is never forced into vertical image height. Source CSV snapshots
 and hashes are preserved in original/physical/ and pokemon-heights.json.
 

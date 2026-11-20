@@ -127,7 +127,7 @@ struct PokeRogueActor:Sendable {
         if frames.isEmpty,let data=await spriteStore.data(speciesID:pokemon.speciesID,animated:false,shiny:pokemon.shiny,form:pokemon.form,back:back),let image=NSImage(data:data){frames=[(BattleSpriteGeometry.cropped(image),1)]}
         guard !frames.isEmpty else{throw BattleFailure.unavailableEngine}
         let center=BattleSpriteGeometry.horizontalCenter(frames)
-        let target = PokeRogueSpriteSizes.shared.battleSize(speciesID: pokemon.speciesID, form: pokemon.form, back: back)
+        let target = PokeRogueSpriteSizes.shared.size(speciesID: pokemon.speciesID, form: pokemon.form, back: back)
         var encoded: [String] = []
         encoded.reserveCapacity(frames.count)
         for (index, frame) in frames.enumerated() {
@@ -243,12 +243,40 @@ struct PokeRogueActor:Sendable {
     func makeNSView(context:Context)->WKWebView{background ? player.backgroundWebView:player.webView}
     func updateNSView(_ view:WKWebView,context:Context){}
 }
+/// The original arena scene: background, player platform, then enemy platform, in field coordinates.
 @MainActor struct PokeRogueArena:View{
     var arena:BattleArena = .plains
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body:some View{
-        if let image=NSImage(contentsOf:PokeRogueOriginalCatalog.directory.appendingPathComponent(arena.backgroundPath)){
-            Image(nsImage:image).resizable().interpolation(.none).scaledToFill()
+        GeometryReader{geometry in
+            let scene=BattleFieldScene(size:geometry.size)
+            ZStack(alignment:.topLeading){
+                if let image=Self.background(arena){Self.place(Image(nsImage:image),in:scene.backgroundRect)}
+                ForEach([true,false],id:\.self){own in
+                    if let layer=BattleArenaLayer.load(arena:arena,own:own){platform(layer,in:scene.baseRect(own:own))}
+                }
+            }
         }
+    }
+    @ViewBuilder private func platform(_ layer:BattleArenaLayer,in rect:CGRect)->some View{
+        if layer.frames.count>1 && !reduceMotion {
+            TimelineView(.periodic(from:.distantPast,by:BattleArenaLayer.frameDuration)){context in
+                let index=Int(context.date.timeIntervalSinceReferenceDate/BattleArenaLayer.frameDuration)%layer.frames.count
+                Self.place(Image(decorative:layer.frames[index],scale:1),in:rect)
+            }
+        } else {
+            Self.place(Image(decorative:layer.frames[0],scale:1),in:rect)
+        }
+    }
+    private static var backgrounds:[BattleArena:NSImage]=[:]
+    private static func background(_ arena:BattleArena)->NSImage?{
+        if let cached=backgrounds[arena]{return cached}
+        let image=NSImage(contentsOf:PokeRogueOriginalCatalog.directory.appendingPathComponent(arena.backgroundPath))
+        backgrounds[arena]=image
+        return image
+    }
+    private static func place(_ image:Image,in rect:CGRect)->some View{
+        image.resizable().interpolation(.none).frame(width:rect.width,height:rect.height).position(x:rect.midX,y:rect.midY)
     }
 }
 

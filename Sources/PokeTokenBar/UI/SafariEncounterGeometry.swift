@@ -1,25 +1,31 @@
 import SwiftUI
 
-/// Fixed camera, bottom-center Pokémon origin (as in PokéRogue). Only the ground's
-/// footprint changes between encounters; GIF poses and capture scaling never resize it.
+/// Fixed camera, bottom-center Pokémon origin (as in PokéRogue). GIF poses and
+/// capture scaling never move the area's platform.
 struct SafariEncounterGeometry {
     static let groundY: CGFloat = 160
     static let slotHeight: CGFloat = 150
     static let slotWidth: CGFloat = 240
     let spriteSize: CGSize
-    let groundSize: CGSize
+    /// Points per atlas pixel that reproduce `spriteSize`.
+    let pixelScale: CGFloat
     init(speciesID:Int) {
-        spriteSize = PokeRogueSpriteSizes.shared.battleSize(speciesID:speciesID,form:nil,back:false)
-        groundSize = CGSize(width:min(210,max(64,spriteSize.width+32)),height:22)
+        let sizes = PokeRogueSpriteSizes.shared
+        spriteSize = sizes.physicalSize(speciesID:speciesID,form:nil,back:false)
+        pixelScale = spriteSize.width / max(1, sizes.size(speciesID:speciesID,form:nil,back:false).width)
     }
 }
 
 @MainActor
 struct SafariEncounterGround: View {
-    let layout: SafariEncounterGeometry
+    let area: SafariArea
     var body: some View {
-        // Reuse the battle's black/brown oval, centered on the same foot anchor.
-        BattleGroundSurface(size:layout.groundSize)
+        // Zero-size anchor at the feet; the wild Pokémon stands on the area's enemy platform.
+        Color.clear.frame(width:0,height:0).overlay(alignment:.bottom) {
+            if let platform = BattleArena(rawValue:area.rawValue).flatMap(BattleArenaPlatform.load) {
+                BattleArenaPlatformSurface(platform:platform).fixedSize()
+            }
+        }.offset(y:BattleSpriteGeometry.footInset)
     }
 }
 
@@ -36,7 +42,7 @@ struct SafariEncounterSprite: View {
         // The battle renderer crops one union of GIF alpha bounds and uses one
         // duration-weighted stance anchor, preserving animation without frame jitter.
         BattlePokemonSprite(pokemon:actor,back:false,size:SafariEncounterGeometry.slotWidth,
-                            pixelScale:1,spriteStore:spriteStore,bobsWhenStatic:true)
+                            pixelScale:SafariEncounterGeometry(speciesID:wild.species.id).pixelScale,spriteStore:spriteStore,bobsWhenStatic:true)
             .id(wild.id)
             .scaleEffect(captureFrame?.pokemonScale ?? 1,anchor:.bottom)
             .colorMultiply(Color(red:1-(1-213.0/255)*(captureFrame?.pokemonLight ?? 0),

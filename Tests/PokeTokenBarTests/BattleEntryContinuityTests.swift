@@ -27,11 +27,11 @@ import XCTest
             BattleCombatant(id:String(id),speciesID:id,name:"",level:100,shiny:false,active:active,form:nil,fainted:false,hp:100,maxHP:100,status:"",stats:nil)
         }
         let camera=BattleSpriteSizing.forBattle(mode:.singles,own:[member(6,active:true),member(321,active:false),member(384,active:false)],foe:[member(25,active:true)])
-        let charizard=catalog.battleSize(speciesID:6,form:nil,back:true),pikachu=catalog.battleSize(speciesID:25,form:nil,back:true),wailord=catalog.battleSize(speciesID:321,form:nil,back:true)
+        let charizard=catalog.size(speciesID:6,form:nil,back:true),pikachu=catalog.size(speciesID:25,form:nil,back:true),wailord=catalog.size(speciesID:321,form:nil,back:true)
         XCTAssertGreaterThanOrEqual(charizard.height*camera.pixelScale,85)
         XCTAssertGreaterThan(charizard.height,pikachu.height)
         XCTAssertGreaterThan(wailord.width,charizard.width)
-        XCTAssertLessThanOrEqual(camera.stageHeight,166)
+        XCTAssertEqual(camera,BattleSpriteSizing.forBattle(mode:.singles,own:[member(6,active:true)],foe:[member(25,active:true)]))
     }
     func testTrainerAnnouncementIsLocalizedOnlyForOpening() {
         let intro=ChallengeTrainerIntro();intro.reset(encounter:"brock")

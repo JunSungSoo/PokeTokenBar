@@ -19,9 +19,8 @@ struct SafariBattlefield: View {
                     Image(nsImage:image).resizable().interpolation(.none).scaledToFill()
                         .frame(width:width,height:280).clipped()
                 }
-                if let wild = session.wild {
-                    let layout = SafariEncounterGeometry(speciesID:wild.species.id)
-                    SafariEncounterGround(layout:layout)
+                if session.wild != nil {
+                    SafariEncounterGround(area:session.area)
                         .position(x:width*0.75,y:SafariEncounterGeometry.groundY)
                 }
                 if let captureFrame, captureFrame.ballBehindPokemon {

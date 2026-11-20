@@ -101,7 +101,7 @@ struct BattleView: View {
         .onPreferenceChange(BattleContentBoundsKey.self) { regions in
             guard let content = regions["content"], content.width > 0, content.height > 0 else { return }
             if abs(layoutWidth - content.width) > 0.5 { layoutWidth = content.width }
-            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"], header:regions["header"],battlefield:regions["battlefield"],battlers:regions["battlers"],roster:regions["roster"],commandTitle:regions["command-title"],turnLog:regions["turn-log"]))
+            onLayout(BattleContentMeasurement(content: content, commands: regions["commands"], footer: regions["footer"], header:regions["header"],battlefield:regions["battlefield"],battlers:regions["battlers"],roster:regions["roster"],commandTitle:regions["command-title"],turnLog:regions["turn-log"],stages:regions.filter { $0.key.hasPrefix("stage-") }))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -166,20 +166,29 @@ struct BattleView: View {
     }
     private func battlefield(_ frame: BattleFrame) -> some View {
         let ownParty = BattlePartyStatus(selected: frame.own.count, fainted: frame.own.filter(\.fainted).count)
+        let ownActive = frame.own.filter(\.active)
         return ZStack {
-            VStack(spacing: BattleSpriteSizing.battlefieldRowSpacing) {
-                battleSide(frame.foe, own: false, party: frame.foeTeamStatus)
+            GeometryReader { geometry in
+                let scene = BattleFieldScene(size: geometry.size)
+                fieldSprites(frame.foe, own: false, scene: scene)
                     .opacity(trainerIntro?.active == true ? 0 : 1)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                battleSide(frame.own.filter(\.active), own: true, party: ownParty)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                fieldSprites(ownActive, own: true, scene: scene)
             }
-            .padding(.horizontal, battle.mode == .doubles ? 8 : 18)
+            // Info boxes sit where the original UI puts them: enemy top-left, player bottom-right.
+            ZStack {
+                healthCards(frame.foe, own: false, party: frame.foeTeamStatus)
+                    .opacity(trainerIntro?.active == true ? 0 : 1)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                healthCards(ownActive, own: true, party: ownParty)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, Self.ownCardsBottomInset)
             .measureBattleContent("battlers")
             .padding(.top, BattleSpriteSizing.battlefieldTopInset)
             if frame.preview { Image(systemName:"bolt.shield").font(.system(size:50)).foregroundStyle(.black.opacity(0.3)) }
         }
-        .fixedSize(horizontal:false,vertical:true)
+        .frame(maxWidth: .infinity)
         .frame(height: BattleSpriteSizing.battlefieldHeight(for: battle.mode), alignment: .top)
         .modifier(PokeRogueBattlefieldLayers(player:roguePlayer,arena:battle.arena))
         .overlay(alignment:.topTrailing) {
@@ -214,52 +223,24 @@ struct BattleView: View {
         }
         return result
     }
-    @ViewBuilder
-    private func battleSide(_ members: [BattleCombatant], own: Bool, party: BattlePartyStatus?) -> some View {
-        if battle.mode == .doubles {
-            HStack(alignment: .center, spacing: 0) {
-                if own {
-                    pairedSprites(members, own: true)
-                    Spacer(minLength: 14)
-                }
-                VStack(spacing: 4) {
-                    ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
-                        combatantCard(pokemon, own: own, slot: slot, party: party)
-                    }
-                }
-                if !own {
-                    Spacer(minLength: 14)
-                    pairedSprites(members, own: false)
-                }
-            }
-        } else {
+    private static let ownCardsBottomInset: CGFloat = 10
+
+    private func healthCards(_ members: [BattleCombatant], own: Bool, party: BattlePartyStatus?) -> some View {
+        VStack(spacing: 4) {
             ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
-                HStack(alignment: own ? .center : .top, spacing: 4) {
-                    if own { battleSprite(pokemon, own: true, slot: slot, sizing: spriteSizing).opacity(pokemon.fainted ? 0.35 : 1) }
-                    combatantCard(pokemon, own: own, slot: slot, party: party)
-                    if !own { battleSprite(pokemon, own: false, slot: slot, sizing: spriteSizing).opacity(pokemon.fainted ? 0.35 : 1) }
-                }
+                combatantCard(pokemon, own: own, slot: slot, party: party)
             }
         }
     }
 
-    private func pairedSprites(_ members: [BattleCombatant], own: Bool) -> some View {
+    /// Battlers stand on PokéRogue's feet coordinates; later slots draw over earlier ones.
+    private func fieldSprites(_ members: [BattleCombatant], own: Bool, scene: BattleFieldScene) -> some View {
         let sizing = spriteSizing
-        let widths = members.map {
-            PokeRogueSpriteSizes.shared.battleSize(speciesID: $0.speciesID, form: $0.form, back: own).width * sizing.pixelScale
-        }
-        let layout = BattlePairGroundLayout(widths: widths, living: members.map { !$0.fainted }, stageWidth: sizing.stageWidth)
-        return HStack(spacing: layout.spacing) {
-            ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
-                battleSprite(pokemon, own: own, slot: slot, sizing: sizing, showsGround: false)
-                    .opacity(pokemon.fainted ? 0 : 1)
-            }
-        }
-        .background(alignment: .bottom) {
-            if let ground = layout.ground {
-                BattleGroundSurface(size: ground.size)
-                    .offset(x: ground.midX - layout.width / 2)
-            }
+        let count = battle.mode == .doubles ? 2 : 1
+        return ForEach(Array(members.enumerated()), id: \.element.id) { slot, pokemon in
+            let stage = scene.stageFrame(own: own, slot: slot, count: count, sizing: sizing)
+            battleSprite(pokemon, own: own, slot: slot, sizing: sizing)
+                .position(x: stage.midX, y: stage.midY)
         }
     }
 
@@ -357,10 +338,14 @@ struct BattleView: View {
         return BattleSpriteSizing.forBattle(mode: battle.mode, own: frame?.own ?? [], foe: frame?.foe ?? [])
     }
 
-    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing, showsGround: Bool = true) -> some View {
+    private func battleSprite(_ pokemon: BattleCombatant, own: Bool, slot: Int, sizing: BattleSpriteSizing) -> some View {
         let size: CGFloat = battle.mode == .singles ? 108 : 90
-        return BattlePokemonStage(spriteOpacity:roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0:1,pokemon:pokemon,back:own,stageSize:size,sizing:sizing,showsGround:showsGround)
-            .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [BattleEffectPosition.key(own:own,slot:slot):$0] }
+        let faintedOpacity = battle.mode == .doubles ? 0 : 0.35
+        let spriteOpacity = roguePlayer.hidesNative(.init(own:own,slot:slot)) ? 0 : (pokemon.fainted ? faintedOpacity : 1)
+        let key = BattleEffectPosition.key(own:own,slot:slot)
+        return BattlePokemonStage(spriteOpacity:spriteOpacity,pokemon:pokemon,back:own,stageSize:size,sizing:sizing)
+            .anchorPreference(key:BattleSpriteAnchorKey.self,value:.bounds) { [key:$0] }
+            .measureBattleContent("stage-" + key)
     }
 
     private func commands(_ frame: BattleFrame, detailWidth: CGFloat) -> some View {
