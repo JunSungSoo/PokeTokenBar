@@ -3623,3 +3623,13 @@ for both forms and their shiny variants, in addition to rendering the sheet.
 - The mounting precondition also guards against removing either fixture layer. A search
   for direct `NSHostingController(rootView:PokeRogueBattleSurface...)` fixtures found
   this sole occurrence. No production timing or animation behavior was changed.
+
+## Coverage profiles must use the matching build binary
+
+- After all 2,463 Swift tests passed for 3.3.1, the coverage gate selected an older
+  release test binary for the new debug profile because it searched all of `.build`.
+  Select the test binary only inside the profile's own build output and retain
+  llvm-cov diagnostics instead of suppressing them.
+- With both release and debug test bundles present, the old selection fails; the
+  paired debug selection reports 94.06% core line coverage against the 75% gate.
+  Existing dSYM exclusion remains intact. No tests or coverage threshold were removed.

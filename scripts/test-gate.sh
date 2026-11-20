@@ -56,8 +56,11 @@ echo "▶ swift test (--enable-code-coverage)"
 swift test --enable-code-coverage
 
 PROF=$(find .build -name 'default.profdata' | head -1)
-# dSYM 안에도 같은 이름의 DWARF 바이너리가 있어 head -1 이 그걸 집으면 llvm-cov 가 실패한다 → 제외.
-BIN=$(find .build -name 'PokeTokenBarPackageTests' -type f ! -path '*.dSYM/*' | head -1)
+# Pair the profile with its own build output. A release test binary may also exist,
+# and selecting it for a debug profile makes llvm-cov fail before reporting coverage.
+BUILD_OUTPUT=$(dirname "$(dirname "$PROF")")
+# Exclude the same-named DWARF binary inside dSYM bundles.
+BIN=$(find "$BUILD_OUTPUT" -name 'PokeTokenBarPackageTests' -type f ! -path '*.dSYM/*' | head -1)
 if [[ -z "$PROF" || -z "$BIN" ]]; then
   echo "✗ 커버리지 산출물(profdata/binary)을 찾지 못했습니다." >&2
   exit 1
@@ -74,7 +77,7 @@ fi
 
 echo
 echo "▶ 로직 코어 커버리지 (임계값 ${THRESHOLD}%)"
-REPORT=$("$LLVM_COV" report "$BIN" -instr-profile="$PROF" "${LOGIC_CORE[@]}" 2>/dev/null)
+REPORT=$("$LLVM_COV" report "$BIN" -instr-profile="$PROF" "${LOGIC_CORE[@]}")
 echo "$REPORT"
 
 # TOTAL 행의 라인 커버리지(%) 추출 — 컬럼: ... Lines MissedLines Cover(=$10)
