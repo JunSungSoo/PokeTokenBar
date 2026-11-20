@@ -3610,3 +3610,16 @@ for both forms and their shiny variants, in addition to rendering the sheet.
 - **부류 스윕:** UI 의 `onAppear`/`.task` 진입 호출을 전수 확인했다. 나머지는 `await` 비동기이거나, 앱에 내장된 작은
   리소스를 한 번만 읽어 정적으로 보관한다. 남은 큰 비용은 설정 본문 전체 측정(약 165ms)이며 `LazyVStack` 전환은
   고급 설정 자동 스크롤과 얽혀 별도로 다룬다.
+
+## Offscreen production WebGL tests must mount both render layers
+
+- The 3.3.1 full release gate timed out waiting for the first move in the unfocused
+  WebGL test, then WebKit reported `failed(removedFromContainer)`. An isolated rerun
+  passed all original assertions, so the initial failure was transient.
+- The fixture mounted only the foreground web view even though player readiness
+  requires both foreground and background bridges. Production mounts both layers.
+  Match that composition and wait for both views to belong to the host window before
+  starting playback; keep every original speed, motion, background and cleanup assertion.
+- The mounting precondition also guards against removing either fixture layer. A search
+  for direct `NSHostingController(rootView:PokeRogueBattleSurface...)` fixtures found
+  this sole occurrence. No production timing or animation behavior was changed.

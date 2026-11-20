@@ -195,6 +195,7 @@ Reset countdowns include the clock time, and the colored percentage stays aligne
 - **In-app updates** — one-click update check; current version shown in Settings. **Settings → Release Note** lists the changes of every deployment (Korean). [Release Note](assets/release-notes-window.png)
 - **Usage recap** — a Pokédex-style recap of any week, month, or year (total, meters, comparison, best day, best streak, graduations). Hover a meter for its date and full token count, and jump back to This week / This month / This year in one click. History is kept locally for this year and the last.
 
+- **Responsive Settings** — reopening Settings reuses unchanged backup summaries and checks login items in the background to reduce pauses. [Native Settings render (sample data)](assets/settings-cached-snapshots.png)
 - **Local save backups** — automatic snapshots and corruption recovery, with a restore screen in Settings. Backup history starts collapsed; expand it to browse snapshots. **Create snapshot** stays available outside the list.
 - **Pokémon forms** — collect Gen 1–5 alternate forms, inspect form-specific individuals, and pin an owned form to the menu bar and floating pet. An individual's form follows evolution and stays in saves and exports; existing Unown letter saves remain readable. See the [form catalog](docs/reference/pokemon-forms.md).
 - **Bulk Rare Candy** — use several candies at once and preview the growth before spending.

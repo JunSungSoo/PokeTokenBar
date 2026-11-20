@@ -422,10 +422,16 @@ import XCTest
     func testUnfocusedProductionWebGLReplaysOriginalMotionBackgroundSpreadAndCleanup() async throws {
         let (store,directory)=try PokeRogueFaithfulTests().gifStore();defer{try? FileManager.default.removeItem(at:directory)}
         let player=PokeRogueBattlePlayer(spriteStore:store)
-        let host=NSHostingController(rootView:PokeRogueBattleSurface(player:player).frame(width:800,height:320))
+        // Match production: both WebKit layers must be mounted before playback can become ready.
+        let host=NSHostingController(rootView:ZStack {
+            PokeRogueBattleSurface(player:player,background:true)
+            PokeRogueBattleSurface(player:player)
+        }.frame(width:800,height:320))
         let window=NSWindow(contentRect:NSRect(x:-10000,y:-10000,width:800,height:320),styleMask:[.borderless],backing:.buffered,defer:false)
         window.contentViewController=host;window.orderFront(nil)
         defer{player.stop();window.orderOut(nil);window.contentViewController=nil}
+        host.view.layoutSubtreeIfNeeded()
+        try await wait({player.webView.window === window && player.backgroundWebView.window === window})
         for (move,reverse,spread,hit) in [("quickattack",false,false,true),("thunderbolt",true,false,true),("surf",false,true,true),("psychic",false,false,true),("psychic",false,false,false),("rest",false,false,true)] {
             let task=Task{await player.play(event(move,reverse:reverse,doubles:spread,hit:hit),actors:actors(doubles:spread),size:CGSize(width:800,height:320))}
             try await wait({player.isPlaying || player.error != nil})
