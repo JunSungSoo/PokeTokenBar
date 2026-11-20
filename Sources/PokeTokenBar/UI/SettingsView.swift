@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var launchAtLoginEnabled = false
     @State private var launchAtLoginNeedsApproval = false
     @State private var launchAtLoginError: Error?
+    @State private var launchAtLoginGeneration = 0
     @State private var reportFailed = false
     @State private var advancedExpanded = false
     @State private var snapshotsExpanded = false
@@ -122,18 +123,22 @@ struct SettingsView: View {
         }
     }
 
+    /// Queries off the main thread: each SMAppService status call blocked opening Settings.
     private func refreshLaunchAtLoginStatus() {
         guard isBundledApp else { return }
-        let item = LoginItem.system
-        do {
-            try item.removeLegacyAgentAfterActivation()
-        } catch {
-            AppLog.write("login item cleanup failed: \(error)")
+        launchAtLoginGeneration += 1
+        let generation = launchAtLoginGeneration
+        Task {
+            let state = await LoginItem.loadState()
+            // A toggle made while this query ran is newer than its answer.
+            guard generation == launchAtLoginGeneration else { return }
+            launchAtLoginEnabled = state.isEnabled
+            launchAtLoginNeedsApproval = state.needsApproval
         }
-        updateLaunchAtLoginState(item)
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
+        launchAtLoginGeneration += 1
         let item = LoginItem.system
         do {
             try item.setEnabled(enabled)

@@ -1,7 +1,7 @@
 import Foundation
 import ServiceManagement
 
-@MainActor
+/// Not bound to the main actor, so Settings can run SMAppService queries in the background.
 protocol LoginItemService {
     var status: SMAppService.Status { get }
     func register() throws
@@ -10,7 +10,6 @@ protocol LoginItemService {
 
 extension SMAppService: LoginItemService {}
 
-@MainActor
 struct LoginItem {
     private static let legacyLabel = "io.github.chattymin.poketokenbar.login"
     private static let bundleAgentLabel = "\(legacyLabel).bundle"
@@ -42,6 +41,21 @@ struct LoginItem {
             launchedByBundleAgent: AppEnv.xpcServiceName == bundleAgentLabel,
             openLoginItemsSettings: SMAppService.openSystemSettingsLoginItems
         )
+    }
+
+    /// What the Settings toggle shows.
+    struct State: Sendable, Equatable {
+        let isEnabled: Bool
+        let needsApproval: Bool
+    }
+
+    /// Runs Settings' cleanup and status queries on a background task; each query is a synchronous XPC call.
+    static func loadState(_ makeItem: @escaping @Sendable () -> LoginItem = { .system }) async -> State {
+        await Task.detached(priority: .userInitiated) {
+            let item = makeItem()
+            do { try item.removeLegacyAgentAfterActivation() } catch { AppLog.write("login item cleanup failed: \(error)") }
+            return State(isEnabled: item.isEnabled, needsApproval: item.status == .requiresApproval)
+        }.value
     }
 
     var status: SMAppService.Status { mainApp.status }

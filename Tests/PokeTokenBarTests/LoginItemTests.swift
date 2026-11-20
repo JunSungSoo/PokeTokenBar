@@ -124,17 +124,56 @@ final class LoginItemTests: XCTestCase {
     }
 
     @MainActor
-    private final class Service: LoginItemService {
-        var status: SMAppService.Status
+    func testSettingsStateIsQueriedOffTheMainThreadAndRetiresTheBundleAgent() async {
+        let threads = ThreadLog()
+        let main = Service(.enabled, threads: threads)
+        let legacy = Service(.notRegistered, threads: threads)
+        let bundle = Service(.enabled, threads: threads)
+        let state = await LoginItem.loadState {
+            LoginItem(mainApp: main, legacyAgent: legacy, launchedByLegacyAgent: false, bundleAgent: bundle) {}
+        }
+        XCTAssertEqual(state, LoginItem.State(isEnabled: true, needsApproval: false))
+        // Check threads before reading status here: this assertion itself runs on the main thread.
+        XCTAssertFalse(threads.isEmpty, "The probe must observe the status queries")
+        XCTAssertFalse(threads.ranOnMain, "Settings must not block the main thread on SMAppService queries")
+        XCTAssertEqual(bundle.status, .notRegistered, "Once the main app is enabled, the old bundle agent is retired")
+    }
+
+    func testSettingsStateReportsApprovalWithoutRemovingAgents() async {
+        let state = await LoginItem.loadState {
+            LoginItem(mainApp: Service(.requiresApproval), legacyAgent: Service(.notRegistered),
+                      launchedByLegacyAgent: false, bundleAgent: Service(.enabled)) {}
+        }
+        XCTAssertEqual(state, LoginItem.State(isEnabled: true, needsApproval: true))
+    }
+
+    /// Records which threads queried a service; written from a background task.
+    private final class ThreadLog: @unchecked Sendable {
+        private let lock = NSLock()
+        private var mainFlags: [Bool] = []
+        func record() { lock.withLock { mainFlags.append(Thread.isMainThread) } }
+        var isEmpty: Bool { lock.withLock { mainFlags.isEmpty } }
+        var ranOnMain: Bool { lock.withLock { mainFlags.contains(true) } }
+    }
+
+    /// Shared with the background task under test; each test drives it from one task at a time.
+    private final class Service: LoginItemService, @unchecked Sendable {
+        var status: SMAppService.Status {
+            get { threads?.record(); return storedStatus }
+            set { storedStatus = newValue }
+        }
+        private var storedStatus: SMAppService.Status
         let afterRegistration: SMAppService.Status
         let failsRegistration: Bool
+        private let threads: ThreadLog?
         private(set) var registrations = 0
 
         init(_ status: SMAppService.Status, afterRegistration: SMAppService.Status = .enabled,
-             failsRegistration: Bool = false) {
-            self.status = status
+             failsRegistration: Bool = false, threads: ThreadLog? = nil) {
+            self.storedStatus = status
             self.afterRegistration = afterRegistration
             self.failsRegistration = failsRegistration
+            self.threads = threads
         }
 
         func register() throws {

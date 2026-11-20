@@ -3592,3 +3592,21 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   original pixel assertions on a separate run. Those tests still use a fixed
   100ms render wait, so the initial full-suite result is recorded as a transient
   rendering failure rather than silently reported as an uninterrupted pass.
+
+## 화면 진입 경로에서 사용자 데이터 크기에 비례하는 동기 작업을 하지 않는다
+
+- **증상:** 설정 버튼을 누를 때마다 0.3~0.4초 멈췄다(릴리스 빌드, 실제 세이브 사본 측정, 앱 시작 직후 첫 진입은 약 0.46초).
+- **원인:** 설정의 `onAppear` 가 매번 메인 스레드에서 ① 백업 스냅샷 10개(합계 4.2MB)를 전부 읽어 세이브
+  전체를 디코딩했고(약 110ms), ② 번들 앱에서는 `SMAppService` 상태를 5~7번 동기 조회했다(약 35~110ms).
+  나머지 약 165ms 는 SwiftUI 가 스크롤 안 설정 전체를 한 번에 측정하는 비용이다(샘플의 91%).
+- **왜 못 걸렀나:** 지연을 재는 테스트가 없었고, 스냅샷 테스트는 작은 상태 1~2개로만 돌아 비용이 드러나지
+  않았다. 로그인 항목 경로는 `AppEnv.isBundledApp` 이 false 인 테스트에서 아예 실행되지 않는다. 스냅샷 비용은
+  세이브 크기에 비례해 커지므로 개발 초기 데이터로는 체감되지 않았다.
+- **수정:** `SaveSnapshotManager.listSnapshots` 는 파일 크기·수정 시각이 같으면 디코딩한 요약을 재사용한다
+  (`SnapshotSummaryCache`, 앱 시작 때 한 번 읽고 이후 약 1ms). `LoginItem`·`LoginItemService` 의 `@MainActor` 를
+  풀고 `LoginItem.loadState()` 가 백그라운드에서 조회하며, 설정은 세대 번호로 늦게 온 결과가 토글 변경을 덮지 않게 한다.
+- **회귀 가드:** `SaveSnapshotTests.testListingReusesSummariesWhileAFileIsUnchangedAndRereadsItAfterAChange`,
+  `LoginItemTests.testSettingsStateIsQueriedOffTheMainThread…`. 캐시를 끄거나 조회를 메인 스레드로 돌리면 각각 실패함을 확인했다.
+- **부류 스윕:** UI 의 `onAppear`/`.task` 진입 호출을 전수 확인했다. 나머지는 `await` 비동기이거나, 앱에 내장된 작은
+  리소스를 한 번만 읽어 정적으로 보관한다. 남은 큰 비용은 설정 본문 전체 측정(약 165ms)이며 `LazyVStack` 전환은
+  고급 설정 자동 스크롤과 얽혀 별도로 다룬다.

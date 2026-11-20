@@ -58,6 +58,33 @@ final class SaveSnapshotTests: XCTestCase {
         XCTAssertEqual(store.availableSnapshots.first?.id, snapshot.id)
     }
 
+    func testListingReusesSummariesWhileAFileIsUnchangedAndRereadsItAfterAChange() throws {
+        let url = tempURL("summary-cache")
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+        let created = try SaveSnapshotManager.createSnapshot(state: sampleState(tokens: 1_000, dexCount: 3), for: url, date: baseNow)
+        // Whole-second dates survive setAttributes exactly, so the restored date matches the cached one.
+        try FileManager.default.setAttributes([.modificationDate: baseNow], ofItemAtPath: created.fileURL.path)
+        XCTAssertEqual(SaveSnapshotManager.listSnapshots(for: url).first?.dexCount, 3)
+
+        // Same bytes length and modification date: Settings reopening must not decode the save again.
+        let original = try Data(contentsOf: created.fileURL)
+        var unreadable = Data(repeating: UInt8(ascii: " "), count: original.count)
+        unreadable[0] = UInt8(ascii: "x")
+        try unreadable.write(to: created.fileURL)
+        try FileManager.default.setAttributes([.modificationDate: baseNow], ofItemAtPath: created.fileURL.path)
+        XCTAssertEqual(SaveSnapshotManager.listSnapshots(for: url).map(\.dexCount), [3], "An unchanged file is not read again")
+
+        // A different modification date is a different file: it is decoded again (and here, dropped as unreadable).
+        try FileManager.default.setAttributes([.modificationDate: baseNow.addingTimeInterval(60)], ofItemAtPath: created.fileURL.path)
+        XCTAssertEqual(SaveSnapshotManager.listSnapshots(for: url).count, 0)
+
+        // A removed file disappears even though its summary was cached.
+        try original.write(to: created.fileURL)
+        XCTAssertEqual(SaveSnapshotManager.listSnapshots(for: url).count, 1)
+        try FileManager.default.removeItem(at: created.fileURL)
+        XCTAssertEqual(SaveSnapshotManager.listSnapshots(for: url).count, 0)
+    }
+
     func testSnapshotKeepsNonDefaultFormInSummaryAndRestoredState() throws {
         let url = tempURL("form")
         defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }

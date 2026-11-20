@@ -66,9 +66,18 @@ enum SaveSnapshotManager {
         }
 
         var results: [SaveSnapshot] = []
+        var current: [String: SnapshotSummaryCache.Entry] = [:]
         for file in files where file.hasPrefix(snapshotPrefix) && file.hasSuffix(".json") {
             let url = dir.appendingPathComponent(file)
+            let values = try? url.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey])
+            let version = SnapshotSummaryCache.Version(size: values?.fileSize, modified: values?.contentModificationDate)
+            if let cached = summaryCache.snapshot(path: url.path, version: version) {
+                results.append(cached)
+                current[url.path] = .init(version: version, snapshot: cached)
+                continue
+            }
             guard let data = try? Data(contentsOf: url) else { continue }
+            let countBefore = results.count
             if let envelope = try? SaveTransfer.decode(data) {
                 let st = envelope.state
                 results.append(SaveSnapshot(
@@ -94,13 +103,20 @@ enum SaveSnapshotManager {
                     currentForm: st.active.flatMap { PokemonForm.resolved(speciesID: $0.currentID, form: $0.form) }
                 ))
             }
+            if results.count > countBefore, let decoded = results.last {
+                current[url.path] = .init(version: version, snapshot: decoded)
+            }
         }
 
+        summaryCache.replace(directory: dir.path, with: current)
         return results.sorted {
             if $0.date != $1.date { return $0.date > $1.date }
             return $0.id > $1.id
         }
     }
+
+    /// Settings lists snapshots on every open; decoding each multi-hundred-KB save took ~100ms on the main thread.
+    private static let summaryCache = SnapshotSummaryCache()
 
     /// Loads and returns the SaveEnvelope from a snapshot file.
     static func loadEnvelope(from url: URL) throws -> SaveEnvelope {
@@ -182,5 +198,35 @@ enum SaveSnapshotManager {
     static func loadLatestValidSnapshot(for stateFileURL: URL) -> CompanionState? {
         guard let latest = latestSnapshot(for: stateFileURL) else { return nil }
         return loadState(from: latest.fileURL)
+    }
+}
+
+/// Snapshot summaries per file, valid while the file's size and modification date stay the same.
+final class SnapshotSummaryCache: @unchecked Sendable {
+    struct Version: Equatable {
+        let size: Int?
+        let modified: Date?
+    }
+    struct Entry {
+        let version: Version
+        let snapshot: SaveSnapshot
+    }
+
+    private let lock = NSLock()
+    private var directories: [String: [String: Entry]] = [:]
+
+    func snapshot(path: String, version: Version) -> SaveSnapshot? {
+        // A file without size or date cannot prove it is unchanged.
+        guard version.size != nil, version.modified != nil else { return nil }
+        let directory = (path as NSString).deletingLastPathComponent
+        return lock.withLock {
+            guard let entry = directories[directory]?[path], entry.version == version else { return nil }
+            return entry.snapshot
+        }
+    }
+
+    /// Keeps only the files present in the latest listing, so deleted snapshots leave the cache.
+    func replace(directory: String, with entries: [String: Entry]) {
+        lock.withLock { directories[directory] = entries }
     }
 }

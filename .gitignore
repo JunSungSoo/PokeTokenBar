@@ -42,3 +42,5 @@ docs/releases/*
 # Reproducible battle engine dependencies and generated runtime
 BattleEngine/node_modules/
 BattleEngine/runtime/
+
+code-report/
