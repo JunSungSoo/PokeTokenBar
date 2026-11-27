@@ -1062,6 +1062,7 @@ struct CollectionView: View {
     /// Same for the catch log: the row (`DexEntry.id`) that opened the detail page, scrolled back
     /// into view when Back rebuilds the log. Used once.
     @State private var logReturnAnchor: String?
+    @State private var logDetailForm: PokemonForm?
 
     /// 도감·로그 공통 높이 — 상점·가방과 같은 520. 세그먼트를 전환할 때도, 탭을 넘나들 때도
     /// 팝오버가 리사이즈되지 않는다.
@@ -1095,11 +1096,12 @@ struct CollectionView: View {
             emptyState
         } else if let id = nav.dexDetailCollectionID,
                   let species = store.dexSpecies.first(where: { $0.collectionID == id }) {
-            PokemonDetailView(store: store, species: species) {
+            PokemonDetailView(store: store, species: species, onBack: {
                 // Back to the log would leave it for the next switch to the grid.
                 if !nav.showingCollectionLog { dexReturnAnchor = id }
+                logDetailForm = nil
                 nav.dexDetailCollectionID = nil
-            }
+            }, selectedForm: nav.showingCollectionLog ? logDetailForm : nil)
                 .id(species.collectionID)
                 .frame(height: Self.contentHeight)
         } else {
@@ -1256,6 +1258,7 @@ struct CollectionView: View {
                                 // Keeps the segment, so Back from the detail page returns to the log.
                                 DexEntryRow(store: store, entry: entry, dexLinks: dexLinks) {
                                     logReturnAnchor = entry.id
+                                    logDetailForm = entry.form
                                     navigation.dexDetailCollectionID = $0
                                 }
                             }
@@ -1326,28 +1329,53 @@ struct CollectionView: View {
     }
 }
 
-/// 도감 하단의 대표 설정 액션. 문구는 툴팁·접근성에 유지하되 시각적으로는 아이콘만 써서,
-/// 긴 en/es 문구가 선택한 종의 이름·희귀도를 밀어내지 않게 한다.
+/// The icon keeps the footer compact in every language. The full labels appear inside the menu.
 @MainActor
-struct RepresentativeFooterButton: View {
-    let localization: L
-    let isRepresentative: Bool
-    let action: () -> Void
-
-    private var title: String {
-        isRepresentative ? localization.representativeFollowCurrent : localization.representativeSet
-    }
+struct FloatingPetAssignmentMenu: View {
+    let store: CompanionStore
+    let species: CompanionStore.DexSpecies
 
     var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: isRepresentative ? "arrow.triangle.2.circlepath" : "star")
+        Menu {
+            FloatingPetAssignmentActions(store: store, species: species)
+        } label: {
+            Label(store.l.floatingPetSectionTitle, systemImage: isAssigned ? "star.fill" : "star")
         }
         .labelStyle(.iconOnly)
-        .help(title)
-        .accessibilityLabel(title)
-        .buttonStyle(.bordered)
+        .menuIndicator(.hidden)
+        .help(store.l.floatingPetSectionTitle)
+        .accessibilityLabel(store.l.floatingPetSectionTitle)
+        .menuStyle(.borderedButton)
         .controlSize(.mini)
         .fixedSize()
+    }
+
+    private var isAssigned: Bool {
+        FloatingPetSlot.allCases.contains { store.hasFloatingPet(species, in: $0) }
+    }
+}
+
+@MainActor
+private struct FloatingPetAssignmentActions: View {
+    let store: CompanionStore
+    let species: CompanionStore.DexSpecies
+
+    var body: some View {
+        let eligible = store.canAssignAdditionalFloatingPet(species)
+        ForEach(FloatingPetSlot.allCases) { slot in
+            let title = slot == .primary
+                ? store.l.floatingPetPrimaryChoice : store.l.floatingPetSlotLabel(slot.rawValue)
+            Button {
+                store.toggleFloatingPet(slot, species: species)
+            } label: {
+                if store.hasFloatingPet(species, in: slot) {
+                    Label(title, systemImage: "checkmark")
+                } else {
+                    Text(title)
+                }
+            }
+            .disabled(slot != .primary && !eligible)
+        }
     }
 }
 
@@ -1683,11 +1711,7 @@ private struct DexGridView: View {
                 Text("#\(sel.id) \(sel.name) · \(store.l.rarityLabel(sel.rarity))")
                     .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
                 if !PokemonForm.hasForms(speciesID: sel.id) {
-                    let isRepresentative = store.isRepresentative(sel)
-                    RepresentativeFooterButton(localization: store.l,
-                                               isRepresentative: isRepresentative) {
-                        _ = store.setRepresentativeSpeciesID(isRepresentative ? nil : sel.id)
-                    }
+                    FloatingPetAssignmentMenu(store: store, species: sel)
                 }
             }
             Spacer(minLength: 4)
@@ -1732,12 +1756,13 @@ struct PokemonDetailView: View {
 
     init(store: CompanionStore, species: CompanionStore.DexSpecies,
          onBack: @escaping () -> Void, selectedShiny: Bool? = nil,
-         spriteStore: SpriteStore = .shared) {
+         spriteStore: SpriteStore = .shared, selectedForm: PokemonForm? = nil) {
         self.store = store
         self.species = species
         self.onBack = onBack
         self.spriteStore = spriteStore
         _selectedShiny = State(initialValue: selectedShiny)
+        _selectedForm = State(initialValue: selectedForm)
     }
 
     var presentation: PokemonDetailPresentation {
@@ -1899,12 +1924,7 @@ struct PokemonDetailView: View {
                 }
                 if context.shiny { Text("✨ \(store.l.dexShinyLabel)").font(.callout) }
                 if let individual = context.individual, store.isActiveDexEntry(individual) { Text(store.l.dexRaising).font(.callout).foregroundStyle(Color.accentColor) }
-                let isRepresentative = store.isRepresentative(species)
-                RepresentativeFooterButton(localization: store.l,
-                                           isRepresentative: isRepresentative) {
-                    _ = store.setRepresentativeSpeciesID(isRepresentative ? nil : species.id,
-                                                         form: species.form)
-                }
+                FloatingPetAssignmentMenu(store: store, species: species)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -2202,13 +2222,7 @@ private struct DexSpeciesCell: View {
             if formCount != nil {
                 Button(store.l.chooseForm, action: onTap)
             } else {
-                Button {
-                    _ = store.setRepresentativeSpeciesID(isRepresentative ? nil : species.id)
-                } label: {
-                    Label(isRepresentative ? store.l.representativeFollowCurrent
-                                           : store.l.representativeSet,
-                          systemImage: isRepresentative ? "arrow.triangle.2.circlepath" : "star")
-                }
+                FloatingPetAssignmentActions(store: store, species: species)
             }
         }
     }
@@ -2226,6 +2240,14 @@ private struct DexSpeciesCell: View {
                     .font(.system(size: 8, weight: .bold))
                     .foregroundStyle(Color.accentColor)
                     .accessibilityHidden(true)
+            }
+            ForEach(FloatingPetSlot.additional) { slot in
+                if store.hasFloatingPet(species, in: slot) {
+                    Text("\(slot.rawValue)")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityHidden(true)
+                }
             }
         }
             // 번호 색 = 희귀도 — "전체" 보기에서도 칸마다 희귀도가 보인다.
@@ -2250,6 +2272,9 @@ private struct DexSpeciesCell: View {
         if species.isShiny { parts.append(store.l.dexShinyLabel) }
         if species.isRaising { parts.append(store.l.dexRaising) }
         if isRepresentative { parts.append(store.l.representativeBadge) }
+        for slot in FloatingPetSlot.additional where store.hasFloatingPet(species, in: slot) {
+            parts.append(store.l.floatingPetSlotLabel(slot.rawValue))
+        }
         return parts.joined(separator: " · ")
     }
 }

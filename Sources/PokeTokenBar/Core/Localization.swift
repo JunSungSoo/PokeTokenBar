@@ -408,6 +408,23 @@ struct L {
     var representativeSet: String {
         t("대표로 설정", "Set as representative", "代表ポケモンに設定", "Establecer como representante", "Définir comme représentatif", "Definir como representante", "Als repräsentativ festlegen", "Сделать основным")
     }
+    var floatingPetPrimaryChoice: String {
+        t("1번 대표 포켓몬으로 변경", "Set as Pokémon 1 · Representative", "1番の代表ポケモンに設定",
+          "Elegir como Pokémon 1 · Representativo", "Choisir comme Pokémon 1 · Représentatif",
+          "Definir como Pokémon 1 · Representativo", "Als Pokémon 1 festlegen · Repräsentativ",
+          "Назначить покемоном №1 · Основной")
+    }
+
+    func floatingPetSlotLabel(_ number: Int) -> String {
+        t("\(number)번 플로팅 펫", "Floating pet \(number)", "フローティングペット \(number)",
+          "Mascota flotante \(number)", "Compagnon flottant \(number)", "Mascote flutuante \(number)",
+          "Schwebendes Pokémon \(number)", "Питомец на экране №\(number)")
+    }
+
+    var floatingPetUnassigned: String {
+        t("지정된 포켓몬 없음", "No Pokémon assigned", "ポケモンが未設定", "Sin Pokémon asignado",
+          "Aucun Pokémon assigné", "Nenhum Pokémon atribuído", "Kein Pokémon zugewiesen", "Покемон не назначен")
+    }
     var representativeBadge: String { t("대표", "Representative", "代表", "Representante", "Représentatif", "Representante", "Repräsentativ", "Основной") }
     // MARK: 난이도
     var difficultySectionTitle: String { t("난이도", "Difficulty", "難易度", "Dificultad", "Difficulté", "Dificuldade", "Schwierigkeit", "Сложность") }

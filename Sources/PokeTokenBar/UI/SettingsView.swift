@@ -401,6 +401,28 @@ struct SettingsView: View {
                 Toggle(l.floatingPetEnableLabel, isOn: $store.floatingPetEnabled)
                     .labelsHidden().toggleStyle(.switch).controlSize(.small)
             }
+            ForEach(FloatingPetSlot.additional) { slot in
+                Divider()
+                let name = companion.additionalFloatingPetName(in: slot)
+                let label = l.floatingPetSlotLabel(slot.rawValue)
+                groupRow {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(label)
+                        Text(name ?? l.floatingPetUnassigned).font(.caption2).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Toggle(label, isOn: Binding(
+                        get: { name != nil && store[floatingPet: slot] },
+                        set: { enabled in
+                            if companion.additionalFloatingPetSubjects[slot] != nil {
+                                store[floatingPet: slot] = enabled
+                            }
+                        }))
+                        .labelsHidden().toggleStyle(.switch).controlSize(.small)
+                        .disabled(name == nil)
+                        .accessibilityHint(name ?? l.floatingPetUnassigned)
+                }
+            }
             Divider()
             groupRow {
                 // Also reachable from both right-click menus. Applies to every surface, not only the pet.
@@ -412,7 +434,9 @@ struct SettingsView: View {
                 Toggle(l.backViewLabel, isOn: $store.alwaysFacesBack)
                     .labelsHidden().toggleStyle(.switch).controlSize(.small)
             }
-            if store.floatingPetEnabled {
+            if store.floatingPetEnabled || FloatingPetSlot.additional.contains(where: {
+                store[floatingPet: $0] && companion.additionalFloatingPetSubjects[$0] != nil
+            }) {
                 Divider()
                 groupRow {
                     Text(l.floatingPetSizeLabel).font(.callout)
@@ -421,6 +445,8 @@ struct SettingsView: View {
                     Text("\(Int(store.floatingPetSize))px")
                         .font(.caption).monospacedDigit().frame(width: 44, alignment: .trailing)
                 }
+            }
+            if store.floatingPetEnabled {
                 Divider()
                 toggleRow(l.floatingPetBubbleAlertsLabel, $store.floatingPetBubbleAlerts)
                 Divider()

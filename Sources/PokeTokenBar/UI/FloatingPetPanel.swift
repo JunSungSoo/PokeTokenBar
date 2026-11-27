@@ -14,8 +14,10 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
     private let store: UsageStore
     private let companion: CompanionStore
     private let defaults: UserDefaults
+    private let spriteStore: SpriteStore
     private var panel: NSPanel?
     private var hoverPanel: NSPanel?
+    var visibleFrame: NSRect? { panel.flatMap { $0.isVisible ? $0.frame : nil } }
     private var displayAwake = true
     private var builtAnimated: Bool?
     private var powerObserver: NSObjectProtocol?
@@ -29,8 +31,7 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
     /// Bumped on every run/return animation so a stale completion handler does nothing.
     private var runGeneration = 0
 
-    private static let originXKey = "floatingPetOriginX"
-    private static let originYKey = "floatingPetOriginY"
+    private var homePosition: FloatingPetPosition { .init(slot: .primary, defaults: defaults) }
 
     /// Squared movement (pt²) below which a mouse-up counts as a click, not a drag.
     static let clickThresholdSquared: CGFloat = 16  // ~4pt
@@ -306,11 +307,12 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
     init(store: UsageStore, companion: CompanionStore, defaults: UserDefaults = .standard,
          clock: @escaping () -> Date = Date.init,
          onOpenPopover: (() -> Void)? = nil, onHide: (() -> Void)? = nil,
-         motionOverride: Bool? = nil) {
+         motionOverride: Bool? = nil, spriteStore: SpriteStore = .shared) {
         self.clock = clock
         self.store = store
         self.companion = companion
         self.defaults = defaults
+        self.spriteStore = spriteStore
         self.motionOverride = motionOverride
         self.onOpenPopover = onOpenPopover
         self.onHide = onHide
@@ -603,7 +605,7 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
     /// Build once per animation mode; callbacks share the controller's click and bubble routing.
     func makeHostingView(animated: Bool) -> PetHostingView {
         let hosting = PetHostingView(rootView: AnyView(
-            FloatingPetView(animated: animated, agent: agentModel, burst: prayerBurst, hearts: hearts)
+            FloatingPetView(animated: animated, agent: agentModel, spriteStore: spriteStore, burst: prayerBurst, hearts: hearts)
                 .environment(store).environment(companion)))
         hosting.onOpenPopover = { [weak self] in self?.openPopover() }
         hosting.onClick = { [weak self] in self?.petClicked() }
@@ -775,9 +777,8 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
         let petOrigin: NSPoint
         if runPhase == .away, let awayPetOrigin {
             petOrigin = awayPetOrigin
-        } else if let x = defaults.object(forKey: Self.originXKey) as? Double,
-           let y = defaults.object(forKey: Self.originYKey) as? Double {
-            petOrigin = NSPoint(x: x, y: y)
+        } else if let saved = homePosition.origin {
+            petOrigin = saved
         } else {
             petOrigin = Self.defaultPetOrigin(petSize: petSize)
         }
@@ -790,12 +791,18 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
         return frame
     }
 
-    private static func defaultPetOrigin(petSize: CGFloat) -> NSPoint {
+    static func defaultPetOrigin(petSize: CGFloat) -> NSPoint {
         guard let visible = NSScreen.main?.visibleFrame else { return NSPoint(x: 120, y: 120) }
         return NSPoint(x: visible.maxX - petSize - 24, y: visible.minY + 24)
     }
 
     private func makePanel() -> NSPanel {
+        let panel = Self.makePetPanel()
+        panel.delegate = self
+        return panel
+    }
+
+    static func makePetPanel() -> NSPanel {
         let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 200, height: 200),
                         styleMask: [.borderless, .nonactivatingPanel],
                         backing: .buffered, defer: false)
@@ -810,7 +817,6 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
         p.becomesKeyOnlyIfNeeded = true
         p.allowsToolTipsWhenApplicationIsInactive = true
         p.animationBehavior = .none
-        p.delegate = self
         return p
     }
 
@@ -838,8 +844,7 @@ final class FloatingPetController: NSObject, NSWindowDelegate {
         let petSize = CGFloat(store.floatingPetSize)
         let size = Self.panelSize(petSize: petSize, showingBubble: showingBubble)
         let pet = Self.petOrigin(panelOrigin: panelOrigin, petSize: petSize, panelSize: size)
-        defaults.set(Double(pet.x), forKey: Self.originXKey)
-        defaults.set(Double(pet.y), forKey: Self.originYKey)
+        homePosition.save(pet)
     }
 }
 
@@ -896,6 +901,7 @@ final class PetHostingView: NSHostingView<AnyView> {
     /// A plain click on the pet. The controller decides between praying and opening the popover.
     var onClick: (() -> Void)?
     var onStroke: (() -> Void)?
+    var onDrag: ((NSPoint) -> Void)?
     /// Minimum horizontal travel (pt) for one stroke; scales with the pet size.
     var strokeDistance: CGFloat = 14
     private var petting = PettingDetector()
@@ -913,6 +919,8 @@ final class PetHostingView: NSHostingView<AnyView> {
     var isDragging: Bool { didDrag }
 
     override var mouseDownCanMoveWindow: Bool { false }
+    // The panels float over other apps. The first press must start the drag even while inactive.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
     static func isClick(from start: NSPoint, to end: NSPoint,
                         thresholdSquared: CGFloat = FloatingPetController.clickThresholdSquared) -> Bool {
@@ -950,18 +958,21 @@ final class PetHostingView: NSHostingView<AnyView> {
             showContextMenu(event)
             return
         }
-        mouseDownScreen = NSEvent.mouseLocation
-        originAtDown = window?.frame.origin
+        guard let window else { return }
+        mouseDownScreen = window.convertPoint(toScreen: event.locationInWindow)
+        originAtDown = window.frame.origin
         didDrag = false
     }
 
     override func mouseDragged(with event: NSEvent) {
         petting.reset()
         guard let window, let start = mouseDownScreen, let origin = originAtDown else { return }
-        let now = NSEvent.mouseLocation
-        if !Self.isClick(from: start, to: now) { didDrag = true }
+        let now = window.convertPoint(toScreen: event.locationInWindow)
+        guard didDrag || !Self.isClick(from: start, to: now) else { return }
+        didDrag = true
         window.setFrameOrigin(NSPoint(x: origin.x + (now.x - start.x),
                                       y: origin.y + (now.y - start.y)))
+        onDrag?(window.frame.origin)
     }
 
     override func mouseUp(with event: NSEvent) {
@@ -970,8 +981,8 @@ final class PetHostingView: NSHostingView<AnyView> {
             originAtDown = nil
             didDrag = false
         }
-        guard !didDrag, let start = mouseDownScreen else { return }
-        if Self.isClick(from: start, to: NSEvent.mouseLocation) {
+        guard !didDrag, let start = mouseDownScreen, let window else { return }
+        if Self.isClick(from: start, to: window.convertPoint(toScreen: event.locationInWindow)) {
             onClick?()
         }
     }
@@ -986,19 +997,25 @@ final class PetHostingView: NSHostingView<AnyView> {
         let l = L(languageProvider())
         let menu = NSMenu(title: "")
         menu.autoenablesItems = false
-        let open = menu.addItem(withTitle: l.floatingPetMenuOpen,
-                                action: #selector(handleOpen(_:)), keyEquivalent: "")
-        open.target = self
-        open.isEnabled = true
-        let hide = menu.addItem(withTitle: l.floatingPetMenuHide,
-                                action: #selector(handleHide(_:)), keyEquivalent: "")
-        hide.target = self
-        hide.isEnabled = true
-        let backView = menu.addItem(withTitle: l.backViewLabel,
-                                    action: #selector(handleToggleBackView(_:)), keyEquivalent: "")
-        backView.target = self
-        backView.isEnabled = true
-        backView.state = isBackViewOn() ? .on : .off
+        if onOpenPopover != nil {
+            let open = menu.addItem(withTitle: l.floatingPetMenuOpen,
+                                    action: #selector(handleOpen(_:)), keyEquivalent: "")
+            open.target = self
+            open.isEnabled = true
+        }
+        if onHide != nil {
+            let hide = menu.addItem(withTitle: l.floatingPetMenuHide,
+                                    action: #selector(handleHide(_:)), keyEquivalent: "")
+            hide.target = self
+            hide.isEnabled = true
+        }
+        if onToggleBackView != nil {
+            let backView = menu.addItem(withTitle: l.backViewLabel,
+                                        action: #selector(handleToggleBackView(_:)), keyEquivalent: "")
+            backView.target = self
+            backView.isEnabled = true
+            backView.state = isBackViewOn() ? .on : .off
+        }
         NSMenu.popUpContextMenu(menu, with: event, for: self)
     }
 

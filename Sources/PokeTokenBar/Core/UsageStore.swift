@@ -179,6 +179,30 @@ final class UsageStore {
     var floatingPetEnabled: Bool {
         didSet { defaults.set(floatingPetEnabled, forKey: "floatingPetEnabled") }
     }
+    var secondFloatingPetEnabled: Bool {
+        didSet { defaults.set(secondFloatingPetEnabled, forKey: "secondFloatingPetEnabled") }
+    }
+    var thirdFloatingPetEnabled: Bool {
+        didSet { defaults.set(thirdFloatingPetEnabled, forKey: "thirdFloatingPetEnabled") }
+    }
+
+    subscript(floatingPet slot: FloatingPetSlot) -> Bool {
+        get {
+            switch slot {
+            case .primary: floatingPetEnabled
+            case .second: secondFloatingPetEnabled
+            case .third: thirdFloatingPetEnabled
+            }
+        }
+        set {
+            switch slot {
+            case .primary: floatingPetEnabled = newValue
+            case .second: secondFloatingPetEnabled = newValue
+            case .third: thirdFloatingPetEnabled = newValue
+            }
+        }
+    }
+
     /// Always show the companion's back sprite, regardless of usage. A display preference only. Default off.
     var alwaysFacesBack: Bool {
         didSet { defaults.set(alwaysFacesBack, forKey: "alwaysFacesBack") }
@@ -966,6 +990,8 @@ final class UsageStore {
         updateNotificationsEnabled = d.object(forKey: "updateNotificationsEnabled") as? Bool ?? true
         statusChecksEnabled = d.object(forKey: "statusChecksEnabled") as? Bool ?? true
         floatingPetEnabled = d.object(forKey: "floatingPetEnabled") as? Bool ?? false
+        secondFloatingPetEnabled = d.bool(forKey: "secondFloatingPetEnabled")
+        thirdFloatingPetEnabled = d.bool(forKey: "thirdFloatingPetEnabled")
         alwaysFacesBack = d.object(forKey: "alwaysFacesBack") as? Bool ?? false
         floatingPetSize = d.object(forKey: "floatingPetSize") as? Double ?? 96
         floatingPetBubbleAlerts = d.object(forKey: "floatingPetBubbleAlerts") as? Bool ?? true

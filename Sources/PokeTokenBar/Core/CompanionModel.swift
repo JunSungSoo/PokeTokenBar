@@ -660,6 +660,25 @@ private extension KeyedDecodingContainer {
 }
 
 /// 영속 상태(Application Support JSON). 포켓몬 전환 — 이전 커스텀 캐릭터 상태는 폐기(새로 시작).
+enum FloatingPetSlot: Int, CaseIterable, Identifiable {
+    case primary = 1, second, third
+
+    var id: Int { rawValue }
+    static let additional: [Self] = [.second, .third]
+}
+
+struct FloatingPetSelection: Codable, Equatable, Sendable {
+    let speciesID: Int
+    let form: PokemonForm?
+
+    init(speciesID: Int, form: PokemonForm?) {
+        self.speciesID = speciesID
+        self.form = PokemonForm.resolved(speciesID: speciesID, form: form)
+    }
+
+    var normalized: Self { Self(speciesID: speciesID, form: form) }
+}
+
 struct CompanionState: Codable, Sendable {
     // 토큰: 설치 이후만 측정
     var installBaselineSet = false
@@ -696,6 +715,27 @@ struct CompanionState: Codable, Sendable {
     // 졸업분 + 현재 개체의 도달 단계이며, 그 범위에서 빠지면 reconcileRepresentativeSelection 이 nil 로 복구한다.
     var representativeSpeciesID: Int? = nil
     var representativeForm: PokemonForm? = nil
+    var secondFloatingPet: FloatingPetSelection?
+    var thirdFloatingPet: FloatingPetSelection?
+
+    subscript(floatingPet slot: FloatingPetSlot) -> FloatingPetSelection? {
+        get {
+            switch slot {
+            case .primary: representativeSpeciesID.map { FloatingPetSelection(speciesID: $0, form: representativeForm) }
+            case .second: secondFloatingPet
+            case .third: thirdFloatingPet
+            }
+        }
+        set {
+            switch slot {
+            case .primary:
+                representativeSpeciesID = newValue?.speciesID
+                representativeForm = newValue?.form
+            case .second: secondFloatingPet = newValue
+            case .third: thirdFloatingPet = newValue
+            }
+        }
+    }
     // 도감
     var dex: [DexEntry] = []
     var safariSession: SafariSession? = nil
@@ -749,6 +789,8 @@ struct CompanionState: Codable, Sendable {
         representativeSpeciesID = c.lenientOptional(Int.self, forKey: .representativeSpeciesID)
         representativeForm = PokemonForm.resolved(speciesID: representativeSpeciesID ?? 0,
             form: PokemonForm.decoded(from: decoder, keys: "representativeForm", "representativeUnownForm"))
+        secondFloatingPet = c.lenientOptional(FloatingPetSelection.self, forKey: .secondFloatingPet)
+        thirdFloatingPet = c.lenientOptional(FloatingPetSelection.self, forKey: .thirdFloatingPet)
         // 도감은 항목별 격리 — 손상 항목 하나가 도감 전체를 날리지 않게.
         dex                = c.lenient([Lossy<DexEntry>].self, forKey: .dex, default: []).compactMap(\.value)
         safariSession = c.lenientOptional(SafariSession.self, forKey: .safariSession)
@@ -818,6 +860,39 @@ struct CompanionState: Codable, Sendable {
               active.pathIDs.prefix(active.stageIndex + 1).contains(speciesID),
               PokemonForm.resolved(speciesID: speciesID, form: active.form) == form else { return false }
         return active.displaysShiny
+    }
+
+    /// Released history still counts in the Pokédex, but cannot supply an additional pet.
+    func additionalFloatingPetSubject(_ selection: FloatingPetSelection) -> CompanionStore.RepresentativeSubject? {
+        let matching = dex.lazy.filter {
+            !$0.isReleased && $0.chainOrder.contains(selection.speciesID)
+                && PokemonForm.resolved(speciesID: selection.speciesID, form: $0.form) == selection.form
+        }
+        let activeMatches = active.map {
+            $0.pathIDs.prefix($0.stageIndex + 1).contains(selection.speciesID)
+                && PokemonForm.resolved(speciesID: selection.speciesID, form: $0.form) == selection.form
+        } ?? false
+        guard activeMatches || !matching.isEmpty else { return nil }
+        return .init(speciesID: selection.speciesID,
+                     isShiny: (activeMatches && active?.displaysShiny == true) || matching.contains(where: \.isShiny),
+                     form: selection.form)
+    }
+
+    @discardableResult
+    mutating func reconcileAdditionalFloatingPets() -> [FloatingPetSlot: CompanionStore.RepresentativeSubject] {
+        var subjects: [FloatingPetSlot: CompanionStore.RepresentativeSubject] = [:]
+        var occupied = self[floatingPet: .primary].map { [$0] } ?? []
+        for slot in FloatingPetSlot.additional {
+            guard let selection = self[floatingPet: slot]?.normalized,
+                  !occupied.contains(selection), let subject = additionalFloatingPetSubject(selection) else {
+                if self[floatingPet: slot] != nil { self[floatingPet: slot] = nil }
+                continue
+            }
+            if self[floatingPet: slot] != selection { self[floatingPet: slot] = selection }
+            occupied.append(selection)
+            subjects[slot] = subject
+        }
+        return subjects
     }
 
     /// Forget the prayers of the previous egg. Call on every path that starts a new egg (or consumes this one).

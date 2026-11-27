@@ -18,6 +18,7 @@ final class CompanionStore {
     var facesBack: Bool { state.active != nil && (alwaysFacesBack || displayState == .sulk) }
     private(set) var currentLine: EvoLine?
     private(set) var representativeSubject = RepresentativeSubject(speciesID: nil, isShiny: false)
+    private(set) var additionalFloatingPetSubjects: [FloatingPetSlot: RepresentativeSubject] = [:]
     private(set) var isHatching = false
     private var isRevealingDitto = false   // 메타몽 리빌 비동기 중복 방지(isHatching 자매)
     private(set) var justEvolvedTo: String?     // 이름(연출/문구)
@@ -223,15 +224,53 @@ final class CompanionStore {
                                          form: currentForm)
         }
         if representativeSubject != next { representativeSubject = next }
+        let additional = state.reconcileAdditionalFloatingPets()
+        if additionalFloatingPetSubjects != additional { additionalFloatingPetSubjects = additional }
     }
 
     /// nil 은 자동 추적. 도감에 없는 id 는 저장하지 않는다 — UI 밖 호출이나 손상된 입력도 같은
     /// 불변식을 지키며, 실패한 요청이 기존 선택을 조용히 해제하지 않도록 false 만 반환한다.
     @discardableResult
     func setRepresentativeSpeciesID(_ id: Int?, form: PokemonForm? = nil) -> Bool {
-        if let id, !state.ownsSpecies(id, form: form) { return false }
-        state.representativeSpeciesID = id
-        state.representativeForm = PokemonForm.resolved(speciesID: id ?? 0, form: form)
+        setFloatingPet(.primary, selection: id.map { .init(speciesID: $0, form: form) })
+    }
+
+    func hasFloatingPet(_ species: DexSpecies, in slot: FloatingPetSlot) -> Bool {
+        guard let selection = state[floatingPet: slot], selection.speciesID == species.id else { return false }
+        return species.form == nil || selection.form == species.form
+    }
+
+    func additionalFloatingPetName(in slot: FloatingPetSlot) -> String? {
+        guard let subject = additionalFloatingPetSubjects[slot], let id = subject.speciesID else { return nil }
+        let names = currentLine?.names[id] ?? state.dex.lazy.compactMap { entry in
+            PokemonForm.resolved(speciesID: id, form: entry.form) == subject.form ? entry.names?[id] : nil
+        }.first
+        let name = names.flatMap { state.language.resolveName($0) } ?? "#\(id)"
+        return formDisplayName(name, speciesID: id, form: subject.form)
+    }
+
+    func canAssignAdditionalFloatingPet(_ species: DexSpecies) -> Bool {
+        state.additionalFloatingPetSubject(.init(speciesID: species.id, form: species.form)) != nil
+    }
+
+    func toggleFloatingPet(_ slot: FloatingPetSlot, species: DexSpecies) {
+        let selection = FloatingPetSelection(speciesID: species.id, form: species.form)
+        _ = setFloatingPet(slot, selection: state[floatingPet: slot] == selection ? nil : selection)
+    }
+
+    @discardableResult
+    func setFloatingPet(_ slot: FloatingPetSlot, selection: FloatingPetSelection?) -> Bool {
+        if let selection {
+            if slot == .primary {
+                guard state.ownsSpecies(selection.speciesID, form: selection.form) else { return false }
+            } else {
+                guard state.additionalFloatingPetSubject(selection) != nil else { return false }
+            }
+            for other in FloatingPetSlot.allCases where other != slot && state[floatingPet: other] == selection {
+                state[floatingPet: other] = nil
+            }
+        }
+        state[floatingPet: slot] = selection
         save()
         return true
     }

@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var updater: UpdateChecker!
     private var updateHandOffFinished = false
     private var floatingPet: FloatingPetController!
+    private var additionalFloatingPets: AdditionalFloatingPets!
     private let navigation = PopoverNavigation()
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -209,6 +210,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             onOpenPopover: { [weak self] in self?.openPopover() },
             onHide: { [weak self] in self?.store.floatingPetEnabled = false }
         )   // 데스크톱 플로팅 펫(옵트인)
+        additionalFloatingPets = AdditionalFloatingPets(store: store, companion: companion)
         Task { await updater.check() }                    // 기동 시 1회 업데이트 확인
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -812,6 +814,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             ensureMenuAnimation()
         }
         syncMenuAnimation()
+        additionalFloatingPets.setDisplayAwake(awake)
         floatingPet.setDisplayAwake(awake)   // 슬립 중엔 펫 호스팅 트리 해제(GIF 루프 정지)
     }
 

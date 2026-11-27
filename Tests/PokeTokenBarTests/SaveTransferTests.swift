@@ -555,7 +555,8 @@ final class SaveTransferTests: XCTestCase {
         // 도감과 함께 따라가야 한다(옮긴 기기에서 같은 완성분에 중복 알림을 울리지 않는다).
         let progress: Set<String> = ["usedSinceInstall", "spentTokens", "eggUsage", "eggTier",
                                      "pendingHatchID", "pendingForm", "eggPrayers", "active",
-                                     "representativeSpeciesID", "representativeForm", "dex",
+                                     "representativeSpeciesID", "representativeForm", "secondFloatingPet",
+                                     "thirdFloatingPet", "dex",
                                      "collectedFinals", "inventory", "safariSession",
                                      "notifiedDexCompletions", "dexCompletionsSeeded", "challengeShinyClaims"]
         let deviceLedger: Set<String> = ["installBaselineSet", "claimedTodayTokensByProvider", "lastDate"]
