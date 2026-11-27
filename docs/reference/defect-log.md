@@ -510,6 +510,10 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   unchanged app bytes/permissions, refused overwrites, invalid output locations,
   archiver failure cleanup and the public-release integration. Historical notes
   must distinguish delivery evidence from inferred build dates and missing binaries.
+- The 3.3.2 entry exposed a test that expected the previous release date
+  to remain first. Derive the expected newest date, numeric release number, and
+  changes independently from `history.json`. This checks that a new entry
+  appears at the top without requiring a test edit for each release.
 
 ## A fixed outer frame does not contain a larger battlefield's drawing
 
@@ -2074,6 +2078,23 @@ for both forms and their shiny variants, in addition to rendering the sheet.
   초록인데 #174 가 다시 산다. (#174)
 
 ## 표시·UI
+
+- **Floating pet panels must accept the first mouse press while inactive.** All three
+  panels share `PetHostingView`. Its default first-mouse behavior could consume the
+  first press when another app was frontmost, leaving the drag without a starting
+  point. Earlier tests called controller methods or wrote saved origins directly.
+  Opt the pet host into first-mouse handling and compute screen positions from each
+  mouse event. `testMouseDragMovesAndPersistsEachRealPetWindowIndependently` sends
+  press, drag and release events to each real panel and checks the resulting window
+  positions and saved origins, plus the primary pet's plain-click action.
+
+- **When placing a new floating pet, reserve the visible slots' saved positions first.**
+  The initial placement loop only knew about earlier slots. Turning on slot 3 before
+  slot 2 left slot 2 free to pick the same origin as slot 3. Restoring fixed origins
+  alone could not catch this because neither slot needed a new origin. The window
+  manager now reserves saved frames before placing new ones.
+  `testNewSlotAvoidsAnotherPetThatWasEnabledFirst` opens slot 3 first, then checks
+  both the lack of overlap and that slot 3 stays in place.
 
 - **Floating-pet features share one click route and one bubble reservation.** Agent activity (#457)
   and pet interactions (#466) both changed the controller, hosting callbacks and sprite composition.

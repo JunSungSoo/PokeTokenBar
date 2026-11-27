@@ -1265,6 +1265,25 @@
         "사파리존 야생 포켓몬이 지역별 원본 발판 위에 섭니다.",
         "설정 화면 맨 아래의 Release Note 버튼으로 지금까지의 배포 변경사항을 볼 수 있습니다."
       ]
+    },
+    {
+      "date": "2026-11-27",
+      "time": "unknown",
+      "archive": "PokeTokenBar-3.3.2.zip",
+      "version": "3.3.2",
+      "evidence": "Release notes for the signed GitHub update v3.3.2. Publication time and asset checksum are provided by GitHub and the signed update manifest.",
+      "releaseURL": "https://github.com/JunSungSoo/PokeTokenBar/releases/tag/v3.3.2",
+      "turn": null,
+      "title": "Three floating pets, slot assignment, independent drag and position restore",
+      "commit": null,
+      "artifactAvailable": true,
+      "currentFilename": "PokeTokenBar-3.3.2.zip",
+      "releaseNumber": 1,
+      "changes": [
+        "플로팅 펫을 최대 3마리까지 표시할 수 있습니다. 도감·포획로그의 포켓몬 상세 화면에서 별표를 눌러 1번 대표 또는 2·3번 플로팅 펫으로 지정할 수 있습니다.",
+        "설정에서 2번과 3번을 각각 표시하거나 숨길 수 있습니다. 지정된 포켓몬이 없으면 해당 토글을 사용할 수 없습니다.",
+        "세 마리 모두 각각 드래그할 수 있고, 이동한 위치는 앱을 다시 실행해도 유지됩니다."
+      ]
     }
   ],
   "displayOrderWithinDate": "releaseNumberDescending",

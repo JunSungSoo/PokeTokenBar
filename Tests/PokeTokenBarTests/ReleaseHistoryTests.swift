@@ -26,12 +26,28 @@ final class ReleaseHistoryTests: XCTestCase {
     }
 
     func testEveryDocumentedDeploymentAppearsWithItsChanges() throws {
+        struct History: Decodable {
+            struct Deployment: Decodable {
+                let date: String
+                let releaseNumber: Int
+                let changes: [String]
+            }
+            let entries: [Deployment]
+        }
+
         let document = try String(contentsOf: documentURL, encoding: .utf8)
         let titles = document.split(separator: "\n").map(String.init).filter { $0.range(of: #"^\d{4}-\d{2}-\d{2} \(\d+차 배포\)$"#, options: .regularExpression) != nil }
         let entries = ReleaseHistory.entries(from: document)
         XCTAssertEqual(entries.map(\.title), titles)
         XCTAssertTrue(entries.allSatisfy { !$0.changes.isEmpty })
-        XCTAssertEqual(entries.first?.title, "2026-11-20 (1차 배포)")
+
+        let metadata = documentURL.deletingLastPathComponent().appendingPathComponent("history.json")
+        let history = try JSONDecoder().decode(History.self, from: Data(contentsOf: metadata))
+        let latest = try XCTUnwrap(history.entries.max {
+            ($0.date, $0.releaseNumber) < ($1.date, $1.releaseNumber)
+        })
+        XCTAssertEqual(entries.first, .init(title: "\(latest.date) (\(latest.releaseNumber)차 배포)",
+                                            changes: latest.changes))
     }
 
     func testReleaseNoteWindowShowsTheBundledHistory() throws {
